@@ -125,7 +125,7 @@ def get_one_module():
 
 
 def main():
-    windll.kernel32.SetConsoleTitleW('Attack Machine v0.0.1')
+    windll.kernel32.SetConsoleTitleW('Attack Machine v0.0.2')
     print(TITLE)
     cprint(f'\n❤️ Subscribe to my channel: https://t.me/askaer', 'light_cyan', attrs=["blink"])
     cprint(f'\n💵 Donate (Any EVM) --> 0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5\n', 'light_cyan')
