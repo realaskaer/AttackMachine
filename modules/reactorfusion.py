@@ -47,7 +47,7 @@ class ReactorFusion(Client):
             await self.verify_transaction(tx_hash)
 
         else:
-            self.logger.error(f'{self.info} Insufficient balance on ReactorFusion!')
+            raise RuntimeError("Insufficient balance on ReactorFusion!")
 
     @repeater
     @gas_checker

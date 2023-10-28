@@ -43,4 +43,3 @@ class EraDomainService(Client):
         tx_hash = await self.send_transaction(transaction)
 
         await self.verify_transaction(tx_hash)
-

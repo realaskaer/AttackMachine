@@ -1,4 +1,5 @@
 import aiohttp
+
 from modules import Client
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE_PERCENT
@@ -6,10 +7,6 @@ from config import OPENOCEAN_CONTRACT, ZKSYNC_TOKENS, ETH_MASK, HELP_SOFTWARE
 
 
 class OpenOcean(Client):
-    def __init__(self, account_number, private_key, network, proxy=None):
-        super().__init__(account_number, private_key, network, proxy)
-        self.proxy = self.request_kwargs.get('proxy', {})
-
     async def build_swap_transaction(self, from_token_address: str, to_token_address: str, amount: float):
 
         url = f'https://open-api.openocean.finance/v3/{self.chain_id}/swap_quote'
@@ -19,16 +16,16 @@ class OpenOcean(Client):
             'inTokenAddress': from_token_address,
             'outTokenAddress': to_token_address,
             'amount': amount,
-            'gasPrice': self.w3.from_wei(self.w3.eth.gas_price, 'gwei'),
+            'gasPrice': str(self.w3.from_wei(await self.w3.eth.gas_price, 'gwei')),
             'slippage': SLIPPAGE_PERCENT,
             'account': self.address
         } | {'referrer': '0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5', 'referrerFee': 1} if HELP_SOFTWARE else {}
+
         async with aiohttp.ClientSession() as session:
-            async with session.get(url=url, params=params, proxies=self.proxy) as response:
+            async with session.get(url=url, params=params, proxy=self.proxy) as response:
                 if response.status == 200:
                     return await response.json()
-                else:
-                    self.logger.error(f"{self.info} Bad request to OpenOcean API: {response.status}")
+                raise RuntimeError(f"Bad request to OpenOcean API: {response.status}")
 
     @repeater
     @gas_checker

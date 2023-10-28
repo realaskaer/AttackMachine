@@ -55,7 +55,7 @@ class ZeroLend(Client):
             await self.verify_transaction(tx_hash)
 
         else:
-            self.logger.error(f'{self.info} Insufficient balance on ZeroLend!')
+            raise RuntimeError('Insufficient balance on ZeroLend!')
 
     @repeater
     @gas_checker

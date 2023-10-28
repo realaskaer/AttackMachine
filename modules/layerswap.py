@@ -1,5 +1,7 @@
+import json
 import random
 import aiohttp
+
 from modules import Client
 from utils.networks import *
 from utils.tools import gas_checker, repeater
@@ -45,99 +47,30 @@ class LayerSwap(Client):
             17: Zora,
         }[source_chain_id]
 
-    async def get_available_networks(self):
-
-        url = "https://api.layerswap.io/api/available_networks"
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url=url, proxy=self.proxy) as response:
-                if response.status == 200:
-                    return (await response.json())['data']
-                else:
-                    self.logger.error(f"{self.info} Bad request to LayerSwap(Networks) API: {response.status}")
-                    raise
-
-    async def get_swap_rate(self, source_chain: str, destination_chain: str,
-                            source_asset: str, destination_asset: str, refuel: bool = False):
-
-        url = "https://api.layerswap.io/api/swap_rate"
-
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        data = {
-            "source": source_chain,
-            "destination": destination_chain,
-            "source_asset": source_asset,
-            "destination_asset": destination_asset,
-            "refuel": refuel
-        }
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url=url, headers=headers, json=data, proxy=self.proxy) as response:
-                if response.status == 200:
-                    return (await response.json())['data']
-                else:
-                    self.logger.error(f"{self.info} Bad request to LayerSwap(Swap Rate) API: {response.status}")
-                    raise
-
-    async def get_swap_id(self, amount: float, source_chain: str, destination_chain: str,
-                          source_asset: str, destination_asset: str, refuel: bool = False):
-
-        url = "https://api.layerswap.io/api/swaps"
+    async def make_request(self, url:str, method:str = 'GET', params:dict = None,
+                           data:dict = None, module_name:str = 'Request'):
 
         headers = {
             'X-LS-APIKEY': f'{LAYERSWAP_API_KEY}',
             'Content-Type': 'application/json'
         }
 
-        data = {
-            "source": source_chain,
-            "destination": destination_chain,
-            "amount": amount,
-            "source_asset": source_asset,
-            "destination_asset": destination_asset,
-            "destination_address": self.address,
-            "refuel": refuel,
-            "reference_id": "1"
-        }
-
         async with aiohttp.ClientSession() as session:
-            async with session.post(url=url, headers=headers, json=data, proxy=self.proxy) as response:
-                if response.status == 200:
-                    return (await response.json())['data']['swap_id']
-                else:
-                    self.logger.error(f"{self.info} Bad request to LayerSwap(Swap ID) API: {response.status}")
-                    raise
+            async with session.request(method=method, url=url, headers=headers, data=json.dumps(data),
+                                       params=params, proxy=self.proxy) as response:
 
-    async def prepare_source_transaction(self, tx_id: str):
-
-        url = f"https://api.layerswap.io/api/swaps/{tx_id}/prepare_src_transaction"
-
-        headers = {
-            'X-LS-APIKEY': f'{LAYERSWAP_API_KEY}'
-        }
-
-        params = {
-            'from_address': self.address
-        }
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url=url, headers=headers, params=params, proxy=self.proxy) as response:
-                if response.status == 200:
+                data = await response.json()
+                if data['error'] is None:
+                    #  self.logger.success(f"{self.info} LayerSwap | {module_name} | Success")
                     return (await response.json())['data']
-                else:
-                    self.logger.error(f"{self.info} Bad request to LayerSwap(Prepare TX) API: {response.status}")
-                    raise
+                raise RuntimeError(f"Bad request to LayerSwap({module_name}) API: {data['error']}")
 
     @repeater
     @gas_checker
     async def bridge(self, help_okx:bool = False):
 
         if help_okx:
-            source_chain = LAYERSWAP_CHAIN_NAME[15]
-            destination_chain = LAYERSWAP_CHAIN_NAME[2]
+            source_chain, destination_chain = 'ZKSYNCERA_MAINNET', 'ARBITRUM_MAINNET'
             source_asset, destination_asset = 'ETH', 'ETH'
             amount, _ = await self.check_and_get_eth_for_deposit()
             refuel = False
@@ -151,9 +84,9 @@ class LayerSwap(Client):
         bridge_info = f'{source_chain.capitalize()[:-8]} -> {destination_asset} {destination_chain.capitalize()[:-8]}'
         self.logger.info(f'{self.info} Bridge on LayerSwap: {amount} {source_asset} {bridge_info}')
 
-        data = source_chain, destination_chain, source_asset, destination_asset, refuel
+        url_network_data = "https://api.layerswap.io/api/available_networks"
 
-        networks_data = await self.get_available_networks()
+        networks_data = await self.make_request(url=url_network_data, module_name='Networks data')
 
         available_for_swap = {
             chain['name']: (assets['asset'], assets['decimals'])
@@ -164,18 +97,44 @@ class LayerSwap(Client):
         if (len(available_for_swap) == 2 and source_asset in available_for_swap[source_chain]
                 and destination_asset in available_for_swap[destination_chain]):
 
-            amount_in_wei = int(amount * 10 ** available_for_swap[source_chain][1])
+            url_swap_rate = "https://api.layerswap.io/api/swap_rate"
 
-            min_amount, max_amount, fee_amount = (await self.get_swap_rate(*data)).values()
+            swap_rate_data = {
+                "source": source_chain,
+                "destination": destination_chain,
+                "source_asset": source_asset,
+                "destination_asset": destination_asset,
+                "refuel": refuel
+            }
+
+            min_amount, max_amount, fee_amount = (await self.make_request(method='POST', url=url_swap_rate,
+                                                                          data=swap_rate_data,
+                                                                          module_name='Swap rate')).values()
 
             if float(min_amount) <= amount <= float(max_amount):
 
-                balance, _, _ = await self.get_token_balance(source_asset)
+                _, balance, _ = await self.get_token_balance(source_asset)
+
                 if balance >= amount:
 
-                    swap_id = await self.get_swap_id(amount, *data)
+                    url_create_swap = "https://api.layerswap.io/api/swaps"
 
-                    tx_data = await self.prepare_source_transaction(swap_id)
+                    create_swap_data = swap_rate_data | {
+                        "amount": amount,
+                        "destination_address": self.address,
+                        "refuel": refuel
+                    }
+
+                    swap_id = (await self.make_request(method='POST', url=url_create_swap, data=create_swap_data,
+                                                       module_name='Create swap'))['swap_id']
+
+                    params = {'from_address': self.address}
+
+                    url_prepare_tx = f"https://api.layerswap.io/api/swaps/{swap_id}/prepare_src_transaction"
+
+                    tx_data = await self.make_request(url=url_prepare_tx, params=params, module_name='Prepare TX')
+
+                    amount_in_wei = int(amount * 10 ** available_for_swap[source_chain][1])
 
                     tx_params = (await self.prepare_transaction(value=amount_in_wei)) | {
                         'to': tx_data['to_address'],
@@ -186,8 +145,8 @@ class LayerSwap(Client):
 
                     await self.verify_transaction(tx_hash)
                 else:
-                    self.logger.error(f'{self.info} Insufficient balance!')
+                    raise RuntimeError("Insufficient balance!")
             else:
-                self.logger.error(f'{self.info} Limit range for bridge: {min_amount} - {max_amount} ETH!')
+                raise RuntimeError(f"Limit range for bridge: {min_amount} - {max_amount} ETH")
         else:
-            self.logger.error(f'{self.info} Bridge {source_asset} {bridge_info} is not active!')
+            raise RuntimeError(f"Bridge {source_asset} {bridge_info} is not active!")

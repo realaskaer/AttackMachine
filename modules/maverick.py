@@ -1,8 +1,7 @@
 from time import time
 from modules import Client
-from .oneinch import OneInch
 from utils.tools import gas_checker, repeater
-from settings import SLIPPAGE_PERCENT, DEX_LP_MIN, DEX_LP_MAX
+from settings import SLIPPAGE_PERCENT
 from config import (
     ZERO_ADDRESS,
     MAVERICK_ROUTER_ABI,
@@ -124,7 +123,7 @@ class Maverick(Client):
         amount_eth_min = int(amount_from_settings_in_wei * 0.9804)
         position_id = await self.position_contract.functions.tokenOfOwnerByIndex(self.address, 0).call()
         pool_contact = self.get_contract(MAVERICK_CONTRACTS['pool_eth_usdc'], MAVERICK_POOL_ABI)
-        pos = await pool_contact.functions.getState().call()[0] + 1
+        pos = (await pool_contact.functions.getState().call())[0] + 1
 
         data_params = [
             2,
@@ -240,4 +239,4 @@ class Maverick(Client):
             await self.verify_transaction(tx_hash)
 
         else:
-            self.logger.error(f'{self.info} Insufficient balance on Maverick!')
+            raise RuntimeError('Insufficient balance on Maverick!')

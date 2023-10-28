@@ -1,4 +1,5 @@
 import aiohttp
+
 from modules import Client
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE_PERCENT
@@ -6,9 +7,6 @@ from config import ZKSYNC_TOKENS, ZERO_ADDRESS, ODOS_CONTRACT, HELP_SOFTWARE
 
 
 class Odos(Client):
-    def __init__(self, account_number, private_key, network, proxy=None):
-        super().__init__(account_number, private_key, network, proxy)
-
     async def get_quote(self, from_token_address: str, to_token_address: str, amount_in_wei: int):
         quote_url = "https://api.odos.xyz/sor/quote/v2"
 
@@ -40,9 +38,7 @@ class Odos(Client):
                                     proxy=self.proxy) as response:
                 if response.status == 200:
                     return await response.json()
-                else:
-                    self.logger.error(
-                        f"{self.info} Bad request to Odos Quote API: {response.status}")
+                raise RuntimeError(f"Bad request to Odos Quote API: {response.status}")
 
     async def assemble_transaction(self, path_id):
         assemble_url = "https://api.odos.xyz/sor/assemble"
@@ -62,9 +58,7 @@ class Odos(Client):
                                     proxy=self.proxy) as response:
                 if response.status == 200:
                     return await response.json()
-                else:
-                    self.logger.error(
-                        f"{self.info} Bad request to Odos Transaction Assembly API: {response.status}")
+                raise RuntimeError(f"Bad request to Odos Transaction Assembly API: {response.status}")
 
     @repeater
     @gas_checker
@@ -73,8 +67,6 @@ class Odos(Client):
         from_token_name, to_token_name, amount, amount_in_wei = await self.get_auto_amount()
 
         if help_deposit:
-            self.logger.warning(f'{self.info} Not enough to deposit on lending! Starting swap module')
-
             to_token_name = 'ETH'
 
         self.logger.info(f'{self.info} Swap on Odos: {amount} {from_token_name} -> {to_token_name}')

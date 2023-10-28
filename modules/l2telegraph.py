@@ -1,4 +1,6 @@
+import asyncio
 import random
+
 from faker import Faker
 from utils.tools import sleep, gas_checker, repeater
 from eth_abi import abi
@@ -43,13 +45,13 @@ class L2Telegraph(Client):
 
         adapter_params, payload = self.w3.to_hex(adapter_params[30:]), self.w3.to_hex(payload[30:])
 
-        estimate_fees = await self.message_contract.functions.estimateFees(
+        estimate_fees = (await self.message_contract.functions.estimateFees(
             self.dst_chain_id,
             self.address,
             payload,
             False,
             adapter_params
-        ).call()[0]
+        ).call())[0]
 
         value = estimate_fees + 250000000000000
 
@@ -68,11 +70,33 @@ class L2Telegraph(Client):
     @repeater
     @gas_checker
     async def mint_and_bridge(self):
-        self.logger.info(f"{self.info} Mint NFT on L2telegraph. Price for mint: 0.0005 ETH")
+        self.logger.info(f"{self.info} Mint and bridge NFT on L2telegraph. Price for mint: 0.0005 ETH")
 
         mint_price = 500000000000000
 
-        if await self.w3.eth.get_balance(self.address) > mint_price:
+        adapter_params = abi.encode(["uint16", "uint"],
+                                    [2, 400000])
+
+        payload = abi.encode(["uint8", "string"],
+                             [2, "0x36a358b3Ba1FB368E35b71ea40c7f4Ab89bFd8e1"])
+
+        adapter_params, payload = self.w3.to_hex(adapter_params[30:]), self.w3.to_hex(payload[30:])
+
+        estimate_fees = (await self.message_contract.functions.estimateFees(
+            self.dst_chain_id,
+            self.address,
+            payload,
+            False,
+            adapter_params
+        ).call())[0]
+
+        value = estimate_fees + 100000000000000
+
+        await asyncio.sleep(1)
+
+        self.logger.info(f"{self.info} Bridge fee: {(value / 10 ** 18):.6f} ETH")
+
+        if await self.w3.eth.get_balance(self.address) > (mint_price + value):
 
             tx_params = await self.prepare_transaction(value=mint_price)
 
@@ -86,25 +110,7 @@ class L2Telegraph(Client):
 
             await sleep(self, 5, 8)
 
-            self.logger.info(f'{self.info} Bridge NFT on L2telegraph to {self.dst_chain_name.capitalize()}.')
-
-            adapter_params = abi.encode(["uint16", "uint"],
-                                        [2, 400000])
-
-            payload = abi.encode(["uint8", "string"],
-                                 [2, "0x36a358b3Ba1FB368E35b71ea40c7f4Ab89bFd8e1"])
-
-            adapter_params, payload = self.w3.to_hex(adapter_params[30:]), self.w3.to_hex(payload[30:])
-
-            estimate_fees = await self.message_contract.functions.estimateFees(
-                self.dst_chain_id,
-                self.address,
-                payload,
-                False,
-                adapter_params
-            ).call()[0]
-
-            value = estimate_fees + 100000000000000
+            self.logger.info(f'{self.info} Bridge NFT on L2telegraph to {self.dst_chain_name.capitalize()}')
 
             tx_params = await self.prepare_transaction(value=value)
 
@@ -119,4 +125,4 @@ class L2Telegraph(Client):
             await self.verify_transaction(tx_hash)
 
         else:
-            self.logger.error(f'{self.info} Insufficient balance!')
+            raise RuntimeError('Insufficient balance!')

@@ -1,9 +1,8 @@
 from time import time
 from eth_abi import abi
 from modules import Client
-from .oneinch import OneInch
 from utils.tools import gas_checker, repeater
-from settings import SLIPPAGE_PERCENT, DEX_LP_MIN, DEX_LP_MAX
+from settings import SLIPPAGE_PERCENT
 from config import (
     SYNCSWAP_CONTRACTS,
     SYNCSWAP_CLASSIC_POOL_FACTORY_ABI,
@@ -22,8 +21,8 @@ class SyncSwap(Client):
                                                        SYNCSWAP_CLASSIC_POOL_FACTORY_ABI)
 
     async def get_min_amount_out(self, pool_address: str, from_token_address: str, amount_in_wei: int):
-        pool_contract = await self.get_contract(pool_address, SYNCSWAP_CLASSIC_POOL_ABI)
-        min_amount_out = pool_contract.functions.getAmountOut(
+        pool_contract = self.get_contract(pool_address, SYNCSWAP_CLASSIC_POOL_ABI)
+        min_amount_out = await pool_contract.functions.getAmountOut(
             from_token_address,
             amount_in_wei,
             self.address
@@ -133,7 +132,6 @@ class SyncSwap(Client):
             await self.check_for_approved(pool_address, SYNCSWAP_CONTRACTS['router'], liquidity_balance)
 
             tx_params = await self.prepare_transaction()
-            deadline = int(time()) + 1800
 
             total_supply = await pool_contract.functions.totalSupply().call()
             _, reserve_eth = await pool_contract.functions.getReserves().call()
@@ -157,4 +155,4 @@ class SyncSwap(Client):
             await self.verify_transaction(tx_hash)
 
         else:
-            self.logger.error(f'{self.info} Insufficient balance on SyncSwap!')
+            raise RuntimeError('Insufficient balance on SyncSwap!')

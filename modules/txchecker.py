@@ -1,8 +1,8 @@
 import csv
-import requests
 import aiohttp
 import asyncio
 import pandas as pd
+
 from termcolor import cprint
 from web3 import AsyncWeb3
 from prettytable import PrettyTable
@@ -25,7 +25,8 @@ FIELDS = [
 table = PrettyTable()
 table.field_names = FIELDS
 
-def get_eth_price():
+
+async def get_eth_price():
     url = 'https://api.coingecko.com/api/v3/simple/price'
 
     params = {
@@ -33,15 +34,13 @@ def get_eth_price():
         'vs_currencies': 'usd'
     }
 
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
-        data = response.json()
-        return data['ethereum']['usd']
-    else:
-        cprint(f'Bad request to Binance API: {response.status_code}', 'light_red')
-
-
-ETH_PRICE = get_eth_price()
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, params=params) as response:
+            if response.status == 200:
+                data = await response.json()
+                return data['ethereum']['usd']
+            else:
+                cprint(f'Bad request to CoinGecko API: {response.status}', 'light_red')
 
 
 async def get_wallet_balance(session, wallet):
@@ -68,6 +67,7 @@ async def get_transaction_data(session, wallet):
     unique_days, unique_weeks, unique_months, unique_contracts = set(), set(), set(), set()
     total_gas_used, total_value, bridge_to, bridge_from = 0, 0, 0, 0
     first_tx_date, last_tx_date = '', ''
+    eth_price = await get_eth_price()
     txs = []
 
     page = 1
@@ -127,7 +127,7 @@ async def get_transaction_data(session, wallet):
                         amount = int(transfer['amount']) / (10 ** transfer['token']['decimals'])
 
                         if transfer['token']['symbol'] in ['ETH', 'WETH']:
-                            total_value += amount * ETH_PRICE
+                            total_value += amount * eth_price
                         else:
                             total_value += amount
 
@@ -153,6 +153,7 @@ async def get_transaction_data(session, wallet):
 
 
 async def fetch_wallet_data(session, wallet, index):
+    eth_price = await get_eth_price()
     balance = await get_wallet_balance(session, wallet)
     txs_data = await get_transaction_data(session, wallet)
     first_tx, last_tx = (txs_data['first_tx_date'], txs_data['last_tx_date']) if txs_data['tx_count'] else ('—', '—')
@@ -161,7 +162,7 @@ async def fetch_wallet_data(session, wallet, index):
     return {
         '#'                     : index + 1,
         'Wallet'                : f'{wallet[:10]}...{wallet[-10:]}',
-        'ETH'                   : f"{balance['ETH']:.4f} (${(balance['ETH'] * ETH_PRICE):.2f})",
+        'ETH'                   : f"{balance['ETH']:.4f} (${(balance['ETH'] * eth_price):.2f})",
         'USDC'                  : f"{balance['USDC']:.2f}",
         'USDT'                  : f"{balance['USDT']:.2f}",
         'BUSD'                  : f"{balance['BUSD']:.2f}",
@@ -171,7 +172,7 @@ async def fetch_wallet_data(session, wallet, index):
         'Bridge to/from'        : f"{txs_data['bridge_to']} / {txs_data['bridge_from']}",
         'Days/Weeks/Months'     : dwm_date,
         'First/Last tx'         : f"{first_tx} / {last_tx}",
-        'Total gas spent'       : f"{txs_data['total_gas_used']:.4f} (${(txs_data['total_gas_used'] * ETH_PRICE):.2f})"
+        'Total gas spent'       : f"{txs_data['total_gas_used']:.4f} (${(txs_data['total_gas_used'] * eth_price):.2f})"
     }
 
 
@@ -193,7 +194,7 @@ async def main():
         wallet_data = await asyncio.gather(*tasks)
 
     save_to_csv(wallet_data)
-    cprint('Data successfully load to /data/wallets_stats.xlsx (Excel format)\n',
+    cprint('✅ Data successfully load to /data/wallets_stats.xlsx (Excel format)\n',
            'light_yellow', attrs=["blink"])
     await asyncio.sleep(1)
     xlsx_data = pd.read_csv('./data/wallets_stats.csv')

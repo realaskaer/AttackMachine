@@ -6,7 +6,6 @@ from loguru import logger
 from web3 import AsyncWeb3
 from utils.networks import zkSyncEra
 from termcolor import cprint
-from itertools import zip_longest
 from functions import MODULES
 from config import WALLETS, PROXIES
 from settings import USE_PROXY, SLEEP_MODE, MAX_SLEEP, MIN_SLEEP, SOFTWARE_MODE
@@ -45,7 +44,7 @@ async def sleep(account_number, private_key, min_time=MIN_SLEEP, max_time=MAX_SL
 
 
 async def run_module(module):
-    for num, account in enumerate(zip_longest(WALLETS, PROXIES, fillvalue=None), 1):
+    for num, account in enumerate(zip(WALLETS, PROXIES), 1):
         if USE_PROXY:
             wallet, proxy = account
         else:

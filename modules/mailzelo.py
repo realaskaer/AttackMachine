@@ -10,7 +10,7 @@ class MailZero(Client):
     async def mint(self, code_nft: int = 1):
         self.logger.info(f"{self.info} Mint free NFT on MailZero")
 
-        mail_contract = self.get_contract(MAILZERO_CONTRACT, MAILZERO_ABI)
+        mail_contract = self.get_contract(MAILZERO_CONTRACT['mail_contract'], MAILZERO_ABI)
 
         tx_params = await self.prepare_transaction()
 

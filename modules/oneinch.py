@@ -1,4 +1,5 @@
 import aiohttp
+
 from modules import Client
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE_PERCENT, ONEINCH_API_KEY
@@ -6,12 +7,9 @@ from config import ONEINCH_CONTRACT, ZKSYNC_TOKENS, ETH_MASK, HELP_SOFTWARE
 
 
 class OneInch(Client):
-    def __init__(self, account_number, private_key, network, proxy=None):
-        super().__init__(account_number, private_key, network, proxy)
+    async def build_swap_transaction(self, from_token_address: str, to_token_address: str, amount: int):
 
-    async def build_swap_transaction(self, from_token_address: str, to_token_address: str, amount: float):
-
-        url = f"https://api.1inch.dev/swap/v5.2/{self.w3.eth.chain_id}/swap"
+        url = f"https://api.1inch.dev/swap/v5.2/{await self.w3.eth.chain_id}/swap"
 
         headers = {
             'Authorization': f'Bearer {ONEINCH_API_KEY}',
@@ -23,30 +21,28 @@ class OneInch(Client):
             "amount": amount,
             "from": self.address,
             "slippage": SLIPPAGE_PERCENT,
-            "referrer": '0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5',
-            "fee": 1
         } | {"referrer": '0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5', "fee": 1} if HELP_SOFTWARE else {}
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, params=params, headers=headers, proxies=self.proxy) as response:
+            async with session.get(url, params=params, headers=headers, proxy=self.proxy) as response:
+                data = await response.json()
                 if response.status == 200:
-                    return await response.json()
-                else:
-                    self.logger.error(f"{self.info} Bad request to 1INCH API: {response.status}")
+                    return data
+                raise RuntimeError(f"Bad request to 1INCH API: {response.status}")
 
     @repeater
     @gas_checker
-    async def swap(self, help_add_liquidity:bool = False, amount_to_help_in_wei:int = 0):
+    async def swap(self, help_add_liquidity:bool = False, amount_to_help:int = 0):
 
         from_token_name, to_token_name, amount, amount_in_wei = await self.get_auto_amount()
 
         if help_add_liquidity:
-            self.logger.warning(f'{self.info} Not enough ETH to add liquidity! Starting swap module')
-
             to_token_name = 'ETH'
-            eth_price = self.get_token_price('ethereum')
-            amount_in_wei = int(amount_to_help_in_wei / eth_price)
-            amount = round(amount_to_help_in_wei / 10 ** 18 / eth_price, 7)
+            decimals = 18 if from_token_name == 'BUSD' else 6
+            eth_price = await self.get_token_price('ethereum')
+
+            amount = round(amount_to_help * eth_price, 4)
+            amount_in_wei = int(amount * 10 ** decimals)
 
         self.logger.info(f'{self.info} Swap on 1INCH: {amount} {from_token_name} -> {to_token_name}')
 

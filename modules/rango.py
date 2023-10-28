@@ -1,4 +1,5 @@
 import aiohttp
+
 from utils.tools import gas_checker, repeater
 from config import ZKSYNC_TOKENS, HELP_SOFTWARE
 from settings import SLIPPAGE_PERCENT, UNLIMITED_APPROVE
@@ -8,7 +9,6 @@ from modules import Client
 class Rango(Client):
     def __init__(self, account_number, private_key, network, proxy=None):
         super().__init__(account_number, private_key, network, proxy)
-        self.proxy = self.request_kwargs.get('proxy', '')
 
     async def get_quote(self, payload: dict):
         api_key = 'ffde5b24-ee86-4f47-a1c8-b22d8f639a38'
@@ -23,8 +23,7 @@ class Rango(Client):
             async with session.post(url, json=payload, headers=headers, proxy=self.proxy) as response:
                 if response.status == 200:
                     return await response.json()
-                else:
-                    self.logger.error(f"{self.info} Bad request to Rango(Quote) API: {response.status}")
+                raise RuntimeError(f"Bad request to Rango(Quote) API: {response.status}")
 
     async def get_swap_data(self, payload: dict):
 
@@ -40,8 +39,7 @@ class Rango(Client):
             async with session.post(url, json=payload, headers=headers, proxy=self.proxy) as response:
                 if response.status == 200:
                     return await response.json()
-                else:
-                    self.logger.error(f"{self.info} Bad request to Rango(Tx data) API: {response.status}")
+                raise RuntimeError(f"Bad request to Rango(Tx data) API: {response.status}")
 
     @repeater
     @gas_checker

@@ -89,7 +89,7 @@ ZKSYNC_CONTRACTS = {
 }
 
 ZKSYNC_TOKENS = {
-    'ETH'                   : '0x000000000000000000000000000000000000800A',
+    'ETH'                   : '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
     'WETH'                  : '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
     'USDC'                  : '0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4',
     'USDT'                  : '0x493257fD37EDB34451f62EDf8D2a0C418852bA4C',
@@ -387,6 +387,7 @@ with open('data/okx_wallets.txt') as file:
 with open('data/okx_withdraw_list.json') as file:
     from json import load
     OKX_WITHDRAW_LIST = load(file)
+
 
 with open('data/proxies.txt') as file:
     PROXIES = [row.strip() for row in file]

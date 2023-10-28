@@ -29,7 +29,7 @@ class Dmail(Client):
         to_address = sha256(f"{email}".encode()).hexdigest()
         message = sha256(f"{text}".encode()).hexdigest()
 
-        self.logger.info(f'{self.info} Generated mail: {email} | Generated text: {text[25:]}...')
+        self.logger.info(f'{self.info} Generated mail: {email} | Generated text: {text[:25]}...')
 
         tx_params = await self.prepare_transaction()
 

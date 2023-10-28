@@ -1,5 +1,7 @@
+import asyncio
 import random
 import aiohttp
+
 from sys import stderr
 from loguru import logger
 from asyncio import sleep
@@ -36,9 +38,9 @@ class Client:
 
         self.min_amount_eth_on_balance = MIN_BALANCE
         self.logger = logger
-        self.info = f'[{self.account_number}] {self.address[:10]}....{self.address[-6:]} |'
+        self.info = f'[{self.account_number}] {self.address[:10]}....{self.address[-6:]} | {self.__class__.__name__} |'
         self.logger.remove()
-        logger_format = "<white>{time:HH:mm:ss}</white> | <level>" "{level: <8}</level> | <level>{message}</level>"
+        logger_format = "<cyan>{time:HH:mm:ss}</cyan> | <level>" "{level: <8}</level> | <level>{message}</level>"
         self.logger.add(stderr, format=logger_format)
 
     @staticmethod
@@ -46,16 +48,21 @@ class Client:
         decimals = max(len(str(min_amount)) - 1, len(str(max_amount)) - 1)
         return round(random.uniform(min_amount, max_amount), decimals)
 
-    async def bridge_from_era(self):
+    async def bridge_from_era(self) -> None:
         from functions import bridge_layerswap
         self.logger.info(f"{self.info} Deposit balance to Arbitrum")
+
         await bridge_layerswap(self.account_number, self.private_key, self.network, self.proxy_init, help_okx=True)
 
-    async def check_and_get_eth_for_deposit(self):
+    async def check_and_get_eth_for_deposit(self) -> [float, int]:
         from functions import swap_odos
         data = await self.get_auto_amount(token_name_search='ETH')
+
         if data is False:
+            self.logger.warning(f'{self.info} Not enough to deposit on lending! Launching swap module')
+
             await swap_odos(self.account_number, self.private_key, self.network, self.proxy_init, help_deposit=True)
+
             percent = round(random.uniform(AMOUNT_MIN, AMOUNT_MAX)) / 100
             balance_in_wei, balance, _ = await self.get_token_balance()
             amount = round(balance * percent, 7)
@@ -65,19 +72,24 @@ class Client:
 
         return amount, amount_in_wei
 
-    async def check_and_get_eth_for_liquidity(self):
+    async def check_and_get_eth_for_liquidity(self) -> [float, int]:
         from functions import swap_oneinch
         eth_balance_in_wei, eth_balance, _ = await self.get_token_balance('ETH')
         amount_from_settings = self.round_amount(DEX_LP_MIN, DEX_LP_MAX)
-        amount_from_settings_in_wei = amount_from_settings * 10 ** 18
+        amount_from_settings_in_wei = int(amount_from_settings * 10 ** 18)
 
+        self.logger.info(f'{self.info} Add liquidity to {self.__class__.__name__}: {amount_from_settings} ETH')
+
+        await asyncio.sleep(1)
         if eth_balance < amount_from_settings:
+            self.logger.warning(f'{self.info} Not enough ETH to add liquidity! Launching swap module')
+
             await swap_oneinch(self.account_number, self.private_key, self.network, self.proxy_init,
-                               help_add_liquidity=True, amount_to_help=amount_from_settings_in_wei)
+                               help_add_liquidity=True, amount_to_help=amount_from_settings)
 
         return amount_from_settings, amount_from_settings_in_wei
 
-    async def get_auto_amount(self, token_name_search:str = None) -> [str, str, float, int]:
+    async def get_auto_amount(self, token_name_search:str = None) -> [str, float, int]:
 
         wallet_balance = {k: await self.get_token_balance(k, False) for k, v in ZKSYNC_TOKENS.items()}
         valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
@@ -104,7 +116,9 @@ class Client:
             if self.__class__.__name__ in ['Maverick', 'Izumi']:
                 if 'USDT' in token_names_list:
                     token_names_list.remove('USDT')
-            elif self.__class__.__name__ in ['Mute', 'Rango']:
+                if from_token_name == 'ETH' and self.__class__.__name__ == 'Izumi':
+                    token_names_list.remove('BUSD')
+            elif self.__class__.__name__ in ['Mute', 'Rango', 'OpenOcean']:
                 if 'BUSD' in token_names_list:
                     token_names_list.remove('BUSD')
             to_token_name = random.choice(token_names_list)
@@ -120,7 +134,7 @@ class Client:
             return from_token_name, to_token_name, amount, amount_in_wei
 
         else:
-            self.logger.error(f'{self.info} {self.__class__.__name__} | Insufficient balance on account!')
+            raise RuntimeError('Insufficient balance on account!')
 
     async def get_token_balance(self, token_name: str = 'ETH', check_symbol: bool = True) -> [float, int, str]:
         if token_name != 'ETH':
@@ -143,7 +157,7 @@ class Client:
             abi=abi
         )
 
-    async def get_allowance(self, token_address: str, spender_address: str) -> float:
+    async def get_allowance(self, token_address: str, spender_address: str) -> int:
         contract = self.get_contract(token_address)
         return await contract.functions.allowance(
             self.address,
@@ -173,16 +187,15 @@ class Client:
 
             return tx_params
         except Exception as error:
-            self.logger.error(f'{self.info} {self.__class__.__name__} | Prepare transaction | Error: {error}')
-            raise
+            raise RuntimeError(f'Prepare transaction | Error: {error}')
 
-    async def approve(self, token_address: str, spender_address: str, amount_in_wei: int):
-        transaction = self.get_contract(token_address).functions.approve(
+    async def make_approve(self, token_address: str, spender_address: str, amount_in_wei: int):
+        transaction = await self.get_contract(token_address).functions.approve(
             spender_address,
             amount=2 ** 256 - 1 if UNLIMITED_APPROVE else amount_in_wei
-        ).build_transaction(self.prepare_transaction())
+        ).build_transaction(await self.prepare_transaction())
 
-        return await self.send_transaction(transaction, f'Approve for {self.__class__.__name__}')
+        return await self.send_transaction(transaction)
 
     async def check_for_approved(self, token_address: str, spender_address: str, amount_in_wei: int) -> bool:
         try:
@@ -191,86 +204,70 @@ class Client:
             balance_in_wei = await contract.functions.balanceOf(self.address).call()
             symbol = await contract.functions.symbol().call()
 
-            self.logger.info(
-                f'{self.info} Check approval {symbol} for spending by {self.__class__.__name__}')
+            await asyncio.sleep(1)
+
+            self.logger.info(f'{self.info} Check approval {symbol} for spending by {self.__class__.__name__}')
+
+            await asyncio.sleep(1)
 
             if balance_in_wei <= 0:
-                self.logger.info(
-                    f'{self.info} Approve on {self.__class__.__name__} | Zero balance')
+                self.logger.info(f'{self.info} Zero balance')
                 return False
 
             approved_amount_in_wei = await self.get_allowance(
                 token_address=token_address,
                 spender_address=spender_address
             )
+            await asyncio.sleep(1)
 
             if amount_in_wei <= approved_amount_in_wei:
-                self.logger.info(
-                    f'{self.info} Approve on {self.__class__.__name__} | Already approved')
+                self.logger.info(f'{self.info} Already approved')
                 return False
 
-            tx_hash = await self.approve(
+            tx_hash = await self.make_approve(
                 token_address,
                 spender_address,
                 amount_in_wei,
             )
 
-            await self.verify_transaction(tx_hash, f'Approve for {self.__class__.__name__}')
+            await self.verify_transaction(tx_hash)
 
             await sleep(random.randint(5, 9))
         except Exception as error:
-            self.logger.error(f'{self.info} {self.__class__.__name__} | Check for approve | Error: {error}')
-            raise
+            raise RuntimeError(f'Check for approve | {error}')
 
-    async def send_transaction(self, transaction, message=None):
+    async def send_transaction(self, transaction):
         try:
-            try:
-                if not message:
-                    message = self.__class__.__name__
-                transaction['gas'] = int((await self.w3.eth.estimate_gas(transaction)) * GAS_MULTIPLIER)
-            except Exception as error:
-                self.logger.error(f'{self.info} {message} | Transaction failed on gas calculating | Error: {error}')
-                raise
+            transaction['gas'] = int((await self.w3.eth.estimate_gas(transaction)) * GAS_MULTIPLIER)
+        except Exception as error:
+            raise RuntimeError(f'Gas calculating | {error}')
 
+        try:
             singed_tx = self.w3.eth.account.sign_transaction(transaction, self.private_key)
 
             return await self.w3.eth.send_raw_transaction(singed_tx.rawTransaction)
         except Exception as error:
-            self.logger.error(f'{self.info} {message} | Send transaction | Error: {error}')
-            raise
+            raise RuntimeError(f'Send transaction | {error.args[0]['message']}')
 
-    async def verify_transaction(self, tx_hash: HexBytes, message=None):
+    async def verify_transaction(self, tx_hash: HexBytes):
         try:
-            if not message:
-                message = self.__class__.__name__
-
             data = await self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=360)
             if 'status' in data and data['status'] == 1:
-                self.logger.success(
-                    f'{self.info} {message} | Transaction was successful: {self.explorer}tx/{tx_hash.hex()}')
+                self.logger.success(f'{self.info} Transaction was successful: {self.explorer}tx/{tx_hash.hex()}')
             else:
-                self.logger.error(
-                    f'{self.info} {message} | Transaction failed: {self.explorer}tx/{data["transactionHash"].hex()}')
+                raise RuntimeError(f'Transaction failed: {self.explorer}tx/{data["transactionHash"].hex()}')
         except Exception as error:
-            self.logger.error(f'{self.info} {message} | Verify transaction | Error: {error}')
-            raise
+            raise RuntimeError(f'Verify transaction | {error}')
 
-    async def get_token_price(self, token_name: str) -> [list]:
+    async def get_token_price(self, token_name: str, vs_currency:str = 'usd') -> float:
 
         url = 'https://api.coingecko.com/api/v3/simple/price'
 
-        params = {
-            'ids': f'{token_name}',
-            'vs_currencies': 'usd'
-        }
-
-        proxy = self.request_kwargs.get('proxy', '')
+        params = {'ids': f'{token_name}', 'vs_currencies': 'usd'}
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, params=params, proxy=proxy) as response:
+            async with session.get(url, params=params, proxy=self.proxy) as response:
                 if response.status == 200:
                     data = await response.json()
-                    return data[f'{token_name}']['usd']
-                else:
-                    self.logger.error(f'{self.info} Bad request to CoinGecko API: {response.status}')
-                    raise
+                    return float(data[token_name][vs_currency])
+                raise RuntimeError(f'Bad request to CoinGecko API: {response.status}')

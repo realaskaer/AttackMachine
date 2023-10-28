@@ -14,7 +14,7 @@ from .mute import Mute
 from .vesync import VeSync
 from .pancakeswap import PancakeSwap
 from .velocore import Velocore
-from .eralend import Eralend
+from .eralend import EraLend
 from .reactorfusion import ReactorFusion
 from .basilisk import Basilisk
 from .zerolend import ZeroLend

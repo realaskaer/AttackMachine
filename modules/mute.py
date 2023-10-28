@@ -1,8 +1,7 @@
 from time import time
 from modules import Client
-from .oneinch import OneInch
 from utils.tools import gas_checker, repeater
-from settings import SLIPPAGE_PERCENT, DEX_LP_MAX, DEX_LP_MIN
+from settings import SLIPPAGE_PERCENT
 from config import (
     MUTE_ROUTER_ABI,
     MUTE_PAIR_DYNAMIC_ABI,
@@ -18,14 +17,11 @@ class Mute(Client):
         self.pair_contract = self.get_contract(MUTE_CONTRACTS['pair_dynamic'], MUTE_PAIR_DYNAMIC_ABI)
 
     async def get_out_data(self, from_token_address: str, to_token_address: str, amount_in_wei: int):
-        print(amount_in_wei)
         min_amount_out, stable_mode, fee = await self.router_contract.functions.getAmountOut(
             amount_in_wei,
             from_token_address,
             to_token_address
         ).call()
-        print(min_amount_out)
-        print(stable_mode)
         return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE_PERCENT)), stable_mode, fee
 
     @repeater
@@ -100,7 +96,7 @@ class Mute(Client):
 
         amount_eth_min = int(amount_from_settings_in_wei / 2)
 
-        token_a_address, token_b_address = ZKSYNC_TOKENS['ETH'], ZKSYNC_TOKENS['USDC']
+        token_b_address = ZKSYNC_TOKENS['USDC']
 
         tx_params = await self.prepare_transaction(value=amount_eth_min)
         deadline = int(time()) + 1800
@@ -140,7 +136,7 @@ class Mute(Client):
 
         if liquidity_balance != 0:
 
-            token_a_address, token_b_address = ZKSYNC_TOKENS['ETH'], ZKSYNC_TOKENS['USDC']
+            token_b_address = ZKSYNC_TOKENS['USDC']
 
             await self.check_for_approved(MUTE_CONTRACTS['pair_dynamic'], MUTE_CONTRACTS['router'], liquidity_balance)
 
@@ -168,4 +164,4 @@ class Mute(Client):
             await self.verify_transaction(tx_hash)
 
         else:
-            self.logger.error(f'{self.info} Insufficient balance on Mute!')
+            raise RuntimeError('Insufficient balance on Mute!')

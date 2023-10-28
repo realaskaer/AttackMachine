@@ -1,5 +1,6 @@
 import aiohttp
 import random
+
 from utils.networks import *
 from modules import Client
 from utils.tools import repeater, gas_checker
@@ -69,12 +70,8 @@ class Orbiter(Client):
                             }
                     if bridge_data:
                         return bridge_data
-                    else:
-                        self.logger.error(f'{self.info} That bridge is not active!')
-                        raise
-                else:
-                    self.logger.error(f'{self.info} Bad request to Orbiter data: {response.status}')
-                    raise
+                    raise RuntimeError(f'That bridge is not active!')
+                raise RuntimeError(f'Bad request to Orbiter API: {response.status}')
 
     @repeater
     @gas_checker
@@ -108,8 +105,6 @@ class Orbiter(Client):
                 await self.verify_transaction(tx_hash)
 
             else:
-                self.logger.error(f'{self.info} Orbiter | Insufficient balance!')
-                raise
+                raise RuntimeError(f'Insufficient balance!')
         else:
-            self.logger.error(f"{self.info} Orbiter | Limit range for bridge: {min_price} – {max_price} {token_name}!")
-            raise
+            raise RuntimeError(f"Limit range for bridge: {min_price} – {max_price} {token_name}!")

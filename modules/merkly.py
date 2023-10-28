@@ -1,5 +1,5 @@
-import aiohttp
 import random
+
 from modules import Client
 from eth_abi import abi
 from settings import DESTINATION_MERKLY_DATA
@@ -17,21 +17,7 @@ class Merkly(Client):
         self.refuel_contract = self.get_contract(MERKLY_CONTRACTS['gas_refuel'], MERKLY_ROUTER_ABI)
         self.router_contract = self.get_contract(MERKLY_CONTRACTS['router'], MERKLY_ROUTER_ABI)
 
-    async def get_price_l0(self, token_name: str):
-        url = 'https://api.coingecko.com/api/v3/simple/price'
-
-        params = {'ids': f'{token_name}', 'vs_currencies': 'eth'}
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, params=params, proxy=self.proxy) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    return float(data[token_name]['eth'])
-                else:
-                    self.logger.error(f'{self.info} Bad requests to CoinGecko API: {response.status}')
-                    raise
-
-    #@repeater
+    @repeater
     @gas_checker
     async def refuel(self):
 
@@ -40,7 +26,7 @@ class Merkly(Client):
         dst_amount = self.round_amount(*dst_data[1])
 
         refuel_info = f'{dst_amount} {dst_native_name} to {dst_chain_name.capitalize()}'
-        self.logger.info(f'{self.info} Merkly | Refuel on Merkly: {refuel_info}')
+        self.logger.info(f'{self.info} Refuel on Merkly: {refuel_info}')
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
 
@@ -57,7 +43,8 @@ class Merkly(Client):
             adapter_params
         ).call())[0]
 
-        value = int(dst_native_gas_amount * await self.get_price_l0(dst_native_api_name)) + estimate_gas_bridge_fee
+        value = (int(dst_native_gas_amount * (await self.get_token_price(dst_native_api_name, 'eth')))
+                 + estimate_gas_bridge_fee)
 
         tx_params = await self.prepare_transaction(value=value)
 

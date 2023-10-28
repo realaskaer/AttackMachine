@@ -1,5 +1,6 @@
 import random
 import json
+
 from termcolor import cprint
 from config import WALLETS
 from settings import (

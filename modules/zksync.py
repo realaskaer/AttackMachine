@@ -1,4 +1,5 @@
 import random
+
 # from web3._utils.contracts import encode_abi
 # from web3._utils.abi import get_constructor_abi, merge_args_and_kwargs
 # from hashlib import sha256
@@ -66,7 +67,7 @@ class ZkSync(Client):
             await self.verify_transaction(tx_hash)
 
         else:
-            self.logger.error(f'{self.info} Bridge on txSync | Insufficient balance!')
+            raise RuntimeError('Bridge on txSync | Insufficient balance!')
 
     @repeater
     @gas_checker
@@ -90,7 +91,7 @@ class ZkSync(Client):
             await self.verify_transaction(tx_hash)
 
         else:
-            self.logger.error(f'{self.info} Withdraw on txSync | Insufficient balance!')
+            raise RuntimeError('Withdraw on txSync | Insufficient balance!')
 
     @repeater
     @gas_checker
@@ -100,7 +101,7 @@ class ZkSync(Client):
         amount_in_wei = int(amount * 10 ** 18)
         random_address = Account.create().address
 
-        self.logger.info(f'{self.info}| Transfer ETH to random zkSync address: {amount} ETH')
+        self.logger.info(f'{self.info} Transfer ETH to random zkSync address: {amount} ETH')
 
         if await self.w3.eth.get_balance(self.address) > amount_in_wei:
 
@@ -115,7 +116,7 @@ class ZkSync(Client):
             await self.verify_transaction(tx_hash)
 
         else:
-            self.logger.error(f'{self.info} Insufficient balance!')
+            raise RuntimeError('Insufficient balance!')
 
     # @repeater
     # @gas_checker
@@ -161,15 +162,15 @@ class ZkSync(Client):
             await self.verify_transaction(tx_hash)
 
         else:
-            self.logger.error(f'{self.info} Insufficient balance!')
+            raise RuntimeError('Insufficient balance!')
 
     @repeater
     @gas_checker
     async def unwrap_eth(self):
 
-        amount, amount_in_wei = await self.get_token_balance('WETH', check_symbol=False)
+        amount_in_wei, amount, _ = await self.get_token_balance('WETH', check_symbol=False)
 
-        self.logger.info(f'{self.info} Unwrap {amount} WETH')
+        self.logger.info(f'{self.info} Unwrap {amount:.6f} WETH')
 
         tx_params = await self.prepare_transaction()
 

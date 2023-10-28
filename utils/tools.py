@@ -28,10 +28,15 @@ async def sleep(self, min_time=MIN_SLEEP, max_time=MAX_SLEEP):
 def create_okx_withdrawal_list():
     okx_data = {}
     w3 = AsyncWeb3()
-    with open('./data/okx_withdraw_list.json', 'w') as file:
-        for private_key, okx_wallet in zip(WALLETS, OKX_WALLETS):
-            okx_data[w3.eth.account.from_key(private_key).address] = okx_wallet
-        json.dump(okx_data, file, indent=4)
+    if WALLETS and OKX_WALLETS:
+        with open('./data/okx_withdraw_list.json', 'w') as file:
+            for private_key, okx_wallet in zip(WALLETS, OKX_WALLETS):
+                okx_data[w3.eth.account.from_key(private_key).address] = okx_wallet
+            json.dump(okx_data, file, indent=4)
+        cprint('✅ Successfully added and saved OKX wallets data', 'light_blue')
+        cprint('⚠️ Check all OKX deposit wallets by yourself to avoid problems', 'light_yellow', attrs=["blink"])
+    else:
+        cprint('❌ Put your wallets into files, before running this function', 'light_red')
 
 
 async def check_proxies_status(proxies: list):
@@ -61,20 +66,18 @@ def repeater(func):
         while True:
             try:
                 return await func(self, *args, **kwargs)
-            except Exception as err:
+            except Exception as error:
+
                 await asyncio.sleep(1)
-                self.logger.warning(
-                    f"{self.info} {self.__class__.__name__} | Try #{attempts + 1} failed. {err} Retrying...")
+                self.logger.error(f"{self.info} {error} | Try[{attempts + 1}/{MAXIMUM_RETRY + 1}]")
                 await asyncio.sleep(1)
 
                 attempts += 1
                 if attempts > MAXIMUM_RETRY:
                     break
-                else:
-                    self.logger.info(f"{self.info} {self.__class__.__name__} | Sleeping for {SLEEP_TIME_RETRY} seconds")
-                    await asyncio.sleep(SLEEP_TIME_RETRY - 1)
-        self.logger.error(
-            f"{self.info} {self.__class__.__name__} | Maximum number of retries reached. Starting next module")
+
+                await sleep(self, SLEEP_TIME_RETRY, SLEEP_TIME_RETRY)
+        self.logger.error(f"{self.info} Tries are over, launching next module.")
     return wrapper
 
 
@@ -84,18 +87,19 @@ def gas_checker(func):
         if GAS_CONTROL:
             await asyncio.sleep(1)
             print()
-            self.logger.info(f"{self.info} {self.__class__.__name__} | Checking for gas price")
+            self.logger.info(f"{self.info} Checking for gas price")
             w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(Ethereum.rpc), request_kwargs=self.request_kwargs))
             while True:
                 gas = round(AsyncWeb3.from_wei(await w3.eth.gas_price, 'gwei'), 3)
                 if gas < MAXIMUM_GWEI:
                     await asyncio.sleep(1)
-                    self.logger.success(f"{self.info} {self.__class__.__name__} | {gas} Gwei | Gas price is good")
+                    self.logger.success(f"{self.info} {gas} Gwei | Gas price is good")
+                    await asyncio.sleep(1)
                     return await func(self, *args, **kwargs)
                 else:
                     await asyncio.sleep(1)
                     self.logger.warning(
-                        f"{self.info} {self.__class__.__name__} | {gas} Gwei | Gas is too high."
+                        f"{self.info} {gas} Gwei | Gas is too high."
                         f" Next check in {SLEEP_TIME_GAS} second")
                     await asyncio.sleep(SLEEP_TIME_GAS)
         return await func(self, *args, **kwargs)

@@ -147,22 +147,22 @@ async def swap_velocore(account_number, private_key, network, proxy):
 
 
 async def deposit_eralend(account_number, private_key, network, proxy):
-    worker = Eralend(account_number, private_key, network, proxy)
+    worker = EraLend(account_number, private_key, network, proxy)
     await worker.deposit()
 
 
 async def withdraw_eralend(account_number, private_key, network, proxy):
-    worker = Eralend(account_number, private_key, network, proxy)
+    worker = EraLend(account_number, private_key, network, proxy)
     await worker.withdraw()
 
 
 async def enable_collateral_eralend(account_number, private_key, network, proxy):
-    worker = Eralend(account_number, private_key, network, proxy)
+    worker = EraLend(account_number, private_key, network, proxy)
     await worker.enable_collateral()
 
 
 async def disable_collateral_eralend(account_number, private_key, network, proxy):
-    worker = Eralend(account_number, private_key, network, proxy)
+    worker = EraLend(account_number, private_key, network, proxy)
     await worker.disable_collateral()
 
 
@@ -211,17 +211,17 @@ async def deposit_zerolend(account_number, private_key, network, proxy):
     await worker.deposit()
 
 
-async def withdraw_zeroland(account_number, private_key, network, proxy):
+async def withdraw_zerolend(account_number, private_key, network, proxy):
     worker = ZeroLend(account_number, private_key, network, proxy)
     await worker.withdraw()
 
 
-async def enable_collateral_zeroland(account_number, private_key, network, proxy):
+async def enable_collateral_zerolend(account_number, private_key, network, proxy):
     worker = ZeroLend(account_number, private_key, network, proxy)
     await worker.enable_collateral()
 
 
-async def disable_collateral_zeroland(account_number, private_key, network, proxy):
+async def disable_collateral_zerolend(account_number, private_key, network, proxy):
     worker = ZeroLend(account_number, private_key, network, proxy)
     await worker.disable_collateral()
 
@@ -312,7 +312,7 @@ MODULES = {
     "enable_collateral_basilisk": enable_collateral_basilisk,
     "enable_collateral_eralend": enable_collateral_eralend,
     "enable_collateral_reactorfusion": enable_collateral_reactorfusion,
-    "enable_collateral_zeroland": enable_collateral_zeroland,
+    "enable_collateral_zerolend": enable_collateral_zerolend,
     "swap_izumi": swap_izumi,
     "swap_maverick": swap_maverick,
     "swap_mute": swap_mute,
@@ -332,7 +332,7 @@ MODULES = {
     "disable_collateral_basilisk": disable_collateral_basilisk,
     "disable_collateral_eralend": disable_collateral_eralend,
     "disable_collateral_reactorfusion": disable_collateral_reactorfusion,
-    "disable_collateral_zeroland": disable_collateral_zeroland,
+    "disable_collateral_zerolend": disable_collateral_zerolend,
     "mint_and_bridge_l2telegraph": mint_and_bridge_l2telegraph,
     "mint_domain_ens": mint_domain_ens,
     "mint_domain_zns": mint_domain_zns,
@@ -352,5 +352,5 @@ MODULES = {
     "withdraw_liquidity_mute": withdraw_liquidity_mute,
     "withdraw_liquidity_syncswap": withdraw_liquidity_syncswap,
     "withdraw_reactorfusion": withdraw_reactorfusion,
-    "withdraw_zeroland": withdraw_zeroland,
+    "withdraw_zerolend": withdraw_zerolend,
 }

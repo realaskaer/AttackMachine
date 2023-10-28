@@ -3,7 +3,7 @@ from utils.tools import gas_checker, repeater
 from modules import Client
 
 
-class Eralend(Client):
+class EraLend(Client):
     def __init__(self, account_number, private_key, network, proxy=None):
         super().__init__(account_number, private_key, network, proxy)
         self.landing_contract = self.get_contract(ERALEND_CONTRACTS['landing'], ERALEND_ABI)
@@ -47,7 +47,7 @@ class Eralend(Client):
             await self.verify_transaction(tx_hash)
 
         else:
-            self.logger.error(f'{self.info} Insufficient balance on EraLend!')
+            raise RuntimeError(f'Insufficient balance on EraLend!')
 
     @repeater
     @gas_checker

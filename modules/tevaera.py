@@ -22,8 +22,7 @@ class Tevaera(Client):
 
             await self.verify_transaction(tx_hash)
         except Exception as error:
-            self.logger.error(f'{self.info} Mint Tevaera Citizen ID | Error: {error}')
-            raise
+            raise RuntimeError(f'{error}')
 
     @repeater
     async def mint_nft(self):
@@ -40,7 +39,7 @@ class Tevaera(Client):
 
             await self.verify_transaction(tx_hash)
         except Exception as error:
-            self.logger.error(f'{self.info} Mint Tevaera Guardian NFT | Error: {error}')
+            raise RuntimeError(f"{error}")
 
     # def mint_karma(self):
     #

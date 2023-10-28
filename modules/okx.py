@@ -2,6 +2,7 @@ import hmac
 import aiohttp
 import base64
 import asyncio
+
 from utils.networks import Arbitrum
 from hashlib import sha256
 from modules import Client
@@ -45,35 +46,31 @@ class OKX(Client):
                 "x-simulated-trading": "0"
             }
         except Exception as error:
-            self.logger.error(f'{self.info} Bad headers for OKX request: {error}')
-            raise
+            raise RuntimeError(f'Bad headers for OKX request: {error}')
 
     async def make_request(self, method:str = 'GET', url:str = None, data:str = None, params: dict = None,
-                           headers:dict = None, module_name:str = 'Request', module_msg:str = 'Success'):
+                           headers:dict = None, module_name:str = 'Request'):
 
         async with aiohttp.ClientSession() as session:
             async with session.request(method=method, url=url, data=data, params=params,
                                        headers=headers, proxy=self.proxy) as response:
+
                 data = await response.json()
                 if data['code'] != 0 and data['msg'] != '':
                     error = f"Error code: {data['code']} Msg: {data['msg']}"
-                    self.logger.error(f"{self.info} OKX | Bad request to OKX({module_name}): {error}")
-                    raise
+                    raise RuntimeError(f"Bad request to OKX({module_name}): {error}")
                 else:
-                    self.logger.success(f"{self.info} OKX | {module_name} | {module_msg}")
+                    #self.logger.success(f"{self.info} {module_name}")
                     return data['data']
 
     async def get_currencies(self):
         url = 'https://www.okx.cab/api/v5/asset/currencies'
 
-        params = {
-            'ccy': 'ETH'
-        }
+        params = {'ccy': 'ETH'}
 
         headers = await self.get_headers(f'{url}?ccy=ETH')
 
-        return await self.make_request(url=url, headers=headers, params=params, module_name='Token info',
-                                       module_msg='Checking withdrawal availability')
+        return await self.make_request(url=url, headers=headers, params=params, module_name='Token info')
 
     @repeater
     async def withdraw(self):
@@ -88,11 +85,13 @@ class OKX(Client):
         network_data = networks_data[network_name]
         amount = self.round_amount(OKX_AMOUNT_MIN, OKX_AMOUNT_MAX)
 
+        self.logger.info(f"{self.info} Withdraw {amount} ETH to {network_name[4:]}")
+
         if network_data['can_withdraw']:
 
             body = {
                 "ccy": 'ETH',
-                "amt": amount,
+                "amt": amount - float(network_data['min_fee']),
                 "dest": "4",
                 "toAddr": self.address,
                 "fee": network_data['min_fee'],
@@ -102,9 +101,14 @@ class OKX(Client):
             headers = await self.get_headers(method="POST", request_path=url, body=str(body))
 
             await self.make_request(method='POST', url=url, data=str(body), headers=headers,
-                                    module_name='Withdraw', module_msg=f"Transfer {amount} ETH to {self.address}")
+                                    module_name='Withdraw')
+
+            self.logger.success(f"{self.info} Withdraw complete. Note: wait 1-2 minute to receive funds")
+
+            await sleep(self, 70, 140)
+
         else:
-            self.logger.info(f"{self.info} OKX | Withdraw {network_name} is not available")
+            raise RuntimeError(f"Withdraw {network_name} is not available")
 
     @repeater
     async def transfer_from_subaccounts(self):
@@ -128,9 +132,9 @@ class OKX(Client):
 
             await asyncio.sleep(1)
 
-            self.logger.info(f'{self.info} OKX | {sub_name} | subAccount balance : {sub_balance} ETH')
-
             if float(sub_balance) != 0.0:
+
+                self.logger.info(f'{self.info} {sub_name} | subAccount balance : {sub_balance} ETH')
 
                 body = {
                     "ccy": "ETH",
@@ -144,21 +148,22 @@ class OKX(Client):
                 url_transfer = "https://www.okx.cab/api/v5/asset/transfer"
                 headers = await self.get_headers(method="POST", request_path=url_transfer, body=str(body))
                 await self.make_request(method="POST", url=url_transfer, data=str(body), headers=headers,
-                                        module_name='SubAccount transfer',
-                                        module_msg=f'Transfer {sub_balance:.6f} ETH to main account complete')
+                                        module_name='SubAccount transfer')
+
+                self.logger.success(f"{self.info} Transfer {sub_balance:.6f} ETH to main account complete")
+
     @repeater
     async def transfer_from_spot_to_funding(self):
 
         url_balance = "https://www.okx.cab/api/v5/account/balance?ccy=ETH"
         headers = await self.get_headers(request_path=url_balance)
         balance = (await self.make_request(url=url_balance, headers=headers,
-                                           module_name='Trading account', module_msg='Checked balance'
-                                           ))[0]["details"]
+                                           module_name='Trading account'))[0]["details"]
 
         for ccy in balance:
             if ccy['ccy'] == 'ETH' and ccy['availBal'] != '0':
 
-                self.logger.info(f"{self.info} OKX | Main trading account balance: {ccy['availBal']} ETH")
+                self.logger.info(f"{self.info} Main trading account balance: {ccy['availBal']} ETH")
 
                 body = {
                     "ccy": 'ETH',
@@ -170,10 +175,10 @@ class OKX(Client):
                 url_transfer = "https://www.okx.cab/api/v5/asset/transfer"
                 headers = await self.get_headers(request_path=url_transfer, body=str(body), method="POST")
                 await self.make_request(url=url_transfer, data=str(body), method="POST", headers=headers,
-                                        module_name='Trading account', module_msg='Transferred ETH to funding balance')
+                                        module_name='Trading account')
                 break
             else:
-                self.logger.info(f"{self.info} OKX | Main trading account balance: 0 ETH")
+                self.logger.info(f"{self.info} Main trading account balance: 0 ETH")
                 break
 
     @repeater
@@ -183,7 +188,7 @@ class OKX(Client):
 
         info = f"{self.okx_wallet[:10]}....{self.okx_wallet[-6:]}"
 
-        self.logger.info(f"{self.info} OKX | Deposit {amount} ETH from Arbitrum to OKX wallet: {info}")
+        self.logger.info(f"{self.info} Deposit {amount} ETH from Arbitrum to OKX wallet: {info}")
 
         tx_params = (await self.prepare_transaction(value=int(amount_in_wei * 0.95))) | {
             'to': self.okx_wallet,
@@ -208,4 +213,4 @@ class OKX(Client):
 
         await self.transfer_from_spot_to_funding()
 
-        self.logger.success(f"{self.info} OKX | Deposit complete")
+        self.logger.success(f"{self.info} Deposit complete")

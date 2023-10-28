@@ -36,8 +36,7 @@ class Velocore(Client):
         if from_token_name != 'ETH':
             await self.check_for_approved(from_token_address, VELOCORE_CONTRACTS['router'], amount_in_wei)
 
-        tx_params = await self.prepare_transaction()
-        tx_params['value'] = amount_in_wei if from_token_name == 'ETH' else 0
+        tx_params = await self.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
         deadline = int(time()) + 1800
         min_amount_out, pool_type = await self.get_out_data(from_token_address, to_token_address, amount_in_wei)
 
