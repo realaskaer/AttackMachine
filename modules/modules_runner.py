@@ -16,53 +16,46 @@ def load_routes():
         return json.load(f)
 
 
-def get_account_data(account_data):
-    if USE_PROXY:
-        return account_data
-    return account_data[0], None
-
-
 def update_step(wallet, step):
-
     wallets = load_routes()
     wallets[wallet]["current_step"] = step
-
     with open('./data/wallets.json', 'w') as f:
         json.dump(wallets, f, indent=4)
 
 
-async def sleep(account_number, private_key, min_time=MIN_SLEEP, max_time=MAX_SLEEP):
+async def get_proxy_for_account(account_number):
+    if USE_PROXY:
+        num_proxies = len(PROXIES)
+        return PROXIES[account_number % num_proxies]
+    return None
+
+
+async def sleep(account_number, private_key):
     if SLEEP_MODE:
         address = AsyncWeb3().eth.account.from_key(private_key).address
         address_info = f'{address[:10]}....{address[-6:]}'
         logger.remove()
         logger.add(stderr,
-                   format="<white>{time:HH:mm:ss}</white> | <level>" "{level: <8}</level> | <level>{message}</level>")
-        duration = random.randint(min_time, max_time)
+                   format="<cyan>{time:HH:mm:ss}</cyan> | <level>" "{level: <8}</level> | <level>{message}</level>")
+        duration = random.randint(MIN_SLEEP, MAX_SLEEP)
         logger.info(f"[{account_number}] {address_info} | 💤 Sleeping for {duration} seconds.")
         await asyncio.sleep(duration)
 
 
 async def run_module(module):
-    for num, account in enumerate(zip(WALLETS, PROXIES), 1):
-        if USE_PROXY:
-            wallet, proxy = account
-        else:
-            wallet, proxy = account[0], None
-        print()
-        await MODULES[module](num, wallet, zkSyncEra, proxy)
+    for account_number, wallet in enumerate(WALLETS, 1):
+        proxy = await get_proxy_for_account(account_number)
+        await MODULES[module](account_number, wallet, zkSyncEra, proxy)
 
 
 async def run_account_modules(account_number, private_key, network, proxy):
-
     route = load_routes()[private_key]['route']
     current_step = load_routes()[private_key]["current_step"]
+
     await sleep(account_number, private_key)
 
     while current_step < len(route):
         module_name = route[current_step]
-
-        await asyncio.sleep(1)
         cprint(f"\n🚀 Running {module_name} for wallet #{account_number}...", 'light_yellow')
         await MODULES[module_name](account_number, private_key, network, proxy)
 
@@ -71,38 +64,23 @@ async def run_account_modules(account_number, private_key, network, proxy):
 
         await sleep(account_number, private_key)
 
-        await asyncio.sleep(1)
-
-    await asyncio.sleep(1)
     cprint(f"\n✅ All steps in route completed!", 'light_green')
-    await asyncio.sleep(1)
-
-    await sleep(account_number, private_key)
-
     cprint(f"\n🔁 Started running next wallet!\n", 'light_green')
-    await asyncio.sleep(1)
 
 
 async def run_parallel():
     tasks = []
 
-    for account_number, account_data in enumerate(zip_longest(WALLETS, PROXIES, fillvalue=None), 1):
-
-        private_key, proxy = get_account_data(account_data)
-
-        task = asyncio.create_task(run_account_modules(account_number, private_key, zkSyncEra, proxy))
-        tasks.append(task)
+    for account_number, private_key in enumerate(WALLETS, 1):
+        tasks.append(asyncio.create_task(run_account_modules(account_number, private_key, zkSyncEra,
+                                                             await get_proxy_for_account(account_number))))
 
     await asyncio.gather(*tasks)
 
 
 async def run_consistently():
-    for account_number, account_data in enumerate(zip_longest(WALLETS, PROXIES, fillvalue=None), 1):
-
-        private_key, proxy = get_account_data(account_data)
-
-        await run_account_modules(account_number, private_key, zkSyncEra, proxy)
-
+    for account_number, private_key in enumerate(WALLETS, 1):
+        await run_account_modules(account_number, private_key, zkSyncEra, await get_proxy_for_account(account_number))
     cprint(f"\n✅ All accounts completed their tasks!\n", 'light_green')
 
 
