@@ -27,7 +27,6 @@ class OKX(Client):
         self.api_key = OKX_API_KEY
         self.api_secret = OKX_API_SECRET
         self.passphras = OKX_API_PASSPHRAS
-        self.okx_wallet = self.w3.to_checksum_address(OKX_WITHDRAW_LIST[self.address])
 
     async def get_headers(self, request_path: str, method: str = "GET", body: str = ""):
         try:
@@ -185,6 +184,11 @@ class OKX(Client):
     async def deposit_to_okx(self):
 
         amount_in_wei, amount, _ = await self.get_token_balance('ETH')
+
+        try:
+            okx_wallet = self.w3.to_checksum_address(OKX_WITHDRAW_LIST[self.address])
+        except Exception as error:
+            raise RuntimeError(f'There is no wallet listed for deposit in OKX: {error}')
 
         info = f"{self.okx_wallet[:10]}....{self.okx_wallet[-6:]}"
 
