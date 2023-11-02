@@ -5,9 +5,9 @@
     
     1 - ETH-ERC20
     2 - ETH-Arbitrum One
-    3 - ETH-zkSync Lite
+    3 - ETH-zkSync Lite | only for withdraw from OKX
     4 - ETH-Optimism
-    5 - ETH-Starknet
+    5 - ETH-Starknet | only for withdraw from OKX
     6 - ETH-zkSync Era
     7 - ETH-Linea
     
@@ -18,8 +18,8 @@
 """
 OKX_NETWORK_ID = 2
 OKX_AMOUNT_MIN = 0.002  # ETH
-OKX_AMOUNT_MAX = 0.0025  # ETH
-
+OKX_AMOUNT_MAX = 0.002  # ETH
+OKX_WITHDRAW_NETWORK = 6
 """
 --------------------------------------------------txSync BRIDGE---------------------------------------------------------
     Ex official bridge from zkSync. Specify the minimum and maximum of deposit/withdraw in ETH
@@ -95,8 +95,8 @@ ORBITER_AMOUNT_MAX = 0.012  # ORBITER_TOKEN_FROM
     AMOUNT_MAX = 80 ( % ) of token balance 
     MIN_BALANCE = 0.001 ( ETH ) 
 """
-AMOUNT_MIN = 60  # %
-AMOUNT_MAX = 70  # %
+AMOUNT_MIN = 70  # %
+AMOUNT_MAX = 80  # %
 MIN_BALANCE = 0.001  # ETH
 
 """

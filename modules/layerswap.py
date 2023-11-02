@@ -67,10 +67,10 @@ class LayerSwap(Client):
 
     @repeater
     @gas_checker
-    async def bridge(self, help_okx:bool = False):
+    async def bridge(self, help_okx:bool = False, help_network:str = 'ARBITRUM_MAINNET'):
 
         if help_okx:
-            source_chain, destination_chain = 'ZKSYNCERA_MAINNET', 'ARBITRUM_MAINNET'
+            source_chain, destination_chain = 'ZKSYNCERA_MAINNET', help_network
             source_asset, destination_asset = 'ETH', 'ETH'
             amount, _ = await self.check_and_get_eth_for_deposit()
             refuel = False

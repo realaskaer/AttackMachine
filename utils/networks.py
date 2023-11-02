@@ -22,7 +22,7 @@ class Network:
 
 
 zkSyncEra = Network(
-    name='zksync_era',
+    name='zkSync Era',
     rpc=[#'https://zksync.getblock.io/your_key/mainnet/',
          #'https://open-platform.nodereal.io/your_key/zksync',
          'https://rpc.ankr.com/zksync_era',
@@ -37,7 +37,7 @@ zkSyncEra = Network(
 
 
 Arbitrum = Network(
-    name='arbitrum',
+    name='Arbitrum',
     rpc=['https://rpc.ankr.com/arbitrum/',
          'https://arbitrum.llamarpc.com',
          'https://1rpc.io/arb',
@@ -50,7 +50,7 @@ Arbitrum = Network(
 
 
 Optimism = Network(
-    name='optimism',
+    name='Optimism',
     rpc=['https://rpc.ankr.com/optimism/',
          'https://optimism.llamarpc.com',
          'https://optimism.drpc.org',
@@ -63,7 +63,7 @@ Optimism = Network(
 
 
 Polygon = Network(
-    name='polygon',
+    name='Polygon',
     rpc=['https://rpc.ankr.com/polygon',
          'https://polygon.llamarpc.com',
          'https://1rpc.io/matic',
@@ -76,7 +76,7 @@ Polygon = Network(
 
 
 Avalanche = Network(
-    name='avalanche',
+    name='Avalanche',
     rpc=['https://rpc.ankr.com/avalanche/',
          'https://1rpc.io/avax/c',
          'https://avax.meowrpc.com',
@@ -89,7 +89,7 @@ Avalanche = Network(
 
 
 Ethereum = Network(
-    name='ethereum',
+    name='Ethereum',
     rpc=[#'https://eth-mainnet.g.alchemy.com/v2/your_key-CIAX',
          #'https://eth.getblock.io/your_key/mainnet/',
          'https://rpc.ankr.com/eth',
@@ -103,7 +103,7 @@ Ethereum = Network(
 )
 
 Arbitrum_nova = Network(
-    name='arbitrumnova',
+    name='Arbitrum Nova',
     rpc=['https://rpc.ankr.com/arbitrumnova',
          'https://arbitrum-nova.publicnode.com',
          'https://arbitrum-nova.drpc.org',
@@ -115,7 +115,7 @@ Arbitrum_nova = Network(
 )
 
 Base = Network(
-    name='base',
+    name='Base',
     rpc=['https://base.llamarpc.com',
          'https://base.publicnode.com',
          'https://base.meowrpc.com',
@@ -127,7 +127,7 @@ Base = Network(
 )
 
 Linea = Network(
-    name='linea',
+    name='Linea',
     rpc=['https://linea.drpc.org',
          'https://1rpc.io/linea',
          'https://rpc.linea.build'],
@@ -138,7 +138,7 @@ Linea = Network(
 )
 
 Zora = Network(
-    name='zora',
+    name='Zora',
     rpc=['https://rpc.zora.energy'],
     chain_id=7777777,
     eip1559_support=True,
@@ -147,7 +147,7 @@ Zora = Network(
 )
 
 Scroll = Network(
-    name='scroll',
+    name='Scroll',
     rpc=['https://1rpc.io/scroll',
          'https://rpc.scroll.io',
          'https://scroll.blockpi.network/v1/rpc/public'],
@@ -158,7 +158,7 @@ Scroll = Network(
 )
 
 Polygon_ZKEVM = Network(
-    name='zkevm',
+    name='Polygon ZKEVM',
     rpc=['https://1rpc.io/polygon/zkevm',
          'https://zkevm-rpc.com',
          'https://rpc.ankr.com/polygon_zkevm'],
@@ -169,7 +169,7 @@ Polygon_ZKEVM = Network(
 )
 
 BSC = Network(
-    name='bsc',
+    name='BSC',
     rpc=['https://binance.llamarpc.com',
          'https://bsc-dataseed.bnbchain.org',
          'https://rpc.ankr.com/bsc',
@@ -181,7 +181,7 @@ BSC = Network(
 )
 
 Manta = Network(
-    name='manta',
+    name='Manta',
     rpc=['https://pacific-rpc.manta.network/http'],
     chain_id=169,
     eip1559_support=True,
@@ -190,7 +190,7 @@ Manta = Network(
 )
 
 Mantle = Network(
-    name='mantle',
+    name='Mantle',
     rpc=['https://mantle.publicnode.com',
          'https://mantle-mainnet.public.blastapi.io',
          'https://mantle.drpc.org',
@@ -203,7 +203,7 @@ Mantle = Network(
 )
 
 OpBNB = Network(
-    name='opbnb',
+    name='OpBNB',
     rpc=['https://opbnb.publicnode.com',
          'https://1rpc.io/opbnb',
          'https://opbnb-mainnet-rpc.bnbchain.org',

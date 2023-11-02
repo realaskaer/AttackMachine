@@ -50,7 +50,7 @@ async def check_proxy_status(proxy:str):
     try:
         w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(Ethereum.rpc), request_kwargs={"proxy": f"http://{proxy}"}))
         if await w3.is_connected():
-            cprint(f'✅ Proxy {proxy[proxy.find('@'):]} successfully connected to Ethereum RPC', 'light_green')
+            cprint(f'✅ Proxy {proxy[proxy.find("@"):]} successfully connected to Ethereum RPC', 'light_green')
             return True
         cprint(f"❌ Proxy: {proxy} can`t connect to Ethereum RPC", 'light_red')
         return False

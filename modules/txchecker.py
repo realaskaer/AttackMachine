@@ -157,7 +157,7 @@ async def fetch_wallet_data(session, wallet, index):
     balance = await get_wallet_balance(session, wallet)
     txs_data = await get_transaction_data(session, wallet)
     first_tx, last_tx = (txs_data['first_tx_date'], txs_data['last_tx_date']) if txs_data['tx_count'] else ('—', '—')
-    dwm_date = f'{txs_data['unique_days']} / {txs_data['unique_weeks']} / {txs_data['unique_months']}'
+    dwm_date = f'{txs_data["unique_days"]} / {txs_data["unique_weeks"]} / {txs_data["unique_months"]}'
 
     return {
         '#'                     : index + 1,

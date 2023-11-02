@@ -83,7 +83,7 @@ class Orbiter(Client):
         amount = self.round_amount(ORBITER_AMOUNT_MIN, ORBITER_AMOUNT_MAX)
 
         self.logger.info(
-            f'{self.info} Bridge on Orbiter: {amount} {token_name} from {from_chain['name']} to {to_chain['name']}')
+            f'{self.info} Bridge on Orbiter: {amount} {token_name} from {from_chain["name"]} to {to_chain["name"]}')
 
         bridge_data = await self.get_bridge_data(from_chain['chainId'], to_chain['chainId'], token_name)
         destination_code = 9000 + to_chain['id']

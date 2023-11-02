@@ -3,7 +3,7 @@ import aiohttp
 import base64
 import asyncio
 
-from utils.networks import Arbitrum
+from utils.networks import *
 from hashlib import sha256
 from modules import Client
 from datetime import datetime, timezone
@@ -15,18 +15,40 @@ from settings import (
     OKX_API_PASSPHRAS,
     OKX_NETWORK_ID,
     OKX_AMOUNT_MIN,
-    OKX_AMOUNT_MAX
+    OKX_AMOUNT_MAX,
+    OKX_WITHDRAW_NETWORK
 )
 
 
 class OKX(Client):
-    def __init__(self, account_number, private_key, network, proxy=None, switch_network=False):
+    def __init__(self, account_number, private_key, _, proxy=None, switch_network=False):
         if switch_network:
-            network = Arbitrum
-        super().__init__(account_number, private_key, network, proxy)
+            self.network_id = OKX_WITHDRAW_NETWORK
+        self.network_id = 6
+        super().__init__(account_number, private_key, self.init_network(self.network_id), proxy)
         self.api_key = OKX_API_KEY
         self.api_secret = OKX_API_SECRET
         self.passphras = OKX_API_PASSPHRAS
+
+    @staticmethod
+    def init_network(network_id):
+        return {
+            1: Ethereum,
+            2: Arbitrum,
+            4: Optimism,
+            6: zkSyncEra,
+            7: Linea
+        }[network_id]
+
+
+    @staticmethod
+    def get_network_name(network_id):
+        return {
+            1: 'ETHEREUM_MAINNET',
+            2: 'ARBITRUM_MAINNET',
+            4: 'OPTIMISM_MAINNET',
+            7: 'LINEA_MAINNET'
+        }[network_id]
 
     async def get_headers(self, request_path: str, method: str = "GET", body: str = ""):
         try:
@@ -183,19 +205,19 @@ class OKX(Client):
     @repeater
     async def deposit_to_okx(self):
 
-        amount_in_wei, amount, _ = await self.get_token_balance('ETH')
+        amount, amount_in_wei = await self.check_and_get_eth_for_deposit()
 
         try:
             okx_wallet = self.w3.to_checksum_address(OKX_WITHDRAW_LIST[self.address])
         except Exception as error:
             raise RuntimeError(f'There is no wallet listed for deposit in OKX: {error}')
 
-        info = f"{self.okx_wallet[:10]}....{self.okx_wallet[-6:]}"
+        info = f"{okx_wallet[:10]}....{okx_wallet[-6:]}"
 
-        self.logger.info(f"{self.info} Deposit {amount} ETH from Arbitrum to OKX wallet: {info}")
+        self.logger.info(f"{self.info} Deposit {amount} ETH from {self.network_name} to OKX wallet: {info}")
 
-        tx_params = (await self.prepare_transaction(value=int(amount_in_wei * 0.95))) | {
-            'to': self.okx_wallet,
+        tx_params = (await self.prepare_transaction(value=amount_in_wei)) | {
+            'to': okx_wallet,
             'data': '0x'
         }
 
@@ -205,9 +227,11 @@ class OKX(Client):
 
     async def deposit(self):
 
-        await self.bridge_from_era()
+        if self.network_id != 6:
 
-        await sleep(self, 60, 80)
+            await self.bridge_from_era(self.get_network_name(self.network_id))
+
+            await sleep(self, 60, 80)
 
         await self.deposit_to_okx()
 
