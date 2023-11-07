@@ -114,6 +114,7 @@ def get_one_module():
             Choice("⚪ Wrap ETH", 'wrap_eth'),
             Choice("⚪ Unwrap ETH", 'unwrap_eth'),
             Choice("⚪ Transfer ETH to random address", 'transfer_eth'),
+            Choice("⚪ Transfer ETH to your own address", 'transfer_eth_to_myself'),
             Choice("🔵 Withdraw from Era on txSync", 'withdraw_txsync'),
             Choice("⚫ Deposit OKX", 'okx_deposit'),
             Choice('Back to menu', 'main')

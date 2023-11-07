@@ -14,6 +14,7 @@
     OKX_NETWORK_ID = 2 
     OKX_AMOUNT_MIN = 0.009  ( ETH )
     OKX_AMOUNT_MAX = 0.012  ( ETH )
+    OKX_WITHDRAW_NETWORK = 6
 ------------------------------------------------------------------------------------------------------------------------
 """
 OKX_NETWORK_ID = 2
@@ -279,6 +280,7 @@ AUTO_ROUTES_MODULES_USING = {
     'send_message_dmail'                  : 1,
     'send_message_l2telegraph'            : 1,  # see LayerZero settings
     'transfer_eth'                        : 1,
+    'transfer_eth_to_myself'              : 1,
     'withdraw_txsync'                     : 0,
     'okx_deposit'                         : 1
 }

@@ -51,7 +51,7 @@ class Client:
 
     async def bridge_from_era(self, network_name) -> None:
         from functions import bridge_layerswap
-        self.logger.info(f"{self.info} Deposit balance from Era")
+        self.logger.info(f"{self.info} Bridge balance from Era")
 
         await bridge_layerswap(self.account_number, self.private_key, self.network, self.proxy_init,
                                help_okx=True, help_network=network_name)
@@ -61,7 +61,7 @@ class Client:
         data = await self.get_auto_amount(token_name_search='ETH')
 
         if data is False:
-            self.logger.warning(f'{self.info} Not enough ETH to deposit! Launching swap module')
+            self.logger.warning(f'{self.info} Not enough ETH! Launching swap module')
 
             await swap_odos(self.account_number, self.private_key, self.network, self.proxy_init, help_deposit=True)
 

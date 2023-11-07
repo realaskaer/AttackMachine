@@ -56,6 +56,11 @@ async def transfer_eth(account_number, private_key, network, proxy):
     await worker.transfer_eth()
 
 
+async def transfer_eth_to_myself(account_number, private_key, network, proxy):
+    worker = ZkSync(account_number, private_key, network, proxy)
+    await worker.transfer_eth_to_myself()
+
+
 async def withdraw_txsync(account_number, private_key, network, proxy):
     worker = ZkSync(account_number, private_key, network, proxy)
     await worker.withdraw()
@@ -344,6 +349,7 @@ MODULES = {
     "send_message_dmail": send_message_dmail,
     "send_message_l2telegraph": send_message_l2telegraph,
     "transfer_eth": transfer_eth,
+    "transfer_eth_to_myself": transfer_eth_to_myself,
     "unwrap_eth": unwrap_eth,
     "withdraw_basilisk": withdraw_basilisk,
     "withdraw_eralend": withdraw_eralend,

@@ -43,9 +43,10 @@ async def sleep(account_number, private_key):
 
 
 async def run_module(module):
-    for account_number, wallet in enumerate(WALLETS, 1):
+    for account_number, private_key in enumerate(WALLETS, 1):
         proxy = await get_proxy_for_account(account_number)
-        await MODULES[module](account_number, wallet, zkSyncEra, proxy)
+        await MODULES[module](account_number, private_key, zkSyncEra, proxy)
+        await sleep(account_number, private_key)
 
 
 async def run_account_modules(account_number, private_key, network, proxy):

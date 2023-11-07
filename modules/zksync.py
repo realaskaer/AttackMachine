@@ -95,6 +95,23 @@ class ZkSync(Client):
 
     @repeater
     @gas_checker
+    async def transfer_eth_to_myself(self):
+
+        amount, amount_in_wei = self.check_and_get_eth_for_deposit()
+
+        self.logger.info(f"{self.info} Transfer {amount} ETH to your own address: {self.address}")
+
+        tx_params = await self.prepare_transaction(value=amount_in_wei) | {
+            "to": self.address,
+            "data": "0x"
+        }
+
+        tx_hash = await self.send_transaction(tx_params)
+
+        await self.verify_transaction(tx_hash)
+
+    @repeater
+    @gas_checker
     async def transfer_eth(self):
 
         amount = self.round_amount(TRANSFER_MIN, TRANSFER_MAX)

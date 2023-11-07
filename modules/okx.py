@@ -234,11 +234,3 @@ class OKX(Client):
             await sleep(self, 60, 80)
 
         await self.deposit_to_okx()
-
-        await sleep(self, 10, 15)
-
-        await self.transfer_from_subaccounts()
-
-        await self.transfer_from_spot_to_funding()
-
-        self.logger.success(f"{self.info} Deposit complete")
