@@ -96,12 +96,13 @@ ORBITER_AMOUNT_MAX = 0.012  # ETH or %
     Check networks for bridge before setting values. Works only with ETH.
     You can specify the percentage in quotes and the software will use this setting as % of balance 
     
-    Arbitrum = 1            Polygon = 6
+    Arbitrum = 1           *Polygon = 6
     Arbitrum Nova = 2       Optimism = 7
     Base = 3                Scroll = 8  
     Linea = 4               Polygon ZKEVM = 9       
     Manta = 5               zkSync Era = 10            
-                             
+    
+    * - Not support in RHINO_CHAIN_ID_FROM                
     RHINO_CHAIN_ID_FROM(TO) = [2, 3, 10] | One network in list will be chosen
 """
 RHINO_CHAIN_ID_FROM = [8]  # BRIDGE FROM
@@ -178,7 +179,7 @@ DESTINATION_ZERIUS = [1, 4, 8]  # BRIDGE TO
 SOURCE_CHAIN_MERKLY = [1]  # REFUEL FROM
 DESTINATION_MERKLY_DATA = {
     27: (0.01, 0.01),  # Chain ID: (min amount , max amount) in destination native
-    # 28: (0.04, 0.05)  # Chain ID: (min amount, max amount) in destination native
+    28: (0.04, 0.05)  # Chain ID: (min amount, max amount) in destination native
 }
 
 DESTINATION_BUNGEE_DATA = {
