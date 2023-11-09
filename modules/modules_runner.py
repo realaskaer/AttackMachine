@@ -4,11 +4,22 @@ import asyncio
 from sys import stderr
 from loguru import logger
 from web3 import AsyncWeb3
-from utils.networks import zkSyncEra
+from utils.networks import ScrollRPC
 from termcolor import cprint
 from functions import MODULES
 from config import WALLETS, PROXIES
-from settings import USE_PROXY, SLEEP_MODE, MAX_SLEEP, MIN_SLEEP, SOFTWARE_MODE
+from settings import USE_PROXY, SLEEP_MODE, MAX_SLEEP, MIN_SLEEP, SOFTWARE_MODE, WALLETS_TO_WORK
+
+
+def get_wallets():
+    if WALLETS_TO_WORK == 0:
+        return WALLETS
+    elif isinstance(WALLETS_TO_WORK, int):
+        return [WALLETS[WALLETS_TO_WORK-1]]
+    elif isinstance(WALLETS_TO_WORK, tuple):
+        return [WALLETS[i-1] for i in WALLETS_TO_WORK]
+    elif isinstance(WALLETS_TO_WORK, list):
+        return [WALLETS[i-1] for i in range(WALLETS_TO_WORK[0], WALLETS_TO_WORK[1])]
 
 
 def load_routes():
@@ -25,9 +36,12 @@ def update_step(wallet, step):
 
 async def get_proxy_for_account(account_number):
     if USE_PROXY:
-        num_proxies = len(PROXIES)
-        return PROXIES[account_number % num_proxies]
-    return None
+        try:
+            num_proxies = len(PROXIES)
+            return PROXIES[account_number % num_proxies]
+        except:
+            cprint(f"\n❌ Nothing in proxy.txt, but you want proxy!\n", 'light_red')
+            return None
 
 
 async def sleep(account_number, private_key):
@@ -43,9 +57,9 @@ async def sleep(account_number, private_key):
 
 
 async def run_module(module):
-    for account_number, private_key in enumerate(WALLETS, 1):
+    for account_number, private_key in enumerate(get_wallets(), 1):
         proxy = await get_proxy_for_account(account_number)
-        await MODULES[module](account_number, private_key, zkSyncEra, proxy)
+        await MODULES[module](account_number, private_key, ScrollRPC, proxy)
         await sleep(account_number, private_key)
 
 
@@ -72,16 +86,16 @@ async def run_account_modules(account_number, private_key, network, proxy):
 async def run_parallel():
     tasks = []
 
-    for account_number, private_key in enumerate(WALLETS, 1):
-        tasks.append(asyncio.create_task(run_account_modules(account_number, private_key, zkSyncEra,
+    for account_number, private_key in enumerate(get_wallets(), 1):
+        tasks.append(asyncio.create_task(run_account_modules(account_number, private_key, ScrollRPC,
                                                              await get_proxy_for_account(account_number))))
 
     await asyncio.gather(*tasks)
 
 
 async def run_consistently():
-    for account_number, private_key in enumerate(WALLETS, 1):
-        await run_account_modules(account_number, private_key, zkSyncEra, await get_proxy_for_account(account_number))
+    for account_number, private_key in enumerate(get_wallets(), 1):
+        await run_account_modules(account_number, private_key, ScrollRPC, await get_proxy_for_account(account_number))
     cprint(f"\n✅ All accounts completed their tasks!\n", 'light_green')
 
 

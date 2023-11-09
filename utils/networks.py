@@ -23,9 +23,7 @@ class Network:
 
 zkSyncEra = Network(
     name='zkSync Era',
-    rpc=[#'https://zksync.getblock.io/your_key/mainnet/',
-         #'https://open-platform.nodereal.io/your_key/zksync',
-         'https://rpc.ankr.com/zksync_era',
+    rpc=['https://rpc.ankr.com/zksync_era',
          'https://zksync.meowrpc.com',
          'https://zksync.drpc.org',
          'https://zksync-era.blockpi.network/v1/rpc/public'],
@@ -35,6 +33,16 @@ zkSyncEra = Network(
     explorer='https://explorer.zksync.io/',
 )
 
+ScrollRPC = Network(
+    name='Scroll',
+    rpc=['https://1rpc.io/scroll',
+         'https://rpc.scroll.io',
+         'https://scroll.blockpi.network/v1/rpc/public'],
+    chain_id=534352,
+    eip1559_support=False,
+    token='ETH',
+    explorer='https://scrollscan.com/'
+)
 
 Arbitrum = Network(
     name='Arbitrum',
@@ -132,7 +140,7 @@ Linea = Network(
          'https://1rpc.io/linea',
          'https://rpc.linea.build'],
     chain_id=59144,
-    eip1559_support=True,
+    eip1559_support=False,
     token='ETH',
     explorer='https://lineascan.build/'
 )
@@ -141,20 +149,9 @@ Zora = Network(
     name='Zora',
     rpc=['https://rpc.zora.energy'],
     chain_id=7777777,
-    eip1559_support=True,
+    eip1559_support=False,
     token='ETH',
     explorer='https://zora.superscan.network/'
-)
-
-Scroll = Network(
-    name='Scroll',
-    rpc=['https://1rpc.io/scroll',
-         'https://rpc.scroll.io',
-         'https://scroll.blockpi.network/v1/rpc/public'],
-    chain_id=534352,
-    eip1559_support=True,
-    token='ETH',
-    explorer='https://scrollscan.com/'
 )
 
 Polygon_ZKEVM = Network(
@@ -169,13 +166,13 @@ Polygon_ZKEVM = Network(
 )
 
 BSC = Network(
-    name='BSC',
+    name='BNB chain',
     rpc=['https://binance.llamarpc.com',
          'https://bsc-dataseed.bnbchain.org',
          'https://rpc.ankr.com/bsc',
          'https://1rpc.io/bnb'],
     chain_id=56,
-    eip1559_support=True,
+    eip1559_support=False,
     token='BNB',
     explorer='https://bscscan.com/'
 )

@@ -1,3 +1,4 @@
+from .interfaces import DEX, Aggregator, Bridge, Refuel, Messenger, Landing, Minter, Blockchain, Creator, CEX
 from .client import Client
 from .woofi import WooFi
 from .syncswap import SyncSwap
@@ -31,3 +32,5 @@ from .okx import OKX
 from .orbiter import Orbiter
 from .rango import Rango
 from .gnosissafe import GnosisSafe
+from .rhino import Rhino
+from .zerius import Zerius

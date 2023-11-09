@@ -1,5 +1,5 @@
 from time import time
-from modules import Client
+from modules import DEX
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE_PERCENT
 from hexbytes import HexBytes
@@ -12,11 +12,12 @@ from config import (
 )
 
 
-class Izumi(Client):
-    def __init__(self, account_number, private_key, network, proxy=None):
-        super().__init__(account_number, private_key, network, proxy)
-        self.router_contract = self.get_contract(IZUMI_CONTRACTS['router'], IZUMI_ROUTER_ABI)
-        self.quoter_contract = self.get_contract(IZUMI_CONTRACTS['quoter'], IZUMI_QUOTER_ABI)
+class Izumi(DEX):
+    def __init__(self, client):
+        self.client = client
+
+        self.router_contract = self.client.get_contract(IZUMI_CONTRACTS['router'], IZUMI_ROUTER_ABI)
+        self.quoter_contract = self.client.get_contract(IZUMI_CONTRACTS['quoter'], IZUMI_QUOTER_ABI)
 
     @staticmethod
     def get_path(from_token_address: str, to_token_address: str):
@@ -38,16 +39,17 @@ class Izumi(Client):
     @gas_checker
     async def swap(self):
 
-        from_token_name, to_token_name, amount, amount_in_wei = await self.get_auto_amount()
+        from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
-        self.logger.info(f'{self.info} Swap on Izumi: {amount} {from_token_name} -> {to_token_name}')
+        self.client.logger.info(
+            f'{self.client.info} Izumi | Swap on Izumi: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address, to_token_address = ZKSYNC_TOKENS[from_token_name], ZKSYNC_TOKENS[to_token_name]
 
         if from_token_name != 'ETH':
-            await self.check_for_approved(from_token_address, IZUMI_CONTRACTS['router'], amount_in_wei)
+            await self.client.check_for_approved(from_token_address, IZUMI_CONTRACTS['router'], amount_in_wei)
 
-        tx_params = await self.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
+        tx_params = await self.client.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
         deadline = int(time()) + 1800
         path = self.get_path(from_token_address, to_token_address)
 
@@ -57,7 +59,7 @@ class Izumi(Client):
             fn_name='swapAmount',
             args=[(
                 path,
-                self.address if to_token_name != 'ETH' else ZERO_ADDRESS,
+                self.client.address if to_token_name != 'ETH' else ZERO_ADDRESS,
                 amount_in_wei,
                 min_amount_out,
                 deadline
@@ -71,7 +73,7 @@ class Izumi(Client):
                 fn_name='unwrapWETH9' if from_token_name != 'ETH' else 'refundETH',
                 args=[
                     min_amount_out,
-                    self.address
+                    self.client.address
                 ] if from_token_name != 'ETH' else None
             )
             full_data.append(tx_additional_data)
@@ -80,6 +82,6 @@ class Izumi(Client):
             full_data
         ).build_transaction(tx_params)
 
-        tx_hash = await self.send_transaction(transaction)
+        tx_hash = await self.client.send_transaction(transaction)
 
-        await self.verify_transaction(tx_hash)
+        await self.client.verify_transaction(tx_hash)

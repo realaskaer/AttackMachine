@@ -20,7 +20,7 @@ from settings import (
 async def sleep(self, min_time=MIN_SLEEP, max_time=MAX_SLEEP):
     duration = random.randint(min_time, max_time)
     print()
-    self.logger.info(f"{self.info} 💤 Sleeping for {duration} seconds.")
+    self.client.logger.info(f"{self.client.info} {self.__class__.__name__} | 💤 Sleeping for {duration} seconds.")
 
     await asyncio.sleep(duration)
 
@@ -48,11 +48,11 @@ async def check_proxies_status(proxies: list):
 
 async def check_proxy_status(proxy:str):
     try:
-        w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(Ethereum.rpc), request_kwargs={"proxy": f"http://{proxy}"}))
+        w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(zkSyncEra.rpc), request_kwargs={"proxy": f"http://{proxy}"}))
         if await w3.is_connected():
-            cprint(f'✅ Proxy {proxy[proxy.find("@"):]} successfully connected to Ethereum RPC', 'light_green')
+            cprint(f'✅ Proxy {proxy[proxy.find("@"):]} successfully connected to zkSync RPC', 'light_green')
             return True
-        cprint(f"❌ Proxy: {proxy} can`t connect to Ethereum RPC", 'light_red')
+        cprint(f"❌ Proxy: {proxy} can`t connect to zkSync RPC", 'light_red')
         return False
     except Exception as error:
         cprint(f"❌ Bad proxy: {proxy} | Error: {error} ", 'red')
@@ -63,13 +63,15 @@ def repeater(func):
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
         attempts = 0
+        class_name = self.__class__.__name__
         while True:
             try:
                 return await func(self, *args, **kwargs)
             except Exception as error:
 
                 await asyncio.sleep(1)
-                self.logger.error(f"{self.info} {error} | Try[{attempts + 1}/{MAXIMUM_RETRY + 1}]")
+                self.client.logger.error(
+                    f"{self.client.info} {class_name} | {error} | Try[{attempts + 1}/{MAXIMUM_RETRY + 1}]")
                 await asyncio.sleep(1)
 
                 attempts += 1
@@ -77,7 +79,7 @@ def repeater(func):
                     break
 
                 await sleep(self, SLEEP_TIME_RETRY, SLEEP_TIME_RETRY)
-        self.logger.error(f"{self.info} Tries are over, launching next module.")
+        self.client.logger.error(f"{self.client.info} {class_name} | Tries are over, launching next module.")
     return wrapper
 
 
@@ -85,21 +87,22 @@ def gas_checker(func):
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
         if GAS_CONTROL:
+            class_name = self.__class__.__name__
             await asyncio.sleep(1)
             print()
-            self.logger.info(f"{self.info} Checking for gas price")
-            w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(Ethereum.rpc), request_kwargs=self.request_kwargs))
+            self.client.logger.info(f"{self.client.info} {class_name} | Checking for gas price")
+            w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(Ethereum.rpc), request_kwargs=self.client.request_kwargs))
             while True:
                 gas = round(AsyncWeb3.from_wei(await w3.eth.gas_price, 'gwei'), 3)
                 if gas < MAXIMUM_GWEI:
                     await asyncio.sleep(1)
-                    self.logger.success(f"{self.info} {gas} Gwei | Gas price is good")
+                    self.client.logger.success(f"{self.client.info} {class_name} | {gas} Gwei | Gas price is good")
                     await asyncio.sleep(1)
                     return await func(self, *args, **kwargs)
                 else:
                     await asyncio.sleep(1)
-                    self.logger.warning(
-                        f"{self.info} {gas} Gwei | Gas is too high."
+                    self.client.logger.warning(
+                        f"{self.client.info} {class_name} | {gas} Gwei | Gas is too high."
                         f" Next check in {SLEEP_TIME_GAS} second")
                     await asyncio.sleep(SLEEP_TIME_GAS)
         return await func(self, *args, **kwargs)

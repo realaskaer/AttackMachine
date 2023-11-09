@@ -2,13 +2,14 @@ from faker import Faker
 from random import randint
 from utils.tools import gas_checker, repeater
 from config import ZNS_CONTRACT, ZNS_ABI
-from modules import Client
+from modules import Minter
 
 
-class ZkSyncNameService(Client):
-    def __init__(self, account_number, private_key, network, proxy=None):
-        super().__init__(account_number, private_key, network, proxy)
-        self.domain_contract = self.get_contract(ZNS_CONTRACT['zns_registrator'], ZNS_ABI)
+class ZkSyncNameService(Minter):
+    def __init__(self, client):
+        self.client = client
+
+        self.domain_contract = self.client.get_contract(ZNS_CONTRACT['zns_registrator'], ZNS_ABI)
 
     async def get_random_name(self):
         domain = f'{Faker().word()}{randint(100, 999999)}'
@@ -22,21 +23,21 @@ class ZkSyncNameService(Client):
 
     @repeater
     @gas_checker
-    async def mint_domain(self):
-        self.logger.info(f'{self.info} Mint domain on ZNS')
+    async def mint(self):
+        self.client.logger.info(f'{self.client.info} ZNS | Mint domain on ZNS')
 
         domain = await self.get_random_name()
 
-        self.logger.info(f'{self.info} Generated domain: {domain}.zks')
+        self.client.logger.info(f'{self.client.info} ZNS | Generated domain: {domain}.zks')
 
-        tx_params = await self.prepare_transaction()
+        tx_params = await self.client.prepare_transaction()
 
         transaction = await self.domain_contract.functions.register(
             domain,
-            self.address,
+            self.client.address,
             1
         ).build_transaction(tx_params)
 
-        tx_hash = await self.send_transaction(transaction)
+        tx_hash = await self.client.send_transaction(transaction)
 
-        await self.verify_transaction(tx_hash)
+        await self.client.verify_transaction(tx_hash)

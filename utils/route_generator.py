@@ -42,15 +42,11 @@ def auto_routes_gen():
 
 def auto_generate_route():
     route = []
+    bridge_choice = []
 
     if AUTO_ROUTES_MODULES_USING['okx_withdraw']:
         route.append(('okx_withdraw', 0, 1))
-    if AUTO_ROUTES_MODULES_USING['bridge_layerswap']:
-        route.append(('bridge_layerswap', 1, 1))
-    if AUTO_ROUTES_MODULES_USING['bridge_orbiter']:
-        route.append(('bridge_orbiter', 1, 1))
-    if AUTO_ROUTES_MODULES_USING['bridge_txsync']:
-        route.append(('bridge_txsync', 1, 1))
+
     if WITHDRAW_LP:
         route.extend(withdraw_liquidity_modules)
 
@@ -64,9 +60,20 @@ def auto_generate_route():
             if not MAX_UNQ_CONTACTS:
                 route.append(mod)
             else:
-                if mod in route and len(route) < sum(AUTO_ROUTES_MODULES_USING.values()):
+                if mod in route and len(route) < sum(list(AUTO_ROUTES_MODULES_USING.values())) - 4:
                     continue
                 route.append(mod)
+
+    if AUTO_ROUTES_MODULES_USING['bridge_rhino']:
+        bridge_choice.append(('bridge_rhino', 1, 1))
+    if AUTO_ROUTES_MODULES_USING['bridge_layerswap']:
+        bridge_choice.append(('bridge_layerswap', 1, 1))
+    if AUTO_ROUTES_MODULES_USING['bridge_orbiter']:
+        bridge_choice.append(('bridge_orbiter', 1, 1))
+    if AUTO_ROUTES_MODULES_USING['bridge_txsync']:
+        bridge_choice.append(('bridge_txsync', 1, 1))
+
+    route.append(random.choice(bridge_choice))
 
     random.shuffle(route)
 
@@ -95,9 +102,6 @@ def classic_generate_route():
 available_modules = [
     # module name, priority, max_count
     ('okx_withdraw', 0, 1),
-    ('bridge_layerswap', 1, 1),
-    ('bridge_orbiter', 1, 1),
-    ('bridge_txsync', 1, 1),
     ('add_liquidity_maverick', 2, 1),
     ('add_liquidity_mute', 2, 1),
     ('add_liquidity_syncswap', 2, 1),
@@ -131,13 +135,17 @@ available_modules = [
     ('mint_domain_zns', 3, 1),
     ('mint_mailzero', 3, 1),
     ('mint_tevaera', 3, 1),
+    ('mint_zerius', 3, 0),
+    ('bridge_zerius', 3, 0),
     ('refuel_bungee', 3, 0),
     ('refuel_merkly', 3, 0),
     ('send_message_dmail', 3, 0),
     ('send_message_l2telegraph', 3, 0),
     ('transfer_eth', 3, 0),
+    ('transfer_eth_to_myself', 3, 0),
     ('withdraw_txsync', 3, 0),
     ('okx_deposit', 4, 1),
+    ('okx_collect_from_sub', 5, 1),
 ]
 
 withdraw_liquidity_modules = [

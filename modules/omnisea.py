@@ -1,22 +1,21 @@
 import random
 import time
 
-from modules import Client
+from modules import Creator
 from utils.tools import gas_checker, repeater
 from string import ascii_letters
 from config import OMNISEA_ABI, OMNISEA_CONTRACT
 
 
-class Omnisea(Client):
-
+class Omnisea(Creator):
     @repeater
     @gas_checker
-    async def create_collection(self):
-        self.logger.info(f"{self.info} Create NFT collection on Omnisea")
+    async def create(self):
+        self.client.logger.info(f"{self.client.info} Omnisea | Create NFT collection on Omnisea")
 
-        contract = self.get_contract(OMNISEA_CONTRACT['drop_factory'], OMNISEA_ABI)
+        contract = self.client.get_contract(OMNISEA_CONTRACT['drop_factory'], OMNISEA_ABI)
 
-        tx_params = await self.prepare_transaction()
+        tx_params = await self.client.prepare_transaction()
 
         name = "".join(random.sample(ascii_letters, random.randint(5, 15)))
         symbol = "".join(random.sample(ascii_letters, random.randint(3, 6)))
@@ -28,7 +27,7 @@ class Omnisea(Client):
         royalty_amount = random.randrange(1, 5)
         end_time = int(time.time()) + random.randrange(1000000, 2000000)
 
-        self.logger.info(f"{self.info} Create NFT collection on Omnisea | Name: {name} Symbol: {symbol}")
+        self.client.logger.info(f"{self.client.info} Create NFT collection on Omnisea | Name: {name} Symbol: {symbol}")
 
         transaction = await contract.functions.create([
             name,
@@ -41,6 +40,6 @@ class Omnisea(Client):
             end_time
         ]).build_transaction(tx_params)
 
-        tx_hash = await self.send_transaction(transaction)
+        tx_hash = await self.client.send_transaction(transaction)
 
-        await self.verify_transaction(tx_hash)
+        await self.client.verify_transaction(tx_hash)

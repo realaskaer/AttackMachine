@@ -1,5 +1,5 @@
 from time import time
-from modules import Client
+from modules import DEX
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE_PERCENT
 from config import (
@@ -9,10 +9,11 @@ from config import (
 )
 
 
-class Velocore(Client):
-    def __init__(self, account_number, private_key, network, proxy=None):
-        super().__init__(account_number, private_key, network, proxy)
-        self.router_contract = self.get_contract(VELOCORE_CONTRACTS['router'], VELOCORE_ROUTER_ABI)
+class Velocore(DEX):
+    def __init__(self, client):
+        self.client = client
+
+        self.router_contract = self.client.get_contract(VELOCORE_CONTRACTS['router'], VELOCORE_ROUTER_ABI)
 
     async def get_out_data(self, from_token_address: str, to_token_address: str, amount_in_wei: int):
         min_amount_out, pool_type = await self.router_contract.functions.getAmountOut(
@@ -27,16 +28,17 @@ class Velocore(Client):
     @gas_checker
     async def swap(self):
 
-        from_token_name, to_token_name, amount, amount_in_wei = await self.get_auto_amount()
+        from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
-        self.logger.info(f'{self.info} Swap on Velocore: {amount} {from_token_name} -> {to_token_name}')
+        self.client.logger.info(
+            f'{self.client.info} Velocore | Swap on Velocore: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address, to_token_address = ZKSYNC_TOKENS[from_token_name], ZKSYNC_TOKENS[to_token_name]
 
         if from_token_name != 'ETH':
-            await self.check_for_approved(from_token_address, VELOCORE_CONTRACTS['router'], amount_in_wei)
+            await self.client.check_for_approved(from_token_address, VELOCORE_CONTRACTS['router'], amount_in_wei)
 
-        tx_params = await self.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
+        tx_params = await self.client.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
         deadline = int(time()) + 1800
         min_amount_out, pool_type = await self.get_out_data(from_token_address, to_token_address, amount_in_wei)
 
@@ -49,7 +51,7 @@ class Velocore(Client):
                     pool_type
                 ]
             ],
-            self.address,
+            self.client.address,
             deadline
         )
 
@@ -68,6 +70,6 @@ class Velocore(Client):
                 *full_data
             ).build_transaction(tx_params)
 
-        tx_hash = await self.send_transaction(transaction)
+        tx_hash = await self.client.send_transaction(transaction)
 
-        await self.verify_transaction(tx_hash)
+        await self.client.verify_transaction(tx_hash)

@@ -1,6 +1,5 @@
 import asyncio
 import sys
-from ctypes import windll
 
 from questionary import Choice, select
 from termcolor import cprint
@@ -63,7 +62,9 @@ def get_one_module():
         choices=[
             Choice("⚫ Withdraw OKX", 'okx_withdraw'),
             Choice("🔵 Bridge on txSync", 'bridge_txsync'),
+            Choice("🔵 Bridge on Rhino.fi", 'bridge_rhino'),
             Choice("🔵 Bridge on LayerSwap", 'bridge_layerswap'),
+            Choice("🔵 Bridge on Orbiter", 'bridge_orbiter'),
             Choice("🔴 Refuel on Merkly", 'refuel_merkly'),
             Choice("🔴 Refuel on Bungee", 'refuel_bungee'),
             Choice("🟢 Swap on Izumi", 'swap_izumi'),
@@ -103,6 +104,8 @@ def get_one_module():
             Choice("🟠 Disable collateral on Basilisk", 'disable_collateral_basilisk'),
             Choice("🟠 Disable collateral on Reactorfusion", 'disable_collateral_reactorfusion'),
             Choice("🟡 Mint Citizen ID and Guardian NFT on Tevaera", 'mint_tevaera'),
+            Choice("🟡 Bridge NFT on Zerius", 'bridge_zerius'),
+            Choice("🟡 Mint NFT on Zerius", 'mint_zerius'),
             Choice("🟡 Mint free NFT on MailZero", 'mint_mailzero'),
             Choice("🟡 Mint domain on Era Name Service. 0.003 ETH", 'mint_domain_ens'),
             Choice("🟡 Mint domain on zkSync Name Service. 0.0 ETH", 'mint_domain_zns'),
@@ -117,6 +120,7 @@ def get_one_module():
             Choice("⚪ Transfer ETH to your own address", 'transfer_eth_to_myself'),
             Choice("🔵 Withdraw from Era on txSync", 'withdraw_txsync'),
             Choice("⚫ Deposit OKX", 'okx_deposit'),
+            Choice("⚫ Collect funds from subs on OKX", 'okx_collect_from_sub'),
             Choice('Back to menu', 'main')
         ],
         qmark='🛠️',
@@ -126,7 +130,6 @@ def get_one_module():
 
 
 def main():
-    windll.kernel32.SetConsoleTitleW('Attack Machine v0.0.2')
     print(TITLE)
     cprint(f'\n❤️ Subscribe to my channel: https://t.me/askaer', 'light_cyan', attrs=["blink"])
     cprint(f'\n💵 Donate (Any EVM) --> 0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5\n', 'light_cyan')

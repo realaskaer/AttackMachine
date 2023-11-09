@@ -1,43 +1,45 @@
 from utils.tools import sleep, gas_checker, repeater
-from modules import Client
+from modules import Minter
 from config import (
     TEVAERA_CONTRACTS,
     TEVAERA_ABI,
 )
 
 
-class Tevaera(Client):
+class Tevaera(Minter):
+    def __init__(self, client):
+        self.client = client
+
+        self.id_contract = self.client.get_contract(TEVAERA_CONTRACTS['citizen_id'], TEVAERA_ABI)
+        self.nft_contract = self.client.get_contract(TEVAERA_CONTRACTS['nft_contract'], TEVAERA_ABI)
+
     @repeater
     async def mint_id(self):
         try:
-            self.logger.info(f"{self.info} Mint Tevaera Citizen ID")
+            self.client.logger.info(f"{self.client.info} Tevaera | Mint Tevaera Citizen ID")
 
-            id_contract = self.get_contract(TEVAERA_CONTRACTS['citizen_id'], TEVAERA_ABI)
+            tx_params = await self.client.prepare_transaction(value=300000000000000)
 
-            tx_params = await self.prepare_transaction(value=300000000000000)
+            transaction = await self.id_contract.functions.mintCitizenId().build_transaction(tx_params)
 
-            transaction = await id_contract.functions.mintCitizenId().build_transaction(tx_params)
+            tx_hash = await self.client.send_transaction(transaction)
 
-            tx_hash = await self.send_transaction(transaction)
-
-            await self.verify_transaction(tx_hash)
+            await self.client.verify_transaction(tx_hash)
         except Exception as error:
             raise RuntimeError(f'{error}')
 
     @repeater
     async def mint_nft(self):
         try:
-            self.logger.info(f"{self.info} Mint Tevaera Guardian NFT")
+            self.client.logger.info(f"{self.client.info} Tevaera | Mint Tevaera Guardian NFT")
 
-            nft_contract = self.get_contract(TEVAERA_CONTRACTS['nft_contract'], TEVAERA_ABI)
+            tx_params = await self.client.prepare_transaction()
 
-            tx_params = await self.prepare_transaction()
+            transaction = await self.nft_contract.functions.mint().build_transaction(tx_params)
 
-            transaction = await nft_contract.functions.mint().build_transaction(tx_params)
+            tx_hash = await self.client.send_transaction(transaction)
 
-            tx_hash = await self.send_transaction(transaction)
-
-            await self.verify_transaction(tx_hash)
+            await self.client.verify_transaction(tx_hash)
         except Exception as error:
             raise RuntimeError(f"{error}")
 
@@ -62,7 +64,7 @@ class Tevaera(Client):
     #     self.verify_transaction(tx_hash)
 
     @gas_checker
-    async def double_mint(self):
+    async def mint(self):
 
         await self.mint_id()
 
