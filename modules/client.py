@@ -201,9 +201,14 @@ class Client:
             token_names_list = list(filter(lambda token_name: token_name != from_token_name, ZKSYNC_TOKENS.keys()))
             token_names_list.remove('WETH')
 
-            # if self.__class__.__name__ in ['OpenOcean']:
-            #     if 'BUSD' in token_names_list:
-            #         token_names_list.remove('BUSD')
+            if class_name in ['Maverick', 'Izumi', 'Velocore']:
+                if 'USDT' in token_names_list:
+                    token_names_list.remove('USDT')
+                if from_token_name == 'ETH' and class_name == 'Izumi':
+                    token_names_list.remove('BUSD')
+            elif class_name in ['Mute', 'Rango', 'OpenOcean']:
+                if 'BUSD' in token_names_list:
+                    token_names_list.remove('BUSD')
 
             to_token_name = random.choice(token_names_list)
 
