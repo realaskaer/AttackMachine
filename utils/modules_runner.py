@@ -68,6 +68,11 @@ class Runner(Logger):
             json.dump(wallets, f, indent=4)
 
     @staticmethod
+    def collect_bad_wallets(private_key):
+        with open('./data/bad_wallets.txt', 'a') as file:
+            file.write(f"{private_key}\n")
+
+    @staticmethod
     async def prepare_update_cell_data(route_generator, result_list, account_name, private_key):
         wallets_list = route_generator.get_wallet_list()
         modules_list = route_generator.get_modules_list()
@@ -183,6 +188,7 @@ class Runner(Logger):
                     message_list.append(f'❌   {AVAILABLE_MODULES_INFO[module_func][2]}\n')
                     result_list.append((False, module_func))
                     total_info, type_msg = f"Some problems during the process of route\n", 'error'
+                    self.collect_bad_wallets(private_key)
                     break
 
             message_list.append(f'{"✅" if result else "❌"}   {AVAILABLE_MODULES_INFO[module_func][2]}\n')
