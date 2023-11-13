@@ -38,7 +38,7 @@ class OneInch(Aggregator):
             amount_in_wei = int(amount * 10 ** decimals)
 
         self.client.logger.info(
-            f'{self.client.info} 1INCH | Swap on 1INCH: {amount} {from_token_name} -> {to_token_name}')
+            f'{self.client.info} Swap on 1INCH: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address = ETH_MASK if from_token_name == "ETH" else ZKSYNC_TOKENS[from_token_name]
         to_token_address = ETH_MASK if to_token_name == "ETH" else ZKSYNC_TOKENS[to_token_name]
@@ -56,4 +56,4 @@ class OneInch(Aggregator):
 
         tx_hash = await self.client.send_transaction(tx_param)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

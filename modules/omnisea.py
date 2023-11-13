@@ -11,7 +11,7 @@ class Omnisea(Creator):
     @repeater
     @gas_checker
     async def create(self):
-        self.client.logger.info(f"{self.client.info} Omnisea | Create NFT collection on Omnisea")
+        self.client.logger.info(f"{self.client.info} Create NFT collection on Omnisea")
 
         contract = self.client.get_contract(OMNISEA_CONTRACT['drop_factory'], OMNISEA_ABI)
 
@@ -42,4 +42,4 @@ class Omnisea(Creator):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

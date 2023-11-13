@@ -1,4 +1,7 @@
 from aiohttp import ClientSession
+from loguru import logger
+from sys import stderr
+from web3 import AsyncWeb3
 from abc import ABC, abstractmethod
 from settings import LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS, OKX_API_SECRET, OKX_DEPOSIT_NETWORK
 
@@ -9,11 +12,34 @@ class DEX(ABC):
         pass
 
 
+class Logger(ABC):
+    def __init__(self):
+        self.logger = logger
+        self.logger.remove()
+        logger_format = "<cyan>{time:HH:mm:ss}</cyan> | <level>" "{level: <8}</level> | <level>{message}</level>"
+        self.logger.add(stderr, format=logger_format)
+        self.logger.add("./data/logs/logfile.log", rotation="500 MB", level="INFO", format=logger_format)
+
+    def logger_msg(self, account_name, private_key, msg, type_msg: str = 'info'):
+        if account_name is None or private_key is None:
+            info = f'[Attack machine] | Runner |'
+        else:
+            address = AsyncWeb3().eth.account.from_key(private_key).address
+            info = f'[{account_name}] {address} | Runner |'
+        if type_msg == 'info':
+            self.logger.info(f"{info} {msg}")
+        elif type_msg == 'error':
+            self.logger.error(f"{info} {msg}")
+        elif type_msg == 'success':
+            self.logger.success(f"{info} {msg}")
+        elif type_msg == 'warning':
+            self.logger.warning(f"{info} {msg}")
+
+
 class CEX(ABC):
     def __init__(self, client):
         self.client = client
 
-        #self.network_id = OKX_DEPOSIT_NETWORK
         self.api_key = OKX_API_KEY
         self.api_secret = OKX_API_SECRET
         self.passphras = OKX_API_PASSPHRAS

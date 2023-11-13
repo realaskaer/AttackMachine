@@ -35,10 +35,10 @@ class Mute(DEX):
             amount = amount_to_help
             amount_in_wei = int(amount_to_help * 10 ** 18)
         else:
-            from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
+            from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount(class_name='Mute')
 
         self.client.logger.info(
-            f'{self.client.info} Mute | Swap on Mute: {amount} {from_token_name} -> {to_token_name}')
+            f'{self.client.info} Swap on Mute: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address, to_token_address = ZKSYNC_TOKENS[from_token_name], ZKSYNC_TOKENS[to_token_name]
 
@@ -47,9 +47,9 @@ class Mute(DEX):
 
         tx_params = await self.client.prepare_transaction(amount_in_wei if from_token_name == 'ETH' else 0)
         deadline = int(time()) + 1800
-        min_amount_out, stable_mode, _ = await self.get_out_data(from_token_address,
-                                                                 to_token_address,
-                                                                 amount_in_wei)
+        min_amount_out, stable_mode, _ = await self.get_out_data(from_token_address, to_token_address, amount_in_wei)
+
+        await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
 
         full_data = (
             min_amount_out,
@@ -79,7 +79,7 @@ class Mute(DEX):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)
 
     @repeater
     @gas_checker
@@ -95,7 +95,7 @@ class Mute(DEX):
         amount_from_settings_in_wei = amount_from_settings * 10 ** 18
 
         self.client.logger.info(
-            f'{self.client.info} Mute | Add liquidity to Mute USDC/ETH pool: {amount_from_settings} ETH')
+            f'{self.client.info} Add liquidity to Mute USDC/ETH pool: {amount_from_settings} ETH')
 
         amount_eth_min = int(amount_from_settings_in_wei / 2)
 
@@ -126,12 +126,12 @@ class Mute(DEX):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)
 
     @repeater
     @gas_checker
     async def withdraw_liquidity(self):
-        self.client.logger.info(f'{self.client.info} Mute | Withdraw liquidity from Mute')
+        self.client.logger.info(f'{self.client.info} Withdraw liquidity from Mute')
 
         liquidity_balance = await self.client.get_contract(MUTE_CONTRACTS['pair_dynamic']).functions.balanceOf(
             self.client.address
@@ -164,7 +164,7 @@ class Mute(DEX):
 
             tx_hash = await self.client.send_transaction(transaction)
 
-            await self.client.verify_transaction(tx_hash)
+            return await self.client.verify_transaction(tx_hash)
 
         else:
             raise RuntimeError('Insufficient balance on Mute!')

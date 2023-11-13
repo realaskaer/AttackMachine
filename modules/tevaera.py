@@ -16,7 +16,7 @@ class Tevaera(Minter):
     @repeater
     async def mint_id(self):
         try:
-            self.client.logger.info(f"{self.client.info} Tevaera | Mint Tevaera Citizen ID")
+            self.client.logger.info(f"{self.client.info} Mint Tevaera Citizen ID")
 
             tx_params = await self.client.prepare_transaction(value=300000000000000)
 
@@ -24,14 +24,14 @@ class Tevaera(Minter):
 
             tx_hash = await self.client.send_transaction(transaction)
 
-            await self.client.verify_transaction(tx_hash)
+            return await self.client.verify_transaction(tx_hash)
         except Exception as error:
             raise RuntimeError(f'{error}')
 
     @repeater
     async def mint_nft(self):
         try:
-            self.client.logger.info(f"{self.client.info} Tevaera | Mint Tevaera Guardian NFT")
+            self.client.logger.info(f"{self.client.info} Mint Tevaera Guardian NFT")
 
             tx_params = await self.client.prepare_transaction()
 
@@ -39,7 +39,7 @@ class Tevaera(Minter):
 
             tx_hash = await self.client.send_transaction(transaction)
 
-            await self.client.verify_transaction(tx_hash)
+            return await self.client.verify_transaction(tx_hash)
         except Exception as error:
             raise RuntimeError(f"{error}")
 

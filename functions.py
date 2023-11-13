@@ -12,7 +12,7 @@ async def get_client(account_number, private_key, network, proxy):
     return client_instance
 
 
-async def get_network_by_chain_id(chain_id):
+def get_network_by_chain_id(chain_id):
     return {
         1: Arbitrum,
         2: Arbitrum_nova,
@@ -25,7 +25,8 @@ async def get_network_by_chain_id(chain_id):
         9: Polygon_ZKEVM,
         10: zkSyncEra,
         11: Zora,
-        12: zkSyncEra
+        12: zkSyncEra,
+        13: Ethereum
     }[chain_id]
 
 
@@ -75,7 +76,7 @@ async def send_message_dmail(account_number, private_key, network, proxy):
 
 
 async def bridge_txsync(account_number, private_key, _, proxy):
-    network = get_network_by_chain_id(5)
+    network = get_network_by_chain_id(13)
     worker = ZkSync(await get_client(account_number, private_key, network, proxy))
     await worker.deposit()
 
@@ -105,9 +106,9 @@ async def unwrap_eth(account_number, private_key, network, proxy):
     await wrap.unwrap_eth()
 
 
-# async  def deploy_contract(account_number, private_key, network, proxy, *args, **kwargs):
-#     wrap = ZkSync(account_number, private_key, network, proxy)
-#     await wrap.deploy_contract(*args, **kwargs)
+async def deploy_contract(account_number, private_key, network, proxy):
+    wrap = ZkSync(await get_client(account_number, private_key, network, proxy))
+    await wrap.deploy_contract()
 
 
 # async  def mint_deployed_token(account_number, private_key, network, proxy, *args, **kwargs):
@@ -118,6 +119,11 @@ async def unwrap_eth(account_number, private_key, network, proxy):
 async def swap_odos(account_number, private_key, network, proxy, **kwargs):
     worker = Odos(await get_client(account_number, private_key, network, proxy))
     await worker.swap(**kwargs)
+
+
+async def swap_xyfinance(account_number, private_key, network, proxy):
+    worker = Odos(await get_client(account_number, private_key, network, proxy))
+    await worker.swap()
 
 
 async def swap_rango(account_number, private_key, network, proxy):
@@ -372,67 +378,3 @@ async def okx_deposit(account_number, private_key, _, proxy):
 async def okx_collect_from_sub(account_number, private_key, network, proxy):
     worker = OKX(await get_client(account_number, private_key, network, proxy))
     await worker.collect_from_sub()
-
-MODULES = {
-    "okx_withdraw": okx_withdraw,
-    "bridge_layerswap": bridge_layerswap,
-    "bridge_orbiter": bridge_orbiter,
-    "bridge_rhino": bridge_rhino,
-    "bridge_txsync": bridge_txsync,
-    "add_liquidity_maverick": add_liquidity_maverick,
-    "add_liquidity_mute": add_liquidity_mute,
-    "add_liquidity_syncswap": add_liquidity_syncswap,
-    "okx_deposit": okx_deposit,
-    "deposit_basilisk": deposit_basilisk,
-    "deposit_eralend": deposit_eralend,
-    "deposit_reactorfusion": deposit_reactorfusion,
-    "deposit_zerolend": deposit_zerolend,
-    "enable_collateral_basilisk": enable_collateral_basilisk,
-    "enable_collateral_eralend": enable_collateral_eralend,
-    "enable_collateral_reactorfusion": enable_collateral_reactorfusion,
-    "enable_collateral_zerolend": enable_collateral_zerolend,
-    "swap_izumi": swap_izumi,
-    "swap_maverick": swap_maverick,
-    "swap_mute": swap_mute,
-    "swap_odos": swap_odos,
-    "swap_oneinch": swap_oneinch,
-    "swap_openocean": swap_openocean,
-    "swap_pancake": swap_pancake,
-    "swap_rango": swap_rango,
-    "swap_spacefi": swap_spacefi,
-    "swap_syncswap": swap_syncswap,
-    "swap_velocore": swap_velocore,
-    "swap_vesync": swap_vesync,
-    "swap_woofi": swap_woofi,
-    "swap_zkswap": swap_zkswap,
-    "wrap_eth": wrap_eth,
-    "create_omnisea": create_omnisea,
-    "disable_collateral_basilisk": disable_collateral_basilisk,
-    "disable_collateral_eralend": disable_collateral_eralend,
-    "disable_collateral_reactorfusion": disable_collateral_reactorfusion,
-    "disable_collateral_zerolend": disable_collateral_zerolend,
-    "mint_and_bridge_l2telegraph": mint_and_bridge_l2telegraph,
-    "mint_domain_ens": mint_domain_ens,
-    "mint_domain_zns": mint_domain_zns,
-    "mint_mailzero": mint_mailzero,
-    "mint_tevaera": mint_tevaera,
-    "mint_zerius": mint_zerius,
-    "bridge_zerius": bridge_zerius,
-    "create_safe": create_safe,
-    "refuel_bungee": refuel_bungee,
-    "refuel_merkly": refuel_merkly,
-    "send_message_dmail": send_message_dmail,
-    "send_message_l2telegraph": send_message_l2telegraph,
-    "transfer_eth": transfer_eth,
-    "transfer_eth_to_myself": transfer_eth_to_myself,
-    "unwrap_eth": unwrap_eth,
-    "withdraw_basilisk": withdraw_basilisk,
-    "withdraw_eralend": withdraw_eralend,
-    "withdraw_txsync": withdraw_txsync,
-    "withdraw_liquidity_maverick": withdraw_liquidity_maverick,
-    "withdraw_liquidity_mute": withdraw_liquidity_mute,
-    "withdraw_liquidity_syncswap": withdraw_liquidity_syncswap,
-    "withdraw_reactorfusion": withdraw_reactorfusion,
-    "withdraw_zerolend": withdraw_zerolend,
-    "okx_collect_from_sub": okx_collect_from_sub
-}

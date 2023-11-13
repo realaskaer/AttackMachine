@@ -38,11 +38,12 @@ class Orbiter(Bridge):
     @gas_checker
     async def bridge(self, chain_from_id:int, help_okx:bool = False, help_network_id:int = 1):
 
-        from_chain, to_chain, token_name, amount = await self.client.get_bridge_data(chain_from_id, help_okx,
-                                                                                     help_network_id, 'Orbiter')
+        from_chain, to_chain, amount = await self.client.get_bridge_data(chain_from_id, help_okx,
+                                                                         help_network_id, 'Orbiter')
+        token_name = 'ETH'
 
         bridge_info = f'{amount} {token_name} from {from_chain["name"]} to {to_chain["name"]}'
-        self.client.logger.info(f'{self.client.info} Orbiter | Bridge on Orbiter: {bridge_info}')
+        self.client.logger.info(f'{self.client.info} Bridge on Orbiter: {bridge_info}')
 
         bridge_data = await self.get_bridge_data(from_chain['chainId'], to_chain['chainId'], token_name)
         destination_code = 9000 + to_chain['id']
@@ -61,7 +62,7 @@ class Orbiter(Bridge):
 
                 tx_hash = await self.client.send_transaction(tx_params)
 
-                await self.client.verify_transaction(tx_hash)
+                return await self.client.verify_transaction(tx_hash)
 
             else:
                 raise RuntimeError(f'Insufficient balance!')

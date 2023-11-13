@@ -38,7 +38,7 @@ class Zerius(Minter):
 
         mint_price = await self.contract.functions.mintFee().call()
 
-        self.client.logger.info(f"{self.client.info} Zerius | Mint Zerius NFT. Price: {(mint_price / 10 ** 18):.5f}")
+        self.client.logger.info(f"{self.client.info} Mint Zerius NFT. Price: {(mint_price / 10 ** 18):.5f}")
 
         tx_params = await self.client.get_tx_data(mint_price)
 
@@ -46,9 +46,7 @@ class Zerius(Minter):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
-
-        return tx_hash
+        return await self.client.verify_transaction(tx_hash)
 
     @repeater
     @gas_checker
@@ -62,7 +60,7 @@ class Zerius(Minter):
         if not nft_id:
             await self.mint()
 
-        self.client.logger.info(f"{self.client.info} Zerius | Bridge Zerius NFT to {dst_chain_name}. ID: {nft_id}")
+        self.client.logger.info(f"{self.client.info} Bridge Zerius NFT to {dst_chain_name}. ID: {nft_id}")
 
         await sleep(5, 10)
 
@@ -90,4 +88,4 @@ class Zerius(Minter):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

@@ -7,6 +7,7 @@ from termcolor import cprint
 from web3 import AsyncWeb3
 from prettytable import PrettyTable
 from datetime import datetime
+from config import WALLETS
 from collections import defaultdict
 
 
@@ -161,7 +162,7 @@ async def fetch_wallet_data(session, wallet, index):
 
     return {
         '#'                     : index + 1,
-        'Wallet'                : f'{wallet[:10]}...{wallet[-10:]}',
+        'Wallet'                : f'{wallet}',
         'ETH'                   : f"{balance['ETH']:.4f} (${(balance['ETH'] * eth_price):.2f})",
         'USDC'                  : f"{balance['USDC']:.2f}",
         'USDT'                  : f"{balance['USDT']:.2f}",
@@ -176,27 +177,19 @@ async def fetch_wallet_data(session, wallet, index):
     }
 
 
-def save_to_csv(wallet_data):
-    with open('./data/wallets_stats.csv', mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(FIELDS)
-        for data in wallet_data:
-            table.add_row(data.values())
-            writer.writerow([data[key] for key in FIELDS])
-
-
 async def main():
     async with aiohttp.ClientSession() as session:
-        with open('./data/wallets.txt') as file:
-            wallets = [AsyncWeb3().eth.account.from_key(row.rstrip()).address for row in file.readlines()]
+        wallets = [AsyncWeb3().eth.account.from_key(private_key).address for private_key in WALLETS]
 
         tasks = [fetch_wallet_data(session, wallet, index) for index, wallet in enumerate(wallets, 0)]
         wallet_data = await asyncio.gather(*tasks)
 
-    save_to_csv(wallet_data)
-    cprint('✅ Data successfully load to /data/wallets_stats.xlsx (Excel format)\n',
+    cprint('✅ Data successfully load to /data/accounts_stats/wallets_stats.xlsx (Excel format)\n',
            'light_yellow', attrs=["blink"])
     await asyncio.sleep(1)
-    xlsx_data = pd.read_csv('./data/wallets_stats.csv')
-    xlsx_data.to_excel('./data/wallets_stats.xlsx')
+    xlsx_data = pd.DataFrame(wallet_data)
+    xlsx_data.to_excel('./data/accounts_stats/wallets_stats.xlsx', index=False)
+
+    [table.add_row(data.values()) for data in wallet_data]
+
     print(table)

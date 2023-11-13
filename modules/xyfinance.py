@@ -43,7 +43,7 @@ class XYfinance(Aggregator):
 
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
-        self.client.logger.info(f'{self.client.info} XYfinance | Swap on XYfinance: {amount} {from_token_name} -> {to_token_name}')
+        self.client.logger.info(f'{self.client.info} Swap on XYfinance: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address = ETH_MASK if from_token_name == "ETH" else ZKSYNC_TOKENS[from_token_name]
         to_token_address = ETH_MASK if to_token_name == "ETH" else ZKSYNC_TOKENS[to_token_name]
@@ -67,4 +67,4 @@ class XYfinance(Aggregator):
 
         tx_hash = await self.client.send_transaction(tx_params)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

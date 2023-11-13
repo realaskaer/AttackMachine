@@ -24,7 +24,7 @@ class Dmail(Messenger):
     @repeater
     @gas_checker
     async def send_message(self):
-        self.client.logger.info(f'{self.client.info} Dmail | Send mail from Dmail')
+        self.client.logger.info(f'{self.client.info} Send mail from Dmail')
 
         email = self.generate_email()
         text = self.generate_sentence()
@@ -32,7 +32,7 @@ class Dmail(Messenger):
         to_address = sha256(f"{email}".encode()).hexdigest()
         message = sha256(f"{text}".encode()).hexdigest()
 
-        self.client.logger.info(f'{self.client.info} Dmail | Generated mail: {email} | Generated text: {text[:25]}...')
+        self.client.logger.info(f'{self.client.info} Generated mail: {email} | Generated text: {text[:25]}...')
 
         tx_params = await self.client.prepare_transaction()
 
@@ -45,4 +45,4 @@ class Dmail(Messenger):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

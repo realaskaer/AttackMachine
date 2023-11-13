@@ -16,7 +16,7 @@ class ReactorFusion(Landing):
 
         amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
 
-        self.client.logger.info(f'{self.client.info} ReactorFusion | Deposit to ReactorFusion: {amount} ETH')
+        self.client.logger.info(f'{self.client.info} Deposit to ReactorFusion: {amount} ETH')
 
         tx_params = await (self.client.prepare_transaction()) | {
             'to': REACTORFUSION_CONTRACTS['landing'],
@@ -26,7 +26,7 @@ class ReactorFusion(Landing):
 
         tx_hash = await self.client.send_transaction(tx_params)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)
 
     @repeater
     @gas_checker
@@ -45,7 +45,7 @@ class ReactorFusion(Landing):
 
             tx_hash = await self.client.send_transaction(transaction)
 
-            await self.client.verify_transaction(tx_hash)
+            return await self.client.verify_transaction(tx_hash)
 
         else:
             raise RuntimeError("Insufficient balance on ReactorFusion!")
@@ -63,7 +63,7 @@ class ReactorFusion(Landing):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)
 
     @repeater
     @gas_checker
@@ -78,4 +78,4 @@ class ReactorFusion(Landing):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

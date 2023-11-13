@@ -30,7 +30,7 @@ class VeSync(DEX):
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
         self.client.logger.info(
-            f'{self.client.info} VeSync | Swap on VeSync: {amount} {from_token_name} -> {to_token_name}')
+            f'{self.client.info} Swap on VeSync: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address, to_token_address = ZKSYNC_TOKENS[from_token_name], ZKSYNC_TOKENS[to_token_name]
 
@@ -41,6 +41,8 @@ class VeSync(DEX):
         deadline = int(time()) + 1800
         min_amount_out, pool_stable_type = await self.get_out_data(from_token_address, to_token_address,
                                                                    amount_in_wei)
+
+        await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
 
         full_data = (
             min_amount_out,
@@ -72,4 +74,4 @@ class VeSync(DEX):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

@@ -58,7 +58,7 @@ class Odos(Aggregator):
             to_token_name = 'ETH'
 
         self.client.logger.info(
-            f'{self.client.info} Odos | Swap on Odos: {amount} {from_token_name} -> {to_token_name}')
+            f'{self.client.info} Swap on Odos: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address = ZERO_ADDRESS if from_token_name == "ETH" else ZKSYNC_TOKENS[from_token_name]
         to_token_address = ZERO_ADDRESS if to_token_name == "ETH" else ZKSYNC_TOKENS[to_token_name]
@@ -77,4 +77,4 @@ class Odos(Aggregator):
 
         tx_hash = await self.client.send_transaction(tx_params)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

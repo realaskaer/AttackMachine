@@ -16,7 +16,7 @@ class ZeroLend(Landing):
 
         amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
 
-        self.client.logger.info(f'{self.client.info} ZeroLend | Deposit to ZeroLend: {amount} ETH')
+        self.client.logger.info(f'{self.client.info} Deposit to ZeroLend: {amount} ETH')
 
         tx_params = await self.client.prepare_transaction(value=amount_in_wei)
 
@@ -28,12 +28,12 @@ class ZeroLend(Landing):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)
 
     @repeater
     @gas_checker
     async def withdraw(self):
-        self.client.logger.info(f'{self.client.info} ZeroLend | Withdraw liquidity from ZeroLend')
+        self.client.logger.info(f'{self.client.info} Withdraw liquidity from ZeroLend')
 
         liquidity_balance = await self.client.get_contract(ZEROLEND_CONTRACTS['weth_atoken']).functions.balanceOf(
             self.client.address).call()
@@ -53,7 +53,7 @@ class ZeroLend(Landing):
 
             tx_hash = await self.client.send_transaction(transaction)
 
-            await self.client.verify_transaction(tx_hash)
+            return await self.client.verify_transaction(tx_hash)
 
         else:
             raise RuntimeError('Insufficient balance on ZeroLend!')
@@ -61,7 +61,7 @@ class ZeroLend(Landing):
     @repeater
     @gas_checker
     async def enable_collateral(self):
-        self.client.logger.info(f'{self.client.info} ZeroLend | Enable collateral on ZeroLend')
+        self.client.logger.info(f'{self.client.info} Enable collateral on ZeroLend')
 
         tx_params = await self.client.prepare_transaction()
 
@@ -72,12 +72,12 @@ class ZeroLend(Landing):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)
 
     @repeater
     @gas_checker
     async def disable_collateral(self):
-        self.client.logger.info(f'{self.client.info} ZeroLend | Disable collateral on ZeroLend')
+        self.client.logger.info(f'{self.client.info} Disable collateral on ZeroLend')
 
         tx_params = await self.client.prepare_transaction()
 
@@ -88,4 +88,4 @@ class ZeroLend(Landing):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

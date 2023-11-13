@@ -8,7 +8,7 @@ class GnosisSafe(Creator):
     @repeater
     @gas_checker
     async def create(self):
-        self.client.logger.info(f'{self.client.info} Safe | Create safe on chain')
+        self.client.logger.info(f'{self.client.info} Create safe on chain')
 
         safe_contract = self.client.get_contract(SAFE_CONTRACTS['proxy_factory'], SAFE_ABI)
         tx_params = await self.client.prepare_transaction()
@@ -36,4 +36,4 @@ class GnosisSafe(Creator):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

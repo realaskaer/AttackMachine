@@ -10,7 +10,7 @@ class MailZero(Minter):
     @repeater
     @gas_checker
     async def mint(self, code_nft: int = 1):
-        self.client.logger.info(f"{self.client.info} MailZero | Mint free NFT on MailZero")
+        self.client.logger.info(f"{self.client.info} Mint free NFT on MailZero")
 
         mail_contract = self.client.get_contract(MAILZERO_CONTRACT['mail_contract'], MAILZERO_ABI)
 
@@ -20,4 +20,4 @@ class MailZero(Minter):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

@@ -16,7 +16,7 @@ class EraLend(Landing):
 
         amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
 
-        self.client.logger.info(f'{self.client.info} EraLend | Deposit to EraLend: {amount} ETH')
+        self.client.logger.info(f'{self.client.info} Deposit to EraLend: {amount} ETH')
 
         tx_params = (await self.client.prepare_transaction()) | {
             'to': ERALEND_CONTRACTS['landing'],
@@ -26,12 +26,12 @@ class EraLend(Landing):
 
         tx_hash = await self.client.send_transaction(tx_params)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)
 
     @repeater
     @gas_checker
     async def withdraw(self):
-        self.client.logger.info(f'{self.client.info} EraLend | Withdraw from EraLend')
+        self.client.logger.info(f'{self.client.info} Withdraw from EraLend')
 
         liquidity_balance = await self.landing_contract.functions.balanceOfUnderlying(self.client.address).call()
 
@@ -45,7 +45,7 @@ class EraLend(Landing):
 
             tx_hash = await self.client.send_transaction(transaction)
 
-            await self.client.verify_transaction(tx_hash)
+            return await self.client.verify_transaction(tx_hash)
 
         else:
             raise RuntimeError(f'Insufficient balance on EraLend!')
@@ -53,7 +53,7 @@ class EraLend(Landing):
     @repeater
     @gas_checker
     async def enable_collateral(self):
-        self.client.logger.info(f'{self.client.info} EraLend | Enable collateral on EraLend')
+        self.client.logger.info(f'{self.client.info} Enable collateral on EraLend')
 
         tx_params = await self.client.prepare_transaction()
 
@@ -63,12 +63,12 @@ class EraLend(Landing):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)
 
     @repeater
     @gas_checker
     async def disable_collateral(self):
-        self.client.logger.info(f'{self.client.info} EraLend | Disable collateral on EraLend')
+        self.client.logger.info(f'{self.client.info} Disable collateral on EraLend')
 
         tx_params = await self.client.prepare_transaction()
 
@@ -78,4 +78,4 @@ class EraLend(Landing):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

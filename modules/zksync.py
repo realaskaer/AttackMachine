@@ -4,12 +4,9 @@ from eth_account import Account
 from modules import Blockchain
 from utils.tools import gas_checker, repeater
 from settings import (
-    TXSYNC_DEP_MAX,
-    TXSYNC_DEP_MIN,
-    TXSYNC_WITHDRAW_MAX,
-    TXSYNC_WITHDRAW_MIN,
-    TRANSFER_MIN,
-    TRANSFER_MAX
+    TXSYNC_DEPOSIT_AMOUNT,
+    TXSYNC_WITHDRAW_AMOUNT,
+    TRANSFER_AMOUNT
 )
 from config import (
     WETH_ABI,
@@ -32,10 +29,10 @@ class ZkSync(Blockchain):
     @gas_checker
     async def deposit(self):
 
-        amount = self.client.round_amount(TXSYNC_DEP_MIN, TXSYNC_DEP_MAX)
+        amount = self.client.get_smart_amount(TXSYNC_DEPOSIT_AMOUNT)
         amount_in_wei = int(amount * 10 ** 18)
 
-        self.client.logger.info(f'{self.client.info} zkSync | Bridge on txSync: {amount} ETH ERC20 -> zkSync Era')
+        self.client.logger.info(f'{self.client.info} Bridge on txSync: {amount} ETH ERC20 -> zkSync Era')
 
         if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
@@ -61,7 +58,7 @@ class ZkSync(Blockchain):
 
             tx_hash = await self.client.send_transaction(transaction)
 
-            await self.client.verify_transaction(tx_hash)
+            return await self.client.verify_transaction(tx_hash)
 
         else:
             raise RuntimeError('Bridge on txSync | Insufficient balance!')
@@ -70,10 +67,10 @@ class ZkSync(Blockchain):
     @gas_checker
     async def withdraw(self):
 
-        amount = self.client.round_amount(TXSYNC_WITHDRAW_MIN, TXSYNC_WITHDRAW_MAX)
+        amount = self.client.get_smart_amount(TXSYNC_WITHDRAW_AMOUNT)
         amount_in_wei = int(amount * 10 ** 18)
 
-        self.client.logger.info(f'{self.client.info} zkSync | Withdraw on txSync: {amount} ETH zkSync Era -> ERC20')
+        self.client.logger.info(f'{self.client.info} Withdraw on txSync: {amount} ETH zkSync Era -> ERC20')
 
         if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
@@ -85,19 +82,42 @@ class ZkSync(Blockchain):
 
             tx_hash = await self.client.send_transaction(transaction)
 
-            await self.client.verify_transaction(tx_hash)
+            return await self.client.verify_transaction(tx_hash)
 
         else:
             raise RuntimeError('Withdraw on txSync | Insufficient balance!')
 
     @repeater
     @gas_checker
+    async def deploy_contract(self):
+
+        try:
+            with open('data/services/contact_data.json') as file:
+                from json import load
+                contract_data = load(file)
+        except:
+            self.client.logger.info(f"{self.client.info} Bad data in contract_json.json")
+
+        self.client.logger.info(f"{self.client.info} Deploy contract on {self.client.network.name}")
+
+        tx_data = await self.client.prepare_transaction()
+
+        contract = self.client.w3.eth.contract(abi=contract_data['abi'], bytecode=contract_data['bytecode'])
+
+        transaction = await contract.constructor().build_transaction(tx_data)
+
+        tx_hash = await self.client.send_transaction(transaction)
+
+        return await self.client.verify_transaction(tx_hash)
+
+    @repeater
+    @gas_checker
     async def transfer_eth_to_myself(self):
 
-        amount, amount_in_wei = self.client.check_and_get_eth_for_deposit()
+        amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit(TRANSFER_AMOUNT)
 
         self.client.logger.info(
-            f"{self.client.info} zkSync | Transfer {amount} ETH to your own address: {self.client.address}")
+            f"{self.client.info} Transfer {amount} ETH to your own address: {self.client.address}")
 
         tx_params = await self.client.prepare_transaction(value=amount_in_wei) | {
             "to": self.client.address,
@@ -106,17 +126,17 @@ class ZkSync(Blockchain):
 
         tx_hash = await self.client.send_transaction(tx_params)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)
 
     @repeater
     @gas_checker
     async def transfer_eth(self):
 
-        amount = self.client.round_amount(TRANSFER_MIN, TRANSFER_MAX)
-        amount_in_wei = int(amount * 10 ** 18)
+        amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit(TRANSFER_AMOUNT)
+
         random_address = Account.create().address
 
-        self.client.logger.info(f'{self.client.info} zkSync | Transfer ETH to random zkSync address: {amount} ETH')
+        self.client.logger.info(f'{self.client.info} Transfer ETH to random zkSync address: {amount} ETH')
 
         if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
@@ -128,7 +148,7 @@ class ZkSync(Blockchain):
 
             tx_hash = await self.client.send_transaction(tx_params)
 
-            await self.client.verify_transaction(tx_hash)
+            return await self.client.verify_transaction(tx_hash)
 
         else:
             raise RuntimeError('Insufficient balance!')
@@ -166,7 +186,7 @@ class ZkSync(Blockchain):
 
         amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
 
-        self.client.logger.info(f'{self.client.info} zkSync | Wrap {amount} ETH')
+        self.client.logger.info(f'{self.client.info} Wrap {amount} ETH')
 
         if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
@@ -175,7 +195,7 @@ class ZkSync(Blockchain):
 
             tx_hash = await self.client.send_transaction(transaction)
 
-            await self.client.verify_transaction(tx_hash)
+            return await self.client.verify_transaction(tx_hash)
 
         else:
             raise RuntimeError('Insufficient balance!')
@@ -186,7 +206,7 @@ class ZkSync(Blockchain):
 
         amount_in_wei, amount, _ = await self.client.get_token_balance('WETH', check_symbol=False)
 
-        self.client.logger.info(f'{self.client.info} zkSync | Unwrap {amount:.6f} WETH')
+        self.client.logger.info(f'{self.client.info} Unwrap {amount:.6f} WETH')
 
         tx_params = await self.client.prepare_transaction()
 
@@ -196,4 +216,4 @@ class ZkSync(Blockchain):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

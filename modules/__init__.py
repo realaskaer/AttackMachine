@@ -1,4 +1,4 @@
-from .interfaces import DEX, Aggregator, Bridge, Refuel, Messenger, Landing, Minter, Blockchain, Creator, CEX
+from .interfaces import DEX, Aggregator, Bridge, Refuel, Messenger, Landing, Minter, Blockchain, Creator, CEX, Logger
 from .client import Client
 from .woofi import WooFi
 from .syncswap import SyncSwap
@@ -23,6 +23,7 @@ from .eranameservice import EraDomainService
 from .znsnameservice import ZkSyncNameService
 from .layerswap import LayerSwap
 from .merkly import Merkly
+from .xyfinance import XYfinance
 from .bungee import Bungee
 from .mailzelo import MailZero
 from .l2telegraph import L2Telegraph

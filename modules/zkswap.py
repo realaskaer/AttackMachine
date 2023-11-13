@@ -33,7 +33,7 @@ class ZkSwap(DEX):
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
         self.client.logger.info(
-            f'{self.client.info} zkSwap | Swap on zkSwap: {amount} {from_token_name} -> {to_token_name}')
+            f'{self.client.info} Swap on zkSwap: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address, to_token_address = ZKSYNC_TOKENS[from_token_name], ZKSYNC_TOKENS[to_token_name]
 
@@ -44,6 +44,8 @@ class ZkSwap(DEX):
         tx_params['value'] = amount_in_wei if from_token_name == 'ETH' else 0
         deadline = int(time()) + 1800
         min_amount_out = await self.get_min_amount_out(from_token_address, to_token_address, amount_in_wei)
+
+        await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
 
         full_data = (
             min_amount_out,
@@ -72,4 +74,4 @@ class ZkSwap(DEX):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

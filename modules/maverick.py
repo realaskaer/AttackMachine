@@ -64,7 +64,7 @@ class Maverick(DEX):
     @gas_checker
     async def swap(self):
 
-        from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
+        from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount(class_name='Maverick')
 
         self.client.logger.info(f'{self.client.info} Swap on Maverick: {amount} {from_token_name} -> {to_token_name}')
 
@@ -77,6 +77,8 @@ class Maverick(DEX):
         pool_address = self.get_pool_address(from_token_name, to_token_name)
         deadline = int(time()) + 1800
         min_amount_out = await self.get_min_amount_out(pool_address, from_token_name, amount_in_wei)
+
+        await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
 
         tx_data = self.router_contract.encodeABI(
             fn_name='exactInput',
@@ -107,7 +109,7 @@ class Maverick(DEX):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)
 
     @repeater
     @gas_checker
@@ -115,7 +117,8 @@ class Maverick(DEX):
 
         amount_from_settings, amount_from_settings_in_wei = await self.client.check_and_get_eth_for_liquidity()
 
-        self.client.logger.info(f'{self.client.info} Add liquidity to Maverick USDC/ETH pool: {amount_from_settings} ETH')
+        self.client.logger.info(
+            f'{self.client.info} Add liquidity to Maverick USDC/ETH pool: {amount_from_settings} ETH')
 
         tx_params = await self.client.prepare_transaction(value=amount_from_settings_in_wei)
 
@@ -156,7 +159,7 @@ class Maverick(DEX):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)
 
     @repeater
     @gas_checker
@@ -237,7 +240,7 @@ class Maverick(DEX):
 
             tx_hash = await self.client.send_transaction(transaction)
 
-            await self.client.verify_transaction(tx_hash)
+            return await self.client.verify_transaction(tx_hash)
 
         else:
             raise RuntimeError('Insufficient balance on Maverick!')

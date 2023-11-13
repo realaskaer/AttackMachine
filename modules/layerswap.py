@@ -57,13 +57,14 @@ class LayerSwap(Bridge):
     @gas_checker
     async def bridge(self, chain_from_id, help_okx:bool = False, help_network_id:int = 1):
 
-        (source_chain, destination_chain, source_asset,
-         destination_asset, amount, refuel) = await self.client.get_bridge_data(chain_from_id, help_okx,
-                                                                                help_network_id, 'LayerSwap')
+        source_chain, destination_chain, amount, refuel = await self.client.get_bridge_data(chain_from_id, help_okx,
+                                                                                        help_network_id, 'LayerSwap')
+
+        source_asset, destination_asset = 'ETH', 'ETH'
 
         bridge_info = f'{self.client.network.name} -> {destination_asset} {destination_chain.capitalize()[:-8]}'
         self.client.logger.info(
-            f'{self.client.info} LayerSwap | Bridge on LayerSwap: {amount} {source_asset} {bridge_info}')
+            f'{self.client.info} Bridge on LayerSwap: {amount} {source_asset} {bridge_info}')
 
         networks_data = await self.get_networks_data()
 
@@ -99,7 +100,7 @@ class LayerSwap(Bridge):
 
                     tx_hash = await self.client.send_transaction(tx_params)
 
-                    await self.client.verify_transaction(tx_hash)
+                    return await self.client.verify_transaction(tx_hash)
 
                 else:
                     raise RuntimeError("Insufficient balance!")

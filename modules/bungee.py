@@ -37,7 +37,7 @@ class Bungee(Refuel):
         dst_amount = self.client.round_amount(*dst_data[1])
 
         refuel_info = f'{dst_amount} {dst_native_name} to {dst_chain_name.capitalize()}'
-        self.client.logger.info(f'{self.client.info} Bungee | Refuel on Bungee: {refuel_info}')
+        self.client.logger.info(f'{self.client.info} Refuel on Bungee: {refuel_info}')
 
         refuel_limits_data = await self.get_limits_data()
 
@@ -72,7 +72,7 @@ class Bungee(Refuel):
 
                         tx_hash = await self.client.send_transaction(transaction)
 
-                        await self.client.verify_transaction(tx_hash)
+                        return await self.client.verify_transaction(tx_hash)
 
                     else:
                         raise RuntimeError("Insufficient balance!")

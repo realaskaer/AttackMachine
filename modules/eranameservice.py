@@ -25,15 +25,15 @@ class EraDomainService(Minter):
     @gas_checker
     async def mint(self):
 
-        _, _ = self.client.check_and_get_eth_for_deposit()
+        _, _ = await self.client.check_and_get_eth_for_deposit()
 
-        self.client.logger.info(f'{self.client.info} ENS | Mint domain on ENS: 0.003 ETH')
+        self.client.logger.info(f'{self.client.info} Mint domain on ENS: 0.003 ETH')
 
         price_in_wei = 3000000000000000
 
         domain = await self.get_random_name()
 
-        self.client.logger.info(f'{self.client.info} ENS | Generated domain: {domain}.era')
+        self.client.logger.info(f'{self.client.info} Generated domain: {domain}.era')
 
         tx_params = await self.client.prepare_transaction(value=price_in_wei)
 
@@ -43,4 +43,4 @@ class EraDomainService(Minter):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

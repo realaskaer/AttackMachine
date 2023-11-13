@@ -24,11 +24,11 @@ class ZkSyncNameService(Minter):
     @repeater
     @gas_checker
     async def mint(self):
-        self.client.logger.info(f'{self.client.info} ZNS | Mint domain on ZNS')
+        self.client.logger.info(f'{self.client.info} Mint domain on ZNS')
 
         domain = await self.get_random_name()
 
-        self.client.logger.info(f'{self.client.info} ZNS | Generated domain: {domain}.zks')
+        self.client.logger.info(f'{self.client.info} Generated domain: {domain}.zks')
 
         tx_params = await self.client.prepare_transaction()
 
@@ -40,4 +40,4 @@ class ZkSyncNameService(Minter):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

@@ -29,7 +29,7 @@ class Merkly(Refuel):
         router_contract = self.client.get_contract(merkly_contracts['ONFT'], MERKLY_ROUTER_ABI)
 
         refuel_info = f'{dst_amount} {dst_native_name} to {dst_chain_name}'
-        self.client.logger.info(f'{self.client.info} Merkly | Refuel on Merkly: {refuel_info}')
+        self.client.logger.info(f'{self.client.info} Refuel on Merkly: {refuel_info}')
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
 
@@ -59,4 +59,4 @@ class Merkly(Refuel):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

@@ -16,7 +16,7 @@ class Basilisk(Landing):
 
         amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
 
-        self.client.logger.info(f'{self.client.info} Basilisk | Deposit to Basilisk: {amount} ETH')
+        self.client.logger.info(f'{self.client.info} Deposit to Basilisk: {amount} ETH')
 
         tx_params = (await self.client.prepare_transaction()) | {
             'to': BASILISK_CONTRACTS['landing'],
@@ -26,12 +26,12 @@ class Basilisk(Landing):
 
         tx_hash = await self.client.send_transaction(tx_params)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)
 
     @repeater
     @gas_checker
     async def withdraw(self):
-        self.client.logger.info(f'{self.client.info} Basilisk | Withdraw from Basilisk')
+        self.client.logger.info(f'{self.client.info} Withdraw from Basilisk')
 
         liquidity_balance = await self.landing_contract.functions.balanceOf(self.client.address).call()
 
@@ -45,14 +45,14 @@ class Basilisk(Landing):
 
             tx_hash = await self.client.send_transaction(transaction)
 
-            await self.client.verify_transaction(tx_hash)
+            return await self.client.verify_transaction(tx_hash)
         else:
             raise RuntimeError("Insufficient balance on Basilisk!")
 
     @repeater
     @gas_checker
     async def enable_collateral(self):
-        self.client.logger.info(f'{self.client.info} Basilisk | Enable collateral on Basilisk')
+        self.client.logger.info(f'{self.client.info} Enable collateral on Basilisk')
 
         tx_params = await self.client.prepare_transaction()
 
@@ -62,12 +62,12 @@ class Basilisk(Landing):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)
 
     @repeater
     @gas_checker
     async def disable_collateral(self):
-        self.client.logger.info(f'{self.client.info} Basilisk | Disable collateral on Basilisk')
+        self.client.logger.info(f'{self.client.info} Disable collateral on Basilisk')
 
         tx_params = await self.client.prepare_transaction()
 
@@ -77,4 +77,4 @@ class Basilisk(Landing):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

@@ -230,7 +230,7 @@ class Rhino(Bridge):
 
     @gas_checker
     async def deposit_to_rhino(self, amount, source_chain_info):
-        logger_info = f"{self.client.info} Rhino | Deposit {amount} ETH from {self.client.network.name} to Rhino.fi"
+        logger_info = f"{self.client.info} Deposit {amount} ETH from {self.client.network.name} to Rhino"
         self.client.logger.info(logger_info)
 
         if source_chain_info['enabled']:
@@ -250,13 +250,13 @@ class Rhino(Bridge):
         while True:
             await asyncio.sleep(4)
             if int(amount * 10 ** 8) <= int(await self.get_user_balance()):
-                self.client.logger.success(f"{self.client.info} Rhino | Funds have been received")
+                self.client.logger.success(f"{self.client.info} Funds have been received to Rhino")
                 break
-            self.client.logger.warning(f"{self.client.info} Rhino | Wait a little, while the funds come into Rhino.fi")
+            self.client.logger.warning(f"{self.client.info} Wait a little, while the funds come into Rhino")
             await asyncio.sleep(1)
             await sleep(self, 90, 120)
 
-        logger_info = f"{self.client.info} Rhino | Withdraw {amount} ETH from Rhino.fi to {chain_name.capitalize()}"
+        logger_info = f"{self.client.info} Withdraw {amount} ETH from Rhino to {chain_name.capitalize()}"
         self.client.logger.info(logger_info)
 
         url = "https://api.rhino.fi/v1/trading/bridgedWithdrawals"
@@ -305,28 +305,28 @@ class Rhino(Bridge):
 
         await self.make_request(method='POST', url=url, headers=headers, json=payload)
 
-        self.client.logger.success(f"{self.client.info} Rhino | Withdraw compete")
+        self.client.logger.success(f"{self.client.info} Withdraw from on Rhino compete")
 
     async def bridge(self, chain_from_id:int, help_okx:bool = False, help_network_id:int = 1):
         try:
-            self.client.logger.info(f"{self.client.info} Rhino | Check previous registration")
+            self.client.logger.info(f"{self.client.info} Check previous registration on Rhino")
 
             rhino_user_config = await self.get_user_config()
 
             if not rhino_user_config['isRegistered']:
                 await asyncio.sleep(1)
 
-                self.client.logger.info(f"{self.client.info} Rhino | New user on Rhino, make registration")
+                self.client.logger.info(f"{self.client.info} New user on Rhino, make registration")
                 await self.reg_new_acc()
 
                 await asyncio.sleep(1)
 
-                self.client.logger.success(f"{self.client.info} Rhino | Successfully registered")
+                self.client.logger.success(f"{self.client.info} Successfully registered on Rhino")
                 rhino_user_config = await self.get_user_config()
             else:
                 await asyncio.sleep(1)
 
-                self.client.logger.success(f"{self.client.info} Rhino | Already registered")
+                self.client.logger.success(f"{self.client.info} Already registered on Rhino")
 
             await asyncio.sleep(1)
 
@@ -347,9 +347,11 @@ class Rhino(Bridge):
 
                 await self.withdraw_from_rhino(rhino_user_config=rhino_user_config,
                                                amount=amount, chain_name=chain_to_name)
+
+                return True
             else:
                 self.client.logger.error(
-                    f"{self.client.info} Rhino | Insufficient balance in {self.client.network.name}")
+                    f"{self.client.info} Insufficient balance in {self.client.network.name}")
         except Exception as error:
-            self.client.logger.error(f"{self.client.info} Rhino | Error: {error}")
+            self.client.logger.error(f"{self.client.info} Error in Rhino: {error}")
 

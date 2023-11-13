@@ -25,10 +25,11 @@ class OpenOcean(Aggregator):
     @gas_checker
     async def swap(self):
 
-        from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
+        (from_token_name, to_token_name,
+         amount, amount_in_wei) = await self.client.get_auto_amount(class_name='OpenOcean')
 
         self.client.logger.info(
-            f'{self.client.info} OpenOcean | Swap on OpenOcean: {amount} {from_token_name} -> {to_token_name}')
+            f'{self.client.info} Swap on OpenOcean: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address = ETH_MASK if from_token_name == "ETH" else ZKSYNC_TOKENS[from_token_name]
         to_token_address = ETH_MASK if to_token_name == "ETH" else ZKSYNC_TOKENS[to_token_name]
@@ -46,4 +47,4 @@ class OpenOcean(Aggregator):
 
         tx_hash = await self.client.send_transaction(tx_params)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)

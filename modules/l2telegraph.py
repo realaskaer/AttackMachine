@@ -37,7 +37,7 @@ class L2Telegraph(Messenger):
     async def send_message(self):
 
         self.client.logger.info(
-            f'{self.client.info} L2telegraph | Send message on L2Telegraph to {self.dst_chain_name.capitalize()}')
+            f'{self.client.info} Send message on L2Telegraph to {self.dst_chain_name.capitalize()}')
 
         adapter_params = abi.encode(["uint16", "uint"],
                                     [2, 250000])
@@ -67,13 +67,13 @@ class L2Telegraph(Messenger):
 
         tx_hash = await self.client.send_transaction(transaction)
 
-        await self.client.verify_transaction(tx_hash)
+        return await self.client.verify_transaction(tx_hash)
 
     @repeater
     @gas_checker
     async def mint_and_bridge(self):
         self.client.logger.info(
-            f"{self.client.info} L2telegraph | Mint and bridge NFT on L2telegraph. Price for mint: 0.0005 ETH")
+            f"{self.client.info} Mint and bridge NFT on L2telegraph. Price for mint: 0.0005 ETH")
 
         mint_price = 500000000000000
 
@@ -97,7 +97,7 @@ class L2Telegraph(Messenger):
 
         await asyncio.sleep(1)
 
-        self.client.logger.info(f"{self.client.info} L2telegraph | Bridge fee: {(value / 10 ** 18):.6f} ETH")
+        self.client.logger.info(f"{self.client.info} Bridge fee: {(value / 10 ** 18):.6f} ETH")
 
         if await self.client.w3.eth.get_balance(self.client.address) > (mint_price + value):
 
@@ -114,7 +114,7 @@ class L2Telegraph(Messenger):
             await sleep(self, 5, 8)
 
             self.client.logger.info(
-                f'{self.client.info} L2telegraph | Bridge NFT on L2telegraph to {self.dst_chain_name.capitalize()}')
+                f'{self.client.info} Bridge NFT on L2telegraph to {self.dst_chain_name.capitalize()}')
 
             tx_params = await self.client.prepare_transaction(value=value)
 
@@ -126,7 +126,7 @@ class L2Telegraph(Messenger):
 
             tx_hash = await self.client.send_transaction(transaction)
 
-            await self.client.verify_transaction(tx_hash)
+            return await self.client.verify_transaction(tx_hash)
 
         else:
             raise RuntimeError('Insufficient balance!')
