@@ -211,7 +211,7 @@ class Client(Logger):
                                            ZKSYNC_TOKENS.keys()))
             token_names_list.remove('WETH')
 
-            if class_name in ['Maverick', 'Izumi']:
+            if class_name in ['Maverick', 'Izumi', 'Velocore']:
                 if 'USDT' in token_names_list:
                     token_names_list.remove('USDT')
                 if biggest_token_balance_name == 'ETH' and class_name == 'Izumi':
