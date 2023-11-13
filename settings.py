@@ -203,7 +203,7 @@ TELEGRAM_NOTIFICATIONS = False  # True or False
 
 
 '-------------------------------------------------GAS CONTROL----------------------------------------------------------'
-GAS_CONTROL = True  # True or False
+GAS_CONTROL = False  # True or False
 MAXIMUM_GWEI = 100  # Gwei
 SLEEP_TIME_GAS = 120  # Second
 GAS_MULTIPLIER = 1.1  # Coefficient
@@ -237,8 +237,8 @@ OKX_API_PASSPHRAS = ""
 
 # EXCEL AND GOOGLE INFO
 EXCEL_PASSWORD = ""
-GOOGLE_SHEET_PAGE_NAME = ""
 GOOGLE_SHEET_URL = ""
+GOOGLE_SHEET_PAGE_NAME = ""
 
 # TELEGRAM DATA
 TG_TOKEN = ""  # https://t.me/BotFather
@@ -334,7 +334,6 @@ DEPOSIT_CONFIG = {
     'swap_rango'                       
     'swap_spacefi'                     
     'swap_syncswap'                    
-    'swap_velocore'                    
     'swap_xyfinance'                   
     'swap_vesync'                      
     'swap_woofi'                       

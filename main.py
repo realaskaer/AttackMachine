@@ -44,9 +44,7 @@ def get_module_name():
             Choice("🟢 Swap on 1INCH", 'swap_oneinch'),
             Choice("🟢 Swap on Odos", 'swap_odos'),
             Choice("🟢 Swap on Rango", 'swap_rango'),
-            Choice("🟢 Swap on Velocore", 'swap_velocore'),
             Choice("🟢 Swap on WooFi", 'swap_woofi'),
-            Choice("🟢 Swap on Velocore", 'swap_velocore'),
             Choice("🟢 Swap on SyncSwap", 'swap_syncswap'),
             Choice("🟢 Swap on OpenOcean", 'swap_openocean'),
             Choice("🟢 Swap on zkSwap", 'swap_zkswap'),
@@ -104,8 +102,6 @@ def get_module_name():
 
 
 def main():
-    runner = Runner()
-    generator = RouteGenerator()
     print(TITLE)
     cprint(f'\n❤️ Subscribe to my channel: https://t.me/askaer', 'light_cyan', attrs=["blink"])
     cprint(f'\n💵 Donate (Any EVM) --> 0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5\n', 'light_cyan')
@@ -126,6 +122,8 @@ def main():
             qmark='🛠️',
             pointer='👉'
         ).ask()
+
+        runner = Runner()
 
         if answer == 'check_proxy':
             print()
@@ -155,6 +153,7 @@ def main():
             asyncio.run(txchecker.main())
             print()
         elif answer == 'classic_routes_gen':
+            generator = RouteGenerator()
             are_you_sure(generator.routes_json_save)
         elif answer == 'exit':
             sys.exit()

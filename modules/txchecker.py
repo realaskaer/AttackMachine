@@ -179,7 +179,11 @@ async def fetch_wallet_data(session, wallet, index):
 
 async def main():
     async with aiohttp.ClientSession() as session:
-        wallets = [AsyncWeb3().eth.account.from_key(private_key).address for private_key in WALLETS]
+        try:
+            wallets = [AsyncWeb3().eth.account.from_key(private_key).address for private_key in WALLETS]
+        except Exception as error:
+            cprint('\n⚠️⚠️⚠️Put your wallets into data/accounts_data.xlsx first!⚠️⚠️⚠️\n', color='light_red', attrs=["blink"])
+            raise RuntimeError(f"{error}")
 
         tasks = [fetch_wallet_data(session, wallet, index) for index, wallet in enumerate(wallets, 0)]
         wallet_data = await asyncio.gather(*tasks)

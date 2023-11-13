@@ -211,12 +211,12 @@ class Client(Logger):
                                            ZKSYNC_TOKENS.keys()))
             token_names_list.remove('WETH')
 
-            if class_name in ['Maverick', 'Izumi', 'Velocore']:
+            if class_name in ['Maverick', 'Izumi']:
                 if 'USDT' in token_names_list:
                     token_names_list.remove('USDT')
                 if biggest_token_balance_name == 'ETH' and class_name == 'Izumi':
                     token_names_list.remove('BUSD')
-            elif class_name in ['Mute', 'Rango', 'OpenOcean']:
+            elif class_name in ['Mute', 'Rango', 'OpenOcean', 'Velocore']:
                 if 'BUSD' in token_names_list:
                     token_names_list.remove('BUSD')
 

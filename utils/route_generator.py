@@ -43,7 +43,7 @@ AVAILABLE_MODULES_INFO = {
     swap_rango                          : (swap_rango, 2, 'Swap Rango'),
     swap_xyfinance                      : (swap_xyfinance, 2, 'Swap XYfinance'),
     swap_syncswap                       : (swap_syncswap, 2, 'Swap SyncSwap'),
-    swap_velocore                       : (swap_velocore, 2, 'Swap Velocore'),
+    #swap_velocore                       : (swap_velocore, 2, 'Swap Velocore'),
     swap_vesync                         : (swap_vesync, 2, 'Swap VeSync'),
     swap_woofi                          : (swap_woofi, 2, 'Swap WooFi'),
     swap_zkswap                         : (swap_zkswap, 2, 'Swap zkSwap'),
@@ -90,11 +90,14 @@ def get_func_by_name(module_name, help_message:bool = False):
 
 
 class RouteGenerator(Logger):
-    def __init__(self):
+    def __init__(self, silent:bool = True):
         super().__init__()
-        self.gc: Client = service_account(filename=GSHEET_CONFIG)
-        self.sh: Spreadsheet = self.gc.open_by_url(GOOGLE_SHEET_URL)
-        self.ws: Worksheet = self.sh.worksheet(GOOGLE_SHEET_PAGE_NAME)
+        if GOOGLE_SHEET_URL != '' and not silent:
+            self.gc: Client = service_account(filename=GSHEET_CONFIG)
+            self.sh: Spreadsheet = self.gc.open_by_url(GOOGLE_SHEET_URL)
+            self.ws: Worksheet = self.sh.worksheet(GOOGLE_SHEET_PAGE_NAME)
+        else:
+            self.gc, self.sh, self.ws = None, None, None
         self.function_mappings = {
             'Syncswap Liquidity': add_liquidity_syncswap,
             'Maverick Liquidity': add_liquidity_maverick,
@@ -111,7 +114,7 @@ class RouteGenerator(Logger):
             'Odos': swap_odos,
             'zkSwap': swap_zkswap,
             'XYfinance': swap_xyfinance,
-            'Velocore': swap_velocore,
+            #'Velocore': swap_velocore,
             '1inch': swap_oneinch,
             'Openocean': swap_openocean,
             'EraLend': deposit_eralend,
@@ -178,8 +181,12 @@ class RouteGenerator(Logger):
         return modules_list
 
     async def get_smart_route(self, private_key: str):
-        wallets_list = self.get_wallet_list()
-        modules_list = self.get_modules_list()
+        try:
+            wallets_list = self.get_wallet_list()
+            modules_list = self.get_modules_list()
+        except Exception as error:
+            self.logger_msg(None, None, f"Put data into 'GOOGLE_SHEET_URL' and 'service_accounts.json' first!", 'error')
+            raise RuntimeError(f"{error}")
 
         wallet_address = AsyncWeb3().eth.account.from_key(private_key).address
 

@@ -28,32 +28,35 @@ async def sleep(self, min_time=SLEEP_TIME[0], max_time=SLEEP_TIME[1]):
 
 
 def get_accounts_data():
-    decrypted_data = io.BytesIO()
-    with open('./data/accounts_data.xlsx', 'rb') as file:
-        office_file = msoffcrypto.OfficeFile(file)
-        office_file.load_key(password=EXCEL_PASSWORD)
-        office_file.decrypt(decrypted_data)
-        wb = pd.read_excel(decrypted_data)
+    try:
+        decrypted_data = io.BytesIO()
+        with open('./data/accounts_data.xlsx', 'rb') as file:
+            office_file = msoffcrypto.OfficeFile(file)
+            office_file.load_key(password=EXCEL_PASSWORD)
+            office_file.decrypt(decrypted_data)
+            wb = pd.read_excel(decrypted_data)
 
-        accounts_data = {}
-        for index, row in wb.iterrows():
-            account_name = row["Name"]
-            private_key = row["Private Key"]
-            proxy = row["Proxy"]
-            okx_address = row['OKX address']
-            accounts_data[int(index) + 1] = {
-                "account_number": account_name,
-                "private_key": private_key,
-                "proxy": proxy,
-                "okx_wallet": okx_address
-            }
+            accounts_data = {}
+            for index, row in wb.iterrows():
+                account_name = row["Name"]
+                private_key = row["Private Key"]
+                proxy = row["Proxy"]
+                okx_address = row['OKX address']
+                accounts_data[int(index) + 1] = {
+                    "account_number": account_name,
+                    "private_key": private_key,
+                    "proxy": proxy,
+                    "okx_wallet": okx_address
+                }
 
-        acc_name, priv_key, proxy, okx_wallet = [], [], [], []
-        for k, v in accounts_data.items():
-            acc_name.append(v['account_number']), priv_key.append(v['private_key'])
-            proxy.append(v['proxy']), okx_wallet.append(v['okx_wallet'])
+            acc_name, priv_key, proxy, okx_wallet = [], [], [], []
+            for k, v in accounts_data.items():
+                acc_name.append(v['account_number']), priv_key.append(v['private_key'])
+                proxy.append(v['proxy']), okx_wallet.append(v['okx_wallet'])
 
-        return acc_name, priv_key, proxy, okx_wallet
+            return acc_name, priv_key, proxy, okx_wallet
+    except:
+        cprint('\n⚠️⚠️⚠️SET PASSWORD ON YOUR EXCEL FILE!⚠️⚠️⚠️\n', color='light_red', attrs=["blink"])
 
 
 def create_okx_withdrawal_list():

@@ -142,8 +142,11 @@ class Runner(Logger):
             except Exception as error:
                 self.logger_msg(account_name, private_key,f"Can`t generate smart route. Error: {error}", 'error')
                 return
-
-        route:list = self.load_routes()[private_key]['route']
+        try:
+            route:list = self.load_routes()[private_key]['route']
+        except Exception as error:
+            self.logger_msg(None, None, f"Generate route first!", 'error')
+            raise RuntimeError(f"{error}")
 
         current_step = 0
 
@@ -239,7 +242,7 @@ class Runner(Logger):
     async def run_accounts(self, smart_route: bool):
         route_generator = None
         if smart_route:
-            route_generator = RouteGenerator()
+            route_generator = RouteGenerator(silent=False)
 
         if SOFTWARE_MODE:
             await self.run_parallel(smart_route, route_generator)

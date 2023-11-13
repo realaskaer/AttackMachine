@@ -176,9 +176,9 @@ async def swap_pancake(account_number, private_key, network, proxy):
     await worker.swap()
 
 
-async def swap_velocore(account_number, private_key, network, proxy):
-    worker = Velocore(await get_client(account_number, private_key, network, proxy))
-    await worker.swap()
+# async def swap_velocore(account_number, private_key, network, proxy):
+#     worker = Velocore(await get_client(account_number, private_key, network, proxy))
+#     await worker.swap()
 
 
 async def deposit_eralend(account_number, private_key, network, proxy):

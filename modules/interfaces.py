@@ -1,6 +1,7 @@
 from aiohttp import ClientSession
 from loguru import logger
 from sys import stderr
+from datetime import datetime
 from web3 import AsyncWeb3
 from abc import ABC, abstractmethod
 from settings import LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS, OKX_API_SECRET, OKX_DEPOSIT_NETWORK
@@ -18,7 +19,8 @@ class Logger(ABC):
         self.logger.remove()
         logger_format = "<cyan>{time:HH:mm:ss}</cyan> | <level>" "{level: <8}</level> | <level>{message}</level>"
         self.logger.add(stderr, format=logger_format)
-        self.logger.add("./data/logs/logfile.log", rotation="500 MB", level="INFO", format=logger_format)
+        date = datetime.today().date()
+        self.logger.add(f"./data/logs/{date}.log", rotation="500 MB", level="INFO", format=logger_format)
 
     def logger_msg(self, account_name, private_key, msg, type_msg: str = 'info'):
         if account_name is None or private_key is None:
