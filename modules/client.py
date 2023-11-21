@@ -4,9 +4,8 @@ import aiohttp
 
 from asyncio import sleep
 from modules import Logger
-from hexbytes import HexBytes
 from utils.networks import Network
-from config import ERC20_ABI, ZKSYNC_TOKENS
+from config import ERC20_ABI, TOKENS_PER_CHAIN
 from web3 import AsyncHTTPProvider, AsyncWeb3
 from config import RHINO_CHAIN_INFO, ORBITER_CHAINS_INFO, LAYERSWAP_CHAIN_NAME
 from settings import (
@@ -14,7 +13,7 @@ from settings import (
     UNLIMITED_APPROVE,
     AMOUNT_PERCENT,
     MIN_BALANCE,
-    SLIPPAGE_PERCENT,
+    SLIPPAGE,
     DEX_LP_AMOUNT,
     LANDING_AMOUNT,
     OKX_BRIDGE_MODE,
@@ -25,7 +24,7 @@ from settings import (
     ORBITER_AMOUNT,
     ORBITER_CHAIN_ID_TO,
     RHINO_AMOUNT,
-    RHINO_CHAIN_ID_TO
+    RHINO_CHAIN_ID_TO, PRICE_IMPACT
 )
 
 
@@ -47,7 +46,7 @@ class Client(Logger):
         self.address = AsyncWeb3.to_checksum_address(self.w3.eth.account.from_key(private_key).address)
 
         self.min_amount_eth_on_balance = MIN_BALANCE
-        self.info = f'[{self.account_number}] {self.address} | Attack Machine |'
+        self.info = f'[{self.account_number}] {self.address} | {self.network.name} |'
 
     @staticmethod
     def round_amount(min_amount: float, max_amount:float) -> float:
@@ -61,7 +60,7 @@ class Client(Logger):
         return error
 
     async def get_normalize_amount(self, token_name, amount_in_wei):
-        contract = self.get_contract(ZKSYNC_TOKENS[token_name])
+        contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
         decimals = await contract.functions.decimals().call()
 
         return float(amount_in_wei / 10 ** decimals)
@@ -93,8 +92,9 @@ class Client(Logger):
         amount2_in_usd = (await self.get_token_price(token_info[to_token_name])) * to_token_amount
         price_impact = 100 - (amount2_in_usd / amount1_in_usd) * 100
 
-        if price_impact > SLIPPAGE_PERCENT:
-            raise RuntimeError(f'Price impact > max slippage | Impact: {price_impact}% > Slippage {SLIPPAGE_PERCENT}%')
+        if price_impact > PRICE_IMPACT:
+            raise RuntimeError(
+                f'DEX price impact > your wanted impact | DEX impact: {price_impact:.3}% > Your impact {PRICE_IMPACT}%')
 
     async def bridge_from_source(self, network_to_id) -> None:
         from functions import bridge_layerswap, bridge_rhino, bridge_orbiter
@@ -188,7 +188,8 @@ class Client(Logger):
 
     async def get_auto_amount(self, token_name_search:str = None, class_name:str = None) -> [str, float, int]:
 
-        wallet_balance = {k: await self.get_token_balance(k, False) for k, v in ZKSYNC_TOKENS.items()}
+        wallet_balance = {k: await self.get_token_balance(k, False)
+                          for k, v in TOKENS_PER_CHAIN[self.network.name].items()}
         valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
         eth_price = await self.get_token_price('ethereum')
 
@@ -208,7 +209,7 @@ class Client(Logger):
             amount_from_token_on_balance_in_wei = wallet_balance[biggest_token_balance_name][0]
 
             token_names_list = list(filter(lambda token_name: token_name != biggest_token_balance_name,
-                                           ZKSYNC_TOKENS.keys()))
+                                           TOKENS_PER_CHAIN[self.network.name].keys()))
             token_names_list.remove('WETH')
 
             if class_name in ['Maverick', 'Izumi']:
@@ -237,7 +238,7 @@ class Client(Logger):
 
     async def get_token_balance(self, token_name: str = 'ETH', check_symbol: bool = True) -> [float, int, str]:
         if token_name != 'ETH':
-            contract = self.get_contract(ZKSYNC_TOKENS[token_name])
+            contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
 
             amount_in_wei = await contract.functions.balanceOf(self.address).call()
             decimals = await contract.functions.decimals().call()
@@ -310,8 +311,7 @@ class Client(Logger):
             await asyncio.sleep(1)
 
             if balance_in_wei <= 0:
-                self.logger.info(f'{self.info} Zero balance')
-                return False
+                raise RuntimeError(f'Zero {symbol} balance')
 
             approved_amount_in_wei = await self.get_allowance(
                 token_address=token_address,
@@ -323,13 +323,7 @@ class Client(Logger):
                 self.logger.info(f'{self.info} Already approved')
                 return False
 
-            tx_hash = await self.make_approve(
-                token_address,
-                spender_address,
-                amount_in_wei,
-            )
-
-            await self.verify_transaction(tx_hash)
+            await self.make_approve(token_address, spender_address, amount_in_wei)
 
             await sleep(random.randint(5, 9))
         except Exception as error:
@@ -343,12 +337,10 @@ class Client(Logger):
 
         try:
             singed_tx = self.w3.eth.account.sign_transaction(transaction, self.private_key)
-
-            return await self.w3.eth.send_raw_transaction(singed_tx.rawTransaction)
+            tx_hash = await self.w3.eth.send_raw_transaction(singed_tx.rawTransaction)
         except Exception as error:
             raise RuntimeError(f'Send transaction | {self.get_normalize_error(error)}')
 
-    async def verify_transaction(self, tx_hash: HexBytes):
         try:
             data = await self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=360)
             if 'status' in data and data['status'] == 1:

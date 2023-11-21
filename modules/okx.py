@@ -64,7 +64,7 @@ class OKX(CEX):
 
         network_name = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK]
         network_data = networks_data[network_name]
-        amount = self.client.get_smart_amount(OKX_WITHDRAW_AMOUNT)
+        amount = await self.client.get_smart_amount(OKX_WITHDRAW_AMOUNT)
 
         self.client.logger.info(f"{self.client.info} Withdraw {amount} ETH to {network_name[4:]}")
 
@@ -204,7 +204,7 @@ class OKX(CEX):
 
     async def deposit(self):
 
-        if OKX_DEPOSIT_NETWORK != 6:
+        if OKX_DEPOSIT_NETWORK not in (5, 6):
 
             if OKX_BRIDGE_NEED:
                 await self.client.bridge_from_source(self.get_network_id())

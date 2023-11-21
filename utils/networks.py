@@ -21,8 +21,32 @@ class Network:
         return f'{self.name}'
 
 
+StarknetRPC = Network(
+    name='Starknet',
+    rpc=[
+        'https://starknet-mainnet.g.alchemy.com/v2/cUa595b4LBwHdDZ3uHSBZr7PS1NXgFCQ',
+        'https://starknet.w3node.com/65657f2e905fe5276bf2e536d555fdda5c5c015fa8357726bd6be0ccb598db69/api',
+        'https://starknet-mainnet.g.alchemy.com/v2/yAUA5IfXLwHImyuJjmKvrAe0TlEcfi2t',
+        'https://starknet-mainnet.g.alchemy.com/v2/vpa-cuKfny13-2Np_Qz3Ubsp6jEWrMIX',
+        'https://starknet-mainnet.g.alchemy.com/v2/O68huY7AaLNx8Hc0796Y0q8jC-27sjxQ',
+        'https://starknet-mainnet.blastapi.io/3a8f23f7-8afe-4100-bc13-dcd144871e63',
+        'https://g.w.lavanet.xyz:443/gateway/strk/rpc-http/812f6f7e4e882cfe419c200537ef705a',
+        'https://g.w.lavanet.xyz:443/gateway/strk/rpc-http/592bc8fe93fddb9da6c78a5dd5102330',
+        'https://g.w.lavanet.xyz:443/gateway/strk/rpc-http/6e87c0d04624eb4c37e5a27359f9d907',
+        'https://g.w.lavanet.xyz:443/gateway/strk/rpc-http/bb3c826d0af695605a26dd57a5a61197',
+        'https://g.w.lavanet.xyz:443/gateway/strk/rpc-http/501b4df9c7d30853b971073276dcdff2',
+        'https://g.w.lavanet.xyz:443/gateway/strk/rpc-http/602629509c805c2a943b3b60f9d6e916',
+        'https://g.w.lavanet.xyz:443/gateway/strk/rpc-http/3cc7783be861d741cd0bb5bae64b8d8c',
+        'https://g.w.lavanet.xyz:443/gateway/strk/rpc-http/fedf6ba0e0b85f5872de1a0d3dfa56a4',
+         ],
+    chain_id=0,
+    eip1559_support=False,
+    token='ETH',
+    explorer='https://starkscan.co/',
+)
+
 zkSyncEra = Network(
-    name='zkSync Era',
+    name='zkSync',
     rpc=['https://rpc.ankr.com/zksync_era',
          'https://zksync.meowrpc.com',
          'https://zksync.drpc.org',

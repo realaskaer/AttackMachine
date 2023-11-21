@@ -9,30 +9,36 @@ from utils.networks import Ethereum
 from web3 import AsyncWeb3, AsyncHTTPProvider
 from functions import get_network_by_chain_id
 from utils.route_generator import RouteGenerator, AVAILABLE_MODULES_INFO, get_func_by_name
-from config import ACCOUNT_NAMES, WALLETS, PROXIES, CHAIN_NAME
+from config import ACCOUNT_NAMES, PRIVATE_KEYS, PROXIES, CHAIN_NAME
 from settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, HELP_NEW_MODULE, TG_ID, TG_TOKEN, MOBILE_PROXY,
                       MOBILE_PROXY_URL_CHANGER, WALLETS_TO_WORK, TELEGRAM_NOTIFICATIONS, GLOBAL_NETWORK,
-                      SAVE_PROGRESS)
+                      SAVE_PROGRESS, ACCOUNTS_IN_STREAM)
 
 
 class Runner(Logger):
     @staticmethod
-    def get_wallets():
+    def get_wallets(account_list:tuple = None):
+        if account_list:
+            range_count = range(account_list[0], account_list[1])
+            account_names = [ACCOUNT_NAMES[i - 1] for i in range_count]
+            accounts = [PRIVATE_KEYS[i - 1] for i in range_count]
+            return zip(account_names, accounts)
+
         if WALLETS_TO_WORK == 0:
-            return zip(ACCOUNT_NAMES, WALLETS)
+            return zip(ACCOUNT_NAMES, PRIVATE_KEYS)
 
         elif isinstance(WALLETS_TO_WORK, int):
-            return zip(ACCOUNT_NAMES[WALLETS_TO_WORK - 1], WALLETS[WALLETS_TO_WORK - 1])
+            return zip(ACCOUNT_NAMES[WALLETS_TO_WORK - 1], PRIVATE_KEYS[WALLETS_TO_WORK - 1])
 
         elif isinstance(WALLETS_TO_WORK, tuple):
             account_names = [ACCOUNT_NAMES[i-1] for i in WALLETS_TO_WORK]
-            accounts = [WALLETS[i-1] for i in WALLETS_TO_WORK]
+            accounts = [PRIVATE_KEYS[i - 1] for i in WALLETS_TO_WORK]
             return zip(account_names, accounts)
 
         elif isinstance(WALLETS_TO_WORK, list):
             range_count = range(WALLETS_TO_WORK[0], WALLETS_TO_WORK[1])
             account_names = [ACCOUNT_NAMES[i - 1] for i in range_count]
-            accounts = [WALLETS[i - 1] for i in range_count]
+            accounts = [PRIVATE_KEYS[i - 1] for i in range_count]
             return zip(account_names, accounts)
 
     @staticmethod
@@ -50,42 +56,101 @@ class Runner(Logger):
         with open('./data/services/wallets_progress.json', 'r') as f:
             return json.load(f)
 
+    async def smart_sleep(self, account_name, private_key, account_number):
+        if SLEEP_MODE:
+            duration = random.randint(*tuple(x * account_number for x in SLEEP_TIME))
+            self.logger_msg(account_name, private_key, f"💤 Sleeping for {duration} seconds\n")
+            await asyncio.sleep(duration)
+
     async def send_tg_message(self, account_name, private_key, message_to_send, disable_notification=False):
         try:
             await asyncio.sleep(1)
             str_send = '\n'.join(message_to_send)
             bot = telebot.TeleBot(TG_TOKEN)
-            bot.send_message(TG_ID, str_send, parse_mode='html', disable_notification=disable_notification)
+            bot.send_message(TG_ID, str_send, parse_mode='MarkdownV2', disable_notification=disable_notification)
             print()
             self.logger_msg(account_name, private_key, f"Telegram message sent", 'success')
         except Exception as error:
             self.logger_msg(account_name, private_key, f"Telegram | API Error: {error}", 'error')
 
-    def update_step(self, wallet, step):
+    def update_step(self, account_name, step):
         wallets = self.load_routes()
-        wallets[wallet]["current_step"] = step
+        wallets[account_name]["current_step"] = step
         with open('./data/services/wallets_progress.json', 'w') as f:
             json.dump(wallets, f, indent=4)
 
     @staticmethod
-    def collect_bad_wallets(private_key):
-        with open('./data/bad_wallets.txt', 'a') as file:
-            file.write(f"{private_key}\n")
+    def collect_bad_wallets(account_name, module_name):
+        try:
+            with open('./data/bad_wallets.json', 'r') as file:
+                data = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError):
+            data = {}
 
-    @staticmethod
-    async def prepare_update_cell_data(route_generator, result_list, account_name, private_key):
-        wallets_list = route_generator.get_wallet_list()
-        modules_list = route_generator.get_modules_list()
-        address = AsyncWeb3().eth.account.from_key(private_key).address
-        for result in result_list:
-            wallet_row = wallets_list.index(address) + 2
-            module_col = modules_list.index(result[1]) + 3
-            if result[0]:
-                result_type = 'Done'
+        data.setdefault(account_name, []).append(module_name)
+
+        with open('./data/bad_wallets.json', 'w') as file:
+            json.dump(data, file, indent=4)
+
+    async def update_sheet_data(self, route_generator, result_list):
+        while True:  # TODO бывает 503, вопрос: Google, какого хуя?
+            try:
+                wallets_list = route_generator.get_wallet_list()
+                modules_list = route_generator.get_modules_list()
+                total_result_to_send = []
+                successes = 0
+                errors = 0
+
+                for wallet_result in result_list:
+                    for result, module_name, account_name in wallet_result:
+                        if module_name in modules_list:
+                            wallet_row = wallets_list.index(account_name) + 2
+                            module_col = modules_list.index(module_name) + 3
+                            if result:
+                                result_type = 'Done'
+                                successes += 1
+                            else:
+                                errors += 1
+                                result_type = 'Error'
+
+                            total_result_to_send.append({
+                                'row': wallet_row,
+                                'col': module_col,
+                                'result': result_type
+                            })
+
+                if await route_generator.update_sheet(total_result_to_send, (successes, errors)):
+                    break
+                await asyncio.sleep(5)
+
+            except Exception as error:
+                self.logger_msg(None, None, f"Can`t update google sheets. Error: {error}", 'error')
+                route_generator.save_google_progress_offline(result_list)
+
+    async def generate_smart_routes(self, route_generator, accounts_data: tuple):
+        account_name, private_key = None, None
+        try:
+            if SOFTWARE_MODE:
+                private_keys = [i[0] for i in accounts_data]
+                await route_generator.get_smart_routes_for_batch(private_keys)
             else:
-                result_type = 'Error'
-            await route_generator.update_cell(account_name, private_key, wallet_row, module_col,
-                                              result_type, AVAILABLE_MODULES_INFO[result[1]][2])
+                account_name, private_key = accounts_data
+                await route_generator.get_smart_route(account_name)
+        except Exception as error:
+            self.logger_msg(account_name, private_key, f"Can`t generate smart route. Error: {error}", 'error')
+            raise RuntimeError
+
+    async def change_ip_proxy(self):
+        try:
+            self.logger_msg(None, None, f'Trying to change IP address\n', 'info')
+
+            if not await self.make_request(url=MOBILE_PROXY_URL_CHANGER[0]):
+                await self.make_request(url=MOBILE_PROXY_URL_CHANGER[random.randint(1, 2)])
+
+            self.logger_msg(None, None, f'IP address changed!\n', 'success')
+
+        except Exception as error:
+            self.logger_msg(None, None, f'Bad URL for change IP. Error: {error}', 'error')
 
     async def check_proxies_status(self):
         tasks = []
@@ -108,139 +173,155 @@ class Runner(Logger):
             self.logger_msg(account_name, private_key, f"Bad proxy: {proxy} | Error: {error}", 'error')
             return False
 
-    async def get_proxy_for_account(self, account_name, private_key):
+    def get_proxy_for_account(self, account_name, private_key):
         if USE_PROXY:
             try:
                 account_number = ACCOUNT_NAMES.index(account_name) + 1
                 num_proxies = len(PROXIES)
-                proxy = PROXIES[account_number % num_proxies]
-                for i in range(num_proxies):
-                    if await self.check_proxy_status(account_name, private_key, proxy):
-                        return PROXIES[account_number % num_proxies]
-                    account_number += 1
-                raise RuntimeError("all proxies are BAD!")
+                return PROXIES[account_number % num_proxies]
             except Exception as error:
                 self.logger_msg(account_name, private_key,
                                 f"Bad data in proxy, but you want proxy! Error: {error}", 'error')
                 raise RuntimeError("Proxy error")
 
-    async def sleep(self, account_number, private_key):
-        if SLEEP_MODE:
-            duration = random.randint(*SLEEP_TIME)
-            self.logger_msg(account_number, private_key, f"💤 Sleeping for {duration} seconds.")
-            await asyncio.sleep(duration)
-
-    async def run_module(self, module):
-        for account_name, private_key in self.get_wallets():
-            proxy = await self.get_proxy_for_account(account_name, private_key)
-            module_func = get_func_by_name(module)
-            await module_func(account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK), proxy)
-            await self.sleep(account_name, private_key)
-
-    async def run_account_modules(self, account_name, private_key, network, proxy, smart_route, route_generator):
-        message_list = []
-        result_list = []
-
-        if smart_route:
-            try:
-                await route_generator.get_smart_route(private_key)
-            except Exception as error:
-                self.logger_msg(account_name, private_key,f"Can`t generate smart route. Error: {error}", 'error')
-                return
+    async def run_account_modules(self, account_name, private_key, network, proxy, smart_route_type, index):
+        message_list, result_list = [], []
         try:
-            route:list = self.load_routes()[private_key]['route']
-        except Exception as error:
-            self.logger_msg(None, None, f"Generate route first!", 'error')
-            raise RuntimeError(f"{error}")
+            route = self.load_routes().get(account_name, {}).get('route')
 
-        current_step = 0
+            if not route:
+                raise RuntimeError(f"No route available")
 
-        if SAVE_PROGRESS:
-            current_step = self.load_routes()[private_key]["current_step"]
+            current_step = 0
 
-        await self.sleep(account_name, private_key)
+            if SAVE_PROGRESS:
+                current_step = self.load_routes()[account_name]["current_step"]
 
-        module_info = AVAILABLE_MODULES_INFO
+            await self.smart_sleep(account_name, private_key, index)
 
-        info = CHAIN_NAME[GLOBAL_NETWORK]
-        message_list.append(f'⚔️ {info}  |  Account name: "{account_name}"\n\n {len(route)} module(s) in route.\n')
-        total_info, type_msg = f"All steps in route completed!", 'success'
+            module_info = AVAILABLE_MODULES_INFO
+            info = CHAIN_NAME[GLOBAL_NETWORK]
 
-        while current_step < len(route):
-            module_func = get_func_by_name(route[current_step])
-            self.logger_msg(account_name, private_key, f"🚀 Launch module: {module_info[module_func][2]}.")
-            result = await module_func(account_name, private_key, network, proxy)
+            message_list.append(
+                f'*⚔️ {info} \\| Account name: "{account_name}"\n \n{len(route)} module\\(s\\) in route\n')
 
-            if result:
-                self.update_step(private_key, current_step + 1)
-                current_step += 1
-            else:
-                if smart_route and HELP_NEW_MODULE:
-                    module_for_help = random.choice(list(AVAILABLE_MODULES_INFO.values())[5:-2])[0]
-                    module_name = get_func_by_name(module_for_help.__name__, help_message=True)
-                    info = f"Adding new module in route. Module name: {module_name}"
-                    await asyncio.sleep(1)
-                    self.logger_msg(account_name, private_key, info, 'warning')
-                    route.remove(module_func.__name__)
-                    route.append(module_for_help.__name__)
-                    await asyncio.sleep(2)
+            total_info, type_msg = f"All steps in route completed!", 'success'
+
+            while current_step < len(route):
+                module_func = get_func_by_name(route[current_step])
+                self.logger_msg(account_name, private_key, f"🚀 Launch module: {module_info[module_func][2]}.")
+
+                try:
+                    result = await module_func(account_name, private_key, network, proxy)
+                except Exception as error:
+                    info = f"Module name: {module_info[module_func][2]} | Error {error}"
+                    self.logger_msg(account_name, private_key, f"Module crashed during the route: {info}")
+                    result = False
+
+                if result:
+                    self.update_step(account_name, current_step + 1)
+                    current_step += 1
                 else:
-                    message_list.append(f'❌   {AVAILABLE_MODULES_INFO[module_func][2]}\n')
-                    result_list.append((False, module_func))
-                    total_info, type_msg = f"Some problems during the process of route\n", 'error'
-                    self.collect_bad_wallets(private_key)
-                    break
+                    if smart_route_type and HELP_NEW_MODULE:
+                        module_for_help = random.choice(list(AVAILABLE_MODULES_INFO.values())[5:-2])
+                        module_name = module_for_help[0].__name__
+                        info = f"Adding new module in route. Module name: {module_for_help[2]}"
+                        await asyncio.sleep(1)
 
-            message_list.append(f'{"✅" if result else "❌"}   {AVAILABLE_MODULES_INFO[module_func][2]}\n')
-            result_list.append((result, module_func))
-            await self.sleep(account_name, private_key)
+                        self.logger_msg(account_name, private_key, info, 'warning')
+                        route.remove(module_func.__name__)
+                        route.append(module_name)
+                        await asyncio.sleep(2)
+                    else:
+                        module_name = AVAILABLE_MODULES_INFO[module_func][2]
+                        message_list.extend([f'❌   {module_name}\n', f'💀   The route was stopped\\!\n'])
+                        result_list.append((False, module_func, account_name))
 
-        if smart_route:
+                        total_info, type_msg = f"Some problems during the process of route\n", 'error'
+                        self.collect_bad_wallets(account_name, module_name)
+                        break
+
+                message_list.append(f'{"✅" if result else "❌"}   {AVAILABLE_MODULES_INFO[module_func][2]}\n')
+                result_list.append((result, module_func, account_name))
+                await self.smart_sleep(account_name, private_key, account_number=1)
+
+            success_count = len([1 for i in result_list if i[0]])
+            errors_count = len(result_list) - success_count
+            message_list.append(f'Total result:    ✅   —   {success_count}    \\|    ❌   —   {errors_count}*')
+
+            if TELEGRAM_NOTIFICATIONS:
+                if errors_count > 0:
+                    disable_notification = False
+                else:
+                    disable_notification = True
+                await self.send_tg_message(account_name, private_key, message_to_send=message_list,
+                                           disable_notification=disable_notification)
+                await asyncio.sleep(1)
+
+            self.logger_msg(account_name, private_key, total_info, type_msg)
             await asyncio.sleep(1)
-            await self.prepare_update_cell_data(route_generator, result_list, account_name, private_key)
-            await asyncio.sleep(1)
-
-        success_count = len([1 for i in result_list if i[0]])
-        errors_count = len(result_list) - success_count
-        message_list.append(f'Total result:    ✅ - {success_count}    |    ❌ - {errors_count}')
-
-        if TELEGRAM_NOTIFICATIONS:
-            if errors_count > 0:
-                disable_notification = True
+            if not SOFTWARE_MODE:
+                self.logger_msg(None, None,f"Start running next wallet!\n", 'info')
             else:
-                disable_notification = False
-            await self.send_tg_message(account_name, private_key, message_to_send=message_list,
-                                       disable_notification=disable_notification)
-            await asyncio.sleep(1)
+                self.logger_msg(account_name, private_key,f"Wait for other wallets in stream!\n", 'info')
 
-        self.logger_msg(account_name, private_key, total_info, type_msg)
-        await asyncio.sleep(1)
-        self.logger_msg(None, None,f"Start running next wallet!\n", 'success')
+            return result_list
+        except Exception as error:
+            self.logger_msg(None, None,f"Error during the route! Error: {error}\n", 'error')
+            if smart_route_type:
+                self.logger_msg(None, None,f"Saving progress in Google...\n", 'success')
+            return result_list
 
     async def run_parallel(self, smart_route, route_generator):
-        tasks = []
-        for account_name, private_key in self.get_wallets():
-            tasks.append(asyncio.create_task(
-                self.run_account_modules(
-                    account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK),
-                    await self.get_proxy_for_account(account_name, private_key), smart_route, route_generator)))
+        num_accounts = len(PRIVATE_KEYS)
+        accounts_per_stream = ACCOUNTS_IN_STREAM
+        num_streams, remainder = divmod(num_accounts, accounts_per_stream)
 
-        await asyncio.gather(*tasks)
+        for stream_index in range(num_streams + (remainder > 0)):
+            start_index = stream_index * accounts_per_stream
+            end_index = (stream_index + 1) * accounts_per_stream if stream_index < num_streams else num_accounts
 
-    async def run_consistently(self, smart_route, route_generator):
-        for account_name, private_key in self.get_wallets():
-            await self.run_account_modules(account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK),
-                                           await self.get_proxy_for_account(account_name, private_key),
-                                           smart_route, route_generator)
+            accounts = list(self.get_wallets((start_index + 1, end_index + 1)))
+
+            if smart_route:
+                await self.generate_smart_routes(route_generator, tuple(accounts))
+
+            tasks = []
+
+            for index, data in enumerate(accounts, 1):
+                account_name, private_key = data
+                tasks.append(asyncio.create_task(
+                    self.run_account_modules(
+                        account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK),
+                        self.get_proxy_for_account(account_name, private_key), smart_route, index)))
+
+            results_batch = await asyncio.gather(*tasks)
+
+            if smart_route:
+                await self.update_sheet_data(route_generator, results_batch)
 
             if MOBILE_PROXY:
-                try:
-                    if await self.make_request(url=MOBILE_PROXY_URL_CHANGER[0]):
-                        self.logger_msg(None, None, f'IP address changed!\n', 'success')
-                    else:
-                        await self.make_request(url=MOBILE_PROXY_URL_CHANGER[random.randint(1, 2)])
-                except Exception as error:
-                    self.logger_msg(None, None, f'Bad URL for change IP. Error: {error}', 'error')
+                await self.change_ip_proxy()
+
+            self.logger_msg(None, None, f"Wallets in stream completed their tasks, launching next stream\n", 'success')
+
+        self.logger_msg(None, None, f"All wallets completed their tasks!\n", 'success')
+
+    async def run_consistently(self, smart_route_type, route_generator):
+
+        for account_name, private_key in self.get_wallets():
+            if smart_route_type:
+                await self.generate_smart_routes(route_generator, (account_name, private_key))
+
+            result = await self.run_account_modules(account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK),
+                                                    self.get_proxy_for_account(account_name, private_key),
+                                                    smart_route_type, index=1)
+
+            if smart_route_type:
+                await self.update_sheet_data(route_generator, [result])
+
+            if MOBILE_PROXY:
+                await self.change_ip_proxy()
 
         self.logger_msg(None, None, f"All accounts completed their tasks!\n",
                         'success')

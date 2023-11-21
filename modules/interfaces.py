@@ -4,7 +4,8 @@ from sys import stderr
 from datetime import datetime
 from web3 import AsyncWeb3
 from abc import ABC, abstractmethod
-from settings import LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS, OKX_API_SECRET, OKX_DEPOSIT_NETWORK
+from settings import (LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS,
+                      OKX_API_SECRET, OKX_DEPOSIT_NETWORK, GLOBAL_NETWORK)
 
 
 class DEX(ABC):
@@ -24,10 +25,12 @@ class Logger(ABC):
 
     def logger_msg(self, account_name, private_key, msg, type_msg: str = 'info'):
         if account_name is None or private_key is None:
-            info = f'[Attack machine] | Runner |'
+            info = f'[Attack machine] | {self.__class__.__name__} |'
+        elif GLOBAL_NETWORK == 9:
+            info = f'[{account_name}] | {self.__class__.__name__} |'
         else:
             address = AsyncWeb3().eth.account.from_key(private_key).address
-            info = f'[{account_name}] {address} | Runner |'
+            info = f'[{account_name}] {address} | {self.__class__.__name__} |'
         if type_msg == 'info':
             self.logger.info(f"{info} {msg}")
         elif type_msg == 'error':
@@ -169,6 +172,9 @@ class Creator(ABC):
 
 
 class Blockchain(ABC):
+    def __init__(self, client):
+        self.client = client
+
     @abstractmethod
     async def deposit(self):
         pass
@@ -188,3 +194,15 @@ class Blockchain(ABC):
     @abstractmethod
     async def unwrap_eth(self):
         pass
+
+    async def make_request(self, method:str = 'GET', url:str = None, headers:dict = None, params: dict = None,
+                           data:str = None, json:dict = None):
+
+        async with ClientSession() as session:
+            async with session.request(method=method, url=url, headers=headers, data=data,
+                                       params=params, json=json, proxy=self.client.proxy) as response:
+
+                data = await response.json()
+                if response.status == 200:
+                    return data
+                raise RuntimeError(f"Bad request to {self.__class__.__name__} API: {response.status}")
