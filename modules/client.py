@@ -29,7 +29,7 @@ from settings import (
 
 
 class Client(Logger):
-    def __init__(self, account_number: int, private_key: str, network: Network, proxy: None | str = None):
+    def __init__(self, account_name: int, private_key: str, network: Network, proxy: None | str = None):
         super().__init__()
         self.network = network
         self.eip1559_support = network.eip1559_support
@@ -41,12 +41,12 @@ class Client(Logger):
         self.proxy_init = proxy
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
         self.w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(network.rpc), request_kwargs=self.request_kwargs))
-        self.account_number = account_number
+        self.account_name = account_name
         self.private_key = private_key
         self.address = AsyncWeb3.to_checksum_address(self.w3.eth.account.from_key(private_key).address)
 
         self.min_amount_eth_on_balance = MIN_BALANCE
-        self.info = f'[{self.account_number}] {self.address} | {self.network.name} |'
+        self.info = f'[{self.account_name}] {self.address} | {self.network.name} |'
 
     @staticmethod
     def round_amount(min_amount: float, max_amount:float) -> float:
@@ -112,7 +112,7 @@ class Client(Logger):
         func = id_of_bridge[bridge_id]
 
         await asyncio.sleep(1)
-        await func(self.account_number, self.private_key, self.network, self.proxy_init,
+        await func(self.account_name, self.private_key, self.network, self.proxy_init,
                    help_okx=True, help_network_id=network_to_id)
 
     async def get_bridge_data(self, chain_from_id:int, help_okx:bool, help_network_id: int, module_name:str):
@@ -164,7 +164,7 @@ class Client(Logger):
             self.logger.warning(f'{self.info} Not enough ETH! Launching swap module')
 
             await asyncio.sleep(1)
-            await swap_odos(self.account_number, self.private_key, self.network, self.proxy_init, help_deposit=True)
+            await swap_odos(self.account_name, self.private_key, self.network, self.proxy_init, help_deposit=True)
         else:
             _, _, amount, amount_in_wei = data
 
@@ -181,7 +181,7 @@ class Client(Logger):
         if eth_balance < amount_from_settings:
             self.logger.warning(f'{self.info} Not enough ETH! Launching swap module')
             await asyncio.sleep(1)
-            await swap_oneinch(self.account_number, self.private_key, self.network, self.proxy_init,
+            await swap_oneinch(self.account_name, self.private_key, self.network, self.proxy_init,
                                help_add_liquidity=True, amount_to_help=amount_from_settings)
 
         return amount_from_settings, amount_from_settings_in_wei
