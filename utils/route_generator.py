@@ -146,15 +146,15 @@ class RouteGenerator(Logger):
             'Zerius Mint NFT': mint_zerius,
             'Zerius Bridge NFT': bridge_zerius,
             'Omnisea Create NFT': create_omnisea,
-            'Tavaera ID & NFT mint': mint_tevaera,
-            'Mailzero NFT mint': mint_mailzero,
+            'Tavaera ID & NFT Mint': mint_tevaera,
+            'Mailzero NFT Mint': mint_mailzero,
             'ZNS Domain Mint': mint_domain_zns,
             'ENS Domain Mint': mint_domain_ens,
-            'L2Telegraph NFT bridge': mint_and_bridge_l2telegraph,
+            'L2Telegraph NFT Bridge': mint_and_bridge_l2telegraph,
             'Gnosis Safe': create_safe,
             'Contract Deploy': deploy_contract,
-            'Dmail': send_message_dmail,
-            'L2Telegraph message': send_message_l2telegraph,
+            'Dmail Message': send_message_dmail,
+            'L2Telegraph Message': send_message_l2telegraph,
             'Wrap ETH': wrap_eth,
             'Merkly Refuel': refuel_merkly,
             'Bungee Refuel': refuel_bungee,
@@ -214,7 +214,7 @@ class RouteGenerator(Logger):
 
         return True
 
-    def get_wallet_list(self):
+    def get_account_name_list(self):
         try:
             return self.ws.col_values(1)[1:]
         except Exception as error:
@@ -230,18 +230,17 @@ class RouteGenerator(Logger):
                 modules_list.append(self.function_mappings[module])
         return modules_list
 
-    def get_data_for_batch(self, private_keys):
-        wallet_list = self.get_wallet_list()
+    def get_data_for_batch(self, account_names:list):
+        wallet_list = self.get_account_name_list()
         ranges_for_sheet = []
         batch_data = {}
         data_to_return = {}
         col = 2 + len(self.function_mappings)
 
-        for private_key in private_keys:
-            address = self.get_address(private_key)
-            row = 2 + wallet_list.index(address)
+        for account_name in account_names:
+            row = 2 + wallet_list.index(account_name)
             batch_data[row] = {
-                'address': address
+                'account_name': account_name
             }
             sheet_range = f"{rowcol_to_a1(row=row, col=3)}:{rowcol_to_a1(row=row, col=col)}"
             ranges_for_sheet.append(sheet_range)
@@ -250,7 +249,7 @@ class RouteGenerator(Logger):
 
         for index, data in enumerate(batch_data.items()):
             k, v = data
-            data_to_return[v['address']] = {
+            data_to_return[v['account_name']] = {
                 'progress': full_data[index]
             }
 
@@ -268,7 +267,7 @@ class RouteGenerator(Logger):
     async def get_smart_route(self, account_name: str, wallet_statuses:list = None,
                               batch_mode:bool = False, modules_list:list = None):
         if not batch_mode:
-            wallets_list = self.get_wallet_list()
+            wallets_list = self.get_account_name_list()
             modules_list = self.get_modules_list()
 
             wallet_modules_statuses = self.ws.row_values(wallets_list.index(account_name) + 2)[2:]
@@ -277,10 +276,15 @@ class RouteGenerator(Logger):
 
         modules_to_work = []
 
-        collaterals_modules = [enable_collateral_eralend, enable_collateral_basilisk,
-                               enable_collateral_zerolend, enable_collateral_reactorfusion,
-                               disable_collateral_basilisk,disable_collateral_eralend,
-                               disable_collateral_reactorfusion,disable_collateral_zerolend]
+        if GLOBAL_NETWORK == 11:
+            collaterals_modules = [enable_collateral_eralend, enable_collateral_basilisk,
+                                   enable_collateral_zerolend, enable_collateral_reactorfusion,
+                                   disable_collateral_basilisk,disable_collateral_eralend,
+                                   disable_collateral_reactorfusion,disable_collateral_zerolend]
+        elif GLOBAL_NETWORK == 9:
+            collaterals_modules = [enable_collateral_zklend, disable_collateral_zklend]
+        else:
+            collaterals_modules = []
 
         for i in range(len(wallet_modules_statuses)):
             if wallet_modules_statuses[i] in ["Not Started", "Error"]:

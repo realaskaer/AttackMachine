@@ -95,7 +95,7 @@ class Runner(Logger):
     async def update_sheet_data(self, route_generator, result_list):
         while True:  # TODO бывает 503, вопрос: Google, какого хуя?
             try:
-                wallets_list = route_generator.get_wallet_list()
+                wallets_list = route_generator.get_account_name_list()
                 modules_list = route_generator.get_modules_list()
                 total_result_to_send = []
                 successes = 0
