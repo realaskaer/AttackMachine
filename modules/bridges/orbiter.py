@@ -1,6 +1,6 @@
 from modules import Bridge
 from utils.tools import repeater, gas_checker
-
+from config import ORBITER_CONTRACTS
 
 class Orbiter(Bridge):
     async def get_bridge_data(self, from_chain: int, to_chain:int, token_name: str):
@@ -51,6 +51,7 @@ class Orbiter(Bridge):
         min_price, max_price = bridge_data['min_amount'], bridge_data['max_amount']
         amount_in_wei = int(amount * 10 ** bridge_data['decimals'])
 
+
         tx_params = (await self.client.prepare_transaction(value=amount_in_wei + destination_code + fee)) | {
             'to': bridge_data['maker']
         }
@@ -60,9 +61,7 @@ class Orbiter(Bridge):
             _, balance_in_wei, _ = await self.client.get_token_balance(token_name)
             if balance_in_wei >= tx_params['value']:
 
-                tx_hash = await self.client.send_transaction(tx_params)
-
-                return await self.client.verify_transaction(tx_hash)
+                return await self.client.send_transaction(tx_params)
 
             else:
                 raise RuntimeError(f'Insufficient balance!')
