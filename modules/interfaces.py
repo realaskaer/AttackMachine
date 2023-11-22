@@ -4,8 +4,10 @@ from sys import stderr
 from datetime import datetime
 from web3 import AsyncWeb3
 from abc import ABC, abstractmethod
+
 from settings import (LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS,
-                      OKX_API_SECRET, OKX_DEPOSIT_NETWORK, GLOBAL_NETWORK)
+                      OKX_API_SECRET, OKX_DEPOSIT_NETWORK, GLOBAL_NETWORK, USE_PROXY)
+from utils.networks import StarknetRPC
 
 
 class DEX(ABC):
@@ -44,6 +46,7 @@ class Logger(ABC):
 class CEX(ABC):
     def __init__(self, client):
         self.client = client
+        self.account_info = self.client.account_name, self.client.private_key,
 
         self.api_key = OKX_API_KEY
         self.api_secret = OKX_API_SECRET
@@ -109,6 +112,22 @@ class Bridge(ABC):
                 "Content-Type": "application/json",
             }
 
+    async def get_address_for_bridge(self, private_key:str, stark_key_type:bool):
+        from modules import StarknetClient
+        if private_key is None:
+            return
+        elif stark_key_type:
+            stark_client = None
+            try:
+                stark_client = StarknetClient('Bridge', private_key, StarknetRPC, self.client.proxy_init)
+                await stark_client.initialize_account()
+                return hex(stark_client.address)
+            finally:
+                if USE_PROXY and stark_client:
+                    await stark_client.session.close()
+        else:
+            return AsyncWeb3().eth.account.from_key(private_key).address
+
     @abstractmethod
     async def bridge(self, *args, **kwargs):
         pass
@@ -121,7 +140,7 @@ class Bridge(ABC):
                                        params=params, json=json, proxy=self.client.proxy) as response:
 
                 data = await response.json()
-                if response.status == 200:
+                if response.status in [200, 201]:
                     return data
                 raise RuntimeError(f"Bad request to {self.__class__.__name__} API: {response.status}")
 

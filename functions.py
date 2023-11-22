@@ -7,8 +7,8 @@ from settings import (LAYERSWAP_CHAIN_ID_FROM, ORBITER_CHAIN_ID_FROM, RHINO_CHAI
                       OKX_DEPOSIT_NETWORK, SOURCE_CHAIN_MERKLY, SOURCE_CHAIN_ZERIUS, GLOBAL_NETWORK)
 
 
-def get_client(account_number, private_key, network, proxy) -> Client | StarknetClient:
-    if GLOBAL_NETWORK != 9:
+def get_client(account_number, private_key, network, proxy, bridge_from_evm:bool = False) -> Client | StarknetClient:
+    if GLOBAL_NETWORK != 9 or bridge_from_evm:
         return Client(account_number, private_key, network, proxy)
     return StarknetClient(account_number, private_key, network, proxy)
 
@@ -37,6 +37,14 @@ def get_network_by_chain_id(chain_id):
         13: zkSyncEra,
         14: Ethereum,
     }[chain_id]
+
+
+def get_key_by_id_from(args, chain_from_id):
+    private_keys = args[0].get('stark_key'), args[0].get('evm_key')
+    current_key = private_keys[1]
+    if chain_from_id == 9:
+        current_key = private_keys[0]
+    return current_key
 
 
 async def swap_woofi(account_number, private_key, network, proxy):
@@ -287,37 +295,46 @@ async def mint_domain_ens(account_number, private_key, network, proxy):
     return await worker.mint()
 
 
-async def bridge_layerswap(account_number, private_key, _, proxy, **kwargs):
+async def bridge_layerswap(account_number, _, __, proxy, *args, **kwargs):
     if kwargs.get('help_okx') is True:
         chain_from_id = GLOBAL_NETWORK
     else:
         chain_from_id = random.choice(LAYERSWAP_CHAIN_ID_FROM)
     network = get_network_by_chain_id(chain_from_id)
 
-    worker = LayerSwap(get_client(account_number, private_key, network, proxy))
-    return await worker.bridge(chain_from_id,  **kwargs)
+    bridge_from_evm = True if 9 not in LAYERSWAP_CHAIN_ID_FROM else False
+    private_key = get_key_by_id_from(args, chain_from_id)
+
+    worker = LayerSwap(get_client(account_number, private_key, network, proxy, bridge_from_evm))
+    return await worker.bridge(chain_from_id, *args, **kwargs)
 
 
-async def bridge_orbiter(account_number, private_key, _, proxy, **kwargs):
+async def bridge_orbiter(account_number, _, __, proxy, *args, **kwargs):
     if kwargs.get('help_okx') is True:
         chain_from_id = GLOBAL_NETWORK
     else:
         chain_from_id = random.choice(ORBITER_CHAIN_ID_FROM)
     network = get_network_by_chain_id(chain_from_id)
 
-    worker = Orbiter(get_client(account_number, private_key, network, proxy))
-    return await worker.bridge(chain_from_id, **kwargs)
+    bridge_from_evm = True if 9 not in ORBITER_CHAIN_ID_FROM else False
+    private_key = get_key_by_id_from(args, chain_from_id)
+
+    worker = Orbiter(get_client(account_number, private_key, network, proxy, bridge_from_evm))
+    return await worker.bridge(chain_from_id, *args, **kwargs)
 
 
-async def bridge_rhino(account_number, private_key, _, proxy, **kwargs):
+async def bridge_rhino(account_number, _, __, proxy, *args, **kwargs):
     if kwargs.get('help_okx') is True:
         chain_from_id = GLOBAL_NETWORK
     else:
         chain_from_id = random.choice(RHINO_CHAIN_ID_FROM)
     network = get_network_by_chain_id(chain_from_id)
 
-    worker = Rhino(get_client(account_number, private_key, network, proxy))
-    return await worker.bridge(chain_from_id, **kwargs)
+    bridge_from_evm = True if 9 not in RHINO_CHAIN_ID_FROM else False
+    private_key = get_key_by_id_from(args, chain_from_id)
+
+    worker = Rhino(get_client(account_number, private_key, network, proxy, bridge_from_evm))
+    return await worker.bridge(chain_from_id, *args, **kwargs)
 
 
 async def refuel_merkly(account_number, private_key, _, proxy):

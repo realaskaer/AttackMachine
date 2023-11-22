@@ -14,20 +14,22 @@
 
     OKX_BRIDGE_NEED | Если включен(стоит True), то перед депозитом на биржу софт сделает бридж в сеть из который
                         планируется пополнять OKX. Если сеть для пополнения OKX есть в списке сверху, то ставьте False
-
+    OKX_DEPOSIT_AMOUNT | Определяет % от баланса основной сети (GLOBAL_NETWORK) для выполнения бриджа в сеть
+                            пополнения OKX (OKX_DEPOSIT_NETWORK)
     OKX_DEPOSIT_AMOUNT = 90 | % of MAX TOKEN BALANCE. Will withdraw this amount from the largest token balance in zkSync
     OKX_BRIDGE_MODE = [1, 2, 3] | 1 - Rhino.fi, 2 - Orbiter, 3 - LayerSwap. Выберите мосты для бриджа в сеть, из которой
                                     планируется пополнять OKX. Софт выберет один из списка
 
 ------------------------------------------------------------------------------------------------------------------------
 """
-OKX_WITHDRAW_NETWORK = 2              # Сеть вывода из OKX
-OKX_WITHDRAW_AMOUNT = (0.014, 0.015)  # (минимальная, максимальная) сумма в ETH для вывода
+OKX_WITHDRAW_NETWORK = 5              # Сеть вывода из OKX
+OKX_WITHDRAW_AMOUNT = (0.001, 0.001)  # (минимальная, максимальная) сумма в ETH для вывода
 
-OKX_BRIDGE_NEED = True                # True или False | Включает бридж в выбранную сеть (OKX_DEPOSIT_NETWORK)
+OKX_BRIDGE_NEED = False                # True или False | Включает бридж в выбранную сеть (OKX_DEPOSIT_NETWORK)
 OKX_BRIDGE_MODE = [1]                 # Мосты для бриджа в сеть пополнения OKX
-OKX_DEPOSIT_NETWORK = 2               # Сеть из которой планируется пополнение OKX
-OKX_DEPOSIT_AMOUNT = 90               # % от баланса основной сети (GLOBAL_NETWORK) для пополнения OKXd
+OKX_BRIDGE_AMOUNT = 90               # % от баланса основной сети (GLOBAL_NETWORK)
+OKX_DEPOSIT_NETWORK = 5               # Сеть из которой планируется пополнение OKX
+OKX_DEPOSIT_AMOUNT = (0.001, 0.001)   # (минимальная, максимальная) сумма в ETH на пополнение OKX
 
 """
 --------------------------------------------------Native Bridge---------------------------------------------------------
@@ -48,17 +50,18 @@ NATIVE_WITHDRAW_AMOUNT = (0.001, 0.02)  # (минимум, максимум) ETH
        
     Arbitrum = 1            Optimism = 7
     Arbitrum Nova = 2       Scroll = 8  
-    Base = 3                Polygon ZKEVM = 9   
-    Linea = 4               zkSync Era = 10      
-    Manta = 5               Zora = 11  
-    Polygon = 6             zkSync Lite = 12
+    Base = 3                Starknet = 9   
+    Linea = 4               Polygon ZKEVM = 10    
+    Manta = 5               zkSync Era = 11  
+    Polygon = 6             Zora = 12
+                            zkSync Lite = 13
     
     LAYERSWAP_CHAIN_ID_FROM(TO) = [2, 4, 16] | Одна из сетей будет выбрана
     LAYERSWAP_REFUEL | Добавляет немного нативного токена в сеть пополнения
 """
-LAYERSWAP_CHAIN_ID_FROM = [2, 10]   # Исходящая сеть
-LAYERSWAP_CHAIN_ID_TO = [11]        # Входящая сеть
-LAYERSWAP_AMOUNT = (0.018, 0.019)   # (минимум, максимум) ETH или %
+LAYERSWAP_CHAIN_ID_FROM = [9]   # Исходящая сеть
+LAYERSWAP_CHAIN_ID_TO = [1]        # Входящая сеть
+LAYERSWAP_AMOUNT = (0.003, 0.004)   # (минимум, максимум) ETH или %
 LAYERSWAP_REFUEL = False            # True or False
 
 """
@@ -68,16 +71,17 @@ LAYERSWAP_REFUEL = False            # True or False
 
     Arbitrum = 1            Optimism = 7
     Arbitrum Nova = 2       Scroll = 8  
-    Base = 3                Polygon ZKEVM = 9   
-    Linea = 4               zkSync Era = 10      
-    Manta = 5               Zora = 11  
-    Polygon = 6             zkSync Lite = 12
+    Base = 3                Starknet = 9   
+    Linea = 4               Polygon ZKEVM = 10    
+    Manta = 5               zkSync Era = 11  
+    Polygon = 6             Zora = 12
+                            zkSync Lite = 13
 
     ORBITER_CHAIN_ID_FROM(TO) = [2, 4, 11] | Одна из сетей будет выбрана
 """
-ORBITER_CHAIN_ID_FROM = [2, 10, 11]  # Исходящая сеть
-ORBITER_CHAIN_ID_TO = [5]            # Входящая сеть
-ORBITER_AMOUNT = (0.009, 0.012)      # (минимум, максимум) ETH или %
+ORBITER_CHAIN_ID_FROM = [9]  # Исходящая сеть
+ORBITER_CHAIN_ID_TO = [1]            # Входящая сеть
+ORBITER_AMOUNT = (0.001, 0.001)      # (минимум, максимум) ETH или %
 
 """
 -------------------------------------------------Rhino Bridge-----------------------------------------------------------
@@ -87,15 +91,16 @@ ORBITER_AMOUNT = (0.009, 0.012)      # (минимум, максимум) ETH и
     Arbitrum = 1           *Polygon = 6
     Arbitrum Nova = 2       Optimism = 7
     Base = 3                Scroll = 8  
-    Linea = 4               Polygon ZKEVM = 9       
-    Manta = 5               zkSync Era = 10            
-    
+    Linea = 4               Starknet = 9       
+    Manta = 5               Polygon ZKEVM = 10         
+                            zkSync Era = 11   
+                            
     * - Не работает для RHINO_CHAIN_ID_FROM                
     RHINO_CHAIN_ID_FROM(TO) = [2, 3, 10] | Одна из сетей будет выбрана
 """
-RHINO_CHAIN_ID_FROM = [8]           # Исходящая сеть
+RHINO_CHAIN_ID_FROM = [9]            # Исходящая сеть
 RHINO_CHAIN_ID_TO = [1]             # Входящая сеть
-RHINO_AMOUNT = ("10", "20")         # (минимум, максимум) ETH или %
+RHINO_AMOUNT = (0.01, 0.01)          # (минимум, максимум) ETH или %
 
 """
 ---------------------------------------------OMNI-CHAIN CONTROL---------------------------------------------------------
@@ -192,19 +197,19 @@ MIN_BALANCE = 0.001                   # Количество ETH на аккау
 """
 GLOBAL_NETWORK = 9              # 16.11.2023 поддерживается только zkSync и Starknet. Следите за новостями.
 SOFTWARE_MODE = 0               # 0 - последовательный запуск / 1 - параллельный запуск
-ACCOUNTS_IN_STREAM = 25         # Только для SOFTWARE_MODE = 1 (параллельный запуск)
+ACCOUNTS_IN_STREAM = 10         # Только для SOFTWARE_MODE = 1 (параллельный запуск)
 WALLETS_TO_WORK = 0             # 0 / (3, 20) / 3, 20
 SAVE_PROGRESS = False           # True или False | Включает сохранение прогресса аккаунта для Classic-routes
 TELEGRAM_NOTIFICATIONS = True   # True или False | Включает уведомления в Telegram
 
 
 '------------------------------------------------SLEEP CONTROL---------------------------------------------------------'
-SLEEP_MODE = True              # True или False | Включает сон после каждого модуля и аккаунта
+SLEEP_MODE = False              # True или False | Включает сон после каждого модуля и аккаунта
 SLEEP_TIME = (10, 20)           # (минимум, максимум) секунд | Время сна между модулями и аккаунтами.
 
 
 '-------------------------------------------------GAS CONTROL----------------------------------------------------------'
-GAS_CONTROL = True             # True или False | Включает контроль газа
+GAS_CONTROL = False             # True или False | Включает контроль газа
 MAXIMUM_GWEI = 30               # Максимальный GWEI для работы софта
 SLEEP_TIME_GAS = 10             # Время очередной проверки газа
 CONTROL_TIMES_FOR_SLEEP = 3     # Количество проверок
@@ -400,21 +405,21 @@ DEPOSIT_CONFIG = {
     ]
 """
 CLASSIC_ROUTES_MODULES_USING = [
-    ['bridge_orbiter']
-    #['enable_collateral_eralend', 'enable_collateral_zerolend'],
-    #['send_message_dmail'],
-    # ['bridge_layerswap'],
-    # ['mint_tevaera', 'mint_and_bridge_l2telegraph'],
-    # ['enable_collateral_basilisk', 'enable_collateral_eralend', None],
-    # ['swap_rango', 'swap_zkswap'],
-    # ['refuel_merkly', 'swap_syncswap'],
-    # ['mint_domain_zns', 'mint_domain_ens'],
-    # ['wrap_eth', 'swap_pancake'],
-    # ['swap_mute', 'swap_spacefi', 'swap_pancake'],
-    # ['refuel_bungee', 'refuel_merkly'],
-    # ['swap_oneinch', 'mint_domain_ens'],
-    # ['mint_mailzero', 'swap_vesync'],
-    # ['withdraw_txsync']
+    ['okx_withdraw'],
+    ['bridge_layerswap'],
+    ['enable_collateral_eralend', 'enable_collateral_zerolend'],
+    ['send_message_dmail'],
+    ['mint_tevaera', 'mint_and_bridge_l2telegraph'],
+    ['enable_collateral_basilisk', 'enable_collateral_eralend', None],
+    ['swap_rango', 'swap_zkswap'],
+    ['refuel_merkly', 'swap_syncswap'],
+    ['mint_domain_zns', 'mint_domain_ens'],
+    ['wrap_eth', 'swap_pancake'],
+    ['swap_mute', 'swap_spacefi', 'swap_pancake'],
+    ['refuel_bungee', 'refuel_merkly'],
+    ['swap_oneinch', 'mint_domain_ens'],
+    ['mint_mailzero', 'swap_vesync'],
+    ['withdraw_txsync']
 ]
 
 

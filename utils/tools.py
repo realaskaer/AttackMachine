@@ -13,6 +13,7 @@ from web3 import AsyncWeb3, AsyncHTTPProvider
 from msoffcrypto.exceptions import DecryptionError, InvalidKeyError
 from settings import (
     SLEEP_TIME,
+    GLOBAL_NETWORK,
     SLEEP_TIME_RETRY,
     MAXIMUM_RETRY,
     GAS_CONTROL,
@@ -29,7 +30,8 @@ from settings import (
 async def sleep(self, min_time=SLEEP_TIME[0], max_time=SLEEP_TIME[1]):
     duration = random.randint(min_time, max_time)
     print()
-    self.client.logger.info(f"{self.client.info} {self.__class__.__name__} | 💤 Sleeping for {duration} seconds.")
+    self.client.logger_msg(self.client.account_name, self.client.private_key,
+                           f"{self.__class__.__name__} | 💤 Sleeping for {duration} seconds.")
     await asyncio.sleep(duration)
 
 
@@ -75,18 +77,21 @@ def get_accounts_data():
         for index, row in wb.iterrows():
             account_name = row["Name"]
             private_key = row["Private Key"]
+            private_key_evm = row["Private Key EVM"] if GLOBAL_NETWORK == 9 else 0x123
             proxy = row["Proxy"]
             okx_address = row['OKX address']
             accounts_data[int(index) + 1] = {
                 "account_number": account_name,
+                "private_key_evm": private_key_evm,
                 "private_key": private_key,
                 "proxy": proxy,
                 "okx_wallet": okx_address,
             }
 
-        acc_name, priv_key, proxy, okx_wallet = [], [], [], []
+        acc_name, priv_key_evm, priv_key, proxy, okx_wallet = [], [], [], [], []
         for k, v in accounts_data.items():
             acc_name.append(v['account_number'])
+            priv_key_evm.append(v['private_key_evm'])
             priv_key.append(v['private_key'])
             proxy.append(v['proxy'] if isinstance(v['proxy'], str) else None)
             okx_wallet.append(v['okx_wallet'] if isinstance(v['okx_wallet'], str) else None)
@@ -94,7 +99,7 @@ def get_accounts_data():
         proxy = [item for item in proxy if item is not None]
         okx_wallet = [item for item in okx_wallet if item is not None]
 
-        return acc_name, priv_key, proxy, okx_wallet
+        return acc_name, priv_key_evm, priv_key, proxy, okx_wallet
 
 
 def clean_stark_file():
@@ -112,14 +117,14 @@ def drop_date():
 
 
 def create_okx_withdrawal_list():
-    from config import PRIVATE_KEYS, OKX_WALLETS
+    from config import ACCOUNT_NAMES, OKX_WALLETS
     okx_data = {}
     w3 = AsyncWeb3()
 
-    if PRIVATE_KEYS and OKX_WALLETS:
+    if ACCOUNT_NAMES and OKX_WALLETS:
         with open('./data/services/okx_withdraw_list.json', 'w') as file:
-            for private_key, okx_wallet in zip(PRIVATE_KEYS, OKX_WALLETS):
-                okx_data[w3.eth.account.from_key(private_key).address] = okx_wallet
+            for account_name, okx_wallet in zip(ACCOUNT_NAMES, OKX_WALLETS):
+                okx_data[account_name] = okx_wallet
             json.dump(okx_data, file, indent=4)
         cprint('✅ Successfully added and saved OKX wallets data', 'light_blue')
         cprint('⚠️ Check all OKX deposit wallets by yourself to avoid problems', 'light_yellow', attrs=["blink"])
@@ -167,6 +172,7 @@ def gas_checker(func):
 
             w3 = None
             if self.client.network.name != "Starknet":
+                print(self.client.network.name)
                 w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(Ethereum.rpc),
                                                  request_kwargs=self.client.request_kwargs))
             while True:

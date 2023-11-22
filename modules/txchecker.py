@@ -32,7 +32,7 @@ class TxChecker:
     async def make_request(self, method: str = 'GET', url: str = None, headers: dict = None, params: dict = None,
                            data: str = None, json: dict = None):
 
-        proxy = random.choice([PROXIES])
+        proxy = random.choice(PROXIES)
 
         async with ClientSession() as session:
             async with session.request(method=method, url=url, headers=headers, data=data,

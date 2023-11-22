@@ -9,11 +9,13 @@ from utils.networks import Ethereum
 from web3 import AsyncWeb3, AsyncHTTPProvider
 from functions import get_network_by_chain_id
 from utils.route_generator import RouteGenerator, AVAILABLE_MODULES_INFO, get_func_by_name
-from config import ACCOUNT_NAMES, PRIVATE_KEYS, PROXIES, CHAIN_NAME
+from config import ACCOUNT_NAMES, PRIVATE_KEYS_EVM, PRIVATE_KEYS, PROXIES, CHAIN_NAME
 from settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, HELP_NEW_MODULE, TG_ID, TG_TOKEN, MOBILE_PROXY,
                       MOBILE_PROXY_URL_CHANGER, WALLETS_TO_WORK, TELEGRAM_NOTIFICATIONS, GLOBAL_NETWORK,
                       SAVE_PROGRESS, ACCOUNTS_IN_STREAM)
 
+
+BRIDGE_NAMES = ['bridge_rhino', 'bridge_layerswap', 'bridge_orbiter', 'bridge_native']
 
 class Runner(Logger):
     @staticmethod
@@ -211,9 +213,15 @@ class Runner(Logger):
                 module_func = get_func_by_name(route[current_step])
                 self.logger_msg(account_name, private_key, f"🚀 Launch module: {module_info[module_func][2]}.")
 
+                module_input_data = [account_name, private_key, network, proxy]
+                if route[current_step] in BRIDGE_NAMES and GLOBAL_NETWORK == 9:
+                    module_input_data.append({"stark_key":private_key,
+                                              "evm_key":PRIVATE_KEYS_EVM[PRIVATE_KEYS.index(private_key)]})
+
                 try:
-                    result = await module_func(account_name, private_key, network, proxy)
+                    result = await module_func(*module_input_data)
                 except Exception as error:
+                    raise error
                     info = f"Module name: {module_info[module_func][2]} | Error {error}"
                     self.logger_msg(account_name, private_key, f"Module crashed during the route: {info}")
                     result = False
@@ -267,6 +275,7 @@ class Runner(Logger):
 
             return result_list
         except Exception as error:
+            raise error
             self.logger_msg(None, None,f"Error during the route! Error: {error}\n", 'error')
             if smart_route_type:
                 self.logger_msg(None, None,f"Saving progress in Google...\n", 'success')

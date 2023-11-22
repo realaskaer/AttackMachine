@@ -17,7 +17,7 @@ from settings import (
     DEX_LP_AMOUNT,
     LANDING_AMOUNT,
     OKX_BRIDGE_MODE,
-    OKX_DEPOSIT_AMOUNT,
+    OKX_BRIDGE_AMOUNT,
     LAYERSWAP_AMOUNT,
     LAYERSWAP_CHAIN_ID_TO,
     LAYERSWAP_REFUEL,
@@ -29,7 +29,7 @@ from settings import (
 
 
 class Client(Logger):
-    def __init__(self, account_name: int, private_key: str, network: Network, proxy: None | str = None):
+    def __init__(self, account_name: str, private_key: str, network: Network, proxy: None | str = None):
         super().__init__()
         self.network = network
         self.eip1559_support = network.eip1559_support
@@ -124,7 +124,7 @@ class Client(Logger):
             if help_okx:
                 source_chain = RHINO_CHAIN_INFO[8]
                 destination_chain = RHINO_CHAIN_INFO[help_network_id]
-                amount, _ = await self.check_and_get_eth_for_deposit(OKX_DEPOSIT_AMOUNT)
+                amount, _ = await self.check_and_get_eth_for_deposit(OKX_BRIDGE_AMOUNT)
 
             return source_chain, destination_chain, amount
 
@@ -137,7 +137,7 @@ class Client(Logger):
             if help_okx:
                 source_chain = LAYERSWAP_CHAIN_NAME[8]
                 destination_chain = LAYERSWAP_CHAIN_NAME[help_network_id]
-                amount, _ = await self.check_and_get_eth_for_deposit(OKX_DEPOSIT_AMOUNT)
+                amount, _ = await self.check_and_get_eth_for_deposit(OKX_BRIDGE_AMOUNT)
 
             return source_chain, destination_chain, amount, refuel
 
@@ -149,7 +149,7 @@ class Client(Logger):
             if help_okx:
                 source_chain = ORBITER_CHAINS_INFO[8]
                 destination_chain = ORBITER_CHAINS_INFO[help_network_id]
-                amount, _ = await self.check_and_get_eth_for_deposit(OKX_DEPOSIT_AMOUNT)
+                amount, _ = await self.check_and_get_eth_for_deposit(OKX_BRIDGE_AMOUNT)
 
             return source_chain, destination_chain, amount
 
@@ -286,6 +286,8 @@ class Client(Logger):
                 tx_params['gasPrice'] = await self.w3.eth.gas_price
 
             return tx_params
+        except TimeoutError:
+            raise TimeoutError('Bad connection or rate limit error')
         except Exception as error:
             raise RuntimeError(f'Prepare transaction | Error: {error}')
 

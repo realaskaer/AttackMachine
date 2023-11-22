@@ -6,12 +6,12 @@ from hashlib import sha256
 from modules import CEX
 from datetime import datetime, timezone
 from utils.tools import repeater, sleep, gas_checker
-from config import OKX_NETWORKS_NAME
+from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN
 from settings import (
     OKX_WITHDRAW_NETWORK,
     OKX_WITHDRAW_AMOUNT,
     OKX_DEPOSIT_NETWORK,
-    OKX_BRIDGE_NEED
+    OKX_BRIDGE_NEED, USE_PROXY, GLOBAL_NETWORK, OKX_DEPOSIT_AMOUNT
 )
 
 
@@ -55,47 +55,51 @@ class OKX(CEX):
 
     @repeater
     async def withdraw(self):
-        url = 'https://www.okx.cab/api/v5/asset/withdrawal'
+        try:
+            url = 'https://www.okx.cab/api/v5/asset/withdrawal'
 
-        withdraw_data = await self.get_currencies()
+            withdraw_data = await self.get_currencies()
 
-        networks_data = {item['chain']: {'can_withdraw': item['canWd'], 'min_fee': item['minFee']} for item in
-                         withdraw_data}
+            networks_data = {item['chain']: {'can_withdraw': item['canWd'], 'min_fee': item['minFee']} for item in
+                             withdraw_data}
 
-        network_name = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK]
-        network_data = networks_data[network_name]
-        amount = await self.client.get_smart_amount(OKX_WITHDRAW_AMOUNT)
+            network_name = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK]
+            network_data = networks_data[network_name]
+            amount = await self.client.get_smart_amount(OKX_WITHDRAW_AMOUNT)
 
-        self.client.logger.info(f"{self.client.info} Withdraw {amount} ETH to {network_name[4:]}")
+            self.client.logger_msg(*self.account_info, f"Withdraw {amount} ETH to {network_name[4:]}")
 
-        if network_data['can_withdraw']:
+            if network_data['can_withdraw']:
 
-            body = {
-                "ccy": 'ETH',
-                "amt": amount - float(network_data['min_fee']),
-                "dest": "4",
-                "toAddr": self.client.address,
-                "fee": network_data['min_fee'],
-                "chain": f"{network_name}",
-            }
+                body = {
+                    "ccy": 'ETH',
+                    "amt": amount - float(network_data['min_fee']),
+                    "dest": "4",
+                    "toAddr": self.client.address,
+                    "fee": network_data['min_fee'],
+                    "chain": f"{network_name}",
+                }
 
-            headers = await self.get_headers(method="POST", request_path=url, body=str(body))
+                headers = await self.get_headers(method="POST", request_path=url, body=str(body))
 
-            await self.make_request(method='POST', url=url, data=str(body), headers=headers,
-                                    module_name='Withdraw')
+                await self.make_request(method='POST', url=url, data=str(body), headers=headers,
+                                        module_name='Withdraw')
 
-            self.client.logger.success(
-                f"{self.client.info} Withdraw complete. Note: wait 1-2 minute to receive funds")
+                self.client.logger_msg(*self.account_info,
+                                       f"Withdraw complete. Note: wait 1-2 minute to receive funds", 'success')
 
-            await sleep(self, 70, 140)
-            return True
-        else:
-            raise RuntimeError(f"Withdraw {network_name} is not available")
+                await sleep(self, 70, 140)
+                return True
+            else:
+                raise RuntimeError(f"Withdraw {network_name} is not available")
+        finally:
+            if USE_PROXY and GLOBAL_NETWORK == 9:
+                await self.client.session.close()
 
     @repeater
     async def transfer_from_subaccounts(self):
 
-        self.client.logger.info(f'{self.client.info} Checking subAccounts balance')
+        self.client.logger_msg(*self.account_info, f'Checking subAccounts balance')
 
         url_sub_list = "https://www.okx.cab/api/v5/users/subaccount/list"
 
@@ -119,7 +123,7 @@ class OKX(CEX):
 
             if float(sub_balance) != 0.0:
 
-                self.client.logger.info(f'{self.client.info} {sub_name} | subAccount balance : {sub_balance} ETH')
+                self.client.logger_msg(*self.account_info, f'{sub_name} | subAccount balance : {sub_balance} ETH')
 
                 body = {
                     "ccy": "ETH",
@@ -135,8 +139,8 @@ class OKX(CEX):
                 await self.make_request(method="POST", url=url_transfer, data=str(body), headers=headers,
                                         module_name='SubAccount transfer')
 
-                self.client.logger.success(
-                    f"{self.client.info} Transfer {float(sub_balance):.6f} ETH to main account complete")
+                self.client.logger_msg(*self.account_info,
+                                       f"Transfer {float(sub_balance):.6f} ETH to main account complete", 'success')
 
     @repeater
     async def transfer_from_spot_to_funding(self):
@@ -149,7 +153,7 @@ class OKX(CEX):
         for ccy in balance:
             if ccy['ccy'] == 'ETH' and ccy['availBal'] != '0':
 
-                self.client.logger.info(f"{self.client.info} Main trading account balance: {ccy['availBal']} ETH")
+                self.client.logger_msg(*self.account_info, f"Main trading account balance: {ccy['availBal']} ETH")
 
                 body = {
                     "ccy": 'ETH',
@@ -162,45 +166,61 @@ class OKX(CEX):
                 headers = await self.get_headers(request_path=url_transfer, body=str(body), method="POST")
                 await self.make_request(url=url_transfer, data=str(body), method="POST", headers=headers,
                                         module_name='Trading account')
-                self.client.logger.success(
-                    f"{self.client.info} Transfer {float(ccy['availBal']):.6f} ETH to funding account complete")
+                self.client.logger_msg(*self.account_info,
+                                       f"Transfer {float(ccy['availBal']):.6f} ETH to funding account complete",
+                                       'success')
                 break
             else:
-                self.client.logger.info(f"{self.client.info} Main trading account balance: 0 ETH")
+                self.client.logger_msg(*self.account_info, f"Main trading account balance: 0 ETH", 'error')
                 break
 
     @repeater
     @gas_checker
     async def deposit_to_okx(self):
-
-        amount_in_wei, amount, _ = await self.client.get_token_balance()
-
         try:
-            with open('./data/services/okx_withdraw_list.json') as file:
-                from json import load
-                okx_withdraw_list = load(file)
-        except:
-            self.client.logger.info(f"{self.client.info} Bad data in okx_wallet_list.json")
+            if GLOBAL_NETWORK == 9:
+                await self.client.initialize_account()
 
-        try:
-            okx_wallet = self.client.w3.to_checksum_address(okx_withdraw_list[self.client.address])
-        except Exception as error:
-            raise RuntimeError(f'There is no wallet listed for deposit to OKX: {error}')
+            amount = await self.client.get_smart_amount(OKX_DEPOSIT_AMOUNT)
+            amount_in_wei = int(amount * 10 ** 18)
+            try:
+                with open('./data/services/okx_withdraw_list.json') as file:
+                    from json import load
+                    okx_withdraw_list = load(file)
+            except:
+                self.client.logger_msg(None, None, f"Bad data in okx_wallet_list.json", 'error')
 
-        info = f"{okx_wallet[:10]}....{okx_wallet[-6:]}"
-        network_name = self.client.network.nam
+            try:
+                okx_wallet = okx_withdraw_list[self.client.account_name]
+            except Exception as error:
+                raise RuntimeError(f'There is no wallet listed for deposit to OKX: {error}')
 
-        self.client.logger.info(
-            f"{self.client.info} Deposit {amount * 0.98:.6f} ETH from {network_name} to OKX wallet: {info}")
+            info = f"{okx_wallet[:10]}....{okx_wallet[-6:]}"
+            network_name = self.client.network.name
 
-        tx_params = (await self.client.prepare_transaction(value=int(amount_in_wei * 0.98))) | {
-            'to': okx_wallet,
-            'data': '0x'
-        }
+            self.client.logger_msg(*self.account_info,
+                                   f"Deposit {amount} ETH from {network_name} to OKX wallet: {info}")
 
-        tx_hash = await self.client.send_transaction(tx_params)
+            if self.client.network.name == 'Starknet':
+                await self.client.initialize_account()
+                transaction = self.client.prepare_call(
+                    contract_address=TOKENS_PER_CHAIN['Starknet']['ETH'],
+                    selector_name="transfer",
+                    calldata=[
+                        int(okx_wallet, 16),
+                        amount_in_wei, 0
+                    ]
+                )
+            else:
+                transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
+                    'to': self.client.w3.to_checksum_address(okx_wallet),
+                    'data': '0x'
+                }
 
-        await self.client.verify_transaction(tx_hash)
+            return await self.client.send_transaction(transaction)
+        finally:
+            if USE_PROXY and GLOBAL_NETWORK == 9:
+                await self.client.session.close()
 
     async def deposit(self):
 
@@ -211,7 +231,9 @@ class OKX(CEX):
 
                 await sleep(self, 60, 80)
 
-        return await self.deposit_to_okx()
+        result = await self.deposit_to_okx()
+        await sleep(self, 550, 650)
+        return result
 
     @repeater
     async def collect_from_sub(self):

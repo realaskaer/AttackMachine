@@ -46,7 +46,7 @@ from settings import (
 
 
 class StarknetClient(Logger):
-    def __init__(self, account_name: int, private_key: str, network: Network, proxy: None | str = None):
+    def __init__(self, account_name: str, private_key: str, network: Network, proxy: None | str = None):
         super().__init__()
         self.network = network
         self.token = network.token
@@ -351,7 +351,7 @@ class StarknetClient(Logger):
             return 'braavos', 1
         return 'argent', 0
 
-    async def get_contract(self, contract_address: str, proxy_config: bool = False):
+    async def get_contract(self, contract_address: int, proxy_config: bool = False):
         return await Contract.from_address(address=contract_address, provider=self.account, proxy_config=proxy_config)
 
     @staticmethod
@@ -378,11 +378,12 @@ class StarknetClient(Logger):
             return amount_in_wei, amount_in_wei / 10 ** decimals, symbol
         return amount_in_wei, amount_in_wei / 10 ** decimals, ''
 
-    def get_approve_call(self, token_address: int, spender_address: int, amount_in_wei: int) -> Call:
+    def get_approve_call(self, token_address: int, spender_address: int,
+                         amount_in_wei: int = None, unlim_approve: bool = UNLIMITED_APPROVE) -> Call:
         return self.prepare_call(token_address, 'approve', [
             spender_address,
-            2 ** 256 - 1 if UNLIMITED_APPROVE else amount_in_wei,
-            0
+            2 ** 128 - 1 if unlim_approve else amount_in_wei,
+            2 ** 128 - 1 if unlim_approve else 0
         ])
 
     async def send_transaction(self, *calls:list, check_hash:bool = False, hash_for_check:int = None):

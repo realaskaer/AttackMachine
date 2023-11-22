@@ -3,6 +3,8 @@ from hashlib import sha256
 from modules import Messenger
 from mnemonic import Mnemonic
 from random import choice, randint
+
+from settings import GLOBAL_NETWORK, USE_PROXY
 from utils.tools import gas_checker, repeater
 from config import DMAIL_CONTRACT, DMAIL_ABI
 
@@ -21,35 +23,42 @@ class Dmail(Messenger):
 
         return mnemo.generate(128)
 
-    @repeater
+    #@repeater
     @gas_checker
     async def send_message(self):
-        self.client.logger.info(f'{self.client.info} Send mail from Dmail')
+        close_session = False
+        try:
+            if GLOBAL_NETWORK == 9:
+                await self.client.initialize_account()
+                close_session = True
 
-        email = self.generate_email()
-        text = self.generate_sentence()
+            self.client.logger.info(f'{self.client.info} Send mail from Dmail')
 
-        to_address = sha256(f"{email}".encode()).hexdigest()
-        message = sha256(f"{text}".encode()).hexdigest()
+            email = self.generate_email()
+            text = self.generate_sentence()
 
-        self.client.logger.info(f'{self.client.info} Generated mail: {email} | Generated text: {text[:25]}...')
+            to_address = sha256(f"{email}".encode()).hexdigest()
+            message = sha256(f"{text}".encode()).hexdigest()
 
-        dmail_contract = self.client.get_contract(DMAIL_CONTRACT[self.client.network.name]['core'],
-                                                  DMAIL_ABI[self.client.network.name])
+            self.client.logger.info(f'{self.client.info} Generated mail: {email} | Generated text: {text[:25]}...')
+            if self.client.network.name == 'Starknet':
+                dmail_contract = await self.client.get_contract(DMAIL_CONTRACT[self.client.network.name]['core'])
 
-        if self.client.network.name == 'Starknet':
-            dmail_call = dmail_contract.functions["transaction"].prepare(to_address, message)
+                stark_order = 3618502788666131213697322783095070105623107215331596699973092056135872020481
+                to_address = int(to_address, 16) % (stark_order + 1)
+                transaction = dmail_contract.functions["transaction"].prepare(to_address,
+                                                                              to_address)
+            else:
 
-            return await self.client.send_transaction(dmail_call)
+                dmail_contract = self.client.get_contract(DMAIL_CONTRACT[self.client.network.name]['core'],
+                                                          DMAIL_ABI[self.client.network.name])
 
-        tx_params = await self.client.prepare_transaction()
+                transaction = await dmail_contract.functions.send_mail(
+                    to_address,
+                    message,
+                ).build_transaction(await self.client.prepare_transaction())
 
-        dmail_contract = self.client.get_contract(DMAIL_CONTRACT[self.client.network.name]['core'],
-                                                  DMAIL_ABI[self.client.network.name])
-
-        transaction = await dmail_contract.functions.send_mail(
-            to_address,
-            message,
-        ).build_transaction(tx_params)
-
-        return await self.client.send_transaction(transaction)
+            return await self.client.send_transaction(transaction)
+        finally:
+            if USE_PROXY and close_session:
+                await self.client.session.close()

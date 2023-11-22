@@ -1,6 +1,8 @@
 import json
 
+from config import TOKENS_PER_CHAIN
 from modules import Bridge
+from settings import GLOBAL_NETWORK, USE_PROXY
 from utils.tools import gas_checker, repeater
 
 
@@ -28,7 +30,8 @@ class LayerSwap(Bridge):
         return (await self.make_request(method='POST', url=url, headers=self.headers,
                                         data=json.dumps(swap_rate_data)))['data']
 
-    async def get_swap_id(self, amount, source_chain, destination_chain, source_asset, destination_asset, refuel):
+    async def get_swap_id(self, amount, dst_address, source_chain, destination_chain,
+                          source_asset, destination_asset, refuel):
         url = "https://api.layerswap.io/api/swaps"
 
         create_swap_data = {
@@ -37,7 +40,7 @@ class LayerSwap(Bridge):
             "source_asset": source_asset,
             "destination_asset": destination_asset,
             "amount": amount,
-            "destination_address": self.client.address,
+            "destination_address": f'{dst_address}',
             "refuel": refuel
         }
 
@@ -48,61 +51,105 @@ class LayerSwap(Bridge):
         url = f"https://api.layerswap.io/api/swaps/{swap_id}/prepare_src_transaction"
 
         params = {
-            'from_address': self.client.address
+            'from_address': f"{self.address_to_hex(self.client.address)}"
         }
 
         return (await self.make_request(url=url, headers=self.headers, params=params))['data']
 
+    @staticmethod
+    def address_to_hex(address:str | int):
+        if isinstance(address, int):
+            return hex(address)
+        elif isinstance(address, str):
+            return hex(int(address, 16))
+
     @repeater
     @gas_checker
-    async def bridge(self, chain_from_id, help_okx:bool = False, help_network_id:int = 1):
+    async def bridge(self, chain_from_id, private_keys:dict = None, help_okx:bool = False, help_network_id:int = 1):
+        close_session = False
+        try:
 
-        source_chain, destination_chain, amount, refuel = await self.client.get_bridge_data(chain_from_id, help_okx,
-                                                                                        help_network_id, 'LayerSwap')
+            if GLOBAL_NETWORK == 9 and chain_from_id == 9:
+                await self.client.initialize_account()
+                close_session = True
 
-        source_asset, destination_asset = 'ETH', 'ETH'
+            (source_chain, destination_chain,
+             amount, refuel) = await self.client.get_bridge_data(chain_from_id, help_okx, help_network_id, 'LayerSwap')
 
-        bridge_info = f'{self.client.network.name} -> {destination_asset} {destination_chain.capitalize()[:-8]}'
-        self.client.logger.info(
-            f'{self.client.info} Bridge on LayerSwap: {amount} {source_asset} {bridge_info}')
+            source_asset, destination_asset = 'ETH', 'ETH'
 
-        networks_data = await self.get_networks_data()
+            bridge_info = f'{self.client.network.name} -> {destination_asset} {destination_chain.capitalize()[:-8]}'
+            self.client.logger_msg(self.client.account_name, self.client.private_key,
+                                   f'Bridge on LayerSwap: {amount} {source_asset} {bridge_info}')
 
-        available_for_swap = {
-            chain['name']: (assets['asset'], assets['decimals'])
-            for chain in networks_data if chain['name'] in [source_chain, destination_chain]
-            for assets in chain['currencies'] if assets['asset'] in [source_asset, destination_asset]
-        }
+            networks_data = await self.get_networks_data()
 
-        if (len(available_for_swap) == 2 and source_asset in available_for_swap[source_chain]
-                and destination_asset in available_for_swap[destination_chain]):
+            available_for_swap = {
+                chain['name']: (assets['asset'], assets['decimals'])
+                for chain in networks_data if chain['name'] in [source_chain, destination_chain]
+                for assets in chain['currencies'] if assets['asset'] in [source_asset, destination_asset]
+            }
 
-            data = source_chain, destination_chain, source_asset, destination_asset, refuel
+            if (len(available_for_swap) == 2 and source_asset in available_for_swap[source_chain]
+                    and destination_asset in available_for_swap[destination_chain]):
 
-            min_amount, max_amount, fee_amount = (await self.get_swap_rate(*data)).values()
+                data = source_chain, destination_chain, source_asset, destination_asset, refuel
 
-            if float(min_amount) <= amount <= float(max_amount):
+                min_amount, max_amount, fee_amount = (await self.get_swap_rate(*data)).values()
 
-                _, balance, _ = await self.client.get_token_balance(source_asset)
+                if float(min_amount) <= amount <= float(max_amount):
 
-                if balance >= amount:
+                    _, balance, _ = await self.client.get_token_balance(source_asset)
 
-                    swap_id = await self.get_swap_id(amount, *data)
+                    if balance >= amount:
+                        amount_in_wei = int(amount * 10 ** available_for_swap[source_chain][1])
+                        dst_address = await self.get_address_for_bridge(private_keys['evm_key'], stark_key_type=False)
 
-                    tx_data = await self.create_tx(swap_id['swap_id'])
+                        if source_chain == 'STARKNET_MAINNET' and destination_chain != 'STARKNET_MAINNET':
+                            swap_id = await self.get_swap_id(amount, dst_address, *data)
 
-                    amount_in_wei = int(amount * 10 ** available_for_swap[source_chain][1])
+                            tx_data = await self.create_tx(swap_id['swap_id'])
 
-                    tx_params = (await self.client.prepare_transaction(value=amount_in_wei)) | {
-                        'to': self.client.w3.to_checksum_address(tx_data['to_address']),
-                        'data': tx_data['data']
-                    }
+                            transfer_call = self.client.prepare_call(
+                                contract_address=TOKENS_PER_CHAIN['Starknet']['ETH'],
+                                selector_name="transfer",
+                                calldata=[
+                                    int(self.address_to_hex(tx_data['to_address']), 16),
+                                    amount_in_wei, 0
+                                ]
+                            )
 
-                    return await self.client.send_transaction(tx_params)
+                            watch_data = json.loads(tx_data['data'])[1]
+                            watch_call = self.client.prepare_call(
+                                contract_address=int(self.address_to_hex(watch_data['contractAddress']), 16),
+                                selector_name="watch",
+                                calldata=watch_data['calldata']
+                            )
 
+                            transaction = transfer_call, watch_call
+                        else:
+
+                            if source_chain != 'STARKNET_MAINNET' and destination_chain == 'STARKNET_MAINNET':
+                                dst_address = await self.get_address_for_bridge(private_keys['stark_key'],
+                                                                                stark_key_type=True)
+
+                            swap_id = await self.get_swap_id(amount, dst_address, *data)
+
+                            tx_data = await self.create_tx(swap_id['swap_id'])
+
+                            transaction = [(await self.client.prepare_transaction(value=amount_in_wei)) | {
+                                'to': self.client.w3.to_checksum_address(tx_data['to_address']),
+                                'data': tx_data['data']
+                            }]
+
+                        return await self.client.send_transaction(*transaction)
+
+                    else:
+                        raise RuntimeError("Insufficient balance!")
                 else:
-                    raise RuntimeError("Insufficient balance!")
+                    raise RuntimeError(f"Limit range for bridge: {min_amount} - {max_amount} ETH")
             else:
-                raise RuntimeError(f"Limit range for bridge: {min_amount} - {max_amount} ETH")
-        else:
-            raise RuntimeError(f"Bridge {source_asset} {bridge_info} is not active!")
+                raise RuntimeError(f"Bridge {source_asset} {bridge_info} is not active!")
+        finally:
+            if USE_PROXY and close_session:
+                await self.client.session.close()
