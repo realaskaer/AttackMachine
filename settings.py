@@ -247,7 +247,7 @@ OKX_API_PASSPHRAS = ""
 # EXCEL AND GOOGLE INFO
 EXCEL_PASSWORD = False
 EXCEL_PAGE_NAME = "Starknet"
-GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1snukUIkg5a9eTeewe-nQCjgxF8hlLANWNU2kzGQ9I4M/edit#gid=0"
+GOOGLE_SHEET_URL = ""
 GOOGLE_SHEET_PAGE_NAME = "Starknet"
 
 # TELEGRAM DATA
