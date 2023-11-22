@@ -221,7 +221,6 @@ class Runner(Logger):
                 try:
                     result = await module_func(*module_input_data)
                 except Exception as error:
-                    raise error
                     info = f"Module name: {module_info[module_func][2]} | Error {error}"
                     self.logger_msg(account_name, private_key, f"Module crashed during the route: {info}")
                     result = False
@@ -275,7 +274,6 @@ class Runner(Logger):
 
             return result_list
         except Exception as error:
-            raise error
             self.logger_msg(None, None,f"Error during the route! Error: {error}\n", 'error')
             if smart_route_type:
                 self.logger_msg(None, None,f"Saving progress in Google...\n", 'success')
