@@ -163,7 +163,7 @@ class Starknet(Blockchain):
 
             wallets_name = {
                 1: 'Braavos',
-                2: 'ArgentX'
+                0: 'ArgentX'
             }
 
             wallet_name, wallet_type = wallets_name[self.client.WALLET_TYPE], self.client.WALLET_TYPE
@@ -172,7 +172,7 @@ class Starknet(Blockchain):
                 contract_address=self.client.address,
                 selector_name="get_implementation",
                 calldata=[]
-            ))) if wallet_type else await self.client.account.client.get_class_hash_at(self.client.account.address)
+            )))[0] if wallet_type else await self.client.account.client.get_class_hash_at(self.client.account.address)
 
             braavos_hash, argent_hash = BRAAVOS_IMPLEMENTATION_CLASS_HASH_NEW, ARGENT_IMPLEMENTATION_CLASS_HASH_NEW
 
