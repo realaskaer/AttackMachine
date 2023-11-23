@@ -192,31 +192,29 @@ class RouteGenerator(Logger):
             if val == value:
                 return key
 
-    async def update_sheet(self, result_list:list, result_count:tuple):
-        total_results_to_update = []
-        for item in result_list:
-
-            sheet_cell = rowcol_to_a1(row=item['row'], col=item['col'])
-
-            total_results_to_update.append({
-                'range': sheet_cell,
-                'values': [[item['result']]],
-            })
-
-        self.ws.batch_update(total_results_to_update, value_input_option="USER_ENTERED")
-
-        info = f'Google Sheet updated! Modules results info: ✅ - {result_count[0]} | ❌ - {result_count[1]}'
-
-        self.logger_msg(None, None, info, 'success')
-
-        return True
-
     def get_account_name_list(self):
         try:
             return self.ws.col_values(1)[1:]
         except Exception as error:
             self.logger_msg(None, None, f"Put data into 'GOOGLE_SHEET_URL' and 'service_accounts.json' first!", 'error')
             raise RuntimeError(f"{error}")
+
+    async def update_sheet(self, result_list: list, result_count: tuple):
+        batch_size = 200
+        for i in range(0, len(result_list), batch_size):
+            batch_results = result_list[i:i + batch_size]
+            total_results_to_update = []
+            for item in batch_results:
+                sheet_cell = rowcol_to_a1(row=item['row'], col=item['col'])
+                total_results_to_update.append({
+                    'range': sheet_cell,
+                    'values': [[item['result']]],
+                })
+            self.ws.batch_update(total_results_to_update, value_input_option="USER_ENTERED")
+
+        info = f'Google Sheet updated! Modules results info: ✅ - {result_count[0]} | ❌ - {result_count[1]}'
+        self.logger_msg(None, None, info, 'success')
+        return True
 
     def get_modules_list(self):
         modules_list_str = self.ws.row_values(1)[2:]
@@ -229,12 +227,23 @@ class RouteGenerator(Logger):
 
     def get_data_for_batch(self, account_names:list):
         wallet_list = self.get_account_name_list()
+        batch_size = 200
+        data_to_return = {}
+
+        for i in range(0, len(account_names), batch_size):
+            batch_account_names = account_names[i:i+batch_size]
+            batch_data = self.get_data_for_single_batch(batch_account_names, wallet_list)
+            data_to_return.update(batch_data)
+
+        return data_to_return
+
+    def get_data_for_single_batch(self, batch_account_names:list, wallet_list:list):
         ranges_for_sheet = []
         batch_data = {}
         data_to_return = {}
         col = 2 + len(self.function_mappings)
 
-        for account_name in account_names:
+        for account_name in batch_account_names:
             row = 2 + wallet_list.index(account_name)
             batch_data[row] = {
                 'account_name': account_name

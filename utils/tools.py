@@ -23,7 +23,7 @@ from settings import (
     CONTROL_TIMES_FOR_SLEEP,
     ACCOUNTS_IN_STREAM,
     SOFTWARE_MODE,
-    EXCEL_PAGE_NAME
+    EXCEL_PAGE_NAME, SLEEP_TIME_STREAM
 )
 
 
@@ -185,7 +185,7 @@ def gas_checker(func):
                     await asyncio.sleep(1)
                     if flag and counter == CONTROL_TIMES_FOR_SLEEP and SOFTWARE_MODE:
                         account_number = random.randint(1, ACCOUNTS_IN_STREAM)
-                        sleep_duration = tuple(x * account_number for x in SLEEP_TIME)
+                        sleep_duration = tuple(x * account_number for x in SLEEP_TIME_STREAM)
                         await sleep(self, *sleep_duration)
                     return await func(self, *args, **kwargs)
                 else:

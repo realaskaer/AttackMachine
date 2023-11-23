@@ -23,7 +23,7 @@ class Dmail(Messenger):
 
         return mnemo.generate(128)
 
-    #@repeater
+    @repeater
     @gas_checker
     async def send_message(self):
         close_session = False

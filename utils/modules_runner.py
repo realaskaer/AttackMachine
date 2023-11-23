@@ -12,10 +12,11 @@ from utils.route_generator import RouteGenerator, AVAILABLE_MODULES_INFO, get_fu
 from config import ACCOUNT_NAMES, PRIVATE_KEYS_EVM, PRIVATE_KEYS, PROXIES, CHAIN_NAME
 from settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, HELP_NEW_MODULE, TG_ID, TG_TOKEN, MOBILE_PROXY,
                       MOBILE_PROXY_URL_CHANGER, WALLETS_TO_WORK, TELEGRAM_NOTIFICATIONS, GLOBAL_NETWORK,
-                      SAVE_PROGRESS, ACCOUNTS_IN_STREAM)
+                      SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM)
 
 
 BRIDGE_NAMES = ['bridge_rhino', 'bridge_layerswap', 'bridge_orbiter', 'bridge_native']
+
 
 class Runner(Logger):
     @staticmethod
@@ -58,9 +59,12 @@ class Runner(Logger):
         with open('./data/services/wallets_progress.json', 'r') as f:
             return json.load(f)
 
-    async def smart_sleep(self, account_name, private_key, account_number):
+    async def smart_sleep(self, account_name, private_key, account_number, accounts_delay=False):
         if SLEEP_MODE:
-            duration = random.randint(*tuple(x * account_number for x in SLEEP_TIME))
+            if accounts_delay:
+                duration = random.randint(*tuple(x * account_number for x in SLEEP_TIME_STREAM))
+            else:
+                duration = random.randint(*SLEEP_TIME)
             self.logger_msg(account_name, private_key, f"💤 Sleeping for {duration} seconds\n")
             await asyncio.sleep(duration)
 
@@ -133,8 +137,8 @@ class Runner(Logger):
         account_name, private_key = None, None
         try:
             if SOFTWARE_MODE:
-                private_keys = [i[0] for i in accounts_data]
-                await route_generator.get_smart_routes_for_batch(private_keys)
+                accounts_name = [i[0] for i in accounts_data]
+                await route_generator.get_smart_routes_for_batch(accounts_name)
             else:
                 account_name, private_key = accounts_data
                 await route_generator.get_smart_route(account_name)
@@ -199,7 +203,7 @@ class Runner(Logger):
             if SAVE_PROGRESS:
                 current_step = self.load_routes()[account_name]["current_step"]
 
-            await self.smart_sleep(account_name, private_key, index)
+            await self.smart_sleep(account_name, private_key, index, accounts_delay=True)
 
             module_info = AVAILABLE_MODULES_INFO
             info = CHAIN_NAME[GLOBAL_NETWORK]
