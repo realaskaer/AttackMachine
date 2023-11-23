@@ -98,9 +98,9 @@ ORBITER_AMOUNT = (0.001, 0.001)      # (минимум, максимум) ETH и
     * - Не работает для RHINO_CHAIN_ID_FROM                
     RHINO_CHAIN_ID_FROM(TO) = [2, 3, 10] | Одна из сетей будет выбрана
 """
-RHINO_CHAIN_ID_FROM = [9]            # Исходящая сеть
-RHINO_CHAIN_ID_TO = [1]             # Входящая сеть
-RHINO_AMOUNT = (0.01, 0.01)          # (минимум, максимум) ETH или %
+RHINO_CHAIN_ID_FROM = [1]            # Исходящая сеть
+RHINO_CHAIN_ID_TO = [9]             # Входящая сеть
+RHINO_AMOUNT = (0.005, 0.006)          # (минимум, максимум) ETH или %
 
 """
 ---------------------------------------------OMNI-CHAIN CONTROL---------------------------------------------------------
@@ -196,8 +196,8 @@ MIN_BALANCE = 0.001                   # Количество ETH на аккау
     GOOGLE_SHEET_PAGE_NAME  | Аналогично EXCEL_PAGE_NAME   
 """
 GLOBAL_NETWORK = 9              # 16.11.2023 поддерживается только zkSync и Starknet. Следите за новостями.
-SOFTWARE_MODE = 0               # 0 - последовательный запуск / 1 - параллельный запуск
-ACCOUNTS_IN_STREAM = 10         # Только для SOFTWARE_MODE = 1 (параллельный запуск)
+SOFTWARE_MODE = 1               # 0 - последовательный запуск / 1 - параллельный запуск
+ACCOUNTS_IN_STREAM = 1         # Только для SOFTWARE_MODE = 1 (параллельный запуск)
 WALLETS_TO_WORK = 0             # 0 / (3, 20) / 3, 20
 SAVE_PROGRESS = False           # True или False | Включает сохранение прогресса аккаунта для Classic-routes
 TELEGRAM_NOTIFICATIONS = True   # True или False | Включает уведомления в Telegram
@@ -209,8 +209,8 @@ SLEEP_TIME = (10, 20)           # (минимум, максимум) секун�
 
 
 '-------------------------------------------------GAS CONTROL----------------------------------------------------------'
-GAS_CONTROL = False             # True или False | Включает контроль газа
-MAXIMUM_GWEI = 30               # Максимальный GWEI для работы софта
+GAS_CONTROL = True             # True или False | Включает контроль газа
+MAXIMUM_GWEI = 35               # Максимальный GWEI для работы софта
 SLEEP_TIME_GAS = 10             # Время очередной проверки газа
 CONTROL_TIMES_FOR_SLEEP = 3     # Количество проверок
 GAS_MULTIPLIER = 1.1            # Множитель газа для транзакций
@@ -247,12 +247,12 @@ OKX_API_PASSPHRAS = ""
 # EXCEL AND GOOGLE INFO
 EXCEL_PASSWORD = False
 EXCEL_PAGE_NAME = "Starknet"
-GOOGLE_SHEET_URL = ""
+GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1snukUIkg5a9eTeewe-nQCjgxF8hlLANWNU2kzGQ9I4M/edit#gid=0"
 GOOGLE_SHEET_PAGE_NAME = "Starknet"
 
 # TELEGRAM DATA
-TG_TOKEN = ""  # https://t.me/BotFather
-TG_ID = ""  # https://t.me/getmyid_bot
+TG_TOKEN = "6802880157:AAHfBuEefVHs69_gT5I5djbv8mpBui6k_Nk"  # https://t.me/BotFather
+TG_ID = "829003660"  # https://t.me/getmyid_bot
 
 # INCH API KEY https://portal.1inch.dev/dashboard
 ONEINCH_API_KEY = ""
@@ -405,21 +405,22 @@ DEPOSIT_CONFIG = {
     ]
 """
 CLASSIC_ROUTES_MODULES_USING = [
-    ['okx_withdraw'],
-    ['bridge_layerswap'],
-    ['enable_collateral_eralend', 'enable_collateral_zerolend'],
-    ['send_message_dmail'],
-    ['mint_tevaera', 'mint_and_bridge_l2telegraph'],
-    ['enable_collateral_basilisk', 'enable_collateral_eralend', None],
-    ['swap_rango', 'swap_zkswap'],
-    ['refuel_merkly', 'swap_syncswap'],
-    ['mint_domain_zns', 'mint_domain_ens'],
-    ['wrap_eth', 'swap_pancake'],
-    ['swap_mute', 'swap_spacefi', 'swap_pancake'],
-    ['refuel_bungee', 'refuel_merkly'],
-    ['swap_oneinch', 'mint_domain_ens'],
-    ['mint_mailzero', 'swap_vesync'],
-    ['withdraw_txsync']
+    ['bridge_rhino']
+    # ['okx_withdraw'],
+    # ['bridge_layerswap'],
+    # ['enable_collateral_eralend', 'enable_collateral_zerolend'],
+    # ['send_message_dmail'],
+    # ['mint_tevaera', 'mint_and_bridge_l2telegraph'],
+    # ['enable_collateral_basilisk', 'enable_collateral_eralend', None],
+    # ['swap_rango', 'swap_zkswap'],
+    # ['refuel_merkly', 'swap_syncswap'],
+    # ['mint_domain_zns', 'mint_domain_ens'],
+    # ['wrap_eth', 'swap_pancake'],
+    # ['swap_mute', 'swap_spacefi', 'swap_pancake'],
+    # ['refuel_bungee', 'refuel_merkly'],
+    # ['swap_oneinch', 'mint_domain_ens'],
+    # ['mint_mailzero', 'swap_vesync'],
+    # ['withdraw_txsync']
 ]
 
 

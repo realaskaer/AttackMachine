@@ -159,16 +159,25 @@ class Starknet(Blockchain):
 
             wallet_name, wallet_type = await self.client.check_wallet_type()
 
-            wallet_contract = await self.client.get_contract(self.client.address, NATIVE_ABI['Starknet'][wallet_name])
-            implementation_version = await wallet_contract.functions["get_implementation"].call()
+            implementation_version = (await self.client.account.client.call_contract(self.client.prepare_call(
+                contract_address=self.client.address,
+                selector_name="get_implementation",
+                calldata=[]
+            ))) if wallet_type else await self.client.account.client.get_class_hash_at(self.client.account.address)
 
-            implement_hash = BRAAVOS_IMPLEMENTATION_CLASS_HASH_NEW if wallet_type else ARGENT_IMPLEMENTATION_CLASS_HASH_NEW
-            upgrade_data = [implement_hash] if wallet_type else [implement_hash, [0]]
+            braavos_hash, argent_hash = BRAAVOS_IMPLEMENTATION_CLASS_HASH_NEW, ARGENT_IMPLEMENTATION_CLASS_HASH_NEW
+
+            implement_hash = braavos_hash if wallet_type else argent_hash
+            upgrade_data = [int(implement_hash)] if wallet_type else [int(implement_hash), 1, 0]
 
             if implementation_version != implement_hash:
                 self.client.logger.info(f"{self.client.info} Upgrade {wallet_name.capitalize()} account")
 
-                upgrade_call = wallet_contract.functions["upgrade"].prepare(*upgrade_data)
+                upgrade_call = self.client.prepare_call(
+                    contract_address=self.client.address,
+                    selector_name='upgrade',
+                    calldata=upgrade_data
+                )
 
                 return await self.client.send_transaction(upgrade_call)
             else:

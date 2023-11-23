@@ -329,16 +329,6 @@ class Rhino(Bridge):
     async def bridge(self, chain_from_id:int, private_keys:dict = None, help_okx:bool = False, help_network_id:int = 1):
         close_session = False
         try:
-            # if GLOBAL_NETWORK == 9:
-            #     self.evm_client = await self.initialize_evm_client(private_keys['evm_key'], chain_from_id)
-            #     close_session = True
-            #
-            #     if chain_from_id != 9:
-            #         self.init_client = await self.initialize_init_client(private_keys['stark_key'])
-            #
-            #     await self.init_client.initialize_account()
-            # else:
-            #     self.evm_client = self.init_client
             if GLOBAL_NETWORK == 9 and chain_from_id == 9:
                 await self.client.initialize_account()
                 close_session = True
@@ -386,7 +376,7 @@ class Rhino(Bridge):
                 dst_address = await self.get_address_for_bridge(private_keys['evm_key'], False)
                 if chain_to_name == 'STARKNET':
                     dst_address = await self.get_address_for_bridge(private_keys['stark_key'], True)
-                amount = 0.01
+
                 await self.withdraw_from_rhino(rhino_user_config, amount, chain_to_name, account_info, dst_address)
 
                 return True

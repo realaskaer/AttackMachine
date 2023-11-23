@@ -172,7 +172,6 @@ def gas_checker(func):
 
             w3 = None
             if self.client.network.name != "Starknet":
-                print(self.client.network.name)
                 w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(Ethereum.rpc),
                                                  request_kwargs=self.client.request_kwargs))
             while True:

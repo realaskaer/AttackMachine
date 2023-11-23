@@ -347,7 +347,7 @@ class StarknetClient(Logger):
 
     async def check_wallet_type(self):
         class_hash = await self.account.client.get_class_hash_at(self.account.address)
-        if class_hash == int(BRAAVOS_PROXY_CLASS_HASH, 16):
+        if class_hash == int(BRAAVOS_PROXY_CLASS_HASH):
             return 'braavos', 1
         return 'argent', 0
 
