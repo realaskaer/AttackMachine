@@ -247,12 +247,12 @@ OKX_API_PASSPHRAS = ""
 # EXCEL AND GOOGLE INFO
 EXCEL_PASSWORD = False
 EXCEL_PAGE_NAME = "Starknet"
-GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1snukUIkg5a9eTeewe-nQCjgxF8hlLANWNU2kzGQ9I4M/edit#gid=0"
+GOOGLE_SHEET_URL = ""
 GOOGLE_SHEET_PAGE_NAME = "Starknet"
 
 # TELEGRAM DATA
-TG_TOKEN = "6802880157:AAHfBuEefVHs69_gT5I5djbv8mpBui6k_Nk"  # https://t.me/BotFather
-TG_ID = "829003660"  # https://t.me/getmyid_bot
+TG_TOKEN = ""  # https://t.me/BotFather
+TG_ID = ""  # https://t.me/getmyid_bot
 
 # INCH API KEY https://portal.1inch.dev/dashboard
 ONEINCH_API_KEY = ""
