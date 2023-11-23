@@ -149,7 +149,7 @@ class Starknet(Blockchain):
                 auto_estimate=True
             )
 
-            tx_hash = await self.client.account.client.deploy_account(signed_tx).transaction_hash
+            tx_hash = (await self.client.account.client.deploy_account(signed_tx)).transaction_hash
             return await self.client.send_transaction(check_hash=True, hash_for_check=tx_hash)
         finally:
             if USE_PROXY:
