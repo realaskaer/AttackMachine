@@ -13,7 +13,6 @@ from settings import (
     UNLIMITED_APPROVE,
     AMOUNT_PERCENT,
     MIN_BALANCE,
-    SLIPPAGE,
     DEX_LP_AMOUNT,
     LANDING_AMOUNT,
     OKX_BRIDGE_MODE,
@@ -165,8 +164,6 @@ class Client(Logger):
 
             await asyncio.sleep(1)
             await swap_odos(self.account_name, self.private_key, self.network, self.proxy_init, help_deposit=True)
-        else:
-            _, _, amount, amount_in_wei = data
 
         return amount, amount_in_wei
 

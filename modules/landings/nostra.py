@@ -40,11 +40,15 @@ class Nostra(Landing):
         try:
             await self.client.initialize_account()
 
-            token_name, token_contract, landing_balance = await self.client.get_landing_data('Nostra')
+            token_name, _, landing_balance = await self.client.get_landing_data('Nostra')
 
-            self.client.logger.info(f'{self.client.info} Withdraw {token_name} from Nostra')
+            amount = await self.client.get_normalize_amount(landing_balance)
 
-            withdraw_call = token_contract.functions["burn"].prepare(
+            self.client.logger.info(f'{self.client.info} Withdraw {amount:.4f} {token_name} from Nostra')
+
+            nostra_contract = await self.client.get_contract(NOSTRA_CONTRACTS[token_name])
+
+            withdraw_call = nostra_contract.functions["burn"].prepare(
                 self.client.address,
                 self.client.address,
                 landing_balance

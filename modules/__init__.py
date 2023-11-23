@@ -44,6 +44,5 @@ from .landings import EraLend
 from .landings import ZeroLend
 from .landings import ReactorFusion
 from .landings import Basilisk
-from .landings import Carmine
 from .landings import Nostra
 from .landings import ZkLend

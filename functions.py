@@ -463,14 +463,14 @@ async def mint_starkstars(account_number, private_key, network, proxy):
     return await worker.mint()
 
 
-async def deposit_carmine(account_number, private_key, network, proxy):
-    worker = Carmine(get_client(account_number, private_key, network, proxy))
-    return await worker.deposit()
-
-
-async def withdraw_carmine(account_number, private_key, network, proxy):
-    worker = Carmine(get_client(account_number, private_key, network, proxy))
-    return await worker.withdraw()
+# async def deposit_carmine(account_number, private_key, network, proxy):
+#     worker = Carmine(get_client(account_number, private_key, network, proxy))
+#     return await worker.deposit()
+#
+#
+# async def withdraw_carmine(account_number, private_key, network, proxy):
+#     worker = Carmine(get_client(account_number, private_key, network, proxy))
+#     return await worker.withdraw()
 
 
 async def deposit_nostra(account_number, private_key, network, proxy):

@@ -196,7 +196,7 @@ MIN_BALANCE = 0.001                   # Количество ETH на аккау
     GOOGLE_SHEET_PAGE_NAME  | Аналогично EXCEL_PAGE_NAME   
 """
 GLOBAL_NETWORK = 9              # 16.11.2023 поддерживается только zkSync и Starknet. Следите за новостями.
-SOFTWARE_MODE = 1               # 0 - последовательный запуск / 1 - параллельный запуск
+SOFTWARE_MODE = 0               # 0 - последовательный запуск / 1 - параллельный запуск
 ACCOUNTS_IN_STREAM = 1         # Только для SOFTWARE_MODE = 1 (параллельный запуск)
 WALLETS_TO_WORK = 0             # 0 / (3, 20) / 3, 20
 SAVE_PROGRESS = False           # True или False | Включает сохранение прогресса аккаунта для Classic-routes
@@ -247,12 +247,12 @@ OKX_API_PASSPHRAS = ""
 # EXCEL AND GOOGLE INFO
 EXCEL_PASSWORD = False
 EXCEL_PAGE_NAME = "Starknet"
-GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1snukUIkg5a9eTeewe-nQCjgxF8hlLANWNU2kzGQ9I4M/edit#gid=0"
+GOOGLE_SHEET_URL = ""
 GOOGLE_SHEET_PAGE_NAME = "Starknet"
 
 # TELEGRAM DATA
-TG_TOKEN = "6802880157:AAHfBuEefVHs69_gT5I5djbv8mpBui6k_Nk"  # https://t.me/BotFather
-TG_ID = "829003660"  # https://t.me/getmyid_bot
+TG_TOKEN = ""  # https://t.me/BotFather
+TG_ID = ""  # https://t.me/getmyid_bot
 
 # INCH API KEY https://portal.1inch.dev/dashboard
 ONEINCH_API_KEY = ""
@@ -374,20 +374,19 @@ DEPOSIT_CONFIG = {
     
     upgrade_stark_wallet
     deploy_stark_wallet
-    deposit_carmine
     deposit_nostra
     deposit_zklend
-    enable_collateral_zklend
     swap_jediswap
     swap_avnu
     swap_10kswap
     swap_sithswap
     swap_protoss
     swap_myswap
+    send_message_dmail
+    enable_collateral_zklend
     disable_collateral_zklend
     mint_starknet_identity
     mint_starkstars
-    withdraw_carmine
     withdraw_nostra
     withdraw_zklend
     
@@ -405,9 +404,8 @@ DEPOSIT_CONFIG = {
     ]
 """
 CLASSIC_ROUTES_MODULES_USING = [
-    ['bridge_rhino']
-    # ['okx_withdraw'],
-    # ['bridge_layerswap'],
+    ['deploy_stark_wallet'],
+    ['disable_collateral_zklend'],
     # ['enable_collateral_eralend', 'enable_collateral_zerolend'],
     # ['send_message_dmail'],
     # ['mint_tevaera', 'mint_and_bridge_l2telegraph'],

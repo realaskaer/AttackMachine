@@ -1,5 +1,7 @@
 import os
 import time
+
+from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.models import StarknetChainId
 
 from modules import Blockchain
@@ -8,7 +10,7 @@ from utils.tools import repeater, gas_checker
 from settings import NATIVE_WITHDRAW_AMOUNT, TRANSFER_AMOUNT, USE_PROXY
 from config import (NATIVE_CONTRACTS_PER_CHAIN, NATIVE_ABI, SPACESHARD_CONTRACT, TOKENS_PER_CHAIN,
                     ARGENT_IMPLEMENTATION_CLASS_HASH_NEW, BRAAVOS_PROXY_CLASS_HASH,
-                    BRAAVOS_IMPLEMENTATION_CLASS_HASH_NEW)
+                    BRAAVOS_IMPLEMENTATION_CLASS_HASH_NEW, BRAAVOS_IMPLEMENTATION_CLASS_HASH)
 
 
 class Starknet(Blockchain):
@@ -117,17 +119,19 @@ class Starknet(Blockchain):
     @gas_checker
     async def deploy_wallet(self):
         try:
-            await self.client.initialize_account()
+            await self.client.initialize_account(check_balance=True)
 
-            _, wallet_type = await self.client.check_wallet_type()
-
-            if wallet_type:
+            if self.client.WALLET_TYPE:
                 self.client.account.signer = BraavosCurveSigner(
                     account_address=self.client.account.address,
                     key_pair=self.client.key_pair,
                     chain_id=self.client.chain_id
                 )
+
                 class_hash = BRAAVOS_PROXY_CLASS_HASH
+                salt = [self.client.key_pair.public_key]
+                selector = get_selector_from_name("initializer")
+                constructor_calldata = [BRAAVOS_IMPLEMENTATION_CLASS_HASH, selector, len(salt), *salt]
 
                 self.client.logger.info(f"{self.client.info} Deploy Braavos account")
             else:
@@ -135,17 +139,17 @@ class Starknet(Blockchain):
                 self.client.logger.info(f"{self.client.info} Deploy ArgentX account")
 
                 class_hash = ARGENT_IMPLEMENTATION_CLASS_HASH_NEW
+                constructor_calldata = [self.client.key_pair.public_key, 0]
 
-            tx_hash = (await self.client.account.deploy_account(
-                address=self.client.address,
+            signed_tx = await self.client.account.sign_deploy_account_transaction(
                 class_hash=class_hash,
-                salt=self.client.key_pair.public_key,
-                key_pair=self.client.key_pair,
-                client=self.client.account.client,
-                chain=StarknetChainId.MAINNET,
+                contract_address_salt=self.client.key_pair.public_key,
+                constructor_calldata=constructor_calldata,
+                nonce=0,
                 auto_estimate=True
-            )).hash
+            )
 
+            tx_hash = await self.client.account.client.deploy_account(signed_tx).transaction_hash
             return await self.client.send_transaction(check_hash=True, hash_for_check=tx_hash)
         finally:
             if USE_PROXY:
@@ -157,7 +161,12 @@ class Starknet(Blockchain):
         try:
             await self.client.initialize_account()
 
-            wallet_name, wallet_type = await self.client.check_wallet_type()
+            wallets_name = {
+                1: 'Braavos',
+                2: 'ArgentX'
+            }
+
+            wallet_name, wallet_type = wallets_name[self.client.WALLET_TYPE], self.client.WALLET_TYPE
 
             implementation_version = (await self.client.account.client.call_contract(self.client.prepare_call(
                 contract_address=self.client.address,

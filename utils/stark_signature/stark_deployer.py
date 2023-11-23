@@ -6,8 +6,7 @@ from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.hash.transaction import compute_deploy_account_transaction_hash
 
-
-IMPLEMENTATION_BRAAVOS_ADDRESS = 0x2c2b8f559e1221468140ad7b2352b1a5be32660d0bf1a3ae3a054a4ec5254e4
+from config import BRAAVOS_IMPLEMENTATION_CLASS_HASH_NEW
 
 
 class BraavosCurveSigner(StarkCurveSigner):
@@ -42,7 +41,7 @@ class BraavosCurveSigner(StarkCurveSigner):
             nonce=transaction.nonce,
         )
 
-        tx_hash = compute_hash_on_elements([tx_hash, IMPLEMENTATION_BRAAVOS_ADDRESS, 0, 0, 0, 0, 0, 0, 0])
+        tx_hash = compute_hash_on_elements([tx_hash, BRAAVOS_IMPLEMENTATION_CLASS_HASH_NEW, 0, 0, 0, 0, 0, 0, 0])
 
         r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
-        return [r, s, IMPLEMENTATION_BRAAVOS_ADDRESS, 0, 0, 0, 0, 0, 0, 0]
+        return [r, s, BRAAVOS_IMPLEMENTATION_CLASS_HASH_NEW, 0, 0, 0, 0, 0, 0, 0]

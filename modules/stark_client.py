@@ -68,18 +68,19 @@ class StarknetClient(Logger):
         self.WALLET_TYPE = None
         self.info = None
 
-    async def initialize_account(self):
+    async def initialize_account(self, check_balance:bool = False):
         self.account, self.address, self.WALLET_TYPE = await self.get_wallet_auto(self.w3, self.key_pair,
-                                                                                  self.account_name)
+                                                                                  self.account_name, check_balance)
 
         self.account.ESTIMATED_FEE_MULTIPLIER = GAS_MULTIPLIER
         self.info = f'[{self.account_name}] {hex(self.account.address)} | {self.network.name} |'
 
-    async def get_wallet_auto(self, w3, key_pair, account_name):
+    async def get_wallet_auto(self, w3, key_pair, account_name, check_balance:bool = False):
         last_data = await self.check_stark_data_file(account_name)
         if last_data:
             address, wallet_type = last_data['address'], last_data['address']
             account = Account(client=w3, address=address, key_pair=key_pair, chain=StarknetChainId.MAINNET)
+
             return account, address, wallet_type
 
         possible_addresses = [(self.get_argent_address(key_pair, 1), 0),
@@ -89,7 +90,12 @@ class StarknetClient(Logger):
         for address, wallet_type in possible_addresses:
             account = Account(client=w3, address=address, key_pair=key_pair, chain=StarknetChainId.MAINNET)
             try:
-                if await account.client.get_class_hash_at(address):
+                if check_balance:
+                    result = await account.get_balance()
+                else:
+                    result = await account.client.get_class_hash_at(address)
+
+                if result:
                     await self.save_stark_data_file(account_name, address, wallet_type)
                     return account, address, wallet_type
             except ClientError:
@@ -285,8 +291,6 @@ class StarknetClient(Logger):
 
             await asyncio.sleep(1)
             await swap_avnu(self.account_name, self.private_key, self.network, self.proxy_init, help_deposit=True)
-        else:
-            _, _, amount, amount_in_wei = data
 
         return amount, amount_in_wei
 
@@ -344,12 +348,6 @@ class StarknetClient(Logger):
 
         else:
             raise RuntimeError('Insufficient balance on account!')
-
-    async def check_wallet_type(self):
-        class_hash = await self.account.client.get_class_hash_at(self.account.address)
-        if class_hash == int(BRAAVOS_PROXY_CLASS_HASH):
-            return 'braavos', 1
-        return 'argent', 0
 
     async def get_contract(self, contract_address: int, proxy_config: bool = False):
         return await Contract.from_address(address=contract_address, provider=self.account, proxy_config=proxy_config)
