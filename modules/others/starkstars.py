@@ -1,3 +1,5 @@
+import random
+
 from utils.tools import repeater, gas_checker
 from modules import Minter, Logger
 from config import TOKENS_PER_CHAIN, STARKSTARS_COUNTACTS
@@ -10,8 +12,8 @@ class StarkStars(Minter, Logger):
         self.client = client
 
     async def get_new_nft_id(self):
-        for contract_id, contract_address in STARKSTARS_COUNTACTS.items():
-            if contract_id in STARKSTARS_NFT_CONTRACTS:
+        for contract_id, contract_address in random.choice(list(STARKSTARS_COUNTACTS.items())):
+            if contract_id in STARKSTARS_NFT_CONTRACTS or STARKSTARS_NFT_CONTRACTS == 0:
                 nft_contract = await self.client.get_contract(contract_address=contract_address)
                 if not (await nft_contract.functions["balance_of"].call(self.client.address))[0]:
                     return contract_id
