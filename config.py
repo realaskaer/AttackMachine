@@ -572,6 +572,7 @@ OKX_NETWORKS_NAME = {
 }
 
 OKX_WRAPED_ID = {
+    1                       : 14,
     2                       : 1,
     4                       : 7,
     5                       : 9,

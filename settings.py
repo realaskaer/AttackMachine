@@ -2,15 +2,13 @@
 -------------------------------------------------OKX WITHDRAW-----------------------------------------------------------
     Выберите сети для вывода и ввода с OKX. Софт работает только с токеном ETH. Не забудьте вставить API ключи снизу.
 
-   *1 - ETH-ERC20
+    1 - ETH-ERC20
     2 - ETH-Arbitrum One
-   *3 - ETH-zkSync Lite
+    3 - ETH-zkSync Lite
     4 - ETH-Optimism
     5 - ETH-Starknet
     6 - ETH-zkSync Era
     7 - ETH-Linea
-
-    * - софт не может делать депозиты в эти сети (настройка OKX_DEPOSIT_NETWORK)
 
     OKX_BRIDGE_NEED | Если включен(стоит True), то перед депозитом на биржу софт сделает бридж в сеть из который
                         планируется пополнять OKX. Если сеть для пополнения OKX есть в списке сверху, то ставьте False
@@ -79,7 +77,7 @@ LAYERSWAP_REFUEL = False            # True or False
 
     ORBITER_CHAIN_ID_FROM(TO) = [2, 4, 11] | Одна из сетей будет выбрана
 """
-ORBITER_CHAIN_ID_FROM = [9]  # Исходящая сеть
+ORBITER_CHAIN_ID_FROM = [9]          # Исходящая сеть
 ORBITER_CHAIN_ID_TO = [1]            # Входящая сеть
 ORBITER_AMOUNT = (0.001, 0.001)      # (минимум, максимум) ETH или %
 
@@ -98,8 +96,8 @@ ORBITER_AMOUNT = (0.001, 0.001)      # (минимум, максимум) ETH и
     * - Не работает для RHINO_CHAIN_ID_FROM                
     RHINO_CHAIN_ID_FROM(TO) = [2, 3, 10] | Одна из сетей будет выбрана
 """
-RHINO_CHAIN_ID_FROM = [1]            # Исходящая сеть
-RHINO_CHAIN_ID_TO = [9]             # Входящая сеть
+RHINO_CHAIN_ID_FROM = [1]              # Исходящая сеть
+RHINO_CHAIN_ID_TO = [9]                # Входящая сеть
 RHINO_AMOUNT = (0.005, 0.006)          # (минимум, максимум) ETH или %
 
 """
@@ -195,22 +193,22 @@ MIN_BALANCE = 0.001                   # Количество ETH на аккау
     GOOGLE_SHEET_URL        | Ссылка на вашу Google таблицу с прогрессом аккаунтов
     GOOGLE_SHEET_PAGE_NAME  | Аналогично EXCEL_PAGE_NAME   
 """
-GLOBAL_NETWORK = 9              # 16.11.2023 поддерживается только zkSync и Starknet. Следите за новостями.
-SOFTWARE_MODE = 0               # 0 - последовательный запуск / 1 - параллельный запуск
-ACCOUNTS_IN_STREAM = 1         # Только для SOFTWARE_MODE = 1 (параллельный запуск)
+GLOBAL_NETWORK = 11              # 16.11.2023 поддерживается только zkSync и Starknet. Следите за новостями.
+SOFTWARE_MODE = 1               # 0 - последовательный запуск / 1 - параллельный запуск
+ACCOUNTS_IN_STREAM = 1000        # Только для SOFTWARE_MODE = 1 (параллельный запуск)
 WALLETS_TO_WORK = 0             # 0 / (3, 20) / 3, 20
 SAVE_PROGRESS = False           # True или False | Включает сохранение прогресса аккаунта для Classic-routes
 TELEGRAM_NOTIFICATIONS = True   # True или False | Включает уведомления в Telegram
 
 
 '------------------------------------------------SLEEP CONTROL---------------------------------------------------------'
-SLEEP_MODE = False              # True или False | Включает сон после каждого модуля и аккаунта
-SLEEP_TIME = (10, 20)           # (минимум, максимум) секунд | Время сна между модулями и аккаунтами.
-
+SLEEP_MODE = True              # True или False | Включает сон после каждого модуля и аккаунта
+SLEEP_TIME = (25, 30)           # (минимум, максимум) секунд | Время сна между модулями.
+SLEEP_TIME_STREAM = (1, 2)    # (минимум, максимум) секунд | Время сна между аккаунтами.
 
 '-------------------------------------------------GAS CONTROL----------------------------------------------------------'
-GAS_CONTROL = True             # True или False | Включает контроль газа
-MAXIMUM_GWEI = 35               # Максимальный GWEI для работы софта
+GAS_CONTROL = False             # True или False | Включает контроль газа
+MAXIMUM_GWEI = 40               # Максимальный GWEI для работы софта
 SLEEP_TIME_GAS = 10             # Время очередной проверки газа
 CONTROL_TIMES_FOR_SLEEP = 3     # Количество проверок
 GAS_MULTIPLIER = 1.1            # Множитель газа для транзакций
@@ -246,9 +244,9 @@ OKX_API_PASSPHRAS = ""
 
 # EXCEL AND GOOGLE INFO
 EXCEL_PASSWORD = False
-EXCEL_PAGE_NAME = "Starknet"
-GOOGLE_SHEET_URL = ""
-GOOGLE_SHEET_PAGE_NAME = "Starknet"
+EXCEL_PAGE_NAME = "zkSync"
+GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1snukUIkg5a9eTeewe-nQCjgxF8hlLANWNU2kzGQ9I4M/edit#gid=0"
+GOOGLE_SHEET_PAGE_NAME = "zkSync"
 
 # TELEGRAM DATA
 TG_TOKEN = ""  # https://t.me/BotFather
@@ -283,20 +281,20 @@ STARKSTARS_NFT_CONTRACTS = (1, 2, 3, 20)  # при (0) заминтит случ
     
 """
 
-DMAIL_IN_ROUTES = False       # True или False | Включает Dmail в маршрут
+DMAIL_IN_ROUTES = True       # True или False | Включает Dmail в маршрут
 TRANSFER_IN_ROUTES = False    # True или False | Включает трансферы в маршрут
-COLLATERAL_IN_ROUTES = False  # True или False | Включает случайное вкл/выкл страховки в маршрут
+COLLATERAL_IN_ROUTES = True  # True или False | Включает случайное вкл/выкл страховки в маршрут
 
 DMAIL_COUNT = (1, 1)          # (минимум, максимум) дополнительных транзакций для Dmail
 TRANSFER_COUNT = (1, 2)       # (минимум, максимум) дополнительных транзакций для трансферов
 COLLATERAL_COUNT = (1, 2)     # (минимум, максимум) дополнительных транзакций для вкл/выкл страхования
 
-MODULES_COUNT = (1, 2)        # (минимум, максимум) неотработанных модулей из Google таблице
+MODULES_COUNT = (5, 6)        # (минимум, максимум) неотработанных модулей из Google таблице
 ALL_MODULES_TO_RUN = False    # True или False | Включает все неотработанные модули в маршрут
 WITHDRAW_LP = False           # True или False | Включает в маршрут все модули для вывода ликвидности из DEX
 WITHDRAW_LANDING = False      # True или False | Включает в маршрут все модули для вывода ликвидности из лендингов
 HELP_NEW_MODULE = False       # True или False | Добавляет случайный модуль при неудачном выполнении модуля из маршрута
-EXCLUDED_MODULES = ['swap_maverick', 'create_safe']  # Исключает выбранные модули из маршрута. Список в Classic-Routes.
+EXCLUDED_MODULES = ['create_safe']  # Исключает выбранные модули из маршрута. Список в Classic-Routes.
 
 DEPOSIT_CONFIG = {
     'okx_withdraw'                        : 0,  # смотри OKX настройки
@@ -404,8 +402,8 @@ DEPOSIT_CONFIG = {
     ]
 """
 CLASSIC_ROUTES_MODULES_USING = [
-    ['deploy_stark_wallet'],
-    ['disable_collateral_zklend'],
+    ['upgrade_stark_wallet'],
+    #['disable_collateral_zklend'],
     # ['enable_collateral_eralend', 'enable_collateral_zerolend'],
     # ['send_message_dmail'],
     # ['mint_tevaera', 'mint_and_bridge_l2telegraph'],
