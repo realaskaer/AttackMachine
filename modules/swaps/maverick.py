@@ -1,5 +1,5 @@
 from time import time
-from modules import DEX
+from modules import DEX, Logger
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE
 from config import (
@@ -14,8 +14,9 @@ from config import (
 )
 
 
-class Maverick(DEX):
+class Maverick(DEX, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
         self.router_contract = self.client.get_contract(MAVERICK_CONTRACTS['router'], MAVERICK_ROUTER_ABI)
@@ -66,7 +67,7 @@ class Maverick(DEX):
 
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount(class_name='Maverick')
 
-        self.client.logger.info(f'{self.client.info} Swap on Maverick: {amount} {from_token_name} -> {to_token_name}')
+        self.logger_msg(*self.client.acc_info, msg=f'Swap on Maverick: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address, to_token_address = (TOKENS_PER_CHAIN[self.client.network.name][from_token_name],
                                                 TOKENS_PER_CHAIN[self.client.network.name][to_token_name])
@@ -116,8 +117,8 @@ class Maverick(DEX):
 
         amount_from_settings, amount_from_settings_in_wei = await self.client.check_and_get_eth_for_liquidity()
 
-        self.client.logger.info(
-            f'{self.client.info} Add liquidity to Maverick USDC/ETH pool: {amount_from_settings} ETH')
+        self.logger_msg(
+            *self.client.acc_info, msg=f'Add liquidity to Maverick USDC/ETH pool: {amount_from_settings} ETH')
 
         tx_params = await self.client.prepare_transaction(value=amount_from_settings_in_wei)
 
@@ -161,7 +162,7 @@ class Maverick(DEX):
     @repeater
     @gas_checker
     async def withdraw_liquidity(self):
-        self.client.logger.info(f'{self.client.info} Withdraw liquidity from Maverick')
+        self.logger_msg(*self.client.acc_info, msg=f'Withdraw liquidity from Maverick')
 
         _, liquidity_balance = await self.position_inspector_contract.functions.addressBinReservesAllKindsAllTokenIds(
             self.client.address,

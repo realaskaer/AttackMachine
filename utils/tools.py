@@ -30,8 +30,7 @@ from settings import (
 async def sleep(self, min_time=SLEEP_TIME[0], max_time=SLEEP_TIME[1]):
     duration = random.randint(min_time, max_time)
     print()
-    self.client.logger_msg(self.client.account_name, self.client.private_key,
-                           f"{self.__class__.__name__} | 💤 Sleeping for {duration} seconds.")
+    self.logger_msg(*self.client.acc_info, msg=f"💤 Sleeping for {duration} seconds")
     await asyncio.sleep(duration)
 
 
@@ -119,7 +118,6 @@ def drop_date():
 def create_okx_withdrawal_list():
     from config import ACCOUNT_NAMES, OKX_WALLETS
     okx_data = {}
-    w3 = AsyncWeb3()
 
     if ACCOUNT_NAMES and OKX_WALLETS:
         with open('./data/services/okx_withdraw_list.json', 'w') as file:
@@ -136,16 +134,15 @@ def repeater(func):
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
         attempts = 0
-        account_data = self.client.account_name, self.client.private_key
 
         while True:
             try:
                 return await func(self, *args, **kwargs)
             except Exception as error:
-
                 await asyncio.sleep(1)
-                self.client.logger_msg(
-                    *account_data, f"{error} | Try[{attempts + 1}/{MAXIMUM_RETRY + 1}]", 'error')
+                self.logger_msg(
+                    self.client.account_name,
+                    None, msg=f"{error} | Try[{attempts + 1}/{MAXIMUM_RETRY + 1}]", type_msg='error')
                 await asyncio.sleep(1)
 
                 attempts += 1
@@ -153,7 +150,8 @@ def repeater(func):
                     break
 
                 await sleep(self, *SLEEP_TIME_RETRY)
-        self.client.logger_msg(*account_data, f"Tries are over, launching next module.\n", 'error')
+        self.logger_msg(self.client.account_name,
+                        None, msg=f"Tries are over, launching next module.\n", type_msg='error')
         return False
     return wrapper
 
@@ -166,9 +164,8 @@ def gas_checker(func):
             print()
             flag = False
             counter = 0
-            account_data = self.client.account_name, self.client.private_key
 
-            self.client.logger_msg(*account_data, f"Checking for gas price")
+            self.logger_msg(self.client.account_name, None, f"Checking for gas price")
 
             w3 = None
             if self.client.network.name != "Starknet":
@@ -181,7 +178,8 @@ def gas_checker(func):
                     gas = round(AsyncWeb3.from_wei(await w3.eth.gas_price, 'gwei'), 3)
                 if gas < MAXIMUM_GWEI:
                     await asyncio.sleep(1)
-                    self.client.logger_msg(*account_data, f"{gas} Gwei | Gas price is good", 'success')
+                    self.logger_msg(self.client.account_name,
+                                    None, f"{gas} Gwei | Gas price is good", type_msg='success')
                     await asyncio.sleep(1)
                     if flag and counter == CONTROL_TIMES_FOR_SLEEP and SOFTWARE_MODE:
                         account_number = random.randint(1, ACCOUNTS_IN_STREAM)
@@ -192,8 +190,9 @@ def gas_checker(func):
                     flag = True
                     counter += 1
                     await asyncio.sleep(1)
-                    self.client.logger_msg(
-                        *account_data, f"{gas} Gwei | Gas is too high. Next check in {SLEEP_TIME_GAS} second")
+                    self.logger_msg(
+                        self.client.account_name, None,
+                        f"{gas} Gwei | Gas is too high. Next check in {SLEEP_TIME_GAS} second", type_msg='warning')
                     await asyncio.sleep(SLEEP_TIME_GAS)
         return await func(self, *args, **kwargs)
     return wrapper

@@ -1,10 +1,11 @@
 from utils.tools import gas_checker, repeater
 from config import ZEROLEND_CONTRACTS, ZEROLEND_ABI, TOKENS_PER_CHAIN
-from modules import Landing
+from modules import Landing, Logger
 
 
-class ZeroLend(Landing):
+class ZeroLend(Landing, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
         self.landing_contract = self.client.get_contract(ZEROLEND_CONTRACTS['landing'], ZEROLEND_ABI)
@@ -16,7 +17,7 @@ class ZeroLend(Landing):
 
         amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
 
-        self.client.logger.info(f'{self.client.info} Deposit to ZeroLend: {amount} ETH')
+        self.logger_msg(*self.client.acc_info, msg=f'Deposit to ZeroLend: {amount} ETH')
 
         tx_params = await self.client.prepare_transaction(value=amount_in_wei)
 
@@ -31,7 +32,7 @@ class ZeroLend(Landing):
     @repeater
     @gas_checker
     async def withdraw(self):
-        self.client.logger.info(f'{self.client.info} Withdraw liquidity from ZeroLend')
+        self.logger_msg(*self.client.acc_info, msg=f'Withdraw liquidity from ZeroLend')
 
         liquidity_balance = await self.client.get_contract(ZEROLEND_CONTRACTS['weth_atoken']).functions.balanceOf(
             self.client.address).call()
@@ -57,7 +58,7 @@ class ZeroLend(Landing):
     @repeater
     @gas_checker
     async def enable_collateral(self):
-        self.client.logger.info(f'{self.client.info} Enable collateral on ZeroLend')
+        self.logger_msg(*self.client.acc_info, msg=f'Enable collateral on ZeroLend')
 
         tx_params = await self.client.prepare_transaction()
 
@@ -71,7 +72,7 @@ class ZeroLend(Landing):
     @repeater
     @gas_checker
     async def disable_collateral(self):
-        self.client.logger.info(f'{self.client.info} Disable collateral on ZeroLend')
+        self.logger_msg(*self.client.acc_info, msg=f'Disable collateral on ZeroLend')
 
         tx_params = await self.client.prepare_transaction()
 

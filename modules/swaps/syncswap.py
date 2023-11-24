@@ -1,6 +1,6 @@
 from time import time
 from eth_abi import abi
-from modules import DEX
+from modules import DEX, Logger
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE
 from config import (
@@ -13,8 +13,9 @@ from config import (
 )
 
 
-class SyncSwap(DEX):
+class SyncSwap(DEX, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
         self.router_contract = self.client.get_contract(SYNCSWAP_CONTRACTS['router'], SYNCSWAP_ROUTER_ABI)
@@ -37,8 +38,7 @@ class SyncSwap(DEX):
 
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
-        self.client.logger.info(
-            f'{self.client.info} Swap on SyncSwap: {amount} {from_token_name} -> {to_token_name}')
+        self.logger_msg(*self.client.acc_info, msg=f'Swap on SyncSwap: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address = TOKENS_PER_CHAIN[self.client.network.name][from_token_name]
         to_token_address = TOKENS_PER_CHAIN[self.client.network.name][to_token_name]
@@ -86,7 +86,8 @@ class SyncSwap(DEX):
 
         amount_from_settings, amount_from_settings_in_wei = await self.client.check_and_get_eth_for_liquidity()
 
-        self.client.logger.info(f'{self.client.info} Add liquidity to SyncSwap USDC/ETH pool: {amount_from_settings} ETH')
+        self.logger_msg(
+            *self.client.acc_info, msg=f'Add liquidity to SyncSwap USDC/ETH pool: {amount_from_settings} ETH')
 
         token_a_address = TOKENS_PER_CHAIN[self.client.network.name]['ETH']
         token_b_address = TOKENS_PER_CHAIN[self.client.network.name]['USDC']
@@ -120,7 +121,7 @@ class SyncSwap(DEX):
     @repeater
     @gas_checker
     async def withdraw_liquidity(self):
-        self.client.logger.info(f'{self.client.info} Withdraw liquidity from SyncSwap')
+        self.logger_msg(*self.client.acc_info, msg=f'Withdraw liquidity from SyncSwap')
 
         token_a_address = TOKENS_PER_CHAIN[self.client.network.name]['ETH']
         token_b_address = TOKENS_PER_CHAIN[self.client.network.name]['USDC']

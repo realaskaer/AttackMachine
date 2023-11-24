@@ -5,7 +5,7 @@ from faker import Faker
 from utils.tools import sleep, gas_checker, repeater
 from eth_abi import abi
 from settings import DESTINATION_L2TELEGRAPH
-from modules import Messenger
+from modules import Messenger, Logger
 from config import (
     L2TELEGRAPH_CONTRACTS,
     L2TELEGRAPH_SEND_MESSAGE_ABI,
@@ -16,8 +16,9 @@ from config import (
 )
 
 
-class L2Telegraph(Messenger):
+class L2Telegraph(Messenger, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
         self.message_contract = self.client.get_contract(L2TELEGRAPH_CONTRACTS['messager'], L2TELEGRAPH_SEND_MESSAGE_ABI)
@@ -36,8 +37,7 @@ class L2Telegraph(Messenger):
     @gas_checker
     async def send_message(self):
 
-        self.client.logger.info(
-            f'{self.client.info} Send message on L2Telegraph to {self.dst_chain_name.capitalize()}')
+        self.logger_msg(*self.client.acc_info, msg=f'Send message on L2Telegraph to {self.dst_chain_name.capitalize()}')
 
         adapter_params = abi.encode(["uint16", "uint"],
                                     [2, 250000])
@@ -70,8 +70,7 @@ class L2Telegraph(Messenger):
     @repeater
     @gas_checker
     async def mint_and_bridge(self):
-        self.client.logger.info(
-            f"{self.client.info} Mint and bridge NFT on L2telegraph. Price for mint: 0.0005 ETH")
+        self.logger_msg(*self.client.acc_info, msg=f"Mint and bridge NFT on L2telegraph. Price for mint: 0.0005 ETH")
 
         mint_price = 500000000000000
 
@@ -111,8 +110,8 @@ class L2Telegraph(Messenger):
 
             await sleep(self, 5, 8)
 
-            self.client.logger.info(
-                f'{self.client.info} Bridge NFT on L2telegraph to {self.dst_chain_name.capitalize()}')
+            self.logger_msg(
+                *self.client.acc_info, msg=f'Bridge NFT on L2telegraph to {self.dst_chain_name.capitalize()}')
 
             tx_params = await self.client.prepare_transaction(value=value)
 

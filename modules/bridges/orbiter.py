@@ -1,11 +1,15 @@
-from modules import Bridge
+from modules import Bridge, Logger
 from utils.tools import repeater, gas_checker
 from config import ORBITER_CONTRACTS, ORBITER_ABI, TOKENS_PER_CHAIN
 from settings import GLOBAL_NETWORK, USE_PROXY
 from web3 import AsyncWeb3
 
 
-class Orbiter(Bridge):
+class Orbiter(Bridge, Logger):
+    def __init__(self, client):
+        Logger.__init__(self)
+        super().__init__(client)
+
     async def get_maker_data(self, from_chain: int, to_chain:int, token_name: str):
 
         url = 'https://openapi.orbiter.finance/explore/v3/yj6toqvwh1177e1sexfy0u1pxx5j8o47'
@@ -53,8 +57,7 @@ class Orbiter(Bridge):
             token_name = 'ETH'
 
             bridge_info = f'{amount} {token_name} from {from_chain["name"]} to {to_chain["name"]}'
-            self.client.logger_msg(self.client.account_name, self.client.private_key,
-                                   f'Bridge on Orbiter: {bridge_info}')
+            self.logger_msg(*self.client.acc_info, msg=f'Bridge on Orbiter: {bridge_info}')
 
             bridge_data = await self.get_maker_data(from_chain['chainId'], to_chain['chainId'], token_name)
             destination_code = 9000 + to_chain['id']

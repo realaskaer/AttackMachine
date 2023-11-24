@@ -1,10 +1,11 @@
 from utils.tools import gas_checker, repeater
 from config import REACTORFUSION_CONTRACTS, REACTORFUSION_ABI
-from modules import Landing
+from modules import Landing, Logger
 
 
-class ReactorFusion(Landing):
+class ReactorFusion(Landing, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
         self.landing_contract = self.client.get_contract(REACTORFUSION_CONTRACTS['landing'], REACTORFUSION_ABI)
@@ -16,7 +17,7 @@ class ReactorFusion(Landing):
 
         amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
 
-        self.client.logger.info(f'{self.client.info} Deposit to ReactorFusion: {amount} ETH')
+        self.logger_msg(*self.client.acc_info, msg=f'Deposit to ReactorFusion: {amount} ETH')
 
         tx_params = await (self.client.prepare_transaction()) | {
             'to': REACTORFUSION_CONTRACTS['landing'],
@@ -29,7 +30,7 @@ class ReactorFusion(Landing):
     @repeater
     @gas_checker
     async def withdraw(self):
-        self.client.logger.info(f'{self.client.info} ReactorFusion | Withdraw from ReactorFusion')
+        self.logger_msg(*self.client.acc_info, msg=f'ReactorFusion | Withdraw from ReactorFusion')
 
         liquidity_balance = await self.landing_contract.functions.balanceOf(self.client.address).call()
 
@@ -49,7 +50,7 @@ class ReactorFusion(Landing):
     @repeater
     @gas_checker
     async def enable_collateral(self):
-        self.client.logger.info(f'{self.client.info} ReactorFusion | Enable collateral on ReactorFusion')
+        self.logger_msg(*self.client.acc_info, msg=f'ReactorFusion | Enable collateral on ReactorFusion')
 
         tx_params = await self.client.prepare_transaction()
 
@@ -62,7 +63,7 @@ class ReactorFusion(Landing):
     @repeater
     @gas_checker
     async def disable_collateral(self):
-        self.client.logger.info(f'{self.client.info} ReactorFusion | Disable collateral on ReactorFusion')
+        self.logger_msg(*self.client.acc_info, msg=f'ReactorFusion | Disable collateral on ReactorFusion')
 
         tx_params = await self.client.prepare_transaction()
 

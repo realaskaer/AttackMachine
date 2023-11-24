@@ -24,8 +24,8 @@ class Network:
 StarknetRPC = Network(
     name='Starknet',
     rpc=[
-        'https://g.w.lavanet.xyz:443/gateway/strk/rpc-http/fedf6ba0e0b85f5872de1a0d3dfa56a4',
-         ],
+        '',
+    ],
     chain_id=0,
     eip1559_support=False,
     token='ETH',
@@ -34,10 +34,9 @@ StarknetRPC = Network(
 
 zkSyncEra = Network(
     name='zkSync',
-    rpc=['https://rpc.ankr.com/zksync_era',
-         'https://zksync.meowrpc.com',
-         'https://zksync.drpc.org',
-         'https://zksync-era.blockpi.network/v1/rpc/public'],
+    rpc=[
+        'https://mainnet.era.zksync.io',
+    ],
     chain_id=324,
     eip1559_support=True,
     token='ETH',
@@ -46,9 +45,11 @@ zkSyncEra = Network(
 
 ScrollRPC = Network(
     name='Scroll',
-    rpc=['https://1rpc.io/scroll',
-         'https://rpc.scroll.io',
-         'https://scroll.blockpi.network/v1/rpc/public'],
+    rpc=[
+        'https://1rpc.io/scroll',
+        'https://rpc.scroll.io',
+        'https://scroll.blockpi.network/v1/rpc/public'
+    ],
     chain_id=534352,
     eip1559_support=False,
     token='ETH',
@@ -57,10 +58,12 @@ ScrollRPC = Network(
 
 Arbitrum = Network(
     name='Arbitrum',
-    rpc=['https://rpc.ankr.com/arbitrum/',
-         'https://arbitrum.llamarpc.com',
-         'https://1rpc.io/arb',
-         'https://arb1.arbitrum.io/rpc'],
+    rpc=[
+        'https://rpc.ankr.com/arbitrum/',
+        'https://arbitrum.llamarpc.com',
+        'https://1rpc.io/arb',
+        'https://arb1.arbitrum.io/rpc'
+    ],
     chain_id=42161,
     eip1559_support=True,
     token='ETH',
@@ -70,10 +73,12 @@ Arbitrum = Network(
 
 Optimism = Network(
     name='Optimism',
-    rpc=['https://rpc.ankr.com/optimism/',
-         'https://optimism.llamarpc.com',
-         'https://optimism.drpc.org',
-         'https://1rpc.io/op'],
+    rpc=[
+        'https://rpc.ankr.com/optimism/',
+        'https://optimism.llamarpc.com',
+        'https://optimism.drpc.org',
+        'https://1rpc.io/op'
+    ],
     chain_id=10,
     eip1559_support=True,
     token='ETH',
@@ -83,10 +88,12 @@ Optimism = Network(
 
 Polygon = Network(
     name='Polygon',
-    rpc=['https://rpc.ankr.com/polygon',
-         'https://polygon.llamarpc.com',
-         'https://1rpc.io/matic',
-         'https://polygon-rpc.com'],
+    rpc=[
+        'https://rpc.ankr.com/polygon',
+        'https://polygon.llamarpc.com',
+        'https://1rpc.io/matic',
+        'https://polygon-rpc.com'
+    ],
     chain_id=137,
     eip1559_support=True,
     token='MATIC',
@@ -96,10 +103,12 @@ Polygon = Network(
 
 Avalanche = Network(
     name='Avalanche',
-    rpc=['https://rpc.ankr.com/avalanche/',
-         'https://1rpc.io/avax/c',
-         'https://avax.meowrpc.com',
-         'https://avalanche.drpc.org'],
+    rpc=[
+        'https://rpc.ankr.com/avalanche/',
+        'https://1rpc.io/avax/c',
+        'https://avax.meowrpc.com',
+        'https://avalanche.drpc.org'
+    ],
     chain_id=43114,
     eip1559_support=True,
     token='AVAX',
@@ -109,12 +118,15 @@ Avalanche = Network(
 
 Ethereum = Network(
     name='Ethereum',
-    rpc=[#'https://eth-mainnet.g.alchemy.com/v2/your_key-CIAX',
-         #'https://eth.getblock.io/your_key/mainnet/',
-         'https://rpc.ankr.com/eth',
-         'https://eth.llamarpc.com',
-         'https://1rpc.io/eth',
-         'https://eth.drpc.org'],
+    rpc=[
+        'https://rpc.ankr.com/eth',
+        'https://eth.llamarpc.com',
+        'https://ethereum.publicnode.com',
+        'https://rpc.mevblocker.io',
+        'https://rpc.flashbots.net',
+        'https://1rpc.io/eth',
+        'https://eth.drpc.org'
+    ],
     chain_id=1,
     eip1559_support=True,
     token='ETH',
@@ -123,10 +135,12 @@ Ethereum = Network(
 
 Arbitrum_nova = Network(
     name='Arbitrum Nova',
-    rpc=['https://rpc.ankr.com/arbitrumnova',
-         'https://arbitrum-nova.publicnode.com',
-         'https://arbitrum-nova.drpc.org',
-         'https://nova.arbitrum.io/rpc'],
+    rpc=[
+        'https://rpc.ankr.com/arbitrumnova',
+        'https://arbitrum-nova.publicnode.com',
+        'https://arbitrum-nova.drpc.org',
+        'https://nova.arbitrum.io/rpc'
+    ],
     chain_id=42170,
     eip1559_support=True,
     token='ETH',
@@ -135,10 +149,12 @@ Arbitrum_nova = Network(
 
 Base = Network(
     name='Base',
-    rpc=['https://base.llamarpc.com',
-         'https://base.publicnode.com',
-         'https://base.meowrpc.com',
-         'https://1rpc.io/base'],
+    rpc=[
+        'https://base.llamarpc.com',
+        'https://base.publicnode.com',
+        'https://base.meowrpc.com',
+        'https://1rpc.io/base'
+    ],
     chain_id=8453,
     eip1559_support=True,
     token='ETH',
@@ -147,9 +163,11 @@ Base = Network(
 
 Linea = Network(
     name='Linea',
-    rpc=['https://linea.drpc.org',
-         'https://1rpc.io/linea',
-         'https://rpc.linea.build'],
+    rpc=[
+        'https://linea.drpc.org',
+        'https://1rpc.io/linea',
+        'https://rpc.linea.build'
+    ],
     chain_id=59144,
     eip1559_support=False,
     token='ETH',
@@ -158,7 +176,9 @@ Linea = Network(
 
 Zora = Network(
     name='Zora',
-    rpc=['https://rpc.zora.energy'],
+    rpc=[
+        'https://rpc.zora.energy'
+    ],
     chain_id=7777777,
     eip1559_support=False,
     token='ETH',
@@ -167,9 +187,11 @@ Zora = Network(
 
 Polygon_ZKEVM = Network(
     name='Polygon ZKEVM',
-    rpc=['https://1rpc.io/polygon/zkevm',
-         'https://zkevm-rpc.com',
-         'https://rpc.ankr.com/polygon_zkevm'],
+    rpc=[
+        'https://1rpc.io/polygon/zkevm',
+        'https://zkevm-rpc.com',
+        'https://rpc.ankr.com/polygon_zkevm'
+    ],
     chain_id=1101,
     eip1559_support=True,
     token='ETH',
@@ -178,10 +200,12 @@ Polygon_ZKEVM = Network(
 
 BSC = Network(
     name='BNB chain',
-    rpc=['https://binance.llamarpc.com',
-         'https://bsc-dataseed.bnbchain.org',
-         'https://rpc.ankr.com/bsc',
-         'https://1rpc.io/bnb'],
+    rpc=[
+        'https://binance.llamarpc.com',
+        'https://bsc-dataseed.bnbchain.org',
+        'https://rpc.ankr.com/bsc',
+        'https://1rpc.io/bnb'
+    ],
     chain_id=56,
     eip1559_support=False,
     token='BNB',
@@ -190,7 +214,9 @@ BSC = Network(
 
 Manta = Network(
     name='Manta',
-    rpc=['https://pacific-rpc.manta.network/http'],
+    rpc=[
+        'https://pacific-rpc.manta.network/http'
+    ],
     chain_id=169,
     eip1559_support=True,
     token='ETH',
@@ -199,11 +225,13 @@ Manta = Network(
 
 Mantle = Network(
     name='Mantle',
-    rpc=['https://mantle.publicnode.com',
-         'https://mantle-mainnet.public.blastapi.io',
-         'https://mantle.drpc.org',
-         'https://rpc.ankr.com/mantle',
-         'https://1rpc.io/mantle'],
+    rpc=[
+        'https://mantle.publicnode.com',
+        'https://mantle-mainnet.public.blastapi.io',
+        'https://mantle.drpc.org',
+        'https://rpc.ankr.com/mantle',
+        'https://1rpc.io/mantle'
+    ],
     chain_id=5000,
     eip1559_support=True,
     token='MNT',
@@ -212,11 +240,12 @@ Mantle = Network(
 
 OpBNB = Network(
     name='OpBNB',
-    rpc=['https://opbnb.publicnode.com',
-         'https://1rpc.io/opbnb',
-         'https://opbnb-mainnet-rpc.bnbchain.org',
-         'https://opbnb-mainnet.nodereal.io/v1/e9a36765eb8a40b9bd12e680a1fd2bc5',
-         ],
+    rpc=[
+        'https://opbnb.publicnode.com',
+        'https://1rpc.io/opbnb',
+        'https://opbnb-mainnet-rpc.bnbchain.org',
+        'https://opbnb-mainnet.nodereal.io/v1/e9a36765eb8a40b9bd12e680a1fd2bc5',
+    ],
     chain_id=204,
     eip1559_support=False,
     token='BNB',
@@ -231,4 +260,3 @@ OpBNB = Network(
 #     token='ETH',
 #     explorer='https://zkscan.io/'
 # )
-

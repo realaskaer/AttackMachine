@@ -1,10 +1,14 @@
 from settings import SLIPPAGE
-from modules import Aggregator
+from modules import Aggregator, Logger
 from utils.tools import gas_checker, repeater
 from config import TOKENS_PER_CHAIN, XYSWAP_CONTRACT, ETH_MASK, HELP_SOFTWARE
 
 
-class XYfinance(Aggregator):
+class XYfinance(Aggregator, Logger):
+    def __init__(self, client):
+        Logger.__init__(self)
+        super().__init__(client)
+
     async def get_quote(self, from_token_address: str, to_token_address: str, amount_in_wei: int):
         url = "https://aggregator-api.xy.finance/v1/quote"
 
@@ -43,7 +47,7 @@ class XYfinance(Aggregator):
 
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
-        self.client.logger.info(f'{self.client.info} Swap on XYfinance: {amount} {from_token_name} -> {to_token_name}')
+        self.logger_msg(*self.client.acc_info, msg=f"Swap on XYfinance: {amount} {from_token_name} -> {to_token_name}")
 
         token_data = TOKENS_PER_CHAIN[self.client.network.name]
 

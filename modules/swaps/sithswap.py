@@ -1,13 +1,14 @@
 import time
 
-from modules import DEX
+from modules import DEX, Logger
 from config import SITHSWAP_CONTRACT, TOKENS_PER_CHAIN
 from utils.tools import repeater, gas_checker
 from settings import SLIPPAGE, USE_PROXY
 
 
-class SithSwap(DEX):
+class SithSwap(DEX, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
     @staticmethod
@@ -28,8 +29,8 @@ class SithSwap(DEX):
 
             from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
-            self.client.logger.info(
-                f'{self.client.info} Swap on SithSwap: {amount} {from_token_name} -> {to_token_name}')
+            self.logger_msg(
+                *self.client.acc_info, msg=f'Swap on SithSwap: {amount} {from_token_name} -> {to_token_name}')
 
             router_contract = await self.client.get_contract(contract_address=SITHSWAP_CONTRACT['router'])
 

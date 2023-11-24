@@ -1,13 +1,14 @@
 import time
 
-from modules import DEX
+from modules import DEX, Logger
 from settings import SLIPPAGE, USE_PROXY
 from config import JEDISWAP_CONTRACT, TOKENS_PER_CHAIN
 from utils.tools import gas_checker, repeater
 
 
-class JediSwap(DEX):
+class JediSwap(DEX, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
     async def get_min_amount_out(self, contract_address:int, amount_in_wei: int, path: list):
@@ -27,7 +28,8 @@ class JediSwap(DEX):
 
             from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
-            self.client.logger.info(f'{self.client.info} Swap on JediSwap: {amount} {from_token_name} -> {to_token_name}')
+            self.logger_msg(
+                *self.client.acc_info, msg=f'Swap on JediSwap: {amount} {from_token_name} -> {to_token_name}')
 
             router_contract = JEDISWAP_CONTRACT['router']
 

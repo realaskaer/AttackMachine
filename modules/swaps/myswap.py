@@ -1,11 +1,12 @@
-from modules import DEX
+from modules import DEX, Logger
 from config import MYSWAP_CONTRACT, TOKENS_PER_CHAIN
 from utils.tools import repeater, gas_checker
 from settings import SLIPPAGE, USE_PROXY
 
 
-class MySwap(DEX):
+class MySwap(DEX, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
     @staticmethod
@@ -49,7 +50,7 @@ class MySwap(DEX):
 
             from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
-            self.client.logger.info(f'{self.client.info} Swap on mySwap: {amount} {from_token_name} -> {to_token_name}')
+            self.logger_msg(*self.client.acc_info, msg=f'Swap on mySwap: {amount} {from_token_name} -> {to_token_name}')
 
             from_token_address = TOKENS_PER_CHAIN[self.client.network.name][from_token_name]
 

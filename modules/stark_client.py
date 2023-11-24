@@ -63,17 +63,16 @@ class StarknetClient(Logger):
         self.account_name = account_name
         self.private_key = private_key
         self.min_amount_eth_on_balance = MIN_BALANCE
+        self.acc_info = None
         self.account = None
         self.address = None
         self.WALLET_TYPE = None
-        self.info = None
 
     async def initialize_account(self, check_balance:bool = False):
         self.account, self.address, self.WALLET_TYPE = await self.get_wallet_auto(self.w3, self.key_pair,
                                                                                   self.account_name, check_balance)
-
+        self.acc_info = self.account_name, self.address
         self.account.ESTIMATED_FEE_MULTIPLIER = GAS_MULTIPLIER
-        self.info = f'[{self.account_name}] {hex(self.account.address)} | {self.network.name} |'
 
     async def get_wallet_auto(self, w3, key_pair, account_name, check_balance:bool = False):
         last_data = await self.check_stark_data_file(account_name)
@@ -101,7 +100,6 @@ class StarknetClient(Logger):
             except ClientError:
                 pass
 
-        self.logger_msg(None, None, f'Account name: "{account_name}" has no balance', 'warning')
         raise RuntimeError(f"Account name: '{account_name}' has not deployed")
 
     @staticmethod
@@ -287,7 +285,7 @@ class StarknetClient(Logger):
         amount_in_wei = int(amount * 10 ** 18)
 
         if data is False:
-            self.logger.warning(f'{self.info} Not enough ETH! Launching swap module')
+            self.logger_msg(*self.acc_info, msg=f'Not enough ETH! Launching swap module', type_msg='warning')
 
             await asyncio.sleep(1)
             await swap_avnu(self.account_name, self.private_key, self.network, self.proxy_init, help_deposit=True)
@@ -303,14 +301,14 @@ class StarknetClient(Logger):
 
         await asyncio.sleep(1)
         if eth_balance < amount_from_settings:
-            self.logger.warning(f'{self.info} Not enough ETH! Launching swap module')
+            self.logger_msg(*self.acc_info, msg=f'Not enough ETH! Launching swap module', type_msg='warning')
             await asyncio.sleep(1)
             await swap_avnu(self.account_name, self.private_key, self.network, self.proxy_init,
                             help_deposit=True, amount_to_help=amount_from_settings)
 
         return amount_from_settings, amount_from_settings_in_wei
 
-    async def get_auto_amount(self, token_name_search:str = None, class_name:str = None) -> [str, float, int]:
+    async def get_auto_amount(self, token_name_search:str = None) -> [str, float, int]:
 
         wallet_balance = {k: await self.get_token_balance(k, False)
                           for k, v in TOKENS_PER_CHAIN[self.network.name].items()}
@@ -396,7 +394,8 @@ class StarknetClient(Logger):
 
             await self.account.client.wait_for_tx(tx_hash, check_interval=20, retries=1000)
 
-            self.logger.success(f'{self.info} Transaction was successful: {self.explorer}tx/{hex(tx_hash)}')
+            self.logger_msg(
+                *self.acc_info, msg=f'Transaction was successful: {self.explorer}tx/{hex(tx_hash)}', type_msg='success')
             return True
 
         except Exception as error:

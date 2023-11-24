@@ -4,11 +4,12 @@ from settings import DESTINATION_ZERIUS
 from config import ZERIUS_CONTRACT_PER_CHAINS, ZERIUS_ABI, ZERO_ADDRESS, LAYERZERO_NETWORKS_DATA
 from utils.tools import gas_checker, repeater, sleep
 from eth_abi import encode
-from modules import Minter
+from modules import Minter, Logger
 
 
-class Zerius(Minter):
+class Zerius(Minter, Logger):
     def __init__(self, client, chain_from_id):
+        super().__init__()
         self.client = client
 
         self.contract = self.client.get_contract(ZERIUS_CONTRACT_PER_CHAINS[chain_from_id]['ONFT'], ZERIUS_ABI)
@@ -38,7 +39,7 @@ class Zerius(Minter):
 
         mint_price = await self.contract.functions.mintFee().call()
 
-        self.client.logger.info(f"{self.client.info} Mint Zerius NFT. Price: {(mint_price / 10 ** 18):.5f}")
+        self.logger_msg(*self.client.acc_info, msg=f"Mint Zerius NFT. Price: {(mint_price / 10 ** 18):.5f}")
 
         tx_params = await self.client.prepare_transaction(value=mint_price)
 
@@ -58,7 +59,7 @@ class Zerius(Minter):
         if not nft_id:
             await self.mint()
 
-        self.client.logger.info(f"{self.client.info} Bridge Zerius NFT to {dst_chain_name}. ID: {nft_id}")
+        self.logger_msg(*self.client.acc_info, msg=f"Bridge Zerius NFT to {dst_chain_name}. ID: {nft_id}")
 
         await sleep(5, 10)
 

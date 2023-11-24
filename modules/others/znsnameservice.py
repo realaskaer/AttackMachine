@@ -2,11 +2,12 @@ from faker import Faker
 from random import randint
 from utils.tools import gas_checker, repeater
 from config import ZNS_CONTRACT, ZNS_ABI
-from modules import Minter
+from modules import Minter, Logger
 
 
-class ZkSyncNameService(Minter):
+class ZkSyncNameService(Minter, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
         self.domain_contract = self.client.get_contract(ZNS_CONTRACT['zns_registrator'], ZNS_ABI)
@@ -24,11 +25,11 @@ class ZkSyncNameService(Minter):
     @repeater
     @gas_checker
     async def mint(self):
-        self.client.logger.info(f'{self.client.info} Mint domain on ZNS')
+        self.logger_msg(*self.client.acc_info, msg=f'Mint domain on ZNS')
 
         domain = await self.get_random_name()
 
-        self.client.logger.info(f'{self.client.info} Generated domain: {domain}.zks')
+        self.logger_msg(*self.client.acc_info, msg=f'Generated domain: {domain}.zks')
 
         tx_params = await self.client.prepare_transaction()
 

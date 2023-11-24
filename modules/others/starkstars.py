@@ -1,11 +1,12 @@
 from utils.tools import repeater, gas_checker
-from modules import Minter
+from modules import Minter, Logger
 from config import TOKENS_PER_CHAIN, STARKSTARS_COUNTACTS
 from settings import STARKSTARS_NFT_CONTRACTS, USE_PROXY
 
 
-class StarkStars(Minter):
+class StarkStars(Minter, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
     async def get_new_nft_id(self):
@@ -28,7 +29,7 @@ class StarkStars(Minter):
 
             nft_contract = await self.client.get_contract(contract_address=STARKSTARS_COUNTACTS[contact_id])
 
-            self.client.logger.info(f"{self.client.info} Mint StarkStars#00{contact_id:0>2} NFT")
+            self.logger_msg(*self.client.acc_info, msg=f"Mint StarkStars#00{contact_id:0>2} NFT")
 
             mint_price = (await nft_contract.functions["get_price"].call())[0]
 

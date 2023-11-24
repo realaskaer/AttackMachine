@@ -3,7 +3,7 @@ import base64
 import asyncio
 
 from hashlib import sha256
-from modules import CEX
+from modules import CEX, Logger
 from datetime import datetime, timezone
 from utils.tools import repeater, sleep, gas_checker
 from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN
@@ -15,7 +15,11 @@ from settings import (
 )
 
 
-class OKX(CEX):
+class OKX(CEX, Logger):
+    def __init__(self, client):
+        Logger.__init__(self)
+        super().__init__(client)
+
     @staticmethod
     def get_network_id():
         return {
@@ -67,7 +71,7 @@ class OKX(CEX):
             network_data = networks_data[network_name]
             amount = await self.client.get_smart_amount(OKX_WITHDRAW_AMOUNT)
 
-            self.client.logger_msg(*self.account_info, f"Withdraw {amount} ETH to {network_name[4:]}")
+            self.logger_msg(*self.account_info, msg=f"Withdraw {amount} ETH to {network_name[4:]}")
 
             if network_data['can_withdraw']:
 
@@ -82,11 +86,10 @@ class OKX(CEX):
 
                 headers = await self.get_headers(method="POST", request_path=url, body=str(body))
 
-                await self.make_request(method='POST', url=url, data=str(body), headers=headers,
-                                        module_name='Withdraw')
+                await self.make_request(method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
 
-                self.client.logger_msg(*self.account_info,
-                                       f"Withdraw complete. Note: wait 1-2 minute to receive funds", 'success')
+                self.logger_msg(*self.account_info,
+                                msg=f"Withdraw complete. Note: wait 1-2 minute to receive funds", type_msg='success')
 
                 await sleep(self, 70, 140)
                 return True
@@ -99,7 +102,7 @@ class OKX(CEX):
     @repeater
     async def transfer_from_subaccounts(self):
 
-        self.client.logger_msg(*self.account_info, f'Checking subAccounts balance')
+        self.logger_msg(*self.account_info, msg=f'Checking subAccounts balance')
 
         url_sub_list = "https://www.okx.cab/api/v5/users/subaccount/list"
 
@@ -113,17 +116,14 @@ class OKX(CEX):
             url_sub_balance = f"https://www.okx.cab/api/v5/asset/subaccount/balances?subAcct={sub_name}&ccy=ETH"
             headers = await self.get_headers(request_path=url_sub_balance)
 
-            sub_balance = (await self.make_request(
-                url=url_sub_balance,
-                headers=headers,
-                module_name='Get subAccount balance'
-            ))[0]['availBal']
+            sub_balance = (await self.make_request(url=url_sub_balance, headers=headers,
+                                                   module_name='Get subAccount balance'))[0]['availBal']
 
             await asyncio.sleep(1)
 
             if float(sub_balance) != 0.0:
 
-                self.client.logger_msg(*self.account_info, f'{sub_name} | subAccount balance : {sub_balance} ETH')
+                self.logger_msg(*self.account_info, msg=f'{sub_name} | subAccount balance : {sub_balance} ETH')
 
                 body = {
                     "ccy": "ETH",
@@ -139,8 +139,9 @@ class OKX(CEX):
                 await self.make_request(method="POST", url=url_transfer, data=str(body), headers=headers,
                                         module_name='SubAccount transfer')
 
-                self.client.logger_msg(*self.account_info,
-                                       f"Transfer {float(sub_balance):.6f} ETH to main account complete", 'success')
+                self.logger_msg(*self.account_info,
+                                msg=f"Transfer {float(sub_balance):.6f} ETH to main account complete",
+                                type_msg='success')
 
     @repeater
     async def transfer_from_spot_to_funding(self):
@@ -153,7 +154,7 @@ class OKX(CEX):
         for ccy in balance:
             if ccy['ccy'] == 'ETH' and ccy['availBal'] != '0':
 
-                self.client.logger_msg(*self.account_info, f"Main trading account balance: {ccy['availBal']} ETH")
+                self.logger_msg(*self.account_info, msg=f"Main trading account balance: {ccy['availBal']} ETH")
 
                 body = {
                     "ccy": 'ETH',
@@ -166,12 +167,12 @@ class OKX(CEX):
                 headers = await self.get_headers(request_path=url_transfer, body=str(body), method="POST")
                 await self.make_request(url=url_transfer, data=str(body), method="POST", headers=headers,
                                         module_name='Trading account')
-                self.client.logger_msg(*self.account_info,
-                                       f"Transfer {float(ccy['availBal']):.6f} ETH to funding account complete",
-                                       'success')
+                self.logger_msg(*self.account_info,
+                                msg=f"Transfer {float(ccy['availBal']):.6f} ETH to funding account complete",
+                                type_msg='success')
                 break
             else:
-                self.client.logger_msg(*self.account_info, f"Main trading account balance: 0 ETH", 'error')
+                self.logger_msg(*self.account_info, msg=f"Main trading account balance: 0 ETH", type_msg='error')
                 break
 
     @repeater
@@ -188,7 +189,7 @@ class OKX(CEX):
                     from json import load
                     okx_withdraw_list = load(file)
             except:
-                self.client.logger_msg(None, None, f"Bad data in okx_wallet_list.json", 'error')
+                self.logger_msg(None, None, f"Bad data in okx_wallet_list.json", 'error')
 
             try:
                 okx_wallet = okx_withdraw_list[self.client.account_name]
@@ -198,8 +199,7 @@ class OKX(CEX):
             info = f"{okx_wallet[:10]}....{okx_wallet[-6:]}"
             network_name = self.client.network.name
 
-            self.client.logger_msg(*self.account_info,
-                                   f"Deposit {amount} ETH from {network_name} to OKX wallet: {info}")
+            self.logger_msg(*self.account_info, msg=f"Deposit {amount} ETH from {network_name} to OKX wallet: {info}")
 
             if self.client.network.name == 'Starknet':
                 await self.client.initialize_account()

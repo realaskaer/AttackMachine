@@ -1,7 +1,7 @@
 import aiohttp
 import random
 
-from modules import Refuel
+from modules import Refuel, Logger
 from settings import DESTINATION_BUNGEE_DATA
 from utils.tools import gas_checker, repeater
 from config import (
@@ -12,8 +12,9 @@ from config import (
 )
 
 
-class Bungee(Refuel):
+class Bungee(Refuel, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
         self.refuel_contract = self.client.get_contract(BUNGEE_CONTRACTS['gas_refuel'], BUNGEE_REFUEL_ABI)
@@ -37,7 +38,7 @@ class Bungee(Refuel):
         dst_amount = self.client.round_amount(*dst_data[1])
 
         refuel_info = f'{dst_amount} {dst_native_name} to {dst_chain_name.capitalize()}'
-        self.client.logger.info(f'{self.client.info} Refuel on Bungee: {refuel_info}')
+        self.logger_msg(*self.client.acc_info, msg=f'Refuel on Bungee: {refuel_info}')
 
         refuel_limits_data = await self.get_limits_data()
 

@@ -1,6 +1,6 @@
 import random
 
-from modules import Refuel
+from modules import Refuel, Logger
 from eth_abi import abi
 from settings import DESTINATION_MERKLY_DATA
 from utils.tools import gas_checker, repeater
@@ -11,8 +11,9 @@ from config import (
 )
 
 
-class Merkly(Refuel):
+class Merkly(Refuel, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
     @repeater
@@ -29,7 +30,7 @@ class Merkly(Refuel):
         router_contract = self.client.get_contract(merkly_contracts['ONFT'], MERKLY_ROUTER_ABI)
 
         refuel_info = f'{dst_amount} {dst_native_name} to {dst_chain_name}'
-        self.client.logger.info(f'{self.client.info} Refuel on Merkly: {refuel_info}')
+        self.logger_msg(*self.client.acc_info, msg=f'Refuel on Merkly: {refuel_info}')
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
 

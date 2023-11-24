@@ -5,7 +5,7 @@ from starknet_py.net.full_node_client import FullNodeClient
 
 
 from eth_account import Account
-from modules import Blockchain
+from modules import Blockchain, Logger
 from utils.networks import StarknetRPC
 from utils.tools import gas_checker, repeater
 from settings import (
@@ -21,8 +21,9 @@ from config import (
 )
 
 
-class ZkSync(Blockchain):
+class ZkSync(Blockchain, Logger):
     def __init__(self, client):
+        Logger.__init__(self)
         super().__init__(client)
 
         self.deposit_contract = self.client.get_contract(NATIVE_CONTRACTS_PER_CHAIN['zkSync']['deposit'],
@@ -39,7 +40,7 @@ class ZkSync(Blockchain):
         amount = await self.client.get_smart_amount(NATIVE_DEPOSIT_AMOUNT)
         amount_in_wei = int(amount * 10 ** 18)
 
-        self.client.logger.info(f'{self.client.info} Bridge on txSync: {amount} ETH ERC20 -> zkSync Era')
+        self.logger_msg(*self.client.acc_info, msg=f'Bridge on txSync: {amount} ETH ERC20 -> zkSync Era')
 
         if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
@@ -75,7 +76,7 @@ class ZkSync(Blockchain):
         amount = await self.client.get_smart_amount(NATIVE_WITHDRAW_AMOUNT)
         amount_in_wei = int(amount * 10 ** 18)
 
-        self.client.logger.info(f'{self.client.info} Withdraw on txSync: {amount} ETH zkSync Era -> ERC20')
+        self.logger_msg(*self.client.acc_info, msg=f'Withdraw on txSync: {amount} ETH zkSync Era -> ERC20')
 
         if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
@@ -99,9 +100,9 @@ class ZkSync(Blockchain):
                 from json import load
                 contract_data = load(file)
         except:
-            self.client.logger.info(f"{self.client.info} Bad data in contract_json.json")
+            raise RuntimeError("Bad data in contract_json.json")
 
-        self.client.logger.info(f"{self.client.info} Deploy contract on {self.client.network.name}")
+        self.logger_msg(*self.client.acc_info, msg=f"Deploy contract on {self.client.network.name}")
 
         tx_data = await self.client.prepare_transaction()
 
@@ -117,8 +118,7 @@ class ZkSync(Blockchain):
 
         amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit(TRANSFER_AMOUNT)
 
-        self.client.logger.info(
-            f"{self.client.info} Transfer {amount} ETH to your own address: {self.client.address}")
+        self.logger_msg(*self.client.acc_info, msg=f"Transfer {amount} ETH to your own address: {self.client.address}")
 
         tx_params = await self.client.prepare_transaction(value=amount_in_wei) | {
             "to": self.client.address,
@@ -135,7 +135,7 @@ class ZkSync(Blockchain):
 
         random_address = Account.create().address
 
-        self.client.logger.info(f'{self.client.info} Transfer ETH to random zkSync address: {amount} ETH')
+        self.logger_msg(*self.client.acc_info, msg=f'Transfer ETH to random zkSync address: {amount} ETH')
 
         if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
@@ -183,7 +183,7 @@ class ZkSync(Blockchain):
 
         amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
 
-        self.client.logger.info(f'{self.client.info} Wrap {amount} ETH')
+        self.logger_msg(*self.client.acc_info, msg=f'Wrap {amount} ETH')
 
         if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
@@ -201,7 +201,7 @@ class ZkSync(Blockchain):
 
         amount_in_wei, amount, _ = await self.client.get_token_balance('WETH', check_symbol=False)
 
-        self.client.logger.info(f'{self.client.info} Unwrap {amount:.6f} WETH')
+        self.logger_msg(*self.client.acc_info, msg=f'Unwrap {amount:.6f} WETH')
 
         tx_params = await self.client.prepare_transaction()
 
@@ -212,8 +212,9 @@ class ZkSync(Blockchain):
         return await self.client.send_transaction(transaction)
 
 
-class StarknetEVM(Blockchain):
+class StarknetEVM(Blockchain, Logger):
     def __init__(self, client):
+        Logger.__init__(self)
         super().__init__(client)
 
         self.evm_contract = self.client.get_contract(NATIVE_CONTRACTS_PER_CHAIN['Starknet']['evm_contract'],
@@ -239,7 +240,7 @@ class StarknetEVM(Blockchain):
         amount = await self.client.get_smart_amount(NATIVE_DEPOSIT_AMOUNT)
         amount_in_wei = int(amount * 10 ** 18)
 
-        self.client.logger.info(f'{self.client.info} Bridge on StarkGate to {receiver}: {amount} ETH ERC20 -> Starknet')
+        self.logger_msg(*self.client.acc_info, msg=f'Bridge on StarkGate to {receiver}: {amount} ETH ERC20 -> Starknet')
 
         deposit_fee = await self.get_starknet_deposit_fee(amount_in_wei)
 

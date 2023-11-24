@@ -1,5 +1,5 @@
 from time import time
-from modules import DEX
+from modules import DEX, Logger
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE
 from config import (
@@ -10,8 +10,9 @@ from config import (
 )
 
 
-class Mute(DEX):
+class Mute(DEX, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
         self.router_contract = self.client.get_contract(MUTE_CONTRACTS['router'], MUTE_ROUTER_ABI)
@@ -37,8 +38,7 @@ class Mute(DEX):
         else:
             from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount(class_name='Mute')
 
-        self.client.logger.info(
-            f'{self.client.info} Swap on Mute: {amount} {from_token_name} -> {to_token_name}')
+        self.logger_msg(*self.client.acc_info, msg=f'Swap on Mute: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address, to_token_address = (TOKENS_PER_CHAIN[self.client.network.name][from_token_name],
                                                 TOKENS_PER_CHAIN[self.client.network.name][to_token_name])
@@ -93,8 +93,7 @@ class Mute(DEX):
 
         amount_from_settings_in_wei = amount_from_settings * 10 ** 18
 
-        self.client.logger.info(
-            f'{self.client.info} Add liquidity to Mute USDC/ETH pool: {amount_from_settings} ETH')
+        self.logger_msg(*self.client.acc_info, msg=f'Add liquidity to Mute USDC/ETH pool: {amount_from_settings} ETH')
 
         amount_eth_min = int(amount_from_settings_in_wei / 2)
 
@@ -128,7 +127,7 @@ class Mute(DEX):
     @repeater
     @gas_checker
     async def withdraw_liquidity(self):
-        self.client.logger.info(f'{self.client.info} Withdraw liquidity from Mute')
+        self.logger_msg(*self.client.acc_info, msg=f'Withdraw liquidity from Mute')
 
         liquidity_balance = await self.client.get_contract(MUTE_CONTRACTS['pair_dynamic']).functions.balanceOf(
             self.client.address

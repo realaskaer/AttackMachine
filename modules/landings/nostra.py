@@ -1,11 +1,12 @@
 from settings import USE_PROXY
 from utils.tools import gas_checker, repeater
-from modules import Landing
+from modules import Landing, Logger
 from config import NOSTRA_CONTRACTS
 
 
-class Nostra(Landing):
+class Nostra(Landing, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
     @repeater
@@ -18,7 +19,7 @@ class Nostra(Landing):
 
             nostra_contract_address = NOSTRA_CONTRACTS[token_name]
 
-            self.client.logger.info(f'{self.client.info} Deposit to Nostra: {amount} {token_name}')
+            self.logger_msg(*self.client.acc_info, msg=f'Deposit to Nostra: {amount} {token_name}')
 
             approve_call = self.client.get_approve_call(token_address, nostra_contract_address, amount_in_wei)
 
@@ -44,7 +45,7 @@ class Nostra(Landing):
 
             amount = await self.client.get_normalize_amount(landing_balance)
 
-            self.client.logger.info(f'{self.client.info} Withdraw {amount:.4f} {token_name} from Nostra')
+            self.logger_msg(*self.client.acc_info, msg=f'Withdraw {amount:.4f} {token_name} from Nostra')
 
             nostra_contract = await self.client.get_contract(NOSTRA_CONTRACTS[token_name])
 

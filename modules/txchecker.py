@@ -40,7 +40,7 @@ class TxChecker:
                 data = await response.json()
                 if response.status == 200:
                     return data
-                raise RuntimeError(f"Bad request to {self.__class__.__name__} API: {response.status}")
+                await self.make_request(method=method, url=url, headers=headers, data=data, params=params, json=json)
 
     async def get_eth_price(self):
         url = 'https://api.coingecko.com/api/v3/simple/price'

@@ -44,6 +44,7 @@ class Client(Logger):
         self.private_key = private_key
         self.address = AsyncWeb3.to_checksum_address(self.w3.eth.account.from_key(private_key).address)
 
+        self.acc_info = account_name, self.address
         self.min_amount_eth_on_balance = MIN_BALANCE
         self.info = f'[{self.account_name}] {self.address} | {self.network.name} |'
 
@@ -98,7 +99,7 @@ class Client(Logger):
     async def bridge_from_source(self, network_to_id) -> None:
         from functions import bridge_layerswap, bridge_rhino, bridge_orbiter
 
-        self.logger.info(f"{self.info} Bridge balance from {self.network.name} for OKX deposit")
+        self.logger_msg(*self.acc_info, msg=f"Bridge balance from {self.network.name} for OKX deposit")
 
         id_of_bridge = {
             1: bridge_rhino,
@@ -160,7 +161,7 @@ class Client(Logger):
         amount_in_wei = int(amount * 10 ** 18)
 
         if data is False:
-            self.logger.warning(f'{self.info} Not enough ETH! Launching swap module')
+            self.logger_msg(*self.acc_info, msg=f'Not enough ETH! Launching swap module', type_msg='warning')
 
             await asyncio.sleep(1)
             await swap_odos(self.account_name, self.private_key, self.network, self.proxy_init, help_deposit=True)
@@ -176,7 +177,7 @@ class Client(Logger):
 
         await asyncio.sleep(1)
         if eth_balance < amount_from_settings:
-            self.logger.warning(f'{self.info} Not enough ETH! Launching swap module')
+            self.logger_msg(*self.acc_info, msg=f'Not enough ETH! Launching swap module', type_msg='warning')
             await asyncio.sleep(1)
             await swap_oneinch(self.account_name, self.private_key, self.network, self.proxy_init,
                                help_add_liquidity=True, amount_to_help=amount_from_settings)
@@ -283,10 +284,10 @@ class Client(Logger):
                 tx_params['gasPrice'] = await self.w3.eth.gas_price
 
             return tx_params
-        except TimeoutError:
-            raise TimeoutError('Bad connection or rate limit error')
+        except TimeoutError or ValueError as error:
+            raise error(f'Bad connection or rate limit error | Error: {self.get_normalize_error(error)}')
         except Exception as error:
-            raise RuntimeError(f'Prepare transaction | Error: {error}')
+            raise RuntimeError(f'Prepare transaction | Error: {self.get_normalize_error(error)}')
 
     async def make_approve(self, token_address: str, spender_address: str, amount_in_wei: int):
         transaction = await self.get_contract(token_address).functions.approve(
@@ -305,7 +306,7 @@ class Client(Logger):
 
             await asyncio.sleep(1)
 
-            self.logger.info(f'{self.info} Check for approval {symbol}')
+            self.logger_msg(*self.acc_info, msg=f'Check for approval {symbol}')
 
             await asyncio.sleep(1)
 
@@ -319,7 +320,7 @@ class Client(Logger):
             await asyncio.sleep(1)
 
             if amount_in_wei <= approved_amount_in_wei:
-                self.logger.info(f'{self.info} Already approved')
+                self.logger_msg(*self.acc_info, msg=f'Already approved')
                 return False
 
             await self.make_approve(token_address, spender_address, amount_in_wei)
@@ -343,7 +344,8 @@ class Client(Logger):
         try:
             data = await self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=360)
             if 'status' in data and data['status'] == 1:
-                self.logger.success(f'{self.info} Transaction was successful: {self.explorer}tx/{tx_hash.hex()}')
+                message = f'Transaction was successful: {self.explorer}tx/{tx_hash.hex()}'
+                self.logger_msg(*self.acc_info, msg=message, type_msg='success')
                 return True
             else:
                 raise RuntimeError(f'Transaction failed: {self.explorer}tx/{data["transactionHash"].hex()}')

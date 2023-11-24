@@ -1,10 +1,14 @@
-from modules import Aggregator
+from modules import Aggregator, Logger
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE, ONEINCH_API_KEY
 from config import ONEINCH_CONTRACT, TOKENS_PER_CHAIN, ETH_MASK, HELP_SOFTWARE
 
 
-class OneInch(Aggregator):
+class OneInch(Aggregator, Logger):
+    def __init__(self, client):
+        Logger.__init__(self)
+        super().__init__(client)
+
     async def build_swap_transaction(self, from_token_address: str, to_token_address: str, amount: int):
 
         url = f"https://api.1inch.dev/swap/v5.2/{await self.client.chain_id}/swap"
@@ -37,8 +41,7 @@ class OneInch(Aggregator):
             amount = round(amount_to_help * eth_price, 4)
             amount_in_wei = int(amount * 10 ** decimals)
 
-        self.client.logger.info(
-            f'{self.client.info} Swap on 1INCH: {amount} {from_token_name} -> {to_token_name}')
+        self.logger_msg(*self.client.acc_info, msg=f"Swap on 1INCH: {amount} {from_token_name} -> {to_token_name}")
 
         token_data = TOKENS_PER_CHAIN[self.client.network.name]
 

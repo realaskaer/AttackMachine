@@ -6,7 +6,7 @@ import random
 import asyncio
 
 from config import TOKENS_PER_CHAIN
-from modules import Bridge
+from modules import Bridge, Logger
 from datetime import datetime, timezone
 
 from settings import GLOBAL_NETWORK, USE_PROXY
@@ -38,8 +38,9 @@ REGISTER_DATA = {
 }
 
 
-class Rhino(Bridge):
+class Rhino(Bridge, Logger):
     def __init__(self, client):
+        Logger.__init__(self)
         super().__init__(client)
 
         self.nonce, self.signature = None, None
@@ -236,8 +237,7 @@ class Rhino(Bridge):
 
     @gas_checker
     async def deposit_to_rhino(self, amount, source_chain_info, chain_from_name, chain_to_name, private_keys):
-        logger_info = f"Deposit {amount} ETH to Rhino"
-        self.client.logger_msg(self.client.account_name, self.client.private_key, logger_info)
+        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} ETH to Rhino")
 
         if source_chain_info['enabled']:
             source_chain_address = source_chain_info['contractAddress']
@@ -269,9 +269,10 @@ class Rhino(Bridge):
         while True:
             await asyncio.sleep(4)
             if int(amount * 10 ** 8) <= int(await self.get_user_balance()):
-                self.client.logger_msg(*account_info, f"Funds have been received to Rhino", 'success')
+                self.logger_msg(*self.client.acc_info, msg=f"Funds have been received to Rhino", type_msg='success')
                 break
-            self.client.logger_msg(*account_info, f"Wait a little, while the funds come into Rhino", 'warning')
+            self.logger_msg(
+                *self.client.acc_info, msg=f"Wait a little, while the funds come into Rhino", type_msg='warning')
             await asyncio.sleep(1)
             await sleep(self, 90, 120)
 
@@ -324,7 +325,7 @@ class Rhino(Bridge):
 
         await self.make_request(method='POST', url=url, headers=headers, json=payload)
 
-        self.client.logger_msg(*account_info, f"Withdraw from on Rhino compete", 'success')
+        self.logger_msg(*self.client.acc_info, msg=f"Withdraw from on Rhino compete", type_msg='success')
 
     async def bridge(self, chain_from_id:int, private_keys:dict = None, help_okx:bool = False, help_network_id:int = 1):
         close_session = False
@@ -337,24 +338,24 @@ class Rhino(Bridge):
 
             self.nonce, self.signature = self.get_authentication_data()
             account_info = self.client.account_name, self.client.private_key
-            self.client.logger_msg(*account_info, f"Check previous registration on Rhino")
+            self.logger_msg(*self.client.acc_info, msg=f"Check previous registration on Rhino")
 
             rhino_user_config = await self.get_user_config()
 
             if not rhino_user_config['isRegistered']:
                 await asyncio.sleep(1)
 
-                self.client.logger_msg(*account_info, f"New user on Rhino, make registration")
+                self.logger_msg(*self.client.acc_info, msg=f"New user on Rhino, make registration")
                 await self.reg_new_acc()
 
                 await asyncio.sleep(1)
 
-                self.client.logger_msg(*account_info, f"Successfully registered on Rhino", 'success')
+                self.logger_msg(*self.client.acc_info, msg=f"Successfully registered on Rhino", type_msg='success')
                 rhino_user_config = await self.get_user_config()
             else:
                 await asyncio.sleep(1)
 
-                self.client.logger_msg(*account_info, f"Already registered on Rhino", 'success')
+                self.logger_msg(*self.client.acc_info, msg=f"Already registered on Rhino", type_msg='success')
 
             await asyncio.sleep(1)
 
@@ -381,9 +382,10 @@ class Rhino(Bridge):
 
                 return True
             else:
-                self.client.logger_msg(*account_info, f"Insufficient balance in {self.client.network.name}", 'error')
+                self.logger_msg(
+                    *self.client.acc_info, msg=f"Insufficient balance in {self.client.network.name}", type_msg='error')
         except Exception as error:
-            self.client.logger.error(f"{self.client.info} Error in Rhino: {error}")
+            raise RuntimeError(f"Rhino error: {error}")
         finally:
             if USE_PROXY and close_session:
                 await self.client.session.close()
@@ -391,12 +393,6 @@ class Rhino(Bridge):
     async def initialize_evm_client(self, private_key, chain_id):
         from modules import Client
         from functions import get_network_by_chain_id
-        evm_client = Client('Bridge', private_key,
+        evm_client = Client(self.client.account_name, private_key,
                             get_network_by_chain_id(chain_id), self.client.proxy_init)
         return evm_client
-
-    async def initialize_init_client(self, private_key):
-        from modules import StarknetClient
-        from utils.networks import StarknetRPC
-        stark_client = StarknetClient('Bridge', private_key, StarknetRPC, self.client.proxy_init)
-        return stark_client

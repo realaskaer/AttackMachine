@@ -1,10 +1,14 @@
 from utils.tools import gas_checker, repeater
 from config import TOKENS_PER_CHAIN, HELP_SOFTWARE
 from settings import SLIPPAGE, UNLIMITED_APPROVE
-from modules import Aggregator
+from modules import Aggregator, Logger
 
 
-class Rango(Aggregator):
+class Rango(Aggregator, Logger):
+    def __init__(self, client):
+        Logger.__init__(self)
+        super().__init__(client)
+
     async def get_quote(self, from_token_address, to_token_address, from_token_name, to_token_name, amount):
         api_key = 'ffde5b24-ee86-4f47-a1c8-b22d8f639a38'
         url = f'https://api.rango.exchange/routing/best?apiKey={api_key}'
@@ -72,8 +76,8 @@ class Rango(Aggregator):
 
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount(class_name='Rango')
 
-        self.client.logger.info(
-            f'{self.client.info} Swap on Rango.Exchange: {amount} {from_token_name} -> {to_token_name}')
+        self.logger_msg(
+            *self.client.acc_info, msg=f"Swap on Rango.Exchange: {amount} {from_token_name} -> {to_token_name}")
 
         token_data = TOKENS_PER_CHAIN[self.client.network.name]
 

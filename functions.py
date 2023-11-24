@@ -4,8 +4,7 @@ from modules import *
 from utils.networks import *
 from config import OKX_WRAPED_ID, LAYERZERO_WRAPED_NETWORKS
 from settings import (LAYERSWAP_CHAIN_ID_FROM, ORBITER_CHAIN_ID_FROM, RHINO_CHAIN_ID_FROM,
-                      OKX_DEPOSIT_NETWORK, SOURCE_CHAIN_MERKLY, SOURCE_CHAIN_ZERIUS, GLOBAL_NETWORK,
-                      OKX_WITHDRAW_NETWORK)
+                      OKX_DEPOSIT_NETWORK, SOURCE_CHAIN_MERKLY, SOURCE_CHAIN_ZERIUS, GLOBAL_NETWORK)
 
 
 def get_client(account_number, private_key, network, proxy, bridge_from_evm:bool = False) -> Client | StarknetClient:

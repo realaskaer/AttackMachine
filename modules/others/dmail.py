@@ -1,6 +1,6 @@
 from faker import Faker
 from hashlib import sha256
-from modules import Messenger
+from modules import Messenger, Logger
 from mnemonic import Mnemonic
 from random import choice, randint
 
@@ -9,8 +9,9 @@ from utils.tools import gas_checker, repeater
 from config import DMAIL_CONTRACT, DMAIL_ABI
 
 
-class Dmail(Messenger):
+class Dmail(Messenger, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
     @staticmethod
@@ -32,7 +33,7 @@ class Dmail(Messenger):
                 await self.client.initialize_account()
                 close_session = True
 
-            self.client.logger.info(f'{self.client.info} Send mail from Dmail')
+            self.logger_msg(*self.client.acc_info, msg=f'Send mail from Dmail')
 
             email = self.generate_email()
             text = self.generate_sentence()
@@ -40,8 +41,8 @@ class Dmail(Messenger):
             to_address = sha256(f"{email}".encode()).hexdigest()
             message = sha256(f"{text}".encode()).hexdigest()
 
-            self.client.logger.info(f'{self.client.info} Generated mail: {email} | Generated text: {text[:25]}...')
-            if self.client.network.name == 'Starknet':
+            self.logger_msg(*self.client.acc_info, msg=f'Generated mail: {email} | Generated text: {text[:10]}...')
+            if GLOBAL_NETWORK == 9:
                 dmail_contract = await self.client.get_contract(DMAIL_CONTRACT[self.client.network.name]['core'])
 
                 stark_order = 3618502788666131213697322783095070105623107215331596699973092056135872020481

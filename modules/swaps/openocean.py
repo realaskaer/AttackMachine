@@ -1,10 +1,14 @@
-from modules import Aggregator
+from modules import Aggregator, Logger
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE
 from config import OPENOCEAN_CONTRACT, TOKENS_PER_CHAIN, ETH_MASK, HELP_SOFTWARE
 
 
-class OpenOcean(Aggregator):
+class OpenOcean(Aggregator, Logger):
+    def __init__(self, client):
+        Logger.__init__(self)
+        super().__init__(client)
+
     async def build_swap_transaction(self, from_token_address: str, to_token_address: str, amount: float):
 
         url = f'https://open-api.openocean.finance/v3/{self.client.chain_id}/swap_quote'
@@ -28,8 +32,7 @@ class OpenOcean(Aggregator):
         (from_token_name, to_token_name,
          amount, amount_in_wei) = await self.client.get_auto_amount(class_name='OpenOcean')
 
-        self.client.logger.info(
-            f'{self.client.info} Swap on OpenOcean: {amount} {from_token_name} -> {to_token_name}')
+        self.logger_msg(*self.client.acc_info, msg=f"Swap on OpenOcean: {amount} {from_token_name} -> {to_token_name}")
 
         token_data = TOKENS_PER_CHAIN[self.client.network.name]
 

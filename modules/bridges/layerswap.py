@@ -1,12 +1,16 @@
 import json
 
 from config import TOKENS_PER_CHAIN
-from modules import Bridge
+from modules import Bridge, Logger
 from settings import GLOBAL_NETWORK, USE_PROXY
 from utils.tools import gas_checker, repeater
 
 
-class LayerSwap(Bridge):
+class LayerSwap(Bridge, Logger):
+    def __init__(self, client):
+        Logger.__init__(self)
+        super().__init__(client)
+
     async def get_networks_data(self):
         url = "https://api.layerswap.io/api/available_networks"
 
@@ -79,8 +83,7 @@ class LayerSwap(Bridge):
             source_asset, destination_asset = 'ETH', 'ETH'
 
             bridge_info = f'{self.client.network.name} -> {destination_asset} {destination_chain.capitalize()[:-8]}'
-            self.client.logger_msg(self.client.account_name, self.client.private_key,
-                                   f'Bridge on LayerSwap: {amount} {source_asset} {bridge_info}')
+            self.logger_msg(*self.client.acc_info, msg=f'Bridge on LayerSwap: {amount} {source_asset} {bridge_info}')
 
             networks_data = await self.get_networks_data()
 

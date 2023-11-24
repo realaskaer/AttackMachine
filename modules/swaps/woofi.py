@@ -1,11 +1,12 @@
-from modules import DEX
+from modules import DEX, Logger
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE
 from config import WOOFI_ROUTER_ABI, TOKENS_PER_CHAIN, WOOFI_CONTRACTS, ETH_MASK
 
 
-class WooFi(DEX):
+class WooFi(DEX, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
         self.router_contract = self.client.get_contract(WOOFI_CONTRACTS['router'], WOOFI_ROUTER_ABI)
@@ -25,8 +26,7 @@ class WooFi(DEX):
 
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
-        self.client.logger.info(
-            f'{self.client.info} Swap on WooFi: {amount} {from_token_name} -> {to_token_name}')
+        self.logger_msg(*self.client.acc_info, msg=f'Swap on WooFi: {amount} {from_token_name} -> {to_token_name}')
 
         token_data = TOKENS_PER_CHAIN[self.client.network.name]
 

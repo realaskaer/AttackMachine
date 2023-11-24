@@ -1,17 +1,21 @@
 import random
 import time
 
-from modules import Creator
+from modules import Creator, Logger
 from utils.tools import gas_checker, repeater
 from string import ascii_letters
 from config import OMNISEA_ABI, OMNISEA_CONTRACT
 
 
-class Omnisea(Creator):
+class Omnisea(Creator, Logger):
+    def __init__(self, client):
+        super().__init__()
+        self.client = client
+
     @repeater
     @gas_checker
     async def create(self):
-        self.client.logger.info(f"{self.client.info} Create NFT collection on Omnisea")
+        self.logger_msg(*self.client.acc_info, msg=f"Create NFT collection on Omnisea")
 
         contract = self.client.get_contract(OMNISEA_CONTRACT['drop_factory'], OMNISEA_ABI)
 
@@ -27,7 +31,7 @@ class Omnisea(Creator):
         royalty_amount = random.randrange(1, 5)
         end_time = int(time.time()) + random.randrange(1000000, 2000000)
 
-        self.client.logger.info(f"{self.client.info} Create NFT collection on Omnisea | Name: {name} Symbol: {symbol}")
+        self.logger_msg(*self.client.acc_info, msg=f"Create NFT collection on Omnisea | Name: {name} Symbol: {symbol}")
 
         transaction = await contract.functions.create([
             name,

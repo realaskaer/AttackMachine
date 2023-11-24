@@ -1,4 +1,4 @@
-from modules import DEX
+from modules import DEX, Logger
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE
 from hexbytes import HexBytes
@@ -10,8 +10,9 @@ from config import (
 )
 
 
-class PancakeSwap(DEX):
+class PancakeSwap(DEX, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
         self.router_contract = self.client.get_contract(PANCAKE_CONTRACTS['router'], PANCAKE_ROUTER_ABI)
@@ -42,8 +43,8 @@ class PancakeSwap(DEX):
 
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
-        self.client.logger.info(
-            f'{self.client.info} Swap on PancakeSwap: {amount} {from_token_name} -> {to_token_name}')
+        self.logger_msg(
+            *self.client.acc_info, msg=f'Swap on PancakeSwap: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address = TOKENS_PER_CHAIN[self.client.network.name][from_token_name]
         to_token_address = TOKENS_PER_CHAIN[self.client.network.name][to_token_name]

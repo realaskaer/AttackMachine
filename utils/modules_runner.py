@@ -59,25 +59,25 @@ class Runner(Logger):
         with open('./data/services/wallets_progress.json', 'r') as f:
             return json.load(f)
 
-    async def smart_sleep(self, account_name, private_key, account_number, accounts_delay=False):
+    async def smart_sleep(self, account_name, account_number, accounts_delay=False):
         if SLEEP_MODE:
             if accounts_delay:
                 duration = random.randint(*tuple(x * account_number for x in SLEEP_TIME_STREAM))
             else:
                 duration = random.randint(*SLEEP_TIME)
-            self.logger_msg(account_name, private_key, f"💤 Sleeping for {duration} seconds\n")
+            self.logger_msg(account_name, None, f"💤 Sleeping for {duration} seconds\n")
             await asyncio.sleep(duration)
 
-    async def send_tg_message(self, account_name, private_key, message_to_send, disable_notification=False):
+    async def send_tg_message(self, account_name, message_to_send, disable_notification=False):
         try:
             await asyncio.sleep(1)
             str_send = '\n'.join(message_to_send)
             bot = telebot.TeleBot(TG_TOKEN)
             bot.send_message(TG_ID, str_send, parse_mode='MarkdownV2', disable_notification=disable_notification)
             print()
-            self.logger_msg(account_name, private_key, f"Telegram message sent", 'success')
+            self.logger_msg(account_name, None, f"Telegram message sent", 'success')
         except Exception as error:
-            self.logger_msg(account_name, private_key, f"Telegram | API Error: {error}", 'error')
+            self.logger_msg(account_name, None, f"Telegram | API Error: {error}", 'error')
 
     def update_step(self, account_name, step):
         wallets = self.load_routes()
@@ -143,7 +143,7 @@ class Runner(Logger):
                 account_name, private_key = accounts_data
                 await route_generator.get_smart_route(account_name)
         except Exception as error:
-            self.logger_msg(account_name, private_key, f"Can`t generate smart route. Error: {error}", 'error')
+            self.logger_msg(account_name, None, f"Can`t generate smart route. Error: {error}", 'error')
             raise RuntimeError
 
     async def change_ip_proxy(self):
@@ -161,33 +161,31 @@ class Runner(Logger):
     async def check_proxies_status(self):
         tasks = []
         for proxy in PROXIES:
-            tasks.append(self.check_proxy_status(None, None, proxy))
+            tasks.append(self.check_proxy_status(None, proxy=proxy))
         await asyncio.gather(*tasks)
 
-    async def check_proxy_status(self, account_name:str = None, private_key:str = None,
-                                 proxy: str = None, silence: bool = False):
+    async def check_proxy_status(self, account_name:str = None, proxy: str = None, silence: bool = False):
         try:
             w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(Ethereum.rpc), request_kwargs={"proxy": f"http://{proxy}"}))
             if await w3.is_connected():
                 if not silence:
                     info = f'Proxy {proxy[proxy.find("@"):]} successfully connected to Ethereum RPC'
-                    self.logger_msg(account_name, private_key, info, 'success')
+                    self.logger_msg(account_name, None, info, 'success')
                 return True
-            self.logger_msg(account_name, private_key,f"Proxy: {proxy} can`t connect to Ethereum RPC", 'error')
+            self.logger_msg(account_name, None,f"Proxy: {proxy} can`t connect to Ethereum RPC", 'error')
             return False
         except Exception as error:
-            self.logger_msg(account_name, private_key, f"Bad proxy: {proxy} | Error: {error}", 'error')
+            self.logger_msg(account_name, None, f"Bad proxy: {proxy} | Error: {error}", 'error')
             return False
 
-    def get_proxy_for_account(self, account_name, private_key):
+    def get_proxy_for_account(self, account_name):
         if USE_PROXY:
             try:
                 account_number = ACCOUNT_NAMES.index(account_name) + 1
                 num_proxies = len(PROXIES)
                 return PROXIES[account_number % num_proxies]
             except Exception as error:
-                self.logger_msg(account_name, private_key,
-                                f"Bad data in proxy, but you want proxy! Error: {error}", 'error')
+                self.logger_msg(account_name, None, f"Bad data in proxy, but you want proxy! Error: {error}", 'error')
                 raise RuntimeError("Proxy error")
 
     async def run_account_modules(self, account_name, private_key, network, proxy, smart_route_type, index):
@@ -203,7 +201,7 @@ class Runner(Logger):
             if SAVE_PROGRESS:
                 current_step = self.load_routes()[account_name]["current_step"]
 
-            await self.smart_sleep(account_name, private_key, index, accounts_delay=True)
+            await self.smart_sleep(account_name, index, accounts_delay=True)
 
             module_info = AVAILABLE_MODULES_INFO
             info = CHAIN_NAME[GLOBAL_NETWORK]
@@ -211,11 +209,9 @@ class Runner(Logger):
             message_list.append(
                 f'*⚔️ {info} \\| Account name: "{account_name}"\n \n{len(route)} module\\(s\\) in route\n')
 
-            total_info, type_msg = f"All steps in route completed!", 'success'
-
             while current_step < len(route):
                 module_func = get_func_by_name(route[current_step])
-                self.logger_msg(account_name, private_key, f"🚀 Launch module: {module_info[module_func][2]}.")
+                self.logger_msg(account_name, None, f"🚀 Launch module: {module_info[module_func][2]}")
 
                 module_input_data = [account_name, private_key, network, proxy]
                 if route[current_step] in BRIDGE_NAMES and GLOBAL_NETWORK == 9:
@@ -226,7 +222,8 @@ class Runner(Logger):
                     result = await module_func(*module_input_data)
                 except Exception as error:
                     info = f"Module name: {module_info[module_func][2]} | Error {error}"
-                    self.logger_msg(account_name, private_key, f"Module crashed during the route: {info}")
+                    self.logger_msg(
+                        account_name, None, f"Module crashed during the route: {info}", type_msg='error')
                     result = False
 
                 if result:
@@ -234,12 +231,14 @@ class Runner(Logger):
                     current_step += 1
                 else:
                     if smart_route_type and HELP_NEW_MODULE:
-                        module_for_help = random.choice(list(AVAILABLE_MODULES_INFO.values())[5:-2])
+                        module_for_help = random.choice([i for i in AVAILABLE_MODULES_INFO.values()
+                                                         if i[3] == 1 and GLOBAL_NETWORK in i[4]])
+
                         module_name = module_for_help[0].__name__
                         info = f"Adding new module in route. Module name: {module_for_help[2]}"
                         await asyncio.sleep(1)
 
-                        self.logger_msg(account_name, private_key, info, 'warning')
+                        self.logger_msg(account_name, None, info, 'warning')
                         route.remove(module_func.__name__)
                         route.append(module_name)
                         await asyncio.sleep(2)
@@ -247,14 +246,12 @@ class Runner(Logger):
                         module_name = AVAILABLE_MODULES_INFO[module_func][2]
                         message_list.extend([f'❌   {module_name}\n', f'💀   The route was stopped\\!\n'])
                         result_list.append((False, module_func, account_name))
-
-                        total_info, type_msg = f"Some problems during the process of route\n", 'error'
                         self.collect_bad_wallets(account_name, module_name)
                         break
 
                 message_list.append(f'{"✅" if result else "❌"}   {AVAILABLE_MODULES_INFO[module_func][2]}\n')
                 result_list.append((result, module_func, account_name))
-                await self.smart_sleep(account_name, private_key, account_number=1)
+                await self.smart_sleep(account_name, account_number=1)
 
             success_count = len([1 for i in result_list if i[0]])
             errors_count = len(result_list) - success_count
@@ -265,20 +262,19 @@ class Runner(Logger):
                     disable_notification = False
                 else:
                     disable_notification = True
-                await self.send_tg_message(account_name, private_key, message_to_send=message_list,
+                await self.send_tg_message(account_name, message_to_send=message_list,
                                            disable_notification=disable_notification)
                 await asyncio.sleep(1)
 
-            self.logger_msg(account_name, private_key, total_info, type_msg)
             await asyncio.sleep(1)
             if not SOFTWARE_MODE:
                 self.logger_msg(None, None,f"Start running next wallet!\n", 'info')
             else:
-                self.logger_msg(account_name, private_key,f"Wait for other wallets in stream!\n", 'info')
+                self.logger_msg(account_name, None,f"Wait for other wallets in stream!\n", 'info')
 
             return result_list
         except Exception as error:
-            self.logger_msg(None, None,f"Error during the route! Error: {error}\n", 'error')
+            self.logger_msg(account_name, None,f"Error during the route! Error: {error}\n", 'error')
             if smart_route_type:
                 self.logger_msg(None, None,f"Saving progress in Google...\n", 'success')
             return result_list
@@ -304,7 +300,7 @@ class Runner(Logger):
                 tasks.append(asyncio.create_task(
                     self.run_account_modules(
                         account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK),
-                        self.get_proxy_for_account(account_name, private_key), smart_route, index)))
+                        self.get_proxy_for_account(account_name), smart_route, index)))
 
             results_batch = await asyncio.gather(*tasks)
 
@@ -325,7 +321,7 @@ class Runner(Logger):
                 await self.generate_smart_routes(route_generator, (account_name, private_key))
 
             result = await self.run_account_modules(account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK),
-                                                    self.get_proxy_for_account(account_name, private_key),
+                                                    self.get_proxy_for_account(account_name),
                                                     smart_route_type, index=1)
 
             if smart_route_type:

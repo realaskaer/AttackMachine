@@ -1,5 +1,5 @@
 from time import time
-from modules import DEX
+from modules import DEX, Logger
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE
 from config import (
@@ -9,8 +9,9 @@ from config import (
 )
 
 
-class SpaceFi(DEX):
+class SpaceFi(DEX, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
         self.router_contract = self.client.get_contract(SPACEFI_CONTRACTS['router'], SPACEFI_ROUTER_ABI)
@@ -32,8 +33,7 @@ class SpaceFi(DEX):
 
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
-        self.client.logger.info(
-            f'{self.client.info} Swap on SpaceFi: {amount} {from_token_name} -> {to_token_name}')
+        self.logger_msg(*self.client.acc_info, msg=f'Swap on SpaceFi: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address = TOKENS_PER_CHAIN[self.client.network.name][from_token_name]
         to_token_address = TOKENS_PER_CHAIN[self.client.network.name][to_token_name]

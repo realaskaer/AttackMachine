@@ -6,14 +6,13 @@ from web3 import AsyncWeb3
 from abc import ABC, abstractmethod
 
 from settings import (LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS,
-                      OKX_API_SECRET, OKX_DEPOSIT_NETWORK, GLOBAL_NETWORK, USE_PROXY)
+                      OKX_API_SECRET, GLOBAL_NETWORK, USE_PROXY)
 from utils.networks import StarknetRPC
 
-
-class DEX(ABC):
-    @abstractmethod
-    async def swap(self):
-        pass
+CHAINS_NAME = {
+    9: 'Starknet',
+    11: 'zkSync'
+}
 
 
 class Logger(ABC):
@@ -25,14 +24,14 @@ class Logger(ABC):
         date = datetime.today().date()
         self.logger.add(f"./data/logs/{date}.log", rotation="500 MB", level="INFO", format=logger_format)
 
-    def logger_msg(self, account_name, private_key, msg, type_msg: str = 'info'):
-        if account_name is None or private_key is None:
-            info = f'[Attack machine] | {self.__class__.__name__} |'
-        elif GLOBAL_NETWORK == 9:
-            info = f'[{account_name}] | {self.__class__.__name__} |'
+    def logger_msg(self, account_name, address, msg, type_msg: str = 'info'):
+        if account_name is None and address is None:
+            info = f'[Attack machine] | {CHAINS_NAME[GLOBAL_NETWORK]} | {self.__class__.__name__} |'
+        elif account_name is not None and address is None:
+            info = f'[{account_name}] | {CHAINS_NAME[GLOBAL_NETWORK]} | {self.__class__.__name__} |'
         else:
-            address = AsyncWeb3().eth.account.from_key(private_key).address
-            info = f'[{account_name}] {address} | {self.__class__.__name__} |'
+            address = hex(address) if GLOBAL_NETWORK == 9 else address
+            info = f'[{account_name}] | {address} | {CHAINS_NAME[GLOBAL_NETWORK]} | {self.__class__.__name__} |'
         if type_msg == 'info':
             self.logger.info(f"{info} {msg}")
         elif type_msg == 'error':
@@ -41,6 +40,12 @@ class Logger(ABC):
             self.logger.success(f"{info} {msg}")
         elif type_msg == 'warning':
             self.logger.warning(f"{info} {msg}")
+
+
+class DEX(ABC):
+    @abstractmethod
+    async def swap(self):
+        pass
 
 
 class CEX(ABC):
@@ -182,9 +187,6 @@ class Minter(ABC):
 
 
 class Creator(ABC):
-    def __init__(self, client):
-        self.client = client
-
     @abstractmethod
     async def create(self):
         pass

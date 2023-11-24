@@ -1,10 +1,14 @@
-from modules import Aggregator
+from modules import Aggregator, Logger
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE
 from config import TOKENS_PER_CHAIN, ZERO_ADDRESS, ODOS_CONTRACT, HELP_SOFTWARE
 
 
-class Odos(Aggregator):
+class Odos(Aggregator, Logger):
+    def __init__(self, client):
+        Logger.__init__(self)
+        super().__init__(client)
+
     async def get_quote(self, from_token_address: str, to_token_address: str, amount_in_wei: int):
         quote_url = "https://api.odos.xyz/sor/quote/v2"
 
@@ -57,8 +61,7 @@ class Odos(Aggregator):
         if help_deposit:
             to_token_name = 'ETH'
 
-        self.client.logger.info(
-            f'{self.client.info} Swap on Odos: {amount} {from_token_name} -> {to_token_name}')
+        self.logger_msg(*self.client.acc_info, msg=f"Swap on ODOS: {amount} {from_token_name} -> {to_token_name}")
 
         token_data = TOKENS_PER_CHAIN[self.client.network.name]
 

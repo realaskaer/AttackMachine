@@ -1,13 +1,14 @@
 import time
 
-from modules import DEX
+from modules import DEX, Logger
 from config import TENKSWAP_CONTRACT, TOKENS_PER_CHAIN
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE, USE_PROXY
 
 
-class TenkSwap(DEX):
+class TenkSwap(DEX, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
     @staticmethod
@@ -27,8 +28,8 @@ class TenkSwap(DEX):
 
             from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
-            self.client.logger.info(
-                f'{self.client.info} Swap on 10kSwap: {amount} {from_token_name} -> {to_token_name}')
+            self.logger_msg(
+                *self.client.acc_info, msg=f'Swap on 10kSwap: {amount} {from_token_name} -> {to_token_name}')
 
             router_contract = await self.client.get_contract(contract_address=TENKSWAP_CONTRACT['router'])
 

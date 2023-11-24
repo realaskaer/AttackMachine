@@ -1,10 +1,11 @@
 from config import BASILISK_CONTRACTS, BASILISK_ABI
 from utils.tools import gas_checker, repeater
-from modules import Landing
+from modules import Landing, Logger
 
 
-class Basilisk(Landing):
+class Basilisk(Landing, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
         self.landing_contract = self.client.get_contract(BASILISK_CONTRACTS['landing'], BASILISK_ABI)
@@ -16,7 +17,7 @@ class Basilisk(Landing):
 
         amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
 
-        self.client.logger.info(f'{self.client.info} Deposit to Basilisk: {amount} ETH')
+        self.logger_msg(*self.client.acc_info, msg=f'Deposit to Basilisk: {amount} ETH')
 
         tx_params = (await self.client.prepare_transaction()) | {
             'to': BASILISK_CONTRACTS['landing'],
@@ -29,7 +30,7 @@ class Basilisk(Landing):
     @repeater
     @gas_checker
     async def withdraw(self):
-        self.client.logger.info(f'{self.client.info} Withdraw from Basilisk')
+        self.logger_msg(*self.client.acc_info, msg=f'Withdraw from Basilisk')
 
         liquidity_balance = await self.landing_contract.functions.balanceOf(self.client.address).call()
 
@@ -48,7 +49,7 @@ class Basilisk(Landing):
     @repeater
     @gas_checker
     async def enable_collateral(self):
-        self.client.logger.info(f'{self.client.info} Enable collateral on Basilisk')
+        self.logger_msg(*self.client.acc_info, msg=f'Enable collateral on Basilisk')
 
         tx_params = await self.client.prepare_transaction()
 
@@ -61,7 +62,7 @@ class Basilisk(Landing):
     @repeater
     @gas_checker
     async def disable_collateral(self):
-        self.client.logger.info(f'{self.client.info} Disable collateral on Basilisk')
+        self.logger_msg(*self.client.acc_info, msg=f'Disable collateral on Basilisk')
 
         tx_params = await self.client.prepare_transaction()
 

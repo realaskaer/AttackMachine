@@ -1,14 +1,18 @@
 from time import time
-from modules import Creator
+from modules import Creator, Logger
 from utils.tools import gas_checker, repeater
 from config import SAFE_ABI, SAFE_CONTRACTS, ZERO_ADDRESS
 
 
-class GnosisSafe(Creator):
+class GnosisSafe(Creator, Logger):
+    def __init__(self, client):
+        super().__init__()
+        self.client = client
+
     @repeater
     @gas_checker
     async def create(self):
-        self.client.logger.info(f'{self.client.info} Create safe on chain')
+        self.logger_msg(*self.client.acc_info, msg=f'Create safe on chain')
 
         safe_contract = self.client.get_contract(SAFE_CONTRACTS['proxy_factory'], SAFE_ABI)
         tx_params = await self.client.prepare_transaction()

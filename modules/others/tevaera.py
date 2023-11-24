@@ -1,13 +1,14 @@
 from utils.tools import sleep, gas_checker, repeater
-from modules import Minter
+from modules import Minter, Logger
 from config import (
     TEVAERA_CONTRACTS,
     TEVAERA_ABI,
 )
 
 
-class Tevaera(Minter):
+class Tevaera(Minter, Logger):
     def __init__(self, client):
+        super().__init__()
         self.client = client
 
         self.id_contract = self.client.get_contract(TEVAERA_CONTRACTS['citizen_id'], TEVAERA_ABI)
@@ -16,7 +17,7 @@ class Tevaera(Minter):
     @repeater
     async def mint_id(self):
         try:
-            self.client.logger.info(f"{self.client.info} Mint Tevaera Citizen ID")
+            self.logger_msg(*self.client.acc_info, msg=f'Mint Tevaera Citizen ID')
 
             tx_params = await self.client.prepare_transaction(value=300000000000000)
 
@@ -29,7 +30,7 @@ class Tevaera(Minter):
     @repeater
     async def mint_nft(self):
         try:
-            self.client.logger.info(f"{self.client.info} Mint Tevaera Guardian NFT")
+            self.logger_msg(*self.client.acc_info, msg=f'Mint Tevaera Guardian NFT')
 
             tx_params = await self.client.prepare_transaction()
 

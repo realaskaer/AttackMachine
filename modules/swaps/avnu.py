@@ -1,10 +1,14 @@
 from config import AVNU_CONTRACT, TOKENS_PER_CHAIN, HELP_SOFTWARE
 from utils.tools import repeater, gas_checker
 from settings import SLIPPAGE, USE_PROXY
-from modules import Aggregator
+from modules import Aggregator, Logger
 
 
-class AVNU(Aggregator):
+class AVNU(Aggregator, Logger):
+    def __init__(self, client):
+        Logger.__init__(self)
+        super().__init__(client)
+
     async def get_quotes(self, from_token_address: int, to_token_address: int, amount_in_wei: int):
         url = "https://starknet.api.avnu.fi/swap/v1/quotes"
 
@@ -41,7 +45,7 @@ class AVNU(Aggregator):
             if help_deposit:
                 to_token_name = 'ETH'
 
-            self.client.logger.info(f'{self.client.info} Swap on AVNU: {amount} {from_token_name} -> {to_token_name}')
+            self.logger_msg(*self.client.acc_info, msg=f"Swap on AVNU: {amount} {from_token_name} -> {to_token_name}")
 
             from_token_address = TOKENS_PER_CHAIN[self.client.network.name][from_token_name]
             to_token_address = TOKENS_PER_CHAIN[self.client.network.name][to_token_name]
