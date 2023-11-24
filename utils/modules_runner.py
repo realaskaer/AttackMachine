@@ -20,18 +20,19 @@ BRIDGE_NAMES = ['bridge_rhino', 'bridge_layerswap', 'bridge_orbiter', 'bridge_na
 
 class Runner(Logger):
     @staticmethod
-    def get_wallets(account_list:tuple = None):
-        if account_list:
-            range_count = range(account_list[0], account_list[1])
-            account_names = [ACCOUNT_NAMES[i - 1] for i in range_count]
-            accounts = [PRIVATE_KEYS[i - 1] for i in range_count]
-            return zip(account_names, accounts)
+    def get_wallets_batch(account_list:tuple = None):
+        range_count = range(account_list[0], account_list[1])
+        account_names = [ACCOUNT_NAMES[i - 1] for i in range_count]
+        accounts = [PRIVATE_KEYS[i - 1] for i in range_count]
+        return zip(account_names, accounts)
 
+    @staticmethod
+    def get_wallets():
         if WALLETS_TO_WORK == 0:
             return zip(ACCOUNT_NAMES, PRIVATE_KEYS)
 
         elif isinstance(WALLETS_TO_WORK, int):
-            return zip(ACCOUNT_NAMES[WALLETS_TO_WORK - 1], PRIVATE_KEYS[WALLETS_TO_WORK - 1])
+            return zip([ACCOUNT_NAMES[WALLETS_TO_WORK - 1]], [PRIVATE_KEYS[WALLETS_TO_WORK - 1]])
 
         elif isinstance(WALLETS_TO_WORK, tuple):
             account_names = [ACCOUNT_NAMES[i-1] for i in WALLETS_TO_WORK]
@@ -280,7 +281,8 @@ class Runner(Logger):
             return result_list
 
     async def run_parallel(self, smart_route, route_generator):
-        num_accounts = len(PRIVATE_KEYS)
+        selected_wallets = list(self.get_wallets())
+        num_accounts = len(selected_wallets)
         accounts_per_stream = ACCOUNTS_IN_STREAM
         num_streams, remainder = divmod(num_accounts, accounts_per_stream)
 
@@ -288,7 +290,7 @@ class Runner(Logger):
             start_index = stream_index * accounts_per_stream
             end_index = (stream_index + 1) * accounts_per_stream if stream_index < num_streams else num_accounts
 
-            accounts = list(self.get_wallets((start_index + 1, end_index + 1)))
+            accounts = selected_wallets[start_index:end_index]
 
             if smart_route:
                 await self.generate_smart_routes(route_generator, tuple(accounts))
