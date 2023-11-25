@@ -342,6 +342,7 @@ class Client(Logger):
             raise RuntimeError(f'Send transaction | {self.get_normalize_error(error)}')
 
         try:
+            await asyncio.sleep(4)
             data = await self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=360)
             if 'status' in data and data['status'] == 1:
                 message = f'Transaction was successful: {self.explorer}tx/{tx_hash.hex()}'

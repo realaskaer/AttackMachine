@@ -236,8 +236,8 @@ class Rhino(Bridge, Logger):
         return hex(tx_signature[0]), hex(tx_signature[1])
 
     @gas_checker
-    async def deposit_to_rhino(self, amount, source_chain_info, chain_from_name, chain_to_name, private_keys):
-        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} ETH to Rhino")
+    async def deposit_to_rhino(self, amount, source_chain_info, chain_from_name:str, chain_to_name, private_keys):
+        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} ETH from {chain_from_name.capitalize()} to Rhino")
 
         if source_chain_info['enabled']:
             source_chain_address = source_chain_info['contractAddress']
@@ -264,7 +264,7 @@ class Rhino(Bridge, Logger):
 
             await self.client.send_transaction(*transaction)
 
-    async def withdraw_from_rhino(self, rhino_user_config, amount, chain_name, account_info, dst_address):
+    async def withdraw_from_rhino(self, rhino_user_config, amount, chain_to_name, dst_address):
 
         while True:
             await asyncio.sleep(4)
@@ -276,8 +276,8 @@ class Rhino(Bridge, Logger):
             await asyncio.sleep(1)
             await sleep(self, 90, 120)
 
-        logger_info = *account_info, f"Withdraw {amount} ETH from Rhino to {chain_name.capitalize()}"
-        self.client.logger_msg(*logger_info)
+        chain_name_log = chain_to_name.capitalize()
+        self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount} ETH from Rhino to {chain_name_log}")
 
         url = "https://api.rhino.fi/v1/trading/bridgedWithdrawals"
 
@@ -300,7 +300,7 @@ class Rhino(Bridge, Logger):
         headers = self.make_headers()
 
         payload = {
-            "chain": chain_name,
+            "chain": chain_to_name,
             "token": "ETH",
             "amount": f"{amount_in_wei}",
             "tx": {
@@ -325,7 +325,8 @@ class Rhino(Bridge, Logger):
 
         await self.make_request(method='POST', url=url, headers=headers, json=payload)
 
-        self.logger_msg(*self.client.acc_info, msg=f"Withdraw from on Rhino compete", type_msg='success')
+        self.logger_msg(
+            *self.client.acc_info, msg=f"Withdraw from Rhino to {chain_name_log} complete", type_msg='success')
 
     async def bridge(self, chain_from_id:int, private_keys:dict = None, help_okx:bool = False, help_network_id:int = 1):
         close_session = False
@@ -335,9 +336,10 @@ class Rhino(Bridge, Logger):
                 close_session = True
             if GLOBAL_NETWORK == 9:
                 self.evm_client = await self.initialize_evm_client(private_keys['evm_key'], chain_from_id)
+            self.evm_client = self.client
 
             self.nonce, self.signature = self.get_authentication_data()
-            account_info = self.client.account_name, self.client.private_key
+
             self.logger_msg(*self.client.acc_info, msg=f"Check previous registration on Rhino")
 
             rhino_user_config = await self.get_user_config()
@@ -378,7 +380,7 @@ class Rhino(Bridge, Logger):
                 if chain_to_name == 'STARKNET':
                     dst_address = await self.get_address_for_bridge(private_keys['stark_key'], True)
 
-                await self.withdraw_from_rhino(rhino_user_config, amount, chain_to_name, account_info, dst_address)
+                await self.withdraw_from_rhino(rhino_user_config, amount, chain_to_name, dst_address)
 
                 return True
             else:

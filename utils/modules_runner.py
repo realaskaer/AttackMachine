@@ -14,13 +14,12 @@ from settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, HELP_NEW
                       MOBILE_PROXY_URL_CHANGER, WALLETS_TO_WORK, TELEGRAM_NOTIFICATIONS, GLOBAL_NETWORK,
                       SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM)
 
-
 BRIDGE_NAMES = ['bridge_rhino', 'bridge_layerswap', 'bridge_orbiter', 'bridge_native']
 
 
 class Runner(Logger):
     @staticmethod
-    def get_wallets_batch(account_list:tuple = None):
+    def get_wallets_batch(account_list: tuple = None):
         range_count = range(account_list[0], account_list[1])
         account_names = [ACCOUNT_NAMES[i - 1] for i in range_count]
         accounts = [PRIVATE_KEYS[i - 1] for i in range_count]
@@ -35,7 +34,7 @@ class Runner(Logger):
             return zip([ACCOUNT_NAMES[WALLETS_TO_WORK - 1]], [PRIVATE_KEYS[WALLETS_TO_WORK - 1]])
 
         elif isinstance(WALLETS_TO_WORK, tuple):
-            account_names = [ACCOUNT_NAMES[i-1] for i in WALLETS_TO_WORK]
+            account_names = [ACCOUNT_NAMES[i - 1] for i in WALLETS_TO_WORK]
             accounts = [PRIVATE_KEYS[i - 1] for i in WALLETS_TO_WORK]
             return zip(account_names, accounts)
 
@@ -46,11 +45,10 @@ class Runner(Logger):
             return zip(account_names, accounts)
 
     @staticmethod
-    async def make_request(method:str = 'GET', url:str = None, headers:dict = None):
+    async def make_request(method: str = 'GET', url: str = None, headers: dict = None):
 
         async with ClientSession() as session:
             async with session.request(method=method, url=url, headers=headers) as response:
-
                 if response.status == 200:
                     return True
                 return False
@@ -165,7 +163,7 @@ class Runner(Logger):
             tasks.append(self.check_proxy_status(None, proxy=proxy))
         await asyncio.gather(*tasks)
 
-    async def check_proxy_status(self, account_name:str = None, proxy: str = None, silence: bool = False):
+    async def check_proxy_status(self, account_name: str = None, proxy: str = None, silence: bool = False):
         try:
             w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(Ethereum.rpc), request_kwargs={"proxy": f"http://{proxy}"}))
             if await w3.is_connected():
@@ -173,7 +171,7 @@ class Runner(Logger):
                     info = f'Proxy {proxy[proxy.find("@"):]} successfully connected to Ethereum RPC'
                     self.logger_msg(account_name, None, info, 'success')
                 return True
-            self.logger_msg(account_name, None,f"Proxy: {proxy} can`t connect to Ethereum RPC", 'error')
+            self.logger_msg(account_name, None, f"Proxy: {proxy} can`t connect to Ethereum RPC", 'error')
             return False
         except Exception as error:
             self.logger_msg(account_name, None, f"Bad proxy: {proxy} | Error: {error}", 'error')
@@ -215,9 +213,10 @@ class Runner(Logger):
                 self.logger_msg(account_name, None, f"🚀 Launch module: {module_info[module_func][2]}")
 
                 module_input_data = [account_name, private_key, network, proxy]
-                if route[current_step] in BRIDGE_NAMES and GLOBAL_NETWORK == 9:
-                    module_input_data.append({"stark_key":private_key,
-                                              "evm_key":PRIVATE_KEYS_EVM[PRIVATE_KEYS.index(private_key)]})
+                if route[current_step] in BRIDGE_NAMES:
+                    module_input_data.append({"stark_key": private_key,
+                                              "evm_key": PRIVATE_KEYS_EVM[PRIVATE_KEYS.index(private_key)]
+                                              if GLOBAL_NETWORK == 9 else private_key})
 
                 try:
                     result = await module_func(*module_input_data)
@@ -269,15 +268,15 @@ class Runner(Logger):
 
             await asyncio.sleep(1)
             if not SOFTWARE_MODE:
-                self.logger_msg(None, None,f"Start running next wallet!\n", 'info')
+                self.logger_msg(None, None, f"Start running next wallet!\n", 'info')
             else:
-                self.logger_msg(account_name, None,f"Wait for other wallets in stream!\n", 'info')
+                self.logger_msg(account_name, None, f"Wait for other wallets in stream!\n", 'info')
 
             return result_list
         except Exception as error:
-            self.logger_msg(account_name, None,f"Error during the route! Error: {error}\n", 'error')
+            self.logger_msg(account_name, None, f"Error during the route! Error: {error}\n", 'error')
             if smart_route_type:
-                self.logger_msg(None, None,f"Saving progress in Google...\n", 'success')
+                self.logger_msg(None, None, f"Saving progress in Google...\n", 'success')
             return result_list
 
     async def run_parallel(self, smart_route, route_generator):
