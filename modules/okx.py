@@ -62,7 +62,7 @@ class OKX(CEX, Logger):
         close_session = False
         try:
             if GLOBAL_NETWORK == 9 and OKX_WITHDRAW_NETWORK == 5:
-                await self.client.initialize_account()
+                await self.client.initialize_account(check_balance=True)
                 close_session = True
 
             url = 'https://www.okx.cab/api/v5/asset/withdrawal'

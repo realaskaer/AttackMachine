@@ -19,13 +19,13 @@ os.environ["GSPREAD_SILENCE_WARNINGS"] = "1"
 
 AVAILABLE_MODULES_INFO = {
     # module_name                       : (module name, priority, tg info, can be used in help module, network)
-    okx_withdraw                        : (okx_withdraw, 0, 'OKX Withdraw', 0, [9, 11]),
-    upgrade_stark_wallet                : (upgrade_stark_wallet, 1, 'Upgrade Wallet', 0, [9]),
-    deploy_stark_wallet                 : (deploy_stark_wallet, 1, 'Deploy Wallet', 0, [9]),
+    okx_withdraw                        : (okx_withdraw, -1, 'OKX Withdraw', 0, [9, 11]),
+    deploy_stark_wallet                 : (deploy_stark_wallet, 0, 'Deploy Wallet', 0, [9]),
     bridge_rhino                        : (bridge_rhino, 1, 'Rhino Bridge', 0, [9, 11]),
     bridge_layerswap                    : (bridge_layerswap, 1, 'LayerSwap Bridge', 0, [9, 11]),
     bridge_orbiter                      : (bridge_orbiter, 1, 'Orbiter Bridge', 0, [9, 11]),
     bridge_native                       : (bridge_native, 1, 'Native Bridge', 0, [9, 11]),
+    upgrade_stark_wallet                : (upgrade_stark_wallet, 2, 'Upgrade Wallet', 0, [9]),
     add_liquidity_maverick              : (add_liquidity_maverick, 2, 'Maverick Liquidity', 0, [11]),
     add_liquidity_mute                  : (add_liquidity_mute, 2, 'Mute Liquidity', 0, [11]),
     add_liquidity_syncswap              : (add_liquidity_syncswap, 2, 'SyncSwap Liquidity', 0, [11]),
@@ -339,8 +339,12 @@ class RouteGenerator(Logger):
 
         smart_route.append(AVAILABLE_MODULES_INFO[okx_withdraw] if DEPOSIT_CONFIG['okx_withdraw'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[okx_deposit] if DEPOSIT_CONFIG['okx_deposit'] else None)
-        smart_route.append(AVAILABLE_MODULES_INFO[okx_collect_from_sub] if DEPOSIT_CONFIG['okx_collect_from_sub']
-                           else None)
+        smart_route.append(
+            AVAILABLE_MODULES_INFO[okx_collect_from_sub] if DEPOSIT_CONFIG['okx_collect_from_sub'] else None)
+        smart_route.append(
+            AVAILABLE_MODULES_INFO[upgrade_stark_wallet] if DEPOSIT_CONFIG['upgrade_stark_wallet'] else None)
+        smart_route.append(
+            AVAILABLE_MODULES_INFO[deploy_stark_wallet] if DEPOSIT_CONFIG['deploy_stark_wallet'] else None)
 
         random.shuffle(smart_route)
 

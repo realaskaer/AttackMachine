@@ -21,7 +21,7 @@
 ------------------------------------------------------------------------------------------------------------------------
 """
 OKX_WITHDRAW_NETWORK = 5              # Сеть вывода из OKX
-OKX_WITHDRAW_AMOUNT = (0.001, 0.001)  # (минимальная, максимальная) сумма в ETH для вывода
+OKX_WITHDRAW_AMOUNT = (0.001, 0.0015)  # (минимальная, максимальная) сумма в ETH для вывода
 
 OKX_BRIDGE_NEED = False                # True или False | Включает бридж в выбранную сеть (OKX_DEPOSIT_NETWORK)
 OKX_BRIDGE_MODE = [1]                 # Мосты для бриджа в сеть пополнения OKX
@@ -97,8 +97,8 @@ ORBITER_AMOUNT = (0.001, 0.001)      # (минимум, максимум) ETH и
     RHINO_CHAIN_ID_FROM(TO) = [2, 3, 10] | Одна из сетей будет выбрана
 """
 RHINO_CHAIN_ID_FROM = [1]              # Исходящая сеть
-RHINO_CHAIN_ID_TO = [9]                # Входящая сеть
-RHINO_AMOUNT = (0.005, 0.006)          # (минимум, максимум) ETH или %
+RHINO_CHAIN_ID_TO = [11]                # Входящая сеть
+RHINO_AMOUNT = (0.004, 0.005)          # (минимум, максимум) ETH или %
 
 """
 ---------------------------------------------OMNI-CHAIN CONTROL---------------------------------------------------------
@@ -193,16 +193,16 @@ MIN_BALANCE = 0.001                   # Количество ETH на аккау
     GOOGLE_SHEET_URL        | Ссылка на вашу Google таблицу с прогрессом аккаунтов
     GOOGLE_SHEET_PAGE_NAME  | Аналогично EXCEL_PAGE_NAME   
 """
-GLOBAL_NETWORK = 11              # 16.11.2023 поддерживается только zkSync и Starknet. Следите за новостями.
+GLOBAL_NETWORK = 9              # 16.11.2023 поддерживается только zkSync и Starknet. Следите за новостями.
 SOFTWARE_MODE = 1               # 0 - последовательный запуск / 1 - параллельный запуск
-ACCOUNTS_IN_STREAM = 1000        # Только для SOFTWARE_MODE = 1 (параллельный запуск)
-WALLETS_TO_WORK = 0             # 0 / 3 / 3, 20 / [3, 20]
+ACCOUNTS_IN_STREAM = 1        # Только для SOFTWARE_MODE = 1 (параллельный запуск)
+WALLETS_TO_WORK = 1             # 0 / 3 / 3, 20 / [3, 20]
 SAVE_PROGRESS = False           # True или False | Включает сохранение прогресса аккаунта для Classic-routes
 TELEGRAM_NOTIFICATIONS = True   # True или False | Включает уведомления в Telegram
 
 
 '------------------------------------------------SLEEP CONTROL---------------------------------------------------------'
-SLEEP_MODE = True              # True или False | Включает сон после каждого модуля и аккаунта
+SLEEP_MODE = False              # True или False | Включает сон после каждого модуля и аккаунта
 SLEEP_TIME = (25, 30)           # (минимум, максимум) секунд | Время сна между модулями.
 SLEEP_TIME_STREAM = (1, 2)    # (минимум, максимум) секунд | Время сна между аккаунтами.
 
@@ -220,7 +220,7 @@ SLEEP_TIME_RETRY = 5            # Время сна после очередно�
 
 
 '------------------------------------------------PROXY CONTROL---------------------------------------------------------'
-USE_PROXY = True               # True или False | Включает использование прокси
+USE_PROXY = False               # True или False | Включает использование прокси
 MOBILE_PROXY = False            # True или False | Включает использование мобильных прокси. USE_PROXY должен быть True
 MOBILE_PROXY_URL_CHANGER = ['',
                             '',
@@ -244,9 +244,9 @@ OKX_API_PASSPHRAS = ""
 
 # EXCEL AND GOOGLE INFO
 EXCEL_PASSWORD = False
-EXCEL_PAGE_NAME = "zkSync"
-GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1snukUIkg5a9eTeewe-nQCjgxF8hlLANWNU2kzGQ9I4M/edit#gid=0"
-GOOGLE_SHEET_PAGE_NAME = "zkSync"
+EXCEL_PAGE_NAME = "Starknet"
+GOOGLE_SHEET_URL = ""
+GOOGLE_SHEET_PAGE_NAME = "Starknet"
 
 # TELEGRAM DATA
 TG_TOKEN = ""  # https://t.me/BotFather
@@ -262,10 +262,12 @@ LAYERSWAP_API_KEY = ""
 """
 -------------------------------------------------STARKNET SETTINGS------------------------------------------------------
 
-    STARKSTARS_NFT_CONTRACTS | Укажите какие NFT ID будут участвовать в минте. Все что в скобках, будут использованы  
+    STARKSTARS_NFT_CONTRACTS | Укажите какие NFT ID будут участвовать в минте. Все что в скобках, будут использованы
+    NEW_WALLET_TYPE | Определяет какой кошелек будет задеплоен, если вы решили создать новый. 0 - ArgentX | 1 - Braavos
 """
 
 STARKSTARS_NFT_CONTRACTS = (1, 2, 3, 20)  # при (0) заминтит случайную новую NFT
+NEW_WALLET_TYPE = 1
 
 """
 ----------------------------------------------GOOGLE-ROUTES CONTROL-----------------------------------------------------
@@ -297,7 +299,9 @@ HELP_NEW_MODULE = False       # True или False | Добавляет случ�
 EXCLUDED_MODULES = ['create_safe']  # Исключает выбранные модули из маршрута. Список в Classic-Routes.
 
 DEPOSIT_CONFIG = {
-    'okx_withdraw'                        : 0,  # смотри OKX настройки
+    'okx_withdraw'                        : 1,  # смотри OKX настройки
+    'upgrade_stark_wallet'                : 0,  # обновляет кошелек, во время маршрута
+    'deploy_stark_wallet'                 : 1,  # деплоит кошелек, после вывода с OKX
     'bridge_rhino'                        : 0,  # смотри Rhino настройки
     'bridge_layerswap'                    : 0,  # смотри LayerSwap настройки
     'bridge_orbiter'                      : 0,  # смотри Orbiter настройки
@@ -332,7 +336,7 @@ DEPOSIT_CONFIG = {
     enable_collateral_basilisk       
     enable_collateral_eralend        
     enable_collateral_reactorfusion  
-    enable_collateral_zeroland       
+    enable_collateral_zerolend       
     swap_izumi                       
     swap_maverick                    
     swap_jediswap                    
@@ -402,8 +406,7 @@ DEPOSIT_CONFIG = {
     ]
 """
 CLASSIC_ROUTES_MODULES_USING = [
-    ['upgrade_stark_wallet'],
-    #['disable_collateral_zklend'],
+    ['disable_collateral_zerolend'],
     # ['enable_collateral_eralend', 'enable_collateral_zerolend'],
     # ['send_message_dmail'],
     # ['mint_tevaera', 'mint_and_bridge_l2telegraph'],
@@ -411,7 +414,7 @@ CLASSIC_ROUTES_MODULES_USING = [
     # ['swap_rango', 'swap_zkswap'],
     # ['refuel_merkly', 'swap_syncswap'],
     # ['mint_domain_zns', 'mint_domain_ens'],
-    # ['wrap_eth', 'swap_pancake'],
+    # [None, 'wrap_eth', 'swap_pancake'],
     # ['swap_mute', 'swap_spacefi', 'swap_pancake'],
     # ['refuel_bungee', 'refuel_merkly'],
     # ['swap_oneinch', 'mint_domain_ens'],

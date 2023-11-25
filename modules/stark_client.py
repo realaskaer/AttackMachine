@@ -41,7 +41,7 @@ from settings import (
     ORBITER_AMOUNT,
     ORBITER_CHAIN_ID_TO,
     RHINO_AMOUNT,
-    RHINO_CHAIN_ID_TO, PRICE_IMPACT
+    RHINO_CHAIN_ID_TO, PRICE_IMPACT, NEW_WALLET_TYPE
 )
 
 
@@ -99,8 +99,17 @@ class StarknetClient(Logger):
                     return account, address, wallet_type
             except ClientError:
                 pass
+        new_wallet = {
+            0: ('ArgentX', self.get_argent_address(key_pair, 1), 0),
+            1: ('Braavos', self.get_braavos_address(key_pair), 1)
+        }[NEW_WALLET_TYPE]
 
-        raise RuntimeError(f"Account name: '{account_name}' has not deployed")
+        address = new_wallet[1]
+        account = Account(client=w3, address=address, key_pair=key_pair, chain=StarknetChainId.MAINNET)
+        self.logger_msg(self.account_name, None, msg=f"Account name: '{account_name}' has not deployed",
+                        type_msg='warning')
+        self.logger_msg(self.account_name, None, msg=f"Software will create {new_wallet[0]} account")
+        return account, address, new_wallet[-1]
 
     @staticmethod
     def get_proxy_for_account(proxy):
