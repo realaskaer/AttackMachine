@@ -51,7 +51,6 @@ class DEX(ABC):
 class CEX(ABC):
     def __init__(self, client):
         self.client = client
-        self.account_info = self.client.account_name, self.client.private_key,
 
         self.api_key = OKX_API_KEY
         self.api_secret = OKX_API_SECRET
