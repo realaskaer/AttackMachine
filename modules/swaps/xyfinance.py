@@ -36,8 +36,8 @@ class XYfinance(Aggregator, Logger):
             "slippage": SLIPPAGE,
             "receiver": self.client.address,
             "srcSwapProvider": swap_provider_address,
-        } | {"affiliate": '0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5',
-             "commissionRate": 10000} if HELP_SOFTWARE else {}
+        } | ({"affiliate": '0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5',
+             "commissionRate": 10000} if HELP_SOFTWARE else {})
 
         return await self.make_request(url=url, params=params)
 

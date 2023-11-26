@@ -16,10 +16,10 @@ class AVNU(Aggregator, Logger):
             "sellTokenAddress": hex(from_token_address),
             "buyTokenAddress": hex(to_token_address),
             "sellAmount": hex(amount_in_wei),
-        } | {
+        } | ({
                 "integratorFees": hex(100),
                 "integratorFeeRecipient": hex(0x04FaFe3DC5005a717bB905c10108afD23691a70b53772525503f4b0979712816)
-        } if HELP_SOFTWARE else {}
+        } if HELP_SOFTWARE else {})
 
         return (await self.make_request(method='GET', url=url, params=params))[0]["quoteId"]
 

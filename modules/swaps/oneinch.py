@@ -23,7 +23,7 @@ class OneInch(Aggregator, Logger):
             "amount": amount,
             "from": self.client.address,
             "slippage": SLIPPAGE,
-        } | {"referrer": '0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5', "fee": 1} if HELP_SOFTWARE else {}
+        } | ({"referrer": '0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5', "fee": 1} if HELP_SOFTWARE else {})
 
         return await self.make_request(url=url, params=params, headers=headers)
 

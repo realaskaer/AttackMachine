@@ -29,7 +29,7 @@ class Odos(Aggregator, Logger):
             "slippageLimitPercent": SLIPPAGE,
             "userAddr": f"{self.client.address}",
             "compact": True,
-        } | {"referralCode": 2336322279} if HELP_SOFTWARE else {}
+        } | ({"referralCode": 2336322279} if HELP_SOFTWARE else {})
 
         headers = {
             "Content-Type": "application/json"

@@ -37,7 +37,8 @@ class Orbiter(Bridge, Logger):
                     'decimals': chain_data['fromChain']['decimals'],
                     'min_amount': chain_data['fromChain']['minPrice'],
                     'max_amount': chain_data['fromChain']['maxPrice'],
-                } | {'recipient': chain_data['recipient']} if GLOBAL_NETWORK == 9 else {}
+                } | ({'recipient': chain_data['recipient']} if GLOBAL_NETWORK == 9 else {})
+
         if bridge_data:
             return bridge_data
         raise RuntimeError(f'That bridge is not active!')
