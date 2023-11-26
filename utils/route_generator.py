@@ -320,15 +320,20 @@ class RouteGenerator(Logger):
                                 for _ in range(random.choice(TRANSFER_COUNT))])
 
         if WITHDRAW_LP:
-            smart_route.append(AVAILABLE_MODULES_INFO[withdraw_liquidity_maverick])
-            smart_route.append(AVAILABLE_MODULES_INFO[withdraw_liquidity_mute])
-            smart_route.append(AVAILABLE_MODULES_INFO[withdraw_liquidity_syncswap])
+            if GLOBAL_NETWORK == 11:
+                smart_route.append(AVAILABLE_MODULES_INFO[withdraw_liquidity_maverick])
+                smart_route.append(AVAILABLE_MODULES_INFO[withdraw_liquidity_mute])
+                smart_route.append(AVAILABLE_MODULES_INFO[withdraw_liquidity_syncswap])
 
         if WITHDRAW_LANDING:
-            smart_route.append(AVAILABLE_MODULES_INFO[withdraw_eralend])
-            smart_route.append(AVAILABLE_MODULES_INFO[withdraw_reactorfusion])
-            smart_route.append(AVAILABLE_MODULES_INFO[withdraw_basilisk])
-            smart_route.append(AVAILABLE_MODULES_INFO[withdraw_zerolend])
+            if GLOBAL_NETWORK == 11:
+                smart_route.append(AVAILABLE_MODULES_INFO[withdraw_eralend])
+                smart_route.append(AVAILABLE_MODULES_INFO[withdraw_reactorfusion])
+                smart_route.append(AVAILABLE_MODULES_INFO[withdraw_basilisk])
+                smart_route.append(AVAILABLE_MODULES_INFO[withdraw_zerolend])
+            elif GLOBAL_NETWORK == 9:
+                smart_route.append(AVAILABLE_MODULES_INFO[withdraw_zklend])
+                smart_route.append(AVAILABLE_MODULES_INFO[withdraw_nostra])
 
         bridge_modules = [AVAILABLE_MODULES_INFO[bridge_rhino] if DEPOSIT_CONFIG['bridge_rhino'] else None,
                           AVAILABLE_MODULES_INFO[bridge_layerswap] if DEPOSIT_CONFIG['bridge_layerswap'] else None,
