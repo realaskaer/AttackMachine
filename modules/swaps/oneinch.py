@@ -11,7 +11,7 @@ class OneInch(Aggregator, Logger):
 
     async def build_swap_transaction(self, from_token_address: str, to_token_address: str, amount: int):
 
-        url = f"https://api.1inch.dev/swap/v5.2/{await self.client.chain_id}/swap"
+        url = f"https://api.1inch.dev/swap/v5.2/{self.client.chain_id}/swap"
 
         headers = {
             'Authorization': f'Bearer {ONEINCH_API_KEY}',
