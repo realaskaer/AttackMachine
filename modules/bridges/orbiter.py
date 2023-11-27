@@ -97,7 +97,7 @@ class Orbiter(Bridge, Logger):
                 transaction = approve_call, bridge_call
             else:
                 transaction = [(await self.client.prepare_transaction(value=full_amount)) | {
-                    'to': bridge_data['maker']
+                    'to': self.client.w3.to_checksum_address(bridge_data['maker'])
                 }]
 
             if min_price <= amount <= max_price:
