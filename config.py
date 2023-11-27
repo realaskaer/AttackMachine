@@ -345,10 +345,10 @@ ZERIUS_CONTRACT_PER_CHAINS = {
     8: {
     'ONFT'                  : '0xEB22C3e221080eAD305CAE5f37F0753970d973Cd'
     },
-    9: {
+    10: {
     'ONFT'                  : '0x4c5AeDA35d8F0F7b67d6EB547eAB1df75aA23Eaf'
     },
-    10: {
+    11: {
     'ONFT'                  : '0x7dA50bD0fb3C2E868069d9271A2aeb7eD943c2D6'
     }
 }
@@ -587,9 +587,9 @@ LAYERZERO_WRAPED_NETWORKS = {
     22: 2,
     24: 7,
     25: 6,
-    26: 9,
+    26: 10,
     27: 8,
-    29: 10,
+    29: 11,
 }
 
 LAYERZERO_NETWORKS_DATA = {
