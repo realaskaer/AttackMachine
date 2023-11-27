@@ -366,7 +366,7 @@ class RouteGenerator(Logger):
                     "current_step": 0,
                     "route": classic_route
                 }
-                accounts_data[account_name] = account_data
+                accounts_data[str(account_name)] = account_data
             json.dump(accounts_data, file, indent=4)
         self.logger_msg(
             None, None,

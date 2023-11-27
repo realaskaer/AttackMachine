@@ -190,7 +190,7 @@ class Runner(Logger):
     async def run_account_modules(self, account_name, private_key, network, proxy, smart_route_type, index):
         message_list, result_list = [], []
         try:
-            route = self.load_routes().get(account_name, {}).get('route')
+            route = self.load_routes().get(str(account_name), {}).get('route')
 
             if not route:
                 raise RuntimeError(f"No route available")
@@ -198,9 +198,7 @@ class Runner(Logger):
             current_step = 0
 
             if SAVE_PROGRESS:
-                current_step = self.load_routes()[account_name]["current_step"]
-
-            await self.smart_sleep(account_name, index, accounts_delay=True)
+                current_step = self.load_routes()[str(account_name)]["current_step"]
 
             module_info = AVAILABLE_MODULES_INFO
             info = CHAIN_NAME[GLOBAL_NETWORK]
@@ -252,6 +250,8 @@ class Runner(Logger):
                 message_list.append(f'{"✅" if result else "❌"}   {AVAILABLE_MODULES_INFO[module_func][2]}\n')
                 result_list.append((result, module_func, account_name))
                 await self.smart_sleep(account_name, account_number=1)
+
+            await self.smart_sleep(account_name, index, accounts_delay=True)
 
             success_count = len([1 for i in result_list if i[0]])
             errors_count = len(result_list) - success_count
