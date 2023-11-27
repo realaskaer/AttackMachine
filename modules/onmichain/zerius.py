@@ -12,6 +12,7 @@ class Zerius(Minter, Logger):
         super().__init__()
         self.client = client
 
+        self.network = self.client.network.name
         self.contract = self.client.get_contract(ZERIUS_CONTRACT_PER_CHAINS[chain_from_id]['ONFT'], ZERIUS_ABI)
 
     async def get_nft_id(self):
@@ -19,7 +20,9 @@ class Zerius(Minter, Logger):
         nft_ids = []
         for i in range(balance_nft):
             nft_ids.append(await self.contract.tokenOfOwnerByIndex(self.client.address, i).call())
-        return nft_ids[-1]
+        if nft_ids:
+            return nft_ids[-1]
+        return False
 
     async def get_estimate_gas_bridge_fee(self, adapter_params, dst_chain_id, nft_id):
 
@@ -39,7 +42,8 @@ class Zerius(Minter, Logger):
 
         mint_price = await self.contract.functions.mintFee().call()
 
-        self.logger_msg(*self.client.acc_info, msg=f"Mint Zerius NFT. Price: {(mint_price / 10 ** 18):.5f}")
+        self.logger_msg(
+            *self.client.acc_info, msg=f"Mint Zerius NFT on {self.network}. Price: {(mint_price / 10 ** 18):.5f}")
 
         tx_params = await self.client.prepare_transaction(value=mint_price)
 
@@ -58,8 +62,11 @@ class Zerius(Minter, Logger):
 
         if not nft_id:
             await self.mint()
+            nft_id = await self.get_nft_id()
 
-        self.logger_msg(*self.client.acc_info, msg=f"Bridge Zerius NFT to {dst_chain_name}. ID: {nft_id}")
+        self.logger_msg(
+            *self.client.acc_info,
+            msg=f"Bridge Zerius NFT from {self.network} to {dst_chain_name.capitalize()}. ID: {nft_id}")
 
         await sleep(5, 10)
 
