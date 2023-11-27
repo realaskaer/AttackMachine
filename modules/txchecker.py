@@ -1,4 +1,5 @@
 import asyncio
+import os
 import random
 
 import pandas as pd
@@ -196,6 +197,9 @@ async def main():
                'light_yellow', attrs=["blink"])
         await asyncio.sleep(1)
         xlsx_data = pd.DataFrame(wallet_data)
+        directory = './data/accounts_stats/'
+        if not os.path.exists(directory):
+            os.makedirs(directory)
         xlsx_data.to_excel('./data/accounts_stats/wallets_stats.xlsx', index=False)
 
         [table.add_row(data.values()) for data in wallet_data]
