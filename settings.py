@@ -1,4 +1,21 @@
 """
+----------------------------------------------AMOUNT CONTROL------------------------------------------------------------
+    Здесь вы определяете количество или % токенов для обменов, добавления ликвидности, депозитов и трансферов
+    Софт берет % только для ETH, остальные токены берутся на 100% от баланса
+
+    Можно указать минимальную/максимальную сумму или минимальный/максимальный % от баланса
+
+    Количество - (0.01, 0.02)
+    Процент    - ("55", "60") ⚠️ Значения в скобках
+
+    MIN_BALANCE | Минимальный баланс для аккаунта. При меньшем балансе будет ошибка: (Insufficient balance on account!)
+"""
+AMOUNT_PERCENT = (50, 60)  # Применяется для обменов
+LIQUIDITY_AMOUNT = (0.0005, 0.001)  # Применяется для добавления ликвидности, депозитов на лендинги и wrap ETH
+TRANSFER_AMOUNT = (0.00001, 0.00005)  # Применяется для трансферов
+MIN_BALANCE = 0.001  # Количество ETH на аккаунте
+
+"""
 -------------------------------------------------OKX WITHDRAW-----------------------------------------------------------
     Выберите сети для вывода и ввода с OKX. Софт работает только с токеном ETH. Не забудьте вставить API ключи снизу.
 
@@ -9,6 +26,7 @@
     5 - ETH-Starknet
     6 - ETH-zkSync Era
     7 - ETH-Linea
+    8 - ETH-Base
 
     OKX_BRIDGE_NEED | Если включен(стоит True), то перед депозитом на биржу софт сделает бридж в сеть из который
                         планируется пополнять OKX. Если сеть для пополнения OKX есть в списке сверху, то ставьте False
@@ -20,85 +38,42 @@
 
 ------------------------------------------------------------------------------------------------------------------------
 """
-OKX_WITHDRAW_NETWORK = 5              # Сеть вывода из OKX
-OKX_WITHDRAW_AMOUNT = (0.001, 0.0015)  # (минимальная, максимальная) сумма в ETH для вывода
+OKX_WITHDRAW_NETWORK = 7               # Сеть вывода из OKX
+OKX_WITHDRAW_AMOUNT = (0.006, 0.007)  # (минимальная, максимальная) сумма в ETH для вывода
 
 OKX_BRIDGE_NEED = False                # True или False | Включает бридж в выбранную сеть (OKX_DEPOSIT_NETWORK)
-OKX_BRIDGE_MODE = [1]                 # Мосты для бриджа в сеть пополнения OKX
-OKX_BRIDGE_AMOUNT = 90               # % от баланса основной сети (GLOBAL_NETWORK)
-OKX_DEPOSIT_NETWORK = 5               # Сеть из которой планируется пополнение OKX
-OKX_DEPOSIT_AMOUNT = (0.001, 0.001)   # (минимальная, максимальная) сумма в ETH на пополнение OKX
+OKX_BRIDGE_MODE = [1]                  # Мосты для бриджа в сеть пополнения OKX
+OKX_BRIDGE_AMOUNT = (0.001, 0.001)     # (минимальная, максимальная) сумма в ETH для бриджа из основной сети
 
-"""
---------------------------------------------------Native Bridge---------------------------------------------------------
-    Официальные мосты для бриджей из ERC20. Укажите сумму для бриджа/вывода в ETH. 
-
-    Можно указать минимальную/максимальную сумму или минимальный/максимальный % от баланса
-    
-    Количество - (0.01, 0.02)
-    Процент    - ("10", "20") ⚠️ Значения в скобках
-"""
-NATIVE_DEPOSIT_AMOUNT = (0.01, 0.02)    # (минимум, максимум) ETH или %
-NATIVE_WITHDRAW_AMOUNT = (0.001, 0.02)  # (минимум, максимум) ETH или %
+OKX_DEPOSIT_NETWORK = 5                # Сеть из которой планируется пополнение OKX
+OKX_DEPOSIT_AMOUNT = (0.001, 0.001)    # (минимальная, максимальная) сумма в ETH на пополнение OKX
 
 """
 ------------------------------------------------LayerSwap Bridge--------------------------------------------------------
     Проверьте руками, работает ли сеть на сайте. (Софт сам проверит, но зачем его напрягать?)
     Софт работает только с токеном ETH. Не забудьте вставить API ключи снизу.
+    
+    Можно указать минимальную/максимальную сумму или минимальный/максимальный % от баланса
+    
+    Количество - (0.01, 0.02)
+    Процент    - ("10", "20") ⚠️ Значения в скобках
        
     Arbitrum = 1            Optimism = 7
     Arbitrum Nova = 2       Scroll = 8  
     Base = 3                Starknet = 9   
     Linea = 4               Polygon ZKEVM = 10    
     Manta = 5               zkSync Era = 11  
-    Polygon = 6             Zora = 12
-                            zkSync Lite = 13
+   *Polygon = 6            *Zora = 12
+                           *zkSync Lite = 13
     
-    LAYERSWAP_CHAIN_ID_FROM(TO) = [2, 4, 16] | Одна из сетей будет выбрана
-    LAYERSWAP_REFUEL | Добавляет немного нативного токена в сеть пополнения
+    * - не поддерживается в Rhino.fi
+    BRIDGE_CHAIN_ID_FROM(TO) = [2, 4, 16] | Одна из сетей будет выбрана
+    BRIDGE_WITHDRAW_AMOUNT | Настройка для вывода из нативного моста
 """
-LAYERSWAP_CHAIN_ID_FROM = [9]   # Исходящая сеть
-LAYERSWAP_CHAIN_ID_TO = [1]        # Входящая сеть
-LAYERSWAP_AMOUNT = (0.003, 0.004)   # (минимум, максимум) ETH или %
-LAYERSWAP_REFUEL = False            # True or False
-
-"""
-------------------------------------------------Orbiter Bridge----------------------------------------------------------
-    Проверьте руками, работает ли сеть на сайте. (Софт сам проверит, но зачем его напрягать?)
-    Софт работает только с токеном ETH.
-
-    Arbitrum = 1            Optimism = 7
-    Arbitrum Nova = 2       Scroll = 8  
-    Base = 3                Starknet = 9   
-    Linea = 4               Polygon ZKEVM = 10    
-    Manta = 5               zkSync Era = 11  
-    Polygon = 6             Zora = 12
-                            zkSync Lite = 13
-
-    ORBITER_CHAIN_ID_FROM(TO) = [2, 4, 11] | Одна из сетей будет выбрана
-"""
-ORBITER_CHAIN_ID_FROM = [9]          # Исходящая сеть
-ORBITER_CHAIN_ID_TO = [1]            # Входящая сеть
-ORBITER_AMOUNT = (0.001, 0.001)      # (минимум, максимум) ETH или %
-
-"""
--------------------------------------------------Rhino Bridge-----------------------------------------------------------
-    Проверьте руками, работает ли сеть на сайте. (Софт сам проверит, но зачем его напрягать?)
-    Софт работает только с токеном ETH.
-    
-    Arbitrum = 1           *Polygon = 6
-    Arbitrum Nova = 2       Optimism = 7
-    Base = 3                Scroll = 8  
-    Linea = 4               Starknet = 9       
-    Manta = 5               Polygon ZKEVM = 10         
-                            zkSync Era = 11   
-                            
-    * - Не работает для RHINO_CHAIN_ID_FROM                
-    RHINO_CHAIN_ID_FROM(TO) = [2, 3, 10] | Одна из сетей будет выбрана
-"""
-RHINO_CHAIN_ID_FROM = [1]              # Исходящая сеть
-RHINO_CHAIN_ID_TO = [11]                # Входящая сеть
-RHINO_AMOUNT = (0.004, 0.005)          # (минимум, максимум) ETH или %
+BRIDGE_CHAIN_ID_FROM = [1]   # Исходящая сеть
+BRIDGE_CHAIN_ID_TO = [8]        # Входящая сеть
+BRIDGE_DEPOSIT_AMOUNT = (0.007, 0.008)    # (минимум, максимум) ETH или %
+BRIDGE_WITHDRAW_AMOUNT = (0.003, 0.004)   # (минимум, максимум) ETH или %
 
 """
 ---------------------------------------------OMNI-CHAIN CONTROL---------------------------------------------------------
@@ -120,24 +95,32 @@ RHINO_AMOUNT = (0.004, 0.005)          # (минимум, максимум) ETH 
         Harmony = 14              Tenet = 28
                                  *zkSync Era = 29
 
-    SOURCE_CHAIN_ZERIUS = [27, 29] | Одна из сетей будет выбрана (BRIDGE NFT)
+    SOURCE_CHAIN_ZERIUS = [27, 29] | Одна из сетей будет выбрана (REFUEL/BRIDGE NFT)
     SOURCE_CHAIN_MERKLY = [27, 29] | Одна из сетей будет выбрана (REFUEL)
-    DESTINATION_MERKLY_AMOUNT = {
+    DESTINATION_MERKLY_DATA = {
         1: (0.0016, 0.002), # Chain ID: (минимум, максимум) в нативном токене входящей сети**
         2: (0.0002, 0.0005) 
     } 
+    
+    DESTINATION_ZERIUS_DATA | Аналогично DESTINATION_MERKLY_DATA
     
     *   - Могут быть использованы как исходящие сеть для Zerius, Merkly
     (B) - Поддерживаемые входящие сети в Bungee
     **  - Сумму для Merkly нужно подавать в нативном токене входящей сети. И указывайте на 5-10% меньше от лимита,
             во избежания ошибок работы софта. Смотреть лимиты можно здесь https://minter.merkly.com/gas  
 """
-SOURCE_CHAIN_ZERIUS = [27, 29]  # Исходящая сеть для Zerius
+SOURCE_CHAIN_ZERIUS = [5]  # Исходящая сеть для Zerius
 DESTINATION_ZERIUS = [1, 4, 8]  # Входящая сеть для Zerius
 
-SOURCE_CHAIN_MERKLY = [1]       # Исходящая сеть для Merkly
+DESTINATION_ZERIUS_DATA = {
+    29: (0.0001, 0.0002),  # Chain ID: (минимум, максимум) в нативном токене входящей сети**
+    27: (0.0001, 0.0002)
+}
+
+
+SOURCE_CHAIN_MERKLY = [29]       # Исходящая сеть для Merkly
 DESTINATION_MERKLY_DATA = {
-    27: (0.01, 0.01),  # Chain ID: (минимум, максимум) в нативном токене входящей сети**
+    2: (0.01, 0.02),  # Chain ID: (минимум, максимум) в нативном токене входящей сети**
     28: (0.04, 0.05)
 }
 
@@ -147,24 +130,6 @@ DESTINATION_BUNGEE_DATA = {
 }
 
 DESTINATION_L2TELEGRAPH = [22]  # Входящая сеть для L2Telegraph. Можно указать несколько ([1, 2]) и будет выбрана одна.
-
-"""
-----------------------------------------------AMOUNT CONTROL------------------------------------------------------------
-    Здесь вы определяете количество или % токенов для обменов, добавления ликвидности, депозитов и трансферов
-    Софт берет % только для ETH, остальные токены берутся на 100% от баланса
-    
-    Можно указать минимальную/максимальную сумму или минимальный/максимальный % от баланса
-    
-    Количество - (0.01, 0.02)
-    Процент    - ("10", "20") ⚠️ Значения в скобках
-    
-    MIN_BALANCE | Минимальный баланс для аккаунта. При меньшем балансе, будет ошибка: (Insufficient balance on account!)
-"""
-AMOUNT_PERCENT = (50, 60)             # Применяется для обменов
-LANDING_AMOUNT = (0.0005, 0.001)      # Применяется для депозитов на лендинги и wrap ETH
-DEX_LP_AMOUNT = (0.0005, 0.001)       # Применяется для добавления ликвидности
-TRANSFER_AMOUNT = (0.00001, 0.00005)  # Применяется для трансферов
-MIN_BALANCE = 0.001                   # Количество ETH на аккаунте
 
 """
 ------------------------------------------------GENERAL SETTINGS--------------------------------------------------------
@@ -193,29 +158,29 @@ MIN_BALANCE = 0.001                   # Количество ETH на аккау
     GOOGLE_SHEET_URL        | Ссылка на вашу Google таблицу с прогрессом аккаунтов
     GOOGLE_SHEET_PAGE_NAME  | Аналогично EXCEL_PAGE_NAME   
 """
-GLOBAL_NETWORK = 9              # 16.11.2023 поддерживается только zkSync и Starknet. Следите за новостями.
-SOFTWARE_MODE = 1               # 0 - последовательный запуск / 1 - параллельный запуск
-ACCOUNTS_IN_STREAM = 1        # Только для SOFTWARE_MODE = 1 (параллельный запуск)
-WALLETS_TO_WORK = 1             # 0 / 3 / 3, 20 / [3, 20]
+GLOBAL_NETWORK = 11             # 16.11.2023 поддерживается только zkSync и Starknet. Следите за новостями.
+SOFTWARE_MODE = 0               # 0 - последовательный запуск / 1 - параллельный запуск
+ACCOUNTS_IN_STREAM = 1          # Только для SOFTWARE_MODE = 1 (параллельный запуск)
+WALLETS_TO_WORK = 0             # 0 / 3 / 3, 20 / [3, 20]
 SAVE_PROGRESS = False           # True или False | Включает сохранение прогресса аккаунта для Classic-routes
-TELEGRAM_NOTIFICATIONS = True   # True или False | Включает уведомления в Telegram
+TELEGRAM_NOTIFICATIONS = False  # True или False | Включает уведомления в Telegram
 
 
 '------------------------------------------------SLEEP CONTROL---------------------------------------------------------'
 SLEEP_MODE = False              # True или False | Включает сон после каждого модуля и аккаунта
 SLEEP_TIME = (25, 30)           # (минимум, максимум) секунд | Время сна между модулями.
-SLEEP_TIME_STREAM = (1, 2)    # (минимум, максимум) секунд | Время сна между аккаунтами.
+SLEEP_TIME_STREAM = (10, 20)    # (минимум, максимум) секунд | Время сна между аккаунтами.
 
 '-------------------------------------------------GAS CONTROL----------------------------------------------------------'
 GAS_CONTROL = False             # True или False | Включает контроль газа
 MAXIMUM_GWEI = 40               # Максимальный GWEI для работы софта
-SLEEP_TIME_GAS = 10             # Время очередной проверки газа
+SLEEP_TIME_GAS = 100            # Время очередной проверки газа
 CONTROL_TIMES_FOR_SLEEP = 3     # Количество проверок
-GAS_MULTIPLIER = 1.1            # Множитель газа для транзакций
+GAS_MULTIPLIER = 1.5            # Множитель газа для транзакций
 
 
 '------------------------------------------------RETRY CONTROL---------------------------------------------------------'
-MAXIMUM_RETRY = 0               # Количество повторений при ошибках
+MAXIMUM_RETRY = 2               # Количество повторений при ошибках
 SLEEP_TIME_RETRY = 5            # Время сна после очередного повторения
 
 
@@ -228,7 +193,7 @@ MOBILE_PROXY_URL_CHANGER = ['',
 
 
 '-----------------------------------------------SLIPPAGE CONTROL-------------------------------------------------------'
-SLIPPAGE = 1                # 0.54321 = 0.54321%, 1 = 1% | Slippage, на сколько % вы готовы получить меньше
+SLIPPAGE = 2                # 0.54321 = 0.54321%, 1 = 1% | Slippage, на сколько % вы готовы получить меньше
 PRICE_IMPACT = 3            # 0.54321 = 0.54321%, 1 = 1% | Максимальное влияние на цену при обменах токенов
 
 
@@ -244,9 +209,9 @@ OKX_API_PASSPHRAS = ""
 
 # EXCEL AND GOOGLE INFO
 EXCEL_PASSWORD = False
-EXCEL_PAGE_NAME = "Starknet"
+EXCEL_PAGE_NAME = ""
 GOOGLE_SHEET_URL = ""
-GOOGLE_SHEET_PAGE_NAME = "Starknet"
+GOOGLE_SHEET_PAGE_NAME = ""
 
 # TELEGRAM DATA
 TG_TOKEN = ""  # https://t.me/BotFather
@@ -260,13 +225,14 @@ LAYERSWAP_API_KEY = ""
 
 
 """
--------------------------------------------------STARKNET SETTINGS------------------------------------------------------
+--------------------------------------------------OTHER SETTINGS--------------------------------------------------------
 
     STARKSTARS_NFT_CONTRACTS | Укажите какие NFT ID будут участвовать в минте. Все что в скобках, будут использованы
     NEW_WALLET_TYPE | Определяет какой кошелек будет задеплоен, если вы решили создать новый. 0 - ArgentX | 1 - Braavos
 """
 
 STARKSTARS_NFT_CONTRACTS = (1, 2, 3, 20)  # при (0) заминтит случайную новую NFT
+ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 20)  # при (0) заминтит случайную новую NFT
 NEW_WALLET_TYPE = 1
 
 """
@@ -283,25 +249,25 @@ NEW_WALLET_TYPE = 1
     
 """
 
-DMAIL_IN_ROUTES = True       # True или False | Включает Dmail в маршрут
-TRANSFER_IN_ROUTES = False    # True или False | Включает трансферы в маршрут
+DMAIL_IN_ROUTES = False       # True или False | Включает Dmail в маршрут
+TRANSFER_IN_ROUTES = True    # True или False | Включает трансферы в маршрут
 COLLATERAL_IN_ROUTES = True  # True или False | Включает случайное вкл/выкл страховки в маршрут
 
 DMAIL_COUNT = (1, 1)          # (минимум, максимум) дополнительных транзакций для Dmail
 TRANSFER_COUNT = (1, 2)       # (минимум, максимум) дополнительных транзакций для трансферов
 COLLATERAL_COUNT = (1, 2)     # (минимум, максимум) дополнительных транзакций для вкл/выкл страхования
 
-MODULES_COUNT = (5, 6)        # (минимум, максимум) неотработанных модулей из Google таблице
+MODULES_COUNT = (2, 3)        # (минимум, максимум) неотработанных модулей из Google таблицы
 ALL_MODULES_TO_RUN = False    # True или False | Включает все неотработанные модули в маршрут
 WITHDRAW_LP = False           # True или False | Включает в маршрут все модули для вывода ликвидности из DEX
 WITHDRAW_LANDING = False      # True или False | Включает в маршрут все модули для вывода ликвидности из лендингов
 HELP_NEW_MODULE = False       # True или False | Добавляет случайный модуль при неудачном выполнении модуля из маршрута
-EXCLUDED_MODULES = ['create_safe']  # Исключает выбранные модули из маршрута. Список в Classic-Routes.
+EXCLUDED_MODULES = ['swap_openocean']  # Исключает выбранные модули из маршрута. Список в Classic-Routes.
 
 DEPOSIT_CONFIG = {
-    'okx_withdraw'                        : 1,  # смотри OKX настройки
+    'okx_withdraw'                        : 0,  # смотри OKX настройки
     'upgrade_stark_wallet'                : 0,  # обновляет кошелек, во время маршрута
-    'deploy_stark_wallet'                 : 1,  # деплоит кошелек, после вывода с OKX
+    'deploy_stark_wallet'                 : 0,  # деплоит кошелек, после вывода с OKX
     'bridge_rhino'                        : 0,  # смотри Rhino настройки
     'bridge_layerswap'                    : 0,  # смотри LayerSwap настройки
     'bridge_orbiter'                      : 0,  # смотри Orbiter настройки
@@ -336,7 +302,6 @@ DEPOSIT_CONFIG = {
     enable_collateral_basilisk       
     enable_collateral_eralend        
     enable_collateral_reactorfusion  
-    enable_collateral_zerolend       
     swap_izumi                       
     swap_maverick                    
     swap_jediswap                    
@@ -358,7 +323,7 @@ DEPOSIT_CONFIG = {
     create_safe                      # создает сейф в сети
     mint_and_bridge_l2telegraph      # mint и bridge nft через L2Telegraph
     mint_domain_ens                  # 0.003 ETH domain
-    mint_domain_zns                  # бесплатный domain
+    mint_domain_zns                  # 0.003 ETH domain
     mint_mailzero                    # mint бесплатной NFT on MainZero
     mint_tevaera                     # mint 2 NFT on Tevaera
     mint_zerius                      # mint NFT on Zerius
@@ -391,6 +356,77 @@ DEPOSIT_CONFIG = {
     mint_starkstars
     withdraw_nostra
     withdraw_zklend
+
+------------------------------------------------------BASE--------------------------------------------------------------        
+
+    swap_pancake
+    swap_uniswap
+    swap_sushiswap
+    swap_woofi
+    swap_maverick
+    swap_izumi
+    swap_odos
+    swap_oneinch
+    swap_openocean
+    swap_xyfinance
+    deposit_rocketsam
+    withdraw_rocketsam
+    create_safe
+    mint_zkstars
+    mint_zerius
+    bridge_zerius
+    mint_and_bridge_l2telegraph
+    deploy_contract
+    refuel_bungee
+    refuel_merkly
+    refuel_zerius
+    send_message_l2telegraph
+
+------------------------------------------------------LINEA-------------------------------------------------------------        
+
+    swap_syncswap
+    swap_pancake
+    swap_woofi
+    swap_velocore
+    swap_izumi
+    swap_rango
+    swap_openocean
+    swap_xyfinance
+    deposit_layerbank
+    withdraw_layerbank
+    deposit_rocketsam
+    withdraw_rocketsam
+    create_omnisea
+    mint_zkstars
+    mint_zerius
+    bridge_zerius
+    mint_and_bridge_l2telegrap,
+    deploy_contract
+    refuel_merkly
+    refuel_zerius
+    send_message_l2telegraph
+
+-------------------------------------------------------SCROLL-----------------------------------------------------------        
+
+    swap_syncswap
+    swap_spacefi
+    swap_izumi
+    swap_openocean
+    swap_xyfinance
+    deposit_layerbank
+    withdraw_layerbank
+    deposit_rocketsam
+    withdraw_rocketsam
+    create_omnisea
+    mint_zkstars
+    mint_zerius
+    bridge_zerius
+    mint_and_bridge_l2telegraph
+    deploy_contract
+    refuel_merkly
+    refuel_zerius
+    send_message_l2telegraph
+    
     
     Роуты для настоящих древлян (Машина - зло).
     Выберите необходимые модули для взаимодействия
@@ -406,20 +442,21 @@ DEPOSIT_CONFIG = {
     ]
 """
 CLASSIC_ROUTES_MODULES_USING = [
-    ['disable_collateral_zerolend'],
-    # ['enable_collateral_eralend', 'enable_collateral_zerolend'],
-    # ['send_message_dmail'],
-    # ['mint_tevaera', 'mint_and_bridge_l2telegraph'],
-    # ['enable_collateral_basilisk', 'enable_collateral_eralend', None],
-    # ['swap_rango', 'swap_zkswap'],
-    # ['refuel_merkly', 'swap_syncswap'],
-    # ['mint_domain_zns', 'mint_domain_ens'],
-    # [None, 'wrap_eth', 'swap_pancake'],
-    # ['swap_mute', 'swap_spacefi', 'swap_pancake'],
-    # ['refuel_bungee', 'refuel_merkly'],
-    # ['swap_oneinch', 'mint_domain_ens'],
-    # ['mint_mailzero', 'swap_vesync'],
-    # ['withdraw_txsync']
+    ['create_omnisea'],
+    ['okx_withdraw'],
+    ['send_message_dmail'],
+    ['random_approve', 'enable_collateral_zklend', 'send_message_dmail'],
+    ['enable_collateral_eralend', 'enable_collateral_zerolend'],
+    ['send_message_dmail'],
+    ['mint_tevaera', 'mint_and_bridge_l2telegraph'],
+    ['enable_collateral_basilisk', 'enable_collateral_eralend', None],
+    ['swap_rango', 'swap_zkswap'],
+    ['refuel_merkly', 'swap_syncswap'],
+    ['mint_domain_zns', 'mint_domain_ens'],
+    [None, 'wrap_eth', 'swap_pancake'],
+    ['swap_mute', 'swap_spacefi', 'swap_pancake'],
+    ['refuel_bungee', 'refuel_merkly'],
+    ['swap_oneinch', 'mint_domain_ens'],
+    ['mint_mailzero', 'swap_vesync'],
+    ['withdraw_txsync']
 ]
-
-

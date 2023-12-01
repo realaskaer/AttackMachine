@@ -20,3 +20,5 @@ from .tenkswap import TenkSwap
 from .protoss import Protoss
 from .myswap import MySwap
 from .sithswap import SithSwap
+from .uniswap import Uniswap
+from .sushiswap import SushiSwap

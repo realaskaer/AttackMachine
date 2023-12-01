@@ -18,21 +18,29 @@ class Maverick(DEX, Logger):
     def __init__(self, client):
         super().__init__()
         self.client = client
+        self.network = self.client.network.name
+        self.router_contract = self.client.get_contract(
+            MAVERICK_CONTRACTS[self.network]['router'],
+            MAVERICK_ROUTER_ABI
+        )
+        self.pool_info_contract = self.client.get_contract(
+            MAVERICK_CONTRACTS[self.network]['pool_information'],
+            MAVERICK_POOL_INFORMATION_ABI
+        )
+        self.position_contract = self.client.get_contract(
+            MAVERICK_CONTRACTS[self.network]['position'],
+            MAVERICK_POSITION_ABI
+        )
+        self.position_inspector_contract = self.client.get_contract(
+            MAVERICK_CONTRACTS[self.network]['position_inspector'],
+            MAVERICK_POSITION_INSPECTOR_ABI
+        )
 
-        self.router_contract = self.client.get_contract(MAVERICK_CONTRACTS['router'], MAVERICK_ROUTER_ABI)
-        self.pool_info_contract = self.client.get_contract(MAVERICK_CONTRACTS['pool_information'],
-                                                           MAVERICK_POOL_INFORMATION_ABI)
-        self.position_contract = self.client.get_contract(MAVERICK_CONTRACTS['position'], MAVERICK_POSITION_ABI)
-        self.position_inspector_contract = self.client.get_contract(MAVERICK_CONTRACTS['position_inspector'],
-                                                                    MAVERICK_POSITION_INSPECTOR_ABI)
-
-    async def get_min_amount_out(self, pool_address:str, from_token_name: str, amount_in_wei: int):
-        min_amount_out = await self.pool_info_contract.functions.calculateSwap(
-            pool_address,
+    async def get_min_amount_out(self, path:bytes, amount_in_wei: int):
+        min_amount_out = await self.pool_info_contract.functions.calculateMultihopSwap(
+            path,
             amount_in_wei,
-            True if from_token_name == 'ETH' else False,
             True,
-            0
         ).call()
 
         return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE))
@@ -42,50 +50,39 @@ class Maverick(DEX, Logger):
         path_data = [from_token_address, pool_address, to_token_address]
         return b"".join((bytes.fromhex(address[2:]) for address in path_data))
 
-    @staticmethod
-    def get_pool_address(from_token_name, to_token_name):
-        token_pair_with_pool_address = {
-            ('ETH', 'USDC'): MAVERICK_CONTRACTS['pool_eth_usdc'],
-            ('USDC', 'ETH'): MAVERICK_CONTRACTS['pool_eth_usdc'],
-            # ('ETH', 'MAV'): MAVERICK_CONTRACTS['pool_eth_mav'],
-            # ('MAV', 'ETH'): MAVERICK_CONTRACTS['pool_eth_mav'],
-            ('BUSD', 'ETH'): MAVERICK_CONTRACTS['pool_busd_eth'],
-            ('ETH', 'BUSD'): MAVERICK_CONTRACTS['pool_busd_eth'],
-            ('BUSD', 'USDC'): MAVERICK_CONTRACTS['pool_busd_usdc'],
-            ('USDC', 'BUSD'): MAVERICK_CONTRACTS['pool_busd_usdc'],
-            # ('USDC', 'MAV'): MAVERICK_CONTRACTS['pool_usdc_mav'],
-            # ('MAV', 'USDC'): MAVERICK_CONTRACTS['pool_usdc_mav'],
-            # ('BUSD', 'MAV'): MAVERICK_CONTRACTS['pool_busd_mav'],
-            # ('MAV', 'BUSD'): MAVERICK_CONTRACTS['pool_busd_mav']
-        }
-
-        return token_pair_with_pool_address[from_token_name, to_token_name]
+    def get_pool_address(self, from_token_name, to_token_name):
+        pool_address = MAVERICK_CONTRACTS[self.network].get(f"{from_token_name}-{to_token_name}")
+        if pool_address is None:
+            pool_address = MAVERICK_CONTRACTS[self.network].get(f"{to_token_name}-{from_token_name}")
+        if pool_address is None:
+            raise RuntimeError('Maverick does not support this pool')
+        return pool_address
 
     @repeater
     @gas_checker
     async def swap(self):
-
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount(class_name='Maverick')
 
         self.logger_msg(*self.client.acc_info, msg=f'Swap on Maverick: {amount} {from_token_name} -> {to_token_name}')
 
-        from_token_address, to_token_address = (TOKENS_PER_CHAIN[self.client.network.name][from_token_name],
-                                                TOKENS_PER_CHAIN[self.client.network.name][to_token_name])
+        from_token_address, to_token_address = (TOKENS_PER_CHAIN[self.network][from_token_name],
+                                                TOKENS_PER_CHAIN[self.network][to_token_name])
 
-        if from_token_name != 'ETH':
-            await self.client.check_for_approved(from_token_address, MAVERICK_CONTRACTS['router'], amount_in_wei)
-
-        tx_params = await self.client.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
         pool_address = self.get_pool_address(from_token_name, to_token_name)
         deadline = int(time()) + 1800
-        min_amount_out = await self.get_min_amount_out(pool_address, from_token_name, amount_in_wei)
-
+        path = self.get_path(from_token_address, pool_address, to_token_address)
+        min_amount_out = await self.get_min_amount_out(path, amount_in_wei)
         await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
+
+        if from_token_name != 'ETH':
+            await self.client.check_for_approved(
+                from_token_address, MAVERICK_CONTRACTS[self.network]['router'], amount_in_wei
+            )
 
         tx_data = self.router_contract.encodeABI(
             fn_name='exactInput',
             args=[(
-                self.get_path(from_token_address, pool_address, to_token_address),
+                path,
                 self.client.address if to_token_name != 'ETH' else ZERO_ADDRESS,
                 deadline,
                 amount_in_wei,
@@ -105,6 +102,7 @@ class Maverick(DEX, Logger):
             )
             full_data.append(tx_additional_data)
 
+        tx_params = await self.client.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
         transaction = await self.router_contract.functions.multicall(
             full_data
         ).build_transaction(tx_params)
@@ -114,17 +112,14 @@ class Maverick(DEX, Logger):
     @repeater
     @gas_checker
     async def add_liquidity(self):
-
-        amount_from_settings, amount_from_settings_in_wei = await self.client.check_and_get_eth_for_liquidity()
+        amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
 
         self.logger_msg(
-            *self.client.acc_info, msg=f'Add liquidity to Maverick USDC/ETH pool: {amount_from_settings} ETH')
-
-        tx_params = await self.client.prepare_transaction(value=amount_from_settings_in_wei)
+            *self.client.acc_info, msg=f'Add liquidity to Maverick USDC/ETH pool: {amount} ETH')
 
         deadline = int(time()) + 1800
-        delta_b = amount_from_settings_in_wei - 100000001
-        amount_eth_min = int(amount_from_settings_in_wei * 0.9804)
+        delta_b = amount_in_wei - 100000001
+        amount_eth_min = int(amount_in_wei * 0.9804)
         position_id = await self.position_contract.functions.tokenOfOwnerByIndex(self.client.address, 0).call()
         pool_contact = self.client.get_contract(MAVERICK_CONTRACTS['pool_eth_usdc'], MAVERICK_POOL_ABI)
         pos = (await pool_contact.functions.getState().call())[0] + 1
@@ -153,6 +148,7 @@ class Maverick(DEX, Logger):
             fn_name='refundETH'
         )
 
+        tx_params = await self.client.prepare_transaction(value=amount_in_wei)
         transaction = await self.router_contract.functions.multicall(
             [tx_data, tx_additional_data]
         ).build_transaction(tx_params)
@@ -171,7 +167,6 @@ class Maverick(DEX, Logger):
 
         if liquidity_balance != 0:
 
-            tx_params = await self.client.prepare_transaction()
             min_amount_eth_out = int(liquidity_balance * 0.98)
             deadline = int(time()) + 1800
             position_id = await self.position_contract.functions.tokenOfOwnerByIndex(self.client.address, 0).call()
@@ -232,6 +227,7 @@ class Maverick(DEX, Logger):
                 ]
             )
 
+            tx_params = await self.client.prepare_transaction()
             transaction = await self.router_contract.functions.multicall(
                 [tx_bin_ids_data, tx_data, tx_additional_data, tx_sweep_data]
             ).build_transaction(tx_params)

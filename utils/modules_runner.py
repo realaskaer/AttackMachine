@@ -5,9 +5,10 @@ import telebot
 from aiohttp import ClientSession
 
 from modules import Logger
-from utils.networks import Ethereum
+from utils.networks import EthereumRPC
 from web3 import AsyncWeb3, AsyncHTTPProvider
 from functions import get_network_by_chain_id
+from utils.tools import clean_progress_file
 from utils.route_generator import RouteGenerator, AVAILABLE_MODULES_INFO, get_func_by_name
 from config import ACCOUNT_NAMES, PRIVATE_KEYS_EVM, PRIVATE_KEYS, PROXIES, CHAIN_NAME
 from settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, HELP_NEW_MODULE, TG_ID, TG_TOKEN, MOBILE_PROXY,
@@ -165,7 +166,8 @@ class Runner(Logger):
 
     async def check_proxy_status(self, account_name: str = None, proxy: str = None, silence: bool = False):
         try:
-            w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(Ethereum.rpc), request_kwargs={"proxy": f"http://{proxy}"}))
+            w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(EthereumRPC.rpc),
+                                             request_kwargs={"proxy": f"http://{proxy}"}))
             if await w3.is_connected():
                 if not silence:
                     info = f'Proxy {proxy[proxy.find("@"):]} successfully connected to Ethereum RPC'
@@ -205,6 +207,8 @@ class Runner(Logger):
 
             message_list.append(
                 f'*⚔️ {info} \\| Account name: "{account_name}"\n \n{len(route)} module\\(s\\) in route\n')
+
+            await self.smart_sleep(account_name, index, accounts_delay=True)
 
             while current_step < len(route):
                 module_func = get_func_by_name(route[current_step])
@@ -251,8 +255,6 @@ class Runner(Logger):
                 result_list.append((result, module_func, account_name))
                 await self.smart_sleep(account_name, account_number=1)
 
-            await self.smart_sleep(account_name, index, accounts_delay=True)
-
             success_count = len([1 for i in result_list if i[0]])
             errors_count = len(result_list) - success_count
             message_list.append(f'Total result:    ✅   —   {success_count}    \\|    ❌   —   {errors_count}*')
@@ -284,6 +286,8 @@ class Runner(Logger):
         num_accounts = len(selected_wallets)
         accounts_per_stream = ACCOUNTS_IN_STREAM
         num_streams, remainder = divmod(num_accounts, accounts_per_stream)
+        if smart_route:
+            clean_progress_file()
 
         for stream_index in range(num_streams + (remainder > 0)):
             start_index = stream_index * accounts_per_stream
@@ -319,6 +323,7 @@ class Runner(Logger):
 
         for account_name, private_key in self.get_wallets():
             if smart_route_type:
+                clean_progress_file()
                 await self.generate_smart_routes(route_generator, (account_name, private_key))
 
             result = await self.run_account_modules(account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK),

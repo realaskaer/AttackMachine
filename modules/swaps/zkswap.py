@@ -38,15 +38,13 @@ class ZkSwap(DEX, Logger):
         from_token_address = TOKENS_PER_CHAIN[self.client.network.name][from_token_name]
         to_token_address = TOKENS_PER_CHAIN[self.client.network.name][to_token_name]
 
-        if from_token_name != 'ETH':
-            await self.client.check_for_approved(from_token_address, ZKSWAP_CONTRACTS['router'], amount_in_wei)
-
-        tx_params = await self.client.prepare_transaction()
-        tx_params['value'] = amount_in_wei if from_token_name == 'ETH' else 0
         deadline = int(time()) + 1800
         min_amount_out = await self.get_min_amount_out(from_token_address, to_token_address, amount_in_wei)
 
         await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
+
+        if from_token_name != 'ETH':
+            await self.client.check_for_approved(from_token_address, ZKSWAP_CONTRACTS['router'], amount_in_wei)
 
         full_data = (
             min_amount_out,
@@ -58,6 +56,7 @@ class ZkSwap(DEX, Logger):
             deadline
         )
 
+        tx_params = await self.client.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
         if from_token_name == 'ETH':
             transaction = await self.router_contract.functions.swapExactETHForTokens(
                 *full_data

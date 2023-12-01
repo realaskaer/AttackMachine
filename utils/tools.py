@@ -6,6 +6,9 @@ import functools
 import msoffcrypto
 import pandas as pd
 from getpass import getpass
+
+from aiohttp import ClientSession
+
 from utils.networks import *
 from termcolor import cprint
 from datetime import datetime, timedelta
@@ -106,6 +109,11 @@ def clean_stark_file():
         file.truncate(0)
 
 
+def clean_progress_file():
+    with open('./data/services/wallets_progress.json', 'w') as file:
+        file.truncate(0)
+
+
 def drop_date():
     current_date = datetime.now()
     random_months = random.randint(1, 4)
@@ -150,6 +158,8 @@ def repeater(func):
                     break
 
                 await sleep(self, *SLEEP_TIME_RETRY)
+            finally:
+                await self.client.session.close()
         self.logger_msg(self.client.account_name,
                         None, msg=f"Tries are over, launching next module.\n", type_msg='error')
         return False
@@ -169,7 +179,7 @@ def gas_checker(func):
 
             w3 = None
             if self.client.network.name != "Starknet":
-                w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(Ethereum.rpc),
+                w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(EthereumRPC.rpc),
                                                  request_kwargs=self.client.request_kwargs))
             while True:
                 if self.client.network.name == "Starknet":
@@ -196,3 +206,18 @@ def gas_checker(func):
                     await asyncio.sleep(SLEEP_TIME_GAS)
         return await func(self, *args, **kwargs)
     return wrapper
+
+
+async def get_eth_price():
+    url = 'https://api.coingecko.com/api/v3/simple/price'
+
+    params = {
+        'ids': 'ethereum',
+        'vs_currencies': 'usd'
+    }
+
+    async with ClientSession() as session:
+        async with session.get(url=url, params=params) as response:
+            data = await response.json()
+            if response.status == 200:
+                return data['ethereum']['usd']

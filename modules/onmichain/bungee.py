@@ -17,7 +17,8 @@ class Bungee(Refuel, Logger):
         super().__init__()
         self.client = client
 
-        self.refuel_contract = self.client.get_contract(BUNGEE_CONTRACTS['gas_refuel'], BUNGEE_REFUEL_ABI)
+        self.network = self.client.network.name
+        self.refuel_contract = self.client.get_contract(BUNGEE_CONTRACTS[self.network]['gas_refuel'], BUNGEE_REFUEL_ABI)
 
     async def get_limits_data(self):
         url = 'https://refuel.socket.tech/chains'
@@ -26,13 +27,12 @@ class Bungee(Refuel, Logger):
             async with session.get(url=url, proxy=self.client.proxy) as response:
                 if response.status == 200:
                     data = await response.json()
-                    return [chain for chain in data['result'] if chain['name'] == 'zkSync'][0]
+                    return [chain for chain in data['result'] if chain['name'] == self.network][0]
                 raise RuntimeError(f'Bad request to Bungee API: {response.status}')
 
     @repeater
     @gas_checker
     async def refuel(self):
-
         dst_data = random.choice(list(DESTINATION_BUNGEE_DATA.items()))
         dst_chain_name, _, dst_native_name, _ = LAYERZERO_NETWORKS_DATA[dst_data[0]]
         dst_amount = self.client.round_amount(*dst_data[1])
@@ -62,14 +62,14 @@ class Bungee(Refuel, Logger):
 
                 if min_amount_in_wei <= amount_in_wei <= max_amount_in_wei:
 
-                    tx_params = await self.client.prepare_transaction(value=amount_in_wei)
-
-                    transaction = await self.refuel_contract.functions.depositNativeToken(
-                        dst_chain_id,
-                        self.client.address
-                    ).build_transaction(tx_params)
-
                     if await self.client.w3.eth.get_balance(self.client.address) >= amount_in_wei:
+
+                        tx_params = await self.client.prepare_transaction(value=amount_in_wei)
+
+                        transaction = await self.refuel_contract.functions.depositNativeToken(
+                            dst_chain_id,
+                            self.client.address
+                        ).build_transaction(tx_params)
 
                         return await self.client.send_transaction(transaction)
 

@@ -1,13 +1,14 @@
 from settings import SLIPPAGE
 from modules import Aggregator, Logger
 from utils.tools import gas_checker, repeater
-from config import TOKENS_PER_CHAIN, XYSWAP_CONTRACT, ETH_MASK, HELP_SOFTWARE
+from config import TOKENS_PER_CHAIN, ETH_MASK, HELP_SOFTWARE
 
 
 class XYfinance(Aggregator, Logger):
     def __init__(self, client):
         Logger.__init__(self)
         super().__init__(client)
+        self.network = self.client.network.name
 
     async def get_quote(self, from_token_address: str, to_token_address: str, amount_in_wei: int):
         url = "https://aggregator-api.xy.finance/v1/quote"
@@ -43,13 +44,15 @@ class XYfinance(Aggregator, Logger):
 
     @repeater
     @gas_checker
-    async def swap(self):
-
+    async def swap(self, help_deposit:bool = False):
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
+
+        if help_deposit:
+            to_token_name = 'ETH'
 
         self.logger_msg(*self.client.acc_info, msg=f"Swap on XYfinance: {amount} {from_token_name} -> {to_token_name}")
 
-        token_data = TOKENS_PER_CHAIN[self.client.network.name]
+        token_data = TOKENS_PER_CHAIN[self.network]
 
         from_token_address = ETH_MASK if from_token_name == "ETH" else token_data[from_token_name]
         to_token_address = ETH_MASK if to_token_name == "ETH" else token_data[to_token_name]
@@ -62,11 +65,13 @@ class XYfinance(Aggregator, Logger):
             from_token_address, to_token_address, amount_in_wei, swap_provider_address
         )
 
-        if from_token_address != ETH_MASK:
-            await self.client.check_for_approved(from_token_address, XYSWAP_CONTRACT["router"], amount_in_wei)
+        contract_address = self.client.w3.to_checksum_address(transaction_data["tx"]["to"])
+
+        if from_token_name != 'ETH':
+            await self.client.check_for_approved(from_token_address, contract_address, amount_in_wei)
 
         tx_params = (await self.client.prepare_transaction()) | {
-            "to": transaction_data["tx"]["to"],
+            "to": contract_address,
             "data": transaction_data["tx"]["data"],
             "value": transaction_data["tx"]["value"]
         }

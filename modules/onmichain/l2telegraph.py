@@ -21,8 +21,13 @@ class L2Telegraph(Messenger, Logger):
         super().__init__()
         self.client = client
 
-        self.message_contract = self.client.get_contract(L2TELEGRAPH_CONTRACTS['messager'], L2TELEGRAPH_SEND_MESSAGE_ABI)
-        self.nft_contract = self.client.get_contract(L2TELEGRAPH_CONTRACTS['cross_nft'], L2TELEGRAPH_NFT_BRIDGE_ABI)
+        self.network = self.client.network.name
+        self.message_contract = self.client.get_contract(
+            L2TELEGRAPH_CONTRACTS[self.network]['messager'],
+            L2TELEGRAPH_SEND_MESSAGE_ABI)
+        self.nft_contract = self.client.get_contract(
+            L2TELEGRAPH_CONTRACTS[self.network]['cross_nft'],
+            L2TELEGRAPH_NFT_BRIDGE_ABI)
         dst_data = random.choice(list(DESTINATION_L2TELEGRAPH))
         self.dst_chain_name, self.dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_data]
 
@@ -36,7 +41,6 @@ class L2Telegraph(Messenger, Logger):
     @repeater
     @gas_checker
     async def send_message(self):
-
         self.logger_msg(*self.client.acc_info, msg=f'Send message on L2Telegraph to {self.dst_chain_name.capitalize()}')
 
         adapter_params = abi.encode(["uint16", "uint"],
@@ -58,11 +62,13 @@ class L2Telegraph(Messenger, Logger):
         value = estimate_fees + 250000000000000
 
         tx_params = await self.client.prepare_transaction(value=value)
+        salt = (L2TELEGRAPH_DST_CHAIN_MESSENGER_CONTRACTS[self.dst_chain_name] +
+                L2TELEGRAPH_CONTRACTS[self.network]['messager'][2:])
 
         transaction = await self.message_contract.functions.sendMessage(
             Faker().word(),
             self.dst_chain_id,
-            L2TELEGRAPH_DST_CHAIN_MESSENGER_CONTRACTS[self.dst_chain_name] + L2TELEGRAPH_CONTRACTS['messager'][2:]
+            salt
         ).build_transaction(tx_params)
 
         return await self.client.send_transaction(transaction)
@@ -114,10 +120,12 @@ class L2Telegraph(Messenger, Logger):
                 *self.client.acc_info, msg=f'Bridge NFT on L2telegraph to {self.dst_chain_name.capitalize()}')
 
             tx_params = await self.client.prepare_transaction(value=value)
+            salt = (L2TELEGRAPH_CROSS_CHAIN_CONTRACTS[self.dst_chain_name] +
+                    L2TELEGRAPH_CONTRACTS[self.network]['cross_nft'][2:])
 
             transaction = await self.nft_contract.functions.crossChain(
                 self.dst_chain_id,
-                L2TELEGRAPH_CROSS_CHAIN_CONTRACTS[self.dst_chain_name] + L2TELEGRAPH_CONTRACTS['cross_nft'][2:],
+                salt,
                 nft_id
             ).build_transaction(tx_params)
 

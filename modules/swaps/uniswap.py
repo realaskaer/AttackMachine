@@ -3,20 +3,23 @@ from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE
 from hexbytes import HexBytes
 from config import (
-    PANCAKE_ROUTER_ABI,
-    PANCAKE_QUOTER_ABI,
-    PANCAKE_CONTRACTS,
+    UNISWAP_ABI,
+    UNISWAP_CONTRACTS,
     TOKENS_PER_CHAIN
 )
 
 
-class PancakeSwap(DEX, Logger):
+class Uniswap(DEX, Logger):
     def __init__(self, client):
         super().__init__()
         self.client = client
         self.network = self.client.network.name
-        self.router_contract = self.client.get_contract(PANCAKE_CONTRACTS[self.network]['router'], PANCAKE_ROUTER_ABI)
-        self.quoter_contract = self.client.get_contract(PANCAKE_CONTRACTS[self.network]['quoter'], PANCAKE_QUOTER_ABI)
+        self.router_contract = self.client.get_contract(
+            UNISWAP_CONTRACTS[self.network]['router'],
+            UNISWAP_ABI['router'])
+        self.quoter_contract = self.client.get_contract(
+            UNISWAP_CONTRACTS[self.network]['quoter'],
+            UNISWAP_ABI['quoter'])
 
     @staticmethod
     def get_path(from_token_address: str, to_token_address: str):
@@ -40,10 +43,11 @@ class PancakeSwap(DEX, Logger):
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
         self.logger_msg(
-            *self.client.acc_info, msg=f'Swap on PancakeSwap: {amount} {from_token_name} -> {to_token_name}')
+            *self.client.acc_info, msg=f'Swap on Uniswap: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address = TOKENS_PER_CHAIN[self.network][from_token_name]
         to_token_address = TOKENS_PER_CHAIN[self.network][to_token_name]
+
         path = self.get_path(from_token_address, to_token_address)
         min_amount_out = await self.get_min_amount_out(path, amount_in_wei)
 
@@ -51,7 +55,7 @@ class PancakeSwap(DEX, Logger):
 
         if from_token_name != 'ETH':
             await self.client.check_for_approved(
-                from_token_address, PANCAKE_CONTRACTS[self.network]['router'], amount_in_wei
+                from_token_address, UNISWAP_CONTRACTS[self.network]['router'], amount_in_wei
             )
 
         tx_data = self.router_contract.encodeABI(

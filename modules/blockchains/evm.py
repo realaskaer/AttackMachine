@@ -9,8 +9,8 @@ from modules import Blockchain, Logger
 from utils.networks import StarknetRPC
 from utils.tools import gas_checker, repeater
 from settings import (
-    NATIVE_DEPOSIT_AMOUNT,
-    NATIVE_WITHDRAW_AMOUNT,
+    BRIDGE_DEPOSIT_AMOUNT,
+    BRIDGE_WITHDRAW_AMOUNT,
     TRANSFER_AMOUNT
 )
 from config import (
@@ -21,75 +21,20 @@ from config import (
 )
 
 
-class ZkSync(Blockchain, Logger):
+class SimpleEVM(Logger):
     def __init__(self, client):
         Logger.__init__(self)
-        super().__init__(client)
+        self.client = client
 
-        self.deposit_contract = self.client.get_contract(NATIVE_CONTRACTS_PER_CHAIN['zkSync']['deposit'],
-                                                         NATIVE_ABI['zkSync']['deposit'])
-        self.withdraw_contract = self.client.get_contract(NATIVE_CONTRACTS_PER_CHAIN['zkSync']['withdraw'],
-                                                          NATIVE_ABI['zkSync']['withdraw'])
-        self.token_contract = self.client.get_contract(TOKENS_PER_CHAIN['zkSync']['WETH'],
-                                                       WETH_ABI)
-
-    @repeater
-    @gas_checker
-    async def deposit(self):
-
-        amount = await self.client.get_smart_amount(NATIVE_DEPOSIT_AMOUNT)
-        amount_in_wei = int(amount * 10 ** 18)
-
-        self.logger_msg(*self.client.acc_info, msg=f'Bridge on txSync: {amount} ETH ERC20 -> zkSync Era')
-
-        if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
-
-            gas_limit = random.randint(750000, 1000000)
-
-            base_cost_in_wei = await self.deposit_contract.functions.l2TransactionBaseCost(
-                self.client.w3.eth.gas_price,
-                gas_limit,
-                800
-            ).call()
-
-            tx_params = await self.client.prepare_transaction(value=amount_in_wei + base_cost_in_wei)
-
-            transaction = await self.deposit_contract.functions.requestL2Transaction(
-                self.client.address,
-                amount_in_wei,
-                "0x",
-                gas_limit,
-                800,
-                [],
-                self.client.address
-            ).build_transaction(tx_params)
-
-            return await self.client.send_transaction(transaction)
-
-        else:
-            raise RuntimeError('Bridge on txSync | Insufficient balance!')
-
-    @repeater
-    @gas_checker
-    async def withdraw(self):
-
-        amount = await self.client.get_smart_amount(NATIVE_WITHDRAW_AMOUNT)
-        amount_in_wei = int(amount * 10 ** 18)
-
-        self.logger_msg(*self.client.acc_info, msg=f'Withdraw on txSync: {amount} ETH zkSync Era -> ERC20')
-
-        if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
-
-            tx_params = await self.client.prepare_transaction(value=amount_in_wei)
-
-            transaction = await self.withdraw_contract.functions.withdraw(
-                self.client.address,
-            ).build_transaction(tx_params)
-
-            return await self.client.send_transaction(transaction)
-
-        else:
-            raise RuntimeError('Withdraw on txSync | Insufficient balance!')
+        self.network = self.client.network.name
+        self.deposit_contract = self.client.get_contract(
+            NATIVE_CONTRACTS_PER_CHAIN[self.network]['deposit'],
+            NATIVE_ABI[self.network]['deposit'])
+        self.withdraw_contract = self.client.get_contract(
+            NATIVE_CONTRACTS_PER_CHAIN[self.network]['withdraw'],
+            NATIVE_ABI[self.network]['withdraw'])
+        self.token_contract = self.client.get_contract(
+            TOKENS_PER_CHAIN[self.client.network.name]['WETH'], WETH_ABI)
 
     @repeater
     @gas_checker
@@ -150,33 +95,6 @@ class ZkSync(Blockchain, Logger):
         else:
             raise RuntimeError('Insufficient balance!')
 
-    # @repeater
-    # @gas_checker
-    # async def transfer_erc20_tokens(self, token_to_sent_name: str, address_to_sent: str, amount: float):
-    #
-    #     self.logger.info(
-#                       f'{self.info} Transfer {token_to_sent_name} to random address: {amount} {token_to_sent_name}')
-    #
-    #     amount_in_wei = await self.get_amount_in_wei(token_to_sent_name, amount)
-    #
-    #     if (await self.get_token_balance(ZKSYNC_TOKENS[token_to_sent_name]))['balance_in_wei'] >= amount_in_wei:
-    #
-    #         token_contract = self.get_contract(ZKSYNC_TOKENS[token_to_sent_name], ERC20_ABI)
-    #
-    #         tx_params = await self.prepare_transaction()
-    #
-    #         transaction = await token_contract.functions.transfer(
-    #             address_to_sent,
-    #             amount
-    #         ).build_transaction(tx_params)
-    #
-    #         tx_hash = await self.send_transaction(transaction)
-    #
-    #         await self.verify_transaction(tx_hash)
-    #
-    #     else:
-    #         self.logger.error(f'{self.info} Insufficient balance!')
-
     @repeater
     @gas_checker
     async def wrap_eth(self):
@@ -211,11 +129,179 @@ class ZkSync(Blockchain, Logger):
 
         return await self.client.send_transaction(transaction)
 
+    @repeater
+    @gas_checker
+    async def random_approve(self):
+        from config import (IZUMI_CONTRACTS, MAVERICK_CONTRACTS, MUTE_CONTRACTS, ODOS_CONTRACT, ONEINCH_CONTRACT,
+                            OPENOCEAN_CONTRACTS, PANCAKE_CONTRACTS, SPACEFI_CONTRACTS, SUSHISWAP_CONTRACTS,
+                            UNISWAP_CONTRACTS, VELOCORE_CONTRACTS, WOOFI_CONTRACTS, XYSWAP_CONTRACT, TOKENS_PER_CHAIN)
+        all_contracts = {
+            "iZumi":IZUMI_CONTRACTS,
+            "Maverick":MAVERICK_CONTRACTS,
+            "Mute":MUTE_CONTRACTS,
+            "ODOS":ODOS_CONTRACT,
+            "1inch":ONEINCH_CONTRACT,
+            "OpenOcean":OPENOCEAN_CONTRACTS,
+            "PancakeSwap":PANCAKE_CONTRACTS,
+            "SpaceFi":SPACEFI_CONTRACTS,
+            "SushiSwap":SUSHISWAP_CONTRACTS,
+            "Uniswap":UNISWAP_CONTRACTS,
+            "Velocore":VELOCORE_CONTRACTS,
+            "WooFi":WOOFI_CONTRACTS,
+            "XYfinance":XYSWAP_CONTRACT,
+        }
+
+        all_network_contracts = {
+            name: contracts
+            for name, contracts in all_contracts.items()
+            if all(token_info[1] in TOKENS_PER_CHAIN[self.network] for token_info in contracts.values())
+        }
+
+        approve_contracts = [(k, v) for k, v in all_network_contracts.items()]
+
+        contract_info = random.choice(approve_contracts)
+        approve_contract = random.choice(list(contract_info[1].values()))
+        native = ['ETH', 'WETH']
+        token_contract = random.choice([i for i in list(TOKENS_PER_CHAIN[self.network].items()) if i not in native])
+        amount = random.uniform(1, 10000)
+        amount_in_wei = amount * 10 ** await self.client.get_decimals(token_contract[0])
+
+        message = f"Approve {amount:.4f} {token_contract[0]} for {contract_info[0]}"
+        self.logger_msg(*self.client.acc_info, msg=message)
+        return await self.client.check_for_approved(token_contract[1], approve_contract, amount_in_wei)
+
+
+class Scroll(Blockchain, SimpleEVM):
+    def __init__(self, client):
+        SimpleEVM.__init__(self, client)
+        Blockchain.__init__(self, client)
+        self.oracle_contract = self.client.get_contract(
+            NATIVE_CONTRACTS_PER_CHAIN[self.network]["oracle"],
+            NATIVE_ABI[self.network]['oracle'])
+
+    @repeater
+    @gas_checker
+    async def deposit(self):
+
+        amount = self.client.round_amount(*BRIDGE_DEPOSIT_AMOUNT)
+        amount_in_wei = int(amount * 10 ** 18)
+
+        self.client.logger.info(f'{self.client.info} Scroll | Bridge {amount} ETH | ERC20 -> Scroll')
+
+        if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
+
+            bridge_fee = await self.oracle_contract.functions.estimateCrossDomainMessageFee(168000).call()
+
+            tx_params = await self.client.prepare_transaction(value=amount_in_wei + bridge_fee)
+
+            transaction = await self.deposit_contract.functions.depositETH(
+                amount_in_wei,
+                168000,
+            ).build_transaction(tx_params)
+
+            return await self.client.send_transaction(transaction)
+
+        else:
+            raise RuntimeError('Insufficient balance!')
+
+    @repeater
+    @gas_checker
+    async def withdraw(self):
+
+        amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit(BRIDGE_WITHDRAW_AMOUNT)
+
+        self.client.logger.info(
+            f'{self.client.info} Scroll | Withdraw {amount} ETH Scroll -> ERC20')
+
+        if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
+
+            tx_params = await self.client.prepare_transaction(value=amount_in_wei)
+
+            transaction = await self.withdraw_contract.functions.withdrawETH(
+                amount_in_wei,
+                0
+            ).build_transaction(tx_params)
+
+            return await self.client.send_transaction(transaction)
+
+        else:
+            raise RuntimeError('Insufficient balance!')
+
+
+class ZkSync(Blockchain, SimpleEVM):
+    def __init__(self, client):
+        SimpleEVM.__init__(self, client)
+        Blockchain.__init__(self, client)
+
+        self.deposit_contract = self.client.get_contract(NATIVE_CONTRACTS_PER_CHAIN['zkSync']['deposit'],
+                                                         NATIVE_ABI['zkSync']['deposit'])
+        self.withdraw_contract = self.client.get_contract(NATIVE_CONTRACTS_PER_CHAIN['zkSync']['withdraw'],
+                                                          NATIVE_ABI['zkSync']['withdraw'])
+        self.token_contract = self.client.get_contract(TOKENS_PER_CHAIN['zkSync']['WETH'],
+                                                       WETH_ABI)
+
+    @repeater
+    @gas_checker
+    async def deposit(self):
+
+        amount = await self.client.get_smart_amount(BRIDGE_DEPOSIT_AMOUNT)
+        amount_in_wei = int(amount * 10 ** 18)
+
+        self.logger_msg(*self.client.acc_info, msg=f'Bridge on txSync: {amount} ETH ERC20 -> zkSync Era')
+
+        if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
+
+            gas_limit = random.randint(750000, 1000000)
+
+            base_cost_in_wei = await self.deposit_contract.functions.l2TransactionBaseCost(
+                self.client.w3.eth.gas_price,
+                gas_limit,
+                800
+            ).call()
+
+            tx_params = await self.client.prepare_transaction(value=amount_in_wei + base_cost_in_wei)
+
+            transaction = await self.deposit_contract.functions.requestL2Transaction(
+                self.client.address,
+                amount_in_wei,
+                "0x",
+                gas_limit,
+                800,
+                [],
+                self.client.address
+            ).build_transaction(tx_params)
+
+            return await self.client.send_transaction(transaction)
+
+        else:
+            raise RuntimeError('Bridge on txSync | Insufficient balance!')
+
+    @repeater
+    @gas_checker
+    async def withdraw(self):
+
+        amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit(BRIDGE_WITHDRAW_AMOUNT)
+
+        self.logger_msg(*self.client.acc_info, msg=f'Withdraw on txSync: {amount} ETH zkSync Era -> ERC20')
+
+        if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
+
+            tx_params = await self.client.prepare_transaction(value=amount_in_wei)
+
+            transaction = await self.withdraw_contract.functions.withdraw(
+                self.client.address,
+            ).build_transaction(tx_params)
+
+            return await self.client.send_transaction(transaction)
+
+        else:
+            raise RuntimeError('Withdraw on txSync | Insufficient balance!')
+
 
 class StarknetEVM(Blockchain, Logger):
     def __init__(self, client):
         Logger.__init__(self)
-        super().__init__(client)
+        Blockchain.__init__(self, client)
 
         self.evm_contract = self.client.get_contract(NATIVE_CONTRACTS_PER_CHAIN['Starknet']['evm_contract'],
                                                      NATIVE_ABI['Starknet'])
@@ -237,7 +323,7 @@ class StarknetEVM(Blockchain, Logger):
     @gas_checker
     async def deposit(self, receiver):
 
-        amount = await self.client.get_smart_amount(NATIVE_DEPOSIT_AMOUNT)
+        amount = await self.client.get_smart_amount(BRIDGE_DEPOSIT_AMOUNT)
         amount_in_wei = int(amount * 10 ** 18)
 
         self.logger_msg(*self.client.acc_info, msg=f'Bridge on StarkGate to {receiver}: {amount} ETH ERC20 -> Starknet')
@@ -252,3 +338,18 @@ class StarknetEVM(Blockchain, Logger):
         ).build_transaction(tx_params)
 
         return await self.client.send_transaction(transaction)
+
+    async def withdraw(self):
+        pass  # реализовано в Starknet
+
+
+class Base(Blockchain, SimpleEVM):
+    def __init__(self, client):
+        SimpleEVM.__init__(self, client)
+        Blockchain.__init__(self, client)
+
+
+class Linea(Blockchain, SimpleEVM):
+    def __init__(self, client):
+        SimpleEVM.__init__(self, client)
+        Blockchain.__init__(self, client)

@@ -2,7 +2,7 @@ import json
 
 from config import TOKENS_PER_CHAIN
 from modules import Bridge, Logger
-from settings import GLOBAL_NETWORK, USE_PROXY
+from settings import GLOBAL_NETWORK
 from utils.tools import gas_checker, repeater
 
 
@@ -69,90 +69,86 @@ class LayerSwap(Bridge, Logger):
 
     @repeater
     @gas_checker
-    async def bridge(self, chain_from_id, private_keys:dict = None, help_okx:bool = False, help_network_id:int = 1):
-        close_session = False
-        try:
+    async def bridge(self, chain_from_id: int, private_keys:dict = None, help_okx:bool = False):
+        if GLOBAL_NETWORK == 9 and chain_from_id == 9:
+            await self.client.initialize_account()
+        elif GLOBAL_NETWORK == 9 and chain_from_id != 9:
+            await self.client.session.close()
+            self.client = await self.client.initialize_evm_client(private_keys['evm_key'], chain_from_id)
 
-            if GLOBAL_NETWORK == 9 and chain_from_id == 9:
-                await self.client.initialize_account()
-                close_session = True
+        (source_chain, destination_chain, amount) = await self.client.get_bridge_data(chain_from_id, help_okx,
+                                                                                      'LayerSwap')
 
-            (source_chain, destination_chain,
-             amount, refuel) = await self.client.get_bridge_data(chain_from_id, help_okx, help_network_id, 'LayerSwap')
+        source_asset, destination_asset, refuel = 'ETH', 'ETH', False
 
-            source_asset, destination_asset = 'ETH', 'ETH'
+        bridge_info = f'{self.client.network.name} -> {destination_asset} {destination_chain.capitalize()[:-8]}'
+        self.logger_msg(*self.client.acc_info, msg=f'Bridge on LayerSwap: {amount} {source_asset} {bridge_info}')
 
-            bridge_info = f'{self.client.network.name} -> {destination_asset} {destination_chain.capitalize()[:-8]}'
-            self.logger_msg(*self.client.acc_info, msg=f'Bridge on LayerSwap: {amount} {source_asset} {bridge_info}')
+        networks_data = await self.get_networks_data()
 
-            networks_data = await self.get_networks_data()
+        available_for_swap = {
+            chain['name']: (assets['asset'], assets['decimals'])
+            for chain in networks_data if chain['name'] in [source_chain, destination_chain]
+            for assets in chain['currencies'] if assets['asset'] in [source_asset, destination_asset]
+        }
 
-            available_for_swap = {
-                chain['name']: (assets['asset'], assets['decimals'])
-                for chain in networks_data if chain['name'] in [source_chain, destination_chain]
-                for assets in chain['currencies'] if assets['asset'] in [source_asset, destination_asset]
-            }
+        if (len(available_for_swap) == 2 and source_asset in available_for_swap[source_chain]
+                and destination_asset in available_for_swap[destination_chain]):
 
-            if (len(available_for_swap) == 2 and source_asset in available_for_swap[source_chain]
-                    and destination_asset in available_for_swap[destination_chain]):
+            data = source_chain, destination_chain, source_asset, destination_asset, refuel
 
-                data = source_chain, destination_chain, source_asset, destination_asset, refuel
+            min_amount, max_amount, fee_amount = (await self.get_swap_rate(*data)).values()
 
-                min_amount, max_amount, fee_amount = (await self.get_swap_rate(*data)).values()
+            if float(min_amount) <= amount <= float(max_amount):
 
-                if float(min_amount) <= amount <= float(max_amount):
+                _, balance, _ = await self.client.get_token_balance(source_asset)
 
-                    _, balance, _ = await self.client.get_token_balance(source_asset)
+                if balance >= amount:
+                    amount_in_wei = int(amount * 10 ** available_for_swap[source_chain][1])
+                    dst_address = await self.get_address_for_bridge(private_keys['evm_key'], stark_key_type=False)
 
-                    if balance >= amount:
-                        amount_in_wei = int(amount * 10 ** available_for_swap[source_chain][1])
-                        dst_address = await self.get_address_for_bridge(private_keys['evm_key'], stark_key_type=False)
+                    if source_chain == 'STARKNET_MAINNET' and destination_chain != 'STARKNET_MAINNET':
+                        swap_id = await self.get_swap_id(amount, dst_address, *data)
 
-                        if source_chain == 'STARKNET_MAINNET' and destination_chain != 'STARKNET_MAINNET':
-                            swap_id = await self.get_swap_id(amount, dst_address, *data)
+                        tx_data = await self.create_tx(swap_id['swap_id'])
 
-                            tx_data = await self.create_tx(swap_id['swap_id'])
+                        transfer_call = self.client.prepare_call(
+                            contract_address=TOKENS_PER_CHAIN['Starknet']['ETH'],
+                            selector_name="transfer",
+                            calldata=[
+                                int(self.address_to_hex(tx_data['to_address']), 16),
+                                amount_in_wei, 0
+                            ]
+                        )
 
-                            transfer_call = self.client.prepare_call(
-                                contract_address=TOKENS_PER_CHAIN['Starknet']['ETH'],
-                                selector_name="transfer",
-                                calldata=[
-                                    int(self.address_to_hex(tx_data['to_address']), 16),
-                                    amount_in_wei, 0
-                                ]
-                            )
+                        watch_data = json.loads(tx_data['data'])[1]
+                        watch_call = self.client.prepare_call(
+                            contract_address=int(self.address_to_hex(watch_data['contractAddress']), 16),
+                            selector_name="watch",
+                            calldata=watch_data['calldata']
+                        )
 
-                            watch_data = json.loads(tx_data['data'])[1]
-                            watch_call = self.client.prepare_call(
-                                contract_address=int(self.address_to_hex(watch_data['contractAddress']), 16),
-                                selector_name="watch",
-                                calldata=watch_data['calldata']
-                            )
-
-                            transaction = transfer_call, watch_call
-                        else:
-
-                            if source_chain != 'STARKNET_MAINNET' and destination_chain == 'STARKNET_MAINNET':
-                                dst_address = await self.get_address_for_bridge(private_keys['stark_key'],
-                                                                                stark_key_type=True)
-
-                            swap_id = await self.get_swap_id(amount, dst_address, *data)
-
-                            tx_data = await self.create_tx(swap_id['swap_id'])
-
-                            transaction = [(await self.client.prepare_transaction(value=amount_in_wei)) | {
-                                'to': self.client.w3.to_checksum_address(tx_data['to_address']),
-                                'data': tx_data['data']
-                            }]
-
-                        return await self.client.send_transaction(*transaction)
-
+                        transaction = transfer_call, watch_call
                     else:
-                        raise RuntimeError("Insufficient balance!")
+
+                        if source_chain != 'STARKNET_MAINNET' and destination_chain == 'STARKNET_MAINNET':
+                            dst_address = await self.get_address_for_bridge(private_keys['stark_key'],
+                                                                            stark_key_type=True)
+
+                        swap_id = await self.get_swap_id(amount, dst_address, *data)
+
+                        tx_data = await self.create_tx(swap_id['swap_id'])
+
+                        transaction = [(await self.client.prepare_transaction(value=amount_in_wei)) | {
+                            'to': self.client.w3.to_checksum_address(tx_data['to_address']),
+                            'data': tx_data['data']
+                        }]
+
+                    return await self.client.send_transaction(*transaction)
+
                 else:
-                    raise RuntimeError(f"Limit range for bridge: {min_amount} - {max_amount} ETH")
+                    raise RuntimeError("Insufficient balance!")
             else:
-                raise RuntimeError(f"Bridge {source_asset} {bridge_info} is not active!")
-        finally:
-            if USE_PROXY and close_session:
-                await self.client.session.close()
+                raise RuntimeError(f"Limit range for bridge: {min_amount} - {max_amount} ETH")
+        else:
+            raise RuntimeError(f"Bridge {source_asset} {bridge_info} is not active!")

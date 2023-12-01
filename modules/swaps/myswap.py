@@ -1,7 +1,7 @@
 from modules import DEX, Logger
 from config import MYSWAP_CONTRACT, TOKENS_PER_CHAIN
 from utils.tools import repeater, gas_checker
-from settings import SLIPPAGE, USE_PROXY
+from settings import SLIPPAGE
 
 
 class MySwap(DEX, Logger):
@@ -45,36 +45,32 @@ class MySwap(DEX, Logger):
     @repeater
     @gas_checker
     async def swap(self):
-        try:
-            await self.client.initialize_account()
+        await self.client.initialize_account()
 
-            from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
+        from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
-            self.logger_msg(*self.client.acc_info, msg=f'Swap on mySwap: {amount} {from_token_name} -> {to_token_name}')
+        self.logger_msg(*self.client.acc_info, msg=f'Swap on mySwap: {amount} {from_token_name} -> {to_token_name}')
 
-            from_token_address = TOKENS_PER_CHAIN[self.client.network.name][from_token_name]
+        from_token_address = TOKENS_PER_CHAIN[self.client.network.name][from_token_name]
 
-            router_contract = MYSWAP_CONTRACT['router']
+        router_contract = MYSWAP_CONTRACT['router']
 
-            pool_id, reverse = await self.get_pool_id(from_token_name, to_token_name)
-            min_amount_out = await self.get_min_amount_out(router_contract, pool_id, reverse, amount_in_wei)
+        pool_id, reverse = await self.get_pool_id(from_token_name, to_token_name)
+        min_amount_out = await self.get_min_amount_out(router_contract, pool_id, reverse, amount_in_wei)
 
-            await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
+        await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
 
-            approve_call = self.client.get_approve_call(from_token_address, router_contract, amount_in_wei)
+        approve_call = self.client.get_approve_call(from_token_address, router_contract, amount_in_wei)
 
-            swap_call = self.client.prepare_call(
-                contract_address=router_contract,
-                selector_name="swap",
-                calldata=[
-                    pool_id,
-                    from_token_address,
-                    amount_in_wei, 0,
-                    min_amount_out, 0
-                ]
-            )
+        swap_call = self.client.prepare_call(
+            contract_address=router_contract,
+            selector_name="swap",
+            calldata=[
+                pool_id,
+                from_token_address,
+                amount_in_wei, 0,
+                min_amount_out, 0
+            ]
+        )
 
-            return await self.client.send_transaction(approve_call, swap_call)
-        finally:
-            if USE_PROXY:
-                await self.client.session.close()
+        return await self.client.send_transaction(approve_call, swap_call)

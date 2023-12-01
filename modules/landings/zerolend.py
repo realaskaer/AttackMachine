@@ -14,7 +14,6 @@ class ZeroLend(Landing, Logger):
     @repeater
     @gas_checker
     async def deposit(self):
-
         amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
 
         self.logger_msg(*self.client.acc_info, msg=f'Deposit to ZeroLend: {amount} ETH')

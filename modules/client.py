@@ -1,11 +1,13 @@
 import asyncio
 import random
-import aiohttp
 
 from asyncio import sleep
+from aiohttp import ClientSession
+from aiohttp_socks import ProxyConnector
+
 from modules import Logger
 from utils.networks import Network
-from config import ERC20_ABI, TOKENS_PER_CHAIN
+from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, OKX_WRAPED_ID
 from web3 import AsyncHTTPProvider, AsyncWeb3
 from config import RHINO_CHAIN_INFO, ORBITER_CHAINS_INFO, LAYERSWAP_CHAIN_NAME
 from settings import (
@@ -13,17 +15,12 @@ from settings import (
     UNLIMITED_APPROVE,
     AMOUNT_PERCENT,
     MIN_BALANCE,
-    DEX_LP_AMOUNT,
-    LANDING_AMOUNT,
+    LIQUIDITY_AMOUNT,
     OKX_BRIDGE_MODE,
     OKX_BRIDGE_AMOUNT,
-    LAYERSWAP_AMOUNT,
-    LAYERSWAP_CHAIN_ID_TO,
-    LAYERSWAP_REFUEL,
-    ORBITER_AMOUNT,
-    ORBITER_CHAIN_ID_TO,
-    RHINO_AMOUNT,
-    RHINO_CHAIN_ID_TO, PRICE_IMPACT
+    PRICE_IMPACT,
+    BRIDGE_DEPOSIT_AMOUNT,
+    BRIDGE_CHAIN_ID_TO, GLOBAL_NETWORK, OKX_DEPOSIT_NETWORK
 )
 
 
@@ -36,17 +33,14 @@ class Client(Logger):
         self.explorer = network.explorer
         self.chain_id = network.chain_id
 
-        self.proxy = f"http://{proxy}" if proxy else ""
         self.proxy_init = proxy
+        self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}") if proxy else None)
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
         self.w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(network.rpc), request_kwargs=self.request_kwargs))
         self.account_name = account_name
         self.private_key = private_key
         self.address = AsyncWeb3.to_checksum_address(self.w3.eth.account.from_key(private_key).address)
-
         self.acc_info = account_name, self.address
-        self.min_amount_eth_on_balance = MIN_BALANCE
-        self.info = f'[{self.account_name}] {self.address} | {self.network.name} |'
 
     @staticmethod
     def round_amount(min_amount: float, max_amount:float) -> float:
@@ -59,16 +53,17 @@ class Client(Logger):
             error = error.args[0]['message']
         return error
 
-    async def get_normalize_amount(self, token_name, amount_in_wei):
+    async def get_decimals(self, token_name:str):
         contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
-        decimals = await contract.functions.decimals().call()
+        return await contract.functions.decimals().call()
 
+    async def get_normalize_amount(self, token_name, amount_in_wei):
+        decimals = await self.get_decimals(token_name)
         return float(amount_in_wei / 10 ** decimals)
 
     async def get_smart_amount(self, settings):
         if isinstance(settings[0], str):
             _, amount, _ = await self.get_token_balance()
-
             percent = round(random.uniform(int(settings[0]), int(settings[1]))) / 100
             amount = round(amount * percent, 6)
         else:
@@ -85,7 +80,8 @@ class Client(Logger):
             'USDC': 'usd-coin',
             'BUSD': 'binance-usd',
             'ETH': 'ethereum',
-            'WETH': 'ethereum'
+            'WETH': 'ethereum',
+            'USDbC': 'bridged-usd-coin-base'
         }
 
         amount1_in_usd = (await self.get_token_price(token_info[from_token_name])) * from_token_amount
@@ -96,12 +92,28 @@ class Client(Logger):
             raise RuntimeError(
                 f'DEX price impact > your wanted impact | DEX impact: {price_impact:.3}% > Your impact {PRICE_IMPACT}%')
 
-    async def bridge_from_source(self, network_to_id) -> None:
+    async def get_bridge_data(self, chain_from_id:int, help_okx:bool, module_name:str):
+        deposit_info = OKX_BRIDGE_AMOUNT if help_okx else BRIDGE_DEPOSIT_AMOUNT
+        bridge_info = {
+            'Rhino': RHINO_CHAIN_INFO,
+            'LayerSwap': LAYERSWAP_CHAIN_NAME,
+            'Orbiter': ORBITER_CHAINS_INFO,
+        }[module_name]
+
+        src_chain_id = GLOBAL_NETWORK if help_okx else chain_from_id
+        source_chain = bridge_info[src_chain_id]
+        dst_chains = OKX_WRAPED_ID[OKX_DEPOSIT_NETWORK] if help_okx else random.choice(BRIDGE_CHAIN_ID_TO)
+        destination_chain = bridge_info[dst_chains]
+
+        amount, _ = await self.check_and_get_eth_for_deposit(deposit_info, initial_chain_id=src_chain_id)
+        return source_chain, destination_chain, amount
+
+    async def bridge_from_source(self) -> None:
         from functions import bridge_layerswap, bridge_rhino, bridge_orbiter
 
         self.logger_msg(*self.acc_info, msg=f"Bridge balance from {self.network.name} for OKX deposit")
 
-        id_of_bridge = {
+        bridge_by_id = {
             1: bridge_rhino,
             2: bridge_orbiter,
             3: bridge_layerswap
@@ -109,92 +121,47 @@ class Client(Logger):
 
         bridge_id = random.choice(OKX_BRIDGE_MODE)
 
-        func = id_of_bridge[bridge_id]
+        func = bridge_by_id[bridge_id]
 
         await asyncio.sleep(1)
-        await func(self.account_name, self.private_key, self.network, self.proxy_init,
-                   help_okx=True, help_network_id=network_to_id)
+        await func(self.account_name, self.private_key, self.network, self.proxy_init, help_okx=True)
 
-    async def get_bridge_data(self, chain_from_id:int, help_okx:bool, help_network_id: int, module_name:str):
-        if module_name == 'Rhino':
-            source_chain = RHINO_CHAIN_INFO[chain_from_id]
-            destination_chain = RHINO_CHAIN_INFO[random.choice(RHINO_CHAIN_ID_TO)]
-            amount = await self.get_smart_amount(RHINO_AMOUNT)
+    async def check_and_get_eth_for_deposit(self, settings:tuple = None, initial_chain_id:int = 0) -> [float, int]:
+        from functions import swap_odos, swap_oneinch, swap_openocean, swap_xyfinance, swap_rango
 
-            if help_okx:
-                source_chain = RHINO_CHAIN_INFO[8]
-                destination_chain = RHINO_CHAIN_INFO[help_network_id]
-                amount, _ = await self.check_and_get_eth_for_deposit(OKX_BRIDGE_AMOUNT)
+        func = {
+            3: [swap_odos, swap_oneinch, swap_openocean, swap_xyfinance],
+            4: [swap_rango, swap_openocean, swap_xyfinance],
+            8: [swap_openocean, swap_xyfinance],
+            11: [swap_openocean, swap_xyfinance, swap_rango, swap_odos, swap_oneinch]
+        }[GLOBAL_NETWORK]
 
-            return source_chain, destination_chain, amount
+        module_func = random.choice(func)
 
-        elif module_name == 'LayerSwap':
-            source_chain = LAYERSWAP_CHAIN_NAME[chain_from_id]
-            destination_chain = LAYERSWAP_CHAIN_NAME[random.choice(LAYERSWAP_CHAIN_ID_TO)]
-            refuel = LAYERSWAP_REFUEL
-            amount = await self.get_smart_amount(LAYERSWAP_AMOUNT)
+        data = True
+        if initial_chain_id and initial_chain_id in [3, 4, 8, 9, 11]:
+            data = await self.get_auto_amount(token_name_search='ETH')
 
-            if help_okx:
-                source_chain = LAYERSWAP_CHAIN_NAME[8]
-                destination_chain = LAYERSWAP_CHAIN_NAME[help_network_id]
-                amount, _ = await self.check_and_get_eth_for_deposit(OKX_BRIDGE_AMOUNT)
-
-            return source_chain, destination_chain, amount, refuel
-
-        elif module_name == 'Orbiter':
-            source_chain = ORBITER_CHAINS_INFO[chain_from_id]
-            destination_chain = ORBITER_CHAINS_INFO[random.choice(ORBITER_CHAIN_ID_TO)]
-            amount = await self.get_smart_amount(ORBITER_AMOUNT)
-
-            if help_okx:
-                source_chain = ORBITER_CHAINS_INFO[8]
-                destination_chain = ORBITER_CHAINS_INFO[help_network_id]
-                amount, _ = await self.check_and_get_eth_for_deposit(OKX_BRIDGE_AMOUNT)
-
-            return source_chain, destination_chain, amount
-
-    async def check_and_get_eth_for_deposit(self, settings:tuple = None) -> [float, int]:
-        from functions import swap_odos
-        data = await self.get_auto_amount(token_name_search='ETH')
-
-        amount = await self.get_smart_amount(settings if settings else LANDING_AMOUNT)
+        amount = await self.get_smart_amount(settings if settings else LIQUIDITY_AMOUNT)
         amount_in_wei = int(amount * 10 ** 18)
 
         if data is False:
             self.logger_msg(*self.acc_info, msg=f'Not enough ETH! Launching swap module', type_msg='warning')
-
-            await asyncio.sleep(1)
-            await swap_odos(self.account_name, self.private_key, self.network, self.proxy_init, help_deposit=True)
+            await module_func(self.account_name, self.private_key, self.network, self.proxy_init, help_deposit=True)
 
         return amount, amount_in_wei
-
-    async def check_and_get_eth_for_liquidity(self) -> [float, int]:
-        from functions import swap_oneinch
-
-        eth_balance_in_wei, eth_balance, _ = await self.get_token_balance('ETH')
-        amount_from_settings = await self.get_smart_amount(DEX_LP_AMOUNT)
-        amount_from_settings_in_wei = int(amount_from_settings * 10 ** 18)
-
-        await asyncio.sleep(1)
-        if eth_balance < amount_from_settings:
-            self.logger_msg(*self.acc_info, msg=f'Not enough ETH! Launching swap module', type_msg='warning')
-            await asyncio.sleep(1)
-            await swap_oneinch(self.account_name, self.private_key, self.network, self.proxy_init,
-                               help_add_liquidity=True, amount_to_help=amount_from_settings)
-
-        return amount_from_settings, amount_from_settings_in_wei
 
     async def get_auto_amount(self, token_name_search:str = None, class_name:str = None) -> [str, float, int]:
 
         wallet_balance = {k: await self.get_token_balance(k, False)
                           for k, v in TOKENS_PER_CHAIN[self.network.name].items()}
         valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
-        eth_price = await self.get_token_price('ethereum')
+        eth_price = ETH_PRICE
 
         if 'ETH' in valid_wallet_balance:
             valid_wallet_balance['ETH'] = valid_wallet_balance['ETH'] * eth_price
 
-        if sum(valid_wallet_balance.values()) > self.min_amount_eth_on_balance * eth_price:
+        if sum(valid_wallet_balance.values()) > MIN_BALANCE * eth_price:
 
             valid_wallet_balance = {k: round(v, 7) for k, v in valid_wallet_balance.items()}
 
@@ -210,16 +177,26 @@ class Client(Logger):
                                            TOKENS_PER_CHAIN[self.network.name].keys()))
             token_names_list.remove('WETH')
 
-            if class_name in ['Maverick', 'Izumi']:
-                if 'USDT' in token_names_list:
-                    token_names_list.remove('USDT')
-                if biggest_token_balance_name == 'ETH' and class_name == 'Izumi':
-                    token_names_list.remove('BUSD')
-            elif class_name in ['Mute', 'Rango', 'OpenOcean', 'Velocore']:
-                if 'BUSD' in token_names_list:
-                    token_names_list.remove('BUSD')
+            if biggest_token_balance_name == 'ETH':
+                if GLOBAL_NETWORK == 11:
+                    if class_name in ['Maverick', 'Izumi']:
+                        if 'USDT' in token_names_list:
+                            token_names_list.remove('USDT')
+                        if biggest_token_balance_name == 'ETH' and class_name == 'Izumi':
+                            token_names_list.remove('BUSD')
+                    elif class_name in ['Mute', 'Rango', 'OpenOcean', 'Velocore']:
+                        if 'BUSD' in token_names_list:
+                            token_names_list.remove('BUSD')
+                elif GLOBAL_NETWORK == 4:
+                    if class_name in ['WooFi']:
+                        if 'USDT' in token_names_list:
+                            token_names_list.remove('USDT')
+            else:
+                token_names_list = ['ETH']
 
             random_to_token_name = random.choice(token_names_list)
+            if not random_to_token_name:
+                raise RuntimeError(f'No available pair from {biggest_token_balance_name}')
 
             if biggest_token_balance_name == 'ETH':
                 percent = round(random.uniform(*AMOUNT_PERCENT)) / 100
@@ -227,7 +204,7 @@ class Client(Logger):
                 percent = 1
 
             amount = round(amount_from_token_on_balance * percent, 7)
-            amount_in_wei = round(amount_from_token_on_balance_in_wei * percent)
+            amount_in_wei = int(round(amount_from_token_on_balance_in_wei * percent))
 
             return biggest_token_balance_name, random_to_token_name, amount, amount_in_wei
 
@@ -262,6 +239,19 @@ class Client(Logger):
             spender_address
         ).call()
 
+    async def get_fee_options(self):
+        fee_history = await self.w3.eth.fee_history(25, 'latest', [20.0])
+        non_empty_block_priority_fees = [fee[0] for fee in fee_history["reward"] if fee[0] != 0]
+        non_empty_block_base_fees = [fee for fee in fee_history["baseFeePerGas"] if fee != 0]
+
+        divisor_priority = max(len(non_empty_block_priority_fees), 1)
+        divisor_base = max(len(non_empty_block_base_fees), 1)
+
+        priority_fee = int(round(sum(non_empty_block_priority_fees) / divisor_priority))
+        base_fee = int(round(sum(non_empty_block_base_fees) / divisor_base))
+
+        return base_fee, priority_fee
+
     async def prepare_transaction(self, value: int = 0):
         try:
             tx_params = {
@@ -273,13 +263,12 @@ class Client(Logger):
 
             if self.network.eip1559_support:
 
-                max_priority_fee_per_gas = 0
-                base_fee = await self.w3.eth.gas_price
+                base_fee, max_priority_fee_per_gas = await self.get_fee_options()
                 max_fee_per_gas = base_fee + max_priority_fee_per_gas
 
                 tx_params['maxPriorityFeePerGas'] = max_priority_fee_per_gas
                 tx_params['maxFeePerGas'] = max_fee_per_gas
-
+                tx_params['type'] = '0x2'
             else:
                 tx_params['gasPrice'] = await self.w3.eth.gas_price
 
@@ -323,9 +312,10 @@ class Client(Logger):
                 self.logger_msg(*self.acc_info, msg=f'Already approved')
                 return False
 
-            await self.make_approve(token_address, spender_address, amount_in_wei)
+            result = await self.make_approve(token_address, spender_address, amount_in_wei)
 
             await sleep(random.randint(5, 9))
+            return result
         except Exception as error:
             raise RuntimeError(f'Check for approve | {self.get_normalize_error(error)}')
 
@@ -359,9 +349,8 @@ class Client(Logger):
 
         params = {'ids': f'{token_name}', 'vs_currencies': f'{vs_currency}'}
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, params=params, proxy=self.proxy) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    return float(data[token_name][vs_currency])
-                raise RuntimeError(f'Bad request to CoinGecko API: {response.status}')
+        async with self.session.get(url, params=params) as response:
+            if response.status == 200:
+                data = await response.json()
+                return float(data[token_name][vs_currency])
+            raise RuntimeError(f'Bad request to CoinGecko API: {response.status}')

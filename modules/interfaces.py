@@ -1,18 +1,26 @@
-from aiohttp import ClientSession
+from aiohttp import ContentTypeError
 from loguru import logger
 from sys import stderr
 from datetime import datetime
 from web3 import AsyncWeb3
 from abc import ABC, abstractmethod
+from random import uniform
 
 from settings import (LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS,
                       OKX_API_SECRET, GLOBAL_NETWORK, USE_PROXY)
 from utils.networks import StarknetRPC
 
 CHAINS_NAME = {
+    3: 'Base',
+    4: 'Linea',
+    8: 'Scroll',
     9: 'Starknet',
     11: 'zkSync'
 }
+
+random_version = f"{uniform(520, 540):.2f}"
+USER_AGENT = (f'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/{random_version} (KHTML, like Gecko)'
+              f' Chrome/119.0.0.0 Safari/{random_version} Edg/119.0.0.0')
 
 
 class Logger(ABC):
@@ -67,17 +75,17 @@ class CEX(ABC):
     async def make_request(self, method:str = 'GET', url:str = None, data:str = None, params:dict = None,
                            headers:dict = None, module_name:str = 'Request'):
 
-        async with ClientSession() as session:
-            async with session.request(method=method, url=url, headers=headers, data=data,
-                                       params=params, proxy=self.client.proxy) as response:
+        headers = (headers or {}) | {'User-Agent': USER_AGENT}
+        async with self.client.session.request(method=method, url=url, headers=headers, data=data,
+                                               params=params) as response:
 
-                data = await response.json()
-                if data['code'] != 0 and data['msg'] != '':
-                    error = f"Error code: {data['code']} Msg: {data['msg']}"
-                    raise RuntimeError(f"Bad request to OKX({module_name}): {error}")
-                else:
-                    #self.logger.success(f"{self.info} {module_name}")
-                    return data['data']
+            data = await response.json()
+            if data['code'] != 0 and data['msg'] != '':
+                error = f"Error code: {data['code']} Msg: {data['msg']}"
+                raise RuntimeError(f"Bad request to OKX({module_name}): {error}")
+            else:
+                # self.logger.success(f"{self.info} {module_name}")
+                return data['data']
 
 
 class Aggregator(ABC):
@@ -91,14 +99,16 @@ class Aggregator(ABC):
     async def make_request(self, method:str = 'GET', url:str = None, headers:dict = None, params: dict = None,
                            data:str = None, json:dict = None):
 
-        async with ClientSession() as session:
-            async with session.request(method=method, url=url, headers=headers, data=data,
-                                       params=params, json=json, proxy=self.client.proxy) as response:
-
+        headers = (headers or {}) | {'User-Agent': USER_AGENT}
+        async with self.client.session.request(method=method, url=url, headers=headers, data=data,
+                                               params=params, json=json) as response:
+            try:
                 data = await response.json()
                 if response.status == 200:
                     return data
                 raise RuntimeError(f"Bad request to {self.__class__.__name__} API: {response.status}")
+            except ContentTypeError:
+                raise RuntimeError(f"Bad request to {self.__class__.__name__} API. Problem in API functionality")
 
 
 class Bridge(ABC):
@@ -139,14 +149,14 @@ class Bridge(ABC):
     async def make_request(self, method:str = 'GET', url:str = None, headers:dict = None, params: dict = None,
                            data:str = None, json:dict = None):
 
-        async with ClientSession() as session:
-            async with session.request(method=method, url=url, headers=headers, data=data,
-                                       params=params, json=json, proxy=self.client.proxy) as response:
+        headers = (headers or {}) | {'User-Agent': USER_AGENT}
+        async with self.client.session.request(method=method, url=url, headers=headers, data=data,
+                                               params=params, json=json) as response:
 
-                data = await response.json()
-                if response.status in [200, 201]:
-                    return data
-                raise RuntimeError(f"Bad request to {self.__class__.__name__} API: {response.status}")
+            data = await response.json()
+            if response.status in [200, 201]:
+                return data
+            raise RuntimeError(f"Bad request to {self.__class__.__name__} API: {response.status}")
 
 
 class Refuel(ABC):
@@ -203,26 +213,14 @@ class Blockchain(ABC):
     async def withdraw(self):
         pass
 
-    @abstractmethod
-    async def transfer_eth(self):
-        pass
-
-    @abstractmethod
-    async def wrap_eth(self):
-        pass
-
-    @abstractmethod
-    async def unwrap_eth(self):
-        pass
-
     async def make_request(self, method:str = 'GET', url:str = None, headers:dict = None, params: dict = None,
                            data:str = None, json:dict = None):
 
-        async with ClientSession() as session:
-            async with session.request(method=method, url=url, headers=headers, data=data,
-                                       params=params, json=json, proxy=self.client.proxy) as response:
+        headers = (headers or {}) | {'User-Agent': USER_AGENT}
+        async with self.client.session.request(method=method, url=url, headers=headers, data=data,
+                                               params=params, json=json) as response:
 
-                data = await response.json()
-                if response.status == 200:
-                    return data
-                raise RuntimeError(f"Bad request to {self.__class__.__name__} API: {response.status}")
+            data = await response.json()
+            if response.status == 200:
+                return data
+            raise RuntimeError(f"Bad request to {self.__class__.__name__} API: {response.status}")

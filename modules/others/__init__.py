@@ -7,3 +7,4 @@ from .tevaera import Tevaera
 from .znsnameservice import ZkSyncNameService
 from .starknetid import StarknetId
 from .starkstars import StarkStars
+from .zkstars import ZkStars

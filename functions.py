@@ -3,8 +3,8 @@ import random
 from modules import *
 from utils.networks import *
 from config import OKX_WRAPED_ID, LAYERZERO_WRAPED_NETWORKS
-from settings import (LAYERSWAP_CHAIN_ID_FROM, ORBITER_CHAIN_ID_FROM, RHINO_CHAIN_ID_FROM,
-                      OKX_DEPOSIT_NETWORK, SOURCE_CHAIN_MERKLY, SOURCE_CHAIN_ZERIUS, GLOBAL_NETWORK)
+from settings import (BRIDGE_CHAIN_ID_FROM, OKX_DEPOSIT_NETWORK, SOURCE_CHAIN_MERKLY,
+                      SOURCE_CHAIN_ZERIUS, GLOBAL_NETWORK)
 
 
 def get_client(account_number, private_key, network, proxy, bridge_from_evm:bool = False) -> Client | StarknetClient:
@@ -15,6 +15,9 @@ def get_client(account_number, private_key, network, proxy, bridge_from_evm:bool
 
 def get_interface_by_chain_id(chain_id, deposit_module:bool = False):
     return {
+        3: Base,
+        4: Linea,
+        8: Scroll,
         9: StarknetEVM if deposit_module else Starknet,
         11: ZkSync,
     }[chain_id]
@@ -22,20 +25,20 @@ def get_interface_by_chain_id(chain_id, deposit_module:bool = False):
 
 def get_network_by_chain_id(chain_id):
     return {
-        1: Arbitrum,
-        2: Arbitrum_nova,
-        3: Base,
-        4: Linea,
-        5: Manta,
-        6: Polygon,
-        7: Optimism,
+        1: ArbitrumRPC,
+        2: Arbitrum_novaRPC,
+        3: BaseRPC,
+        4: LineaRPC,
+        5: MantaRPC,
+        6: PolygonRPC,
+        7: OptimismRPC,
         8: ScrollRPC,
         9: StarknetRPC,
-        10: Polygon_ZKEVM,
-        11: zkSyncEra,
-        12: Zora,
-        13: zkSyncEra,
-        14: Ethereum,
+        10: Polygon_ZKEVM_RPC,
+        11: zkSyncEraRPC,
+        12: ZoraRPC,
+        13: zkSyncEraRPC,
+        14: EthereumRPC,
     }[chain_id]
 
 
@@ -145,19 +148,19 @@ async def swap_odos(account_number, private_key, network, proxy, **kwargs):
     return await worker.swap(**kwargs)
 
 
-async def swap_xyfinance(account_number, private_key, network, proxy):
-    worker = Odos(get_client(account_number, private_key, network, proxy))
-    return await worker.swap()
+async def swap_xyfinance(account_number, private_key, network, proxy, **kwargs):
+    worker = XYfinance(get_client(account_number, private_key, network, proxy))
+    return await worker.swap(**kwargs)
 
 
-async def swap_rango(account_number, private_key, network, proxy):
+async def swap_rango(account_number, private_key, network, proxy, **kwargs):
     worker = Rango(get_client(account_number, private_key, network, proxy))
-    return await worker.swap()
+    return await worker.swap(**kwargs)
 
 
-async def swap_openocean(account_number, private_key, network, proxy):
+async def swap_openocean(account_number, private_key, network, proxy, **kwargs):
     worker = OpenOcean(get_client(account_number, private_key, network, proxy))
-    return await worker.swap()
+    return await worker.swap(**kwargs)
 
 
 async def swap_oneinch(account_number, private_key, network, proxy, **kwargs):
@@ -275,16 +278,6 @@ async def withdraw_zerolend(account_number, private_key, network, proxy):
     return await worker.withdraw()
 
 
-async def enable_collateral_zerolend(account_number, private_key, network, proxy):
-    worker = ZeroLend(get_client(account_number, private_key, network, proxy))
-    return await worker.enable_collateral()
-
-
-async def disable_collateral_zerolend(account_number, private_key, network, proxy):
-    worker = ZeroLend(get_client(account_number, private_key, network, proxy))
-    return await worker.disable_collateral()
-
-
 async def mint_domain_zns(account_number, private_key, network, proxy):
     worker = ZkSyncNameService(get_client(account_number, private_key, network, proxy))
     return await worker.mint()
@@ -299,10 +292,10 @@ async def bridge_layerswap(account_number, _, __, proxy, *args, **kwargs):
     if kwargs.get('help_okx') is True:
         chain_from_id = GLOBAL_NETWORK
     else:
-        chain_from_id = random.choice(LAYERSWAP_CHAIN_ID_FROM)
+        chain_from_id = random.choice(BRIDGE_CHAIN_ID_FROM)
     network = get_network_by_chain_id(chain_from_id)
 
-    bridge_from_evm = True if 9 not in LAYERSWAP_CHAIN_ID_FROM else False
+    bridge_from_evm = True if 9 not in BRIDGE_CHAIN_ID_FROM else False
     private_key = get_key_by_id_from(args, chain_from_id)
 
     worker = LayerSwap(get_client(account_number, private_key, network, proxy, bridge_from_evm))
@@ -313,10 +306,10 @@ async def bridge_orbiter(account_number, _, __, proxy, *args, **kwargs):
     if kwargs.get('help_okx') is True:
         chain_from_id = GLOBAL_NETWORK
     else:
-        chain_from_id = random.choice(ORBITER_CHAIN_ID_FROM)
+        chain_from_id = random.choice(BRIDGE_CHAIN_ID_FROM)
     network = get_network_by_chain_id(chain_from_id)
 
-    bridge_from_evm = True if 9 not in ORBITER_CHAIN_ID_FROM else False
+    bridge_from_evm = True if 9 not in BRIDGE_CHAIN_ID_FROM else False
     private_key = get_key_by_id_from(args, chain_from_id)
 
     worker = Orbiter(get_client(account_number, private_key, network, proxy, bridge_from_evm))
@@ -327,10 +320,10 @@ async def bridge_rhino(account_number, _, __, proxy, *args, **kwargs):
     if kwargs.get('help_okx') is True:
         chain_from_id = GLOBAL_NETWORK
     else:
-        chain_from_id = random.choice(RHINO_CHAIN_ID_FROM)
+        chain_from_id = random.choice(BRIDGE_CHAIN_ID_FROM)
     network = get_network_by_chain_id(chain_from_id)
 
-    bridge_from_evm = True if 9 not in RHINO_CHAIN_ID_FROM else False
+    bridge_from_evm = True if 9 not in BRIDGE_CHAIN_ID_FROM else False
     private_key = get_key_by_id_from(args, chain_from_id)
 
     worker = Rhino(get_client(account_number, private_key, network, proxy, bridge_from_evm))
@@ -343,6 +336,14 @@ async def refuel_merkly(account_number, private_key, _, proxy):
 
     worker = Merkly(get_client(account_number, private_key, network, proxy))
     return await worker.refuel(chain_from_id)
+
+
+async def refuel_zerius(account_number, private_key, _, proxy):
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SOURCE_CHAIN_MERKLY)]
+    network = get_network_by_chain_id(chain_from_id)
+
+    worker = Zerius(get_client(account_number, private_key, network, proxy), chain_from_id)
+    return await worker.refuel()
 
 
 async def mint_zerius(account_number, private_key, _, proxy):
@@ -501,3 +502,54 @@ async def enable_collateral_zklend(account_number, private_key, network, proxy):
 async def disable_collateral_zklend(account_number, private_key, network, proxy):
     worker = ZkLend(get_client(account_number, private_key, network, proxy))
     return await worker.disable_collateral()
+
+
+async def swap_uniswap(account_number, private_key, network, proxy):
+    worker = Uniswap(get_client(account_number, private_key, network, proxy))
+    return await worker.swap()
+
+
+async def swap_sushiswap(account_number, private_key, network, proxy):
+    worker = SushiSwap(get_client(account_number, private_key, network, proxy))
+    return await worker.swap()
+
+
+async def deposit_rocketsam(account_number, private_key, network, proxy):
+    worker = RocketSam(get_client(account_number, private_key, network, proxy))
+    return await worker.deposit()
+
+
+async def withdraw_rocketsam(account_number, private_key, network, proxy):
+    worker = RocketSam(get_client(account_number, private_key, network, proxy))
+    return await worker.withdraw()
+
+
+async def deposit_layerbank(account_number, private_key, network, proxy):
+    worker = LayerBank(get_client(account_number, private_key, network, proxy))
+    return await worker.deposit()
+
+
+async def withdraw_layerbank(account_number, private_key, network, proxy):
+    worker = LayerBank(get_client(account_number, private_key, network, proxy))
+    return await worker.withdraw()
+
+
+async def enable_collateral_layerbank(account_number, private_key, network, proxy):
+    worker = LayerBank(get_client(account_number, private_key, network, proxy))
+    return await worker.enable_collateral()
+
+
+async def disable_collateral_layerbank(account_number, private_key, network, proxy):
+    worker = LayerBank(get_client(account_number, private_key, network, proxy))
+    return await worker.disable_collateral()
+
+
+async def mint_zkstars(account_number, private_key, network, proxy):
+    worker = ZkStars(get_client(account_number, private_key, network, proxy))
+    return await worker.mint()
+
+
+async def random_approve(account_number, private_key, network, proxy):
+    worker = Starknet(get_client(account_number, private_key, network, proxy))
+    return await worker.random_approve()
+

@@ -3,7 +3,7 @@ import random
 from utils.tools import repeater, gas_checker
 from modules import Minter, Logger
 from config import TOKENS_PER_CHAIN, STARKSTARS_COUNTACTS
-from settings import STARKSTARS_NFT_CONTRACTS, USE_PROXY
+from settings import STARKSTARS_NFT_CONTRACTS
 
 
 class StarkStars(Minter, Logger):
@@ -22,24 +22,21 @@ class StarkStars(Minter, Logger):
     @repeater
     @gas_checker
     async def mint(self):
-        try:
-            await self.client.initialize_account()
+        await self.client.initialize_account()
 
-            eth_contract = TOKENS_PER_CHAIN[self.client.network.name]["ETH"]
+        eth_contract = TOKENS_PER_CHAIN[self.client.network.name]["ETH"]
 
-            contact_id = await self.get_new_nft_id()
+        contact_id = await self.get_new_nft_id()
 
-            nft_contract = await self.client.get_contract(contract_address=STARKSTARS_COUNTACTS[contact_id])
+        nft_contract = await self.client.get_contract(contract_address=STARKSTARS_COUNTACTS[contact_id])
 
-            self.logger_msg(*self.client.acc_info, msg=f"Mint StarkStars#00{contact_id:0>2} NFT")
+        self.logger_msg(*self.client.acc_info, msg=f"Mint StarkStars#00{contact_id:0>2} NFT")
 
-            mint_price = (await nft_contract.functions["get_price"].call())[0]
+        mint_price = (await nft_contract.functions["get_price"].call())[0]
 
-            approve_call = self.client.get_approve_call(eth_contract, nft_contract.address, mint_price)
+        approve_call = self.client.get_approve_call(eth_contract, nft_contract.address, mint_price)
 
-            mint_call = nft_contract.functions["mint"].prepare()
+        mint_call = nft_contract.functions["mint"].prepare()
 
-            return await self.client.send_transaction(approve_call, mint_call)
-        finally:
-            if USE_PROXY:
-                await self.client.session.close()
+        return await self.client.send_transaction(approve_call, mint_call)
+

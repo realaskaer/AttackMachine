@@ -16,6 +16,7 @@ from starknet_py.net.client_models import Call
 from aiohttp import ClientSession
 from aiohttp_socks import ProxyConnector
 from modules import Logger
+from modules.interfaces import USER_AGENT
 from utils.networks import Network
 from config import (
     TOKENS_PER_CHAIN,
@@ -24,7 +25,7 @@ from config import (
     LAYERSWAP_CHAIN_NAME,
     ARGENT_IMPLEMENTATION_CLASS_HASH_NEW,
     BRAAVOS_PROXY_CLASS_HASH, BRAAVOS_IMPLEMENTATION_CLASS_HASH, ARGENT_PROXY_CLASS_HASH,
-    ARGENT_IMPLEMENTATION_CLASS_HASH, ZKLEND_CONTRACTS, NOSTRA_CONTRACTS
+    ARGENT_IMPLEMENTATION_CLASS_HASH, ZKLEND_CONTRACTS, NOSTRA_CONTRACTS, ETH_PRICE
 )
 
 from settings import (
@@ -33,15 +34,11 @@ from settings import (
     UNLIMITED_APPROVE,
     AMOUNT_PERCENT,
     MIN_BALANCE,
-    DEX_LP_AMOUNT,
-    LANDING_AMOUNT,
-    LAYERSWAP_AMOUNT,
-    LAYERSWAP_CHAIN_ID_TO,
-    LAYERSWAP_REFUEL,
-    ORBITER_AMOUNT,
-    ORBITER_CHAIN_ID_TO,
-    RHINO_AMOUNT,
-    RHINO_CHAIN_ID_TO, PRICE_IMPACT, NEW_WALLET_TYPE
+    LIQUIDITY_AMOUNT,
+    BRIDGE_DEPOSIT_AMOUNT,
+    BRIDGE_CHAIN_ID_TO,
+    PRICE_IMPACT,
+    NEW_WALLET_TYPE
 )
 
 
@@ -115,7 +112,7 @@ class StarknetClient(Logger):
     def get_proxy_for_account(proxy):
         if USE_PROXY and proxy != "":
             return ClientSession(connector=ProxyConnector.from_url(f"{proxy}"))
-        return None
+        return ClientSession()
 
     @staticmethod
     async def check_stark_data_file(account_name):
@@ -186,13 +183,19 @@ class StarknetClient(Logger):
             error = error.args[0]['message']
         return error
 
+    async def initialize_evm_client(self, private_key, chain_id):
+        from modules import Client
+        from functions import get_network_by_chain_id
+        evm_client = Client(self.account_name, private_key,
+                            get_network_by_chain_id(chain_id), self.proxy_init)
+        return evm_client
+
     async def get_decimals(self, token_name:str):
         contract = TOKENS_PER_CHAIN[self.network.name][token_name]
         return (await self.account.client.call_contract(self.prepare_call(contract, 'decimals')))[0]
 
     async def get_normalize_amount(self, token_name, amount_in_wei):
         decimals = await self.get_decimals(token_name)
-
         return float(amount_in_wei / 10 ** decimals)
 
     async def get_smart_amount(self, settings:tuple, token_name:str = 'ETH'):
@@ -200,10 +203,8 @@ class StarknetClient(Logger):
             _, amount, _ = await self.get_token_balance(token_name)
             percent = round(random.uniform(int(settings[0]), int(settings[1]))) / 100
             amount = round(amount * percent, 6)
-
         else:
             amount = self.round_amount(*settings)
-
         return amount
 
     async def price_impact_defender(self, from_token_name, from_token_amount,
@@ -219,28 +220,19 @@ class StarknetClient(Logger):
             raise RuntimeError(
                 f'DEX price impact > your wanted impact | DEX impact: {price_impact:.3}% > Your impact {PRICE_IMPACT}%')
 
-    async def get_bridge_data(self, chain_from_id:int, _, __, module_name:str):
-        if module_name == 'Rhino':
-            source_chain = RHINO_CHAIN_INFO[chain_from_id]
-            destination_chain = RHINO_CHAIN_INFO[random.choice(RHINO_CHAIN_ID_TO)]
-            amount = await self.get_smart_amount(RHINO_AMOUNT)
+    async def get_bridge_data(self, chain_from_id: int, _, __, module_name: str):
+        deposit_info = BRIDGE_DEPOSIT_AMOUNT
+        bridge_info = {
+            'Rhino': RHINO_CHAIN_INFO,
+            'LayerSwap': LAYERSWAP_CHAIN_NAME,
+            'Orbiter': ORBITER_CHAINS_INFO,
+        }[module_name]
 
-            return source_chain, destination_chain, amount
+        source_chain = bridge_info[chain_from_id]
+        destination_chain = bridge_info[random.choice(BRIDGE_CHAIN_ID_TO)]
+        amount, _ = await self.check_and_get_eth_for_deposit(deposit_info, initial_chain_id=chain_from_id)
 
-        elif module_name == 'LayerSwap':
-            source_chain = LAYERSWAP_CHAIN_NAME[chain_from_id]
-            destination_chain = LAYERSWAP_CHAIN_NAME[random.choice(LAYERSWAP_CHAIN_ID_TO)]
-            refuel = LAYERSWAP_REFUEL
-            amount = await self.get_smart_amount(LAYERSWAP_AMOUNT)
-
-            return source_chain, destination_chain, amount, refuel
-
-        elif module_name == 'Orbiter':
-            source_chain = ORBITER_CHAINS_INFO[chain_from_id]
-            destination_chain = ORBITER_CHAINS_INFO[random.choice(ORBITER_CHAIN_ID_TO)]
-            amount = await self.get_smart_amount(ORBITER_AMOUNT)
-
-            return source_chain, destination_chain, amount
+        return source_chain, destination_chain, amount
 
     async def get_landing_data(self, class_name:str, deposit:bool = False):
         landing_token_contracts = NOSTRA_CONTRACTS if class_name == 'Nostra' else ZKLEND_CONTRACTS
@@ -264,7 +256,7 @@ class StarknetClient(Logger):
                     calldata=[self.address]
                 )))[0]
 
-                amount_to_deposit = await self.get_smart_amount(LANDING_AMOUNT, token_name)
+                amount_to_deposit = await self.get_smart_amount(LIQUIDITY_AMOUNT, token_name)
                 amount_to_deposit_usd = amount_to_deposit
 
                 if token_name != 'ETH':
@@ -286,11 +278,14 @@ class StarknetClient(Logger):
             raise RuntimeError(f'Insufficient balance on account!')
         raise RuntimeError(f'Insufficient balance on {class_name} pools!')
 
-    async def check_and_get_eth_for_deposit(self, settings:tuple = None) -> [float, int]:
+    async def check_and_get_eth_for_deposit(self, settings:tuple = None, initial_chain_id:int = 0) -> [float, int]:
         from functions import swap_avnu
-        data = await self.get_auto_amount(token_name_search='ETH')
 
-        amount = await self.get_smart_amount(settings if settings else LANDING_AMOUNT)
+        data = True
+        if initial_chain_id and initial_chain_id in [3, 4, 8, 9, 11]:
+            data = await self.get_auto_amount(token_name_search='ETH')
+
+        amount = await self.get_smart_amount(settings if settings else LIQUIDITY_AMOUNT)
         amount_in_wei = int(amount * 10 ** 18)
 
         if data is False:
@@ -301,28 +296,12 @@ class StarknetClient(Logger):
 
         return amount, amount_in_wei
 
-    async def check_and_get_eth_for_liquidity(self) -> [float, int]:
-        from functions import swap_avnu
-
-        eth_balance_in_wei, eth_balance, _ = await self.get_token_balance('ETH')
-        amount_from_settings = await self.get_smart_amount(DEX_LP_AMOUNT)
-        amount_from_settings_in_wei = int(amount_from_settings * 10 ** 18)
-
-        await asyncio.sleep(1)
-        if eth_balance < amount_from_settings:
-            self.logger_msg(*self.acc_info, msg=f'Not enough ETH! Launching swap module', type_msg='warning')
-            await asyncio.sleep(1)
-            await swap_avnu(self.account_name, self.private_key, self.network, self.proxy_init,
-                            help_deposit=True, amount_to_help=amount_from_settings)
-
-        return amount_from_settings, amount_from_settings_in_wei
-
     async def get_auto_amount(self, token_name_search:str = None) -> [str, float, int]:
 
         wallet_balance = {k: await self.get_token_balance(k, False)
                           for k, v in TOKENS_PER_CHAIN[self.network.name].items()}
         valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
-        eth_price = await self.get_token_price('ethereum')
+        eth_price = ETH_PRICE
 
         if 'ETH' in valid_wallet_balance:
             valid_wallet_balance['ETH'] = valid_wallet_balance['ETH'] * eth_price
@@ -413,14 +392,14 @@ class StarknetClient(Logger):
     async def make_request(self, method:str = 'GET', url:str = None, headers:dict = None, params: dict = None,
                            data:str = None, json:dict = None, module_name:str = None):
 
-        async with ClientSession() as session:
-            async with session.request(method=method, url=url, headers=headers, data=data,
-                                       params=params, json=json, proxy=self.proxy) as response:
+        headers = (headers or {}) | {'User-Agent': USER_AGENT}
+        async with self.session.request(method=method, url=url, headers=headers, data=data,
+                                        params=params, json=json) as response:
 
-                data = await response.json()
-                if response.status == 200:
-                    return data
-                raise RuntimeError(f"Bad request to {module_name} API: {response.status}")
+            data = await response.json()
+            if response.status == 200:
+                return data
+            raise RuntimeError(f"Bad request to {module_name} API: {response.status}")
 
     async def get_gas_price(self):
         url = 'https://alpha-mainnet.starknet.io/feeder_gateway/get_block?blockNumber=latest'
@@ -455,7 +434,3 @@ class StarknetClient(Logger):
         data = await self.make_request(url=url, params=params, module_name='CoinGecko')
 
         return float(data[token_params][vs_currency])
-
-
-
-

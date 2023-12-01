@@ -9,7 +9,7 @@ from config import TOKENS_PER_CHAIN
 from modules import Bridge, Logger
 from datetime import datetime, timezone
 
-from settings import GLOBAL_NETWORK, USE_PROXY
+from settings import GLOBAL_NETWORK
 from utils.tools import gas_checker, sleep
 from eth_account.messages import encode_defunct
 from utils.stark_signature.stark_singature import sign, pedersen_hash, EC_ORDER, private_to_stark_key
@@ -77,8 +77,6 @@ class Rhino(Bridge, Logger):
             "Sec-Fetch-Dest":"empty",
             "Sec-Fetch-Mode":"cors",
             "Sec-Fetch-Site":"same-site",
-            "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
-                         " Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0",
             "Authorization": f"EcRecover {base64.b64encode(data_to_headers.encode('utf-8')).decode('utf-8')}"
         }
 
@@ -324,18 +322,17 @@ class Rhino(Bridge, Logger):
         }
 
         await self.make_request(method='POST', url=url, headers=headers, json=payload)
-
+        note = 'Wait 1-2 minutes for the withdrawal complete'
         self.logger_msg(
-            *self.client.acc_info, msg=f"Withdraw from Rhino to {chain_name_log} complete", type_msg='success')
+            *self.client.acc_info, msg=f"Withdraw from Rhino to {chain_name_log} complete. {note}", type_msg='success')
+        await sleep(self, 60, 120)
 
-    async def bridge(self, chain_from_id:int, private_keys:dict = None, help_okx:bool = False, help_network_id:int = 1):
-        close_session = False
+    async def bridge(self, chain_from_id:int, private_keys:dict = None, help_okx:bool = False):
         try:
             if GLOBAL_NETWORK == 9 and chain_from_id == 9:
                 await self.client.initialize_account()
-                close_session = True
             if GLOBAL_NETWORK == 9:
-                self.evm_client = await self.initialize_evm_client(private_keys['evm_key'], chain_from_id)
+                self.evm_client = await self.client.initialize_evm_client(private_keys['evm_key'], chain_from_id)
             self.evm_client = self.client
 
             self.nonce, self.signature = self.get_authentication_data()
@@ -361,8 +358,7 @@ class Rhino(Bridge, Logger):
 
             await asyncio.sleep(1)
 
-            chain_from_name, chain_to_name, amount = await self.client.get_bridge_data(chain_from_id, help_okx,
-                                                                                       help_network_id, 'Rhino')
+            chain_from_name, chain_to_name, amount = await self.client.get_bridge_data(chain_from_id, help_okx, 'Rhino')
 
             _, balance, _ = await self.client.get_token_balance()
 
@@ -389,12 +385,5 @@ class Rhino(Bridge, Logger):
         except Exception as error:
             raise RuntimeError(f"Rhino error: {error}")
         finally:
-            if USE_PROXY and close_session:
-                await self.client.session.close()
-
-    async def initialize_evm_client(self, private_key, chain_id):
-        from modules import Client
-        from functions import get_network_by_chain_id
-        evm_client = Client(self.client.account_name, private_key,
-                            get_network_by_chain_id(chain_id), self.client.proxy_init)
-        return evm_client
+            await self.client.session.close()
+            await self.evm_client.session.close()

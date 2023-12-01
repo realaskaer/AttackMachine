@@ -1,19 +1,20 @@
 from modules import Aggregator, Logger
 from utils.tools import gas_checker, repeater
 from settings import SLIPPAGE
-from config import TOKENS_PER_CHAIN, ZERO_ADDRESS, ODOS_CONTRACT, HELP_SOFTWARE
+from config import TOKENS_PER_CHAIN, ZERO_ADDRESS, HELP_SOFTWARE
 
 
 class Odos(Aggregator, Logger):
     def __init__(self, client):
         Logger.__init__(self)
         super().__init__(client)
+        self.network = self.client.network.name
 
     async def get_quote(self, from_token_address: str, to_token_address: str, amount_in_wei: int):
         quote_url = "https://api.odos.xyz/sor/quote/v2"
 
         quote_request_body = {
-            "chainId": 324,
+            "chainId": self.client.chain_id,
             "inputTokens": [
                 {
                     "tokenAddress": f"{from_token_address}",
@@ -54,8 +55,7 @@ class Odos(Aggregator, Logger):
 
     @repeater
     @gas_checker
-    async def swap(self, help_deposit:bool = False):
-
+    async def swap(self, help_deposit: bool = False):
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
         if help_deposit:
@@ -63,19 +63,20 @@ class Odos(Aggregator, Logger):
 
         self.logger_msg(*self.client.acc_info, msg=f"Swap on ODOS: {amount} {from_token_name} -> {to_token_name}")
 
-        token_data = TOKENS_PER_CHAIN[self.client.network.name]
+        token_data = TOKENS_PER_CHAIN[self.network]
 
         from_token_address = ZERO_ADDRESS if from_token_name == "ETH" else token_data[from_token_name]
         to_token_address = ZERO_ADDRESS if to_token_name == "ETH" else token_data[to_token_name]
 
-        if from_token_name != 'ETH':
-            await self.client.check_for_approved(from_token_address, ODOS_CONTRACT["router"], amount_in_wei)
-
         path_id = (await self.get_quote(from_token_address, to_token_address, amount_in_wei))["pathId"]
         transaction_data = (await self.assemble_transaction(path_id))["transaction"]
+        contract_address = self.client.w3.to_checksum_address(transaction_data["to"])
+
+        if from_token_name != 'ETH':
+            await self.client.check_for_approved(from_token_address, contract_address, amount_in_wei)
 
         tx_params = (await self.client.prepare_transaction()) | {
-            "to": transaction_data["to"],
+            "to": contract_address,
             "data": transaction_data["data"],
             "value": int(transaction_data["value"]),
         }

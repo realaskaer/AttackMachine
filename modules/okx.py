@@ -11,7 +11,9 @@ from settings import (
     OKX_WITHDRAW_NETWORK,
     OKX_WITHDRAW_AMOUNT,
     OKX_DEPOSIT_NETWORK,
-    OKX_BRIDGE_NEED, USE_PROXY, GLOBAL_NETWORK, OKX_DEPOSIT_AMOUNT
+    OKX_BRIDGE_NEED,
+    GLOBAL_NETWORK,
+    OKX_DEPOSIT_AMOUNT
 )
 
 
@@ -19,15 +21,6 @@ class OKX(CEX, Logger):
     def __init__(self, client):
         Logger.__init__(self)
         super().__init__(client)
-
-    @staticmethod
-    def get_network_id():
-        return {
-            2: 1,
-            4: 7,
-            6: 10,
-            7: 4
-        }[OKX_DEPOSIT_NETWORK]
 
     async def get_headers(self, request_path: str, method: str = "GET", body: str = ""):
         try:
@@ -59,51 +52,45 @@ class OKX(CEX, Logger):
 
     @repeater
     async def withdraw(self):
-        close_session = False
-        try:
-            if GLOBAL_NETWORK == 9 and OKX_WITHDRAW_NETWORK == 5:
-                await self.client.initialize_account(check_balance=True)
-                close_session = True
+        if GLOBAL_NETWORK == 9 and OKX_WITHDRAW_NETWORK == 5:
+            await self.client.initialize_account(check_balance=True)
 
-            url = 'https://www.okx.cab/api/v5/asset/withdrawal'
+        url = 'https://www.okx.cab/api/v5/asset/withdrawal'
 
-            withdraw_data = await self.get_currencies()
+        withdraw_data = await self.get_currencies()
 
-            networks_data = {item['chain']: {'can_withdraw': item['canWd'], 'min_fee': item['minFee']} for item in
-                             withdraw_data}
+        networks_data = {item['chain']: {'can_withdraw': item['canWd'], 'min_fee': item['minFee']} for item in
+                         withdraw_data}
 
-            network_name = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK]
-            network_data = networks_data[network_name]
-            amount = await self.client.get_smart_amount(OKX_WITHDRAW_AMOUNT)
+        network_name = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK]
+        network_data = networks_data[network_name]
+        amount = await self.client.get_smart_amount(OKX_WITHDRAW_AMOUNT)
 
-            self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount} ETH to {network_name[4:]}")
+        self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount} ETH to {network_name[4:]}")
 
-            if network_data['can_withdraw']:
-                address = f"0x{hex(self.client.address)[2:]:0>64}" if OKX_WITHDRAW_NETWORK == 5 else self.client.address
+        if network_data['can_withdraw']:
+            address = f"0x{hex(self.client.address)[2:]:0>64}" if OKX_WITHDRAW_NETWORK == 5 else self.client.address
 
-                body = {
-                    "ccy": 'ETH',
-                    "amt": amount - float(network_data['min_fee']),
-                    "dest": "4",
-                    "toAddr": address,
-                    "fee": network_data['min_fee'],
-                    "chain": f"{network_name}",
-                }
+            body = {
+                "ccy": 'ETH',
+                "amt": amount - float(network_data['min_fee']),
+                "dest": "4",
+                "toAddr": address,
+                "fee": network_data['min_fee'],
+                "chain": f"{network_name}",
+            }
 
-                headers = await self.get_headers(method="POST", request_path=url, body=str(body))
+            headers = await self.get_headers(method="POST", request_path=url, body=str(body))
 
-                await self.make_request(method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
+            await self.make_request(method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
 
-                self.logger_msg(*self.client.acc_info,
-                                msg=f"Withdraw complete. Note: wait 1-2 minute to receive funds", type_msg='success')
+            self.logger_msg(*self.client.acc_info,
+                            msg=f"Withdraw complete. Note: wait 1-2 minute to receive funds", type_msg='success')
 
-                await sleep(self, 70, 140)
-                return True
-            else:
-                raise RuntimeError(f"Withdraw {network_name} is not available")
-        finally:
-            if USE_PROXY and close_session:
-                await self.client.session.close()
+            await sleep(self, 200, 260)
+            return True
+        else:
+            raise RuntimeError(f"Withdraw {network_name} is not available")
 
     @repeater
     async def transfer_from_subaccounts(self):
@@ -184,61 +171,57 @@ class OKX(CEX, Logger):
     @repeater
     @gas_checker
     async def deposit_to_okx(self):
+        if GLOBAL_NETWORK == 9:
+            await self.client.initialize_account()
+
+        amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit(OKX_DEPOSIT_AMOUNT)
+
         try:
-            if GLOBAL_NETWORK == 9:
-                await self.client.initialize_account()
+            with open('./data/services/okx_withdraw_list.json') as file:
+                from json import load
+                okx_withdraw_list = load(file)
+        except:
+            self.logger_msg(None, None, f"Bad data in okx_wallet_list.json", 'error')
 
-            amount = await self.client.get_smart_amount(OKX_DEPOSIT_AMOUNT)
-            amount_in_wei = int(amount * 10 ** 18)
-            try:
-                with open('./data/services/okx_withdraw_list.json') as file:
-                    from json import load
-                    okx_withdraw_list = load(file)
-            except:
-                self.logger_msg(None, None, f"Bad data in okx_wallet_list.json", 'error')
+        try:
+            okx_wallet = okx_withdraw_list[self.client.account_name]
+        except Exception as error:
+            raise RuntimeError(f'There is no wallet listed for deposit to OKX: {error}')
 
-            try:
-                okx_wallet = okx_withdraw_list[self.client.account_name]
-            except Exception as error:
-                raise RuntimeError(f'There is no wallet listed for deposit to OKX: {error}')
+        info = f"{okx_wallet[:10]}....{okx_wallet[-6:]}"
+        network_name = self.client.network.name
 
-            info = f"{okx_wallet[:10]}....{okx_wallet[-6:]}"
-            network_name = self.client.network.name
+        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} ETH from {network_name} to OKX wallet: {info}")
 
-            self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} ETH from {network_name} to OKX wallet: {info}")
+        if self.client.network.name == 'Starknet':
+            await self.client.initialize_account()
+            transaction = self.client.prepare_call(
+                contract_address=TOKENS_PER_CHAIN['Starknet']['ETH'],
+                selector_name="transfer",
+                calldata=[
+                    int(okx_wallet, 16),
+                    amount_in_wei, 0
+                ]
+            )
+        else:
+            transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
+                'to': self.client.w3.to_checksum_address(okx_wallet),
+                'data': '0x'
+            }
 
-            if self.client.network.name == 'Starknet':
-                await self.client.initialize_account()
-                transaction = self.client.prepare_call(
-                    contract_address=TOKENS_PER_CHAIN['Starknet']['ETH'],
-                    selector_name="transfer",
-                    calldata=[
-                        int(okx_wallet, 16),
-                        amount_in_wei, 0
-                    ]
-                )
-            else:
-                transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
-                    'to': self.client.w3.to_checksum_address(okx_wallet),
-                    'data': '0x'
-                }
-
-            return await self.client.send_transaction(transaction)
-        finally:
-            if USE_PROXY and GLOBAL_NETWORK == 9:
-                await self.client.session.close()
+        return await self.client.send_transaction(transaction)
 
     async def deposit(self):
 
         if OKX_DEPOSIT_NETWORK not in (5, 6):
 
             if OKX_BRIDGE_NEED:
-                await self.client.bridge_from_source(self.get_network_id())
+                await self.client.bridge_from_source()
 
                 await sleep(self, 60, 80)
 
         result = await self.deposit_to_okx()
-        await sleep(self, 550, 650)
+        await sleep(self, 600, 700)
         return result
 
     @repeater

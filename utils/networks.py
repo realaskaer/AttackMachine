@@ -24,7 +24,10 @@ class Network:
 StarknetRPC = Network(
     name='Starknet',
     rpc=[
-        '',
+        'https://starknet-mainnet.g.alchemy.com/v2/cUa595b4LBwHdDZ3uHSBZr7PS1NXgFCQ',
+        'https://starknet-mainnet.g.alchemy.com/v2/yAUA5IfXLwHImyuJjmKvrAe0TlEcfi2t',
+        'https://starknet-mainnet.g.alchemy.com/v2/vpa-cuKfny13-2Np_Qz3Ubsp6jEWrMIX',
+        'https://starknet-mainnet.g.alchemy.com/v2/O68huY7AaLNx8Hc0796Y0q8jC-27sjxQ',
     ],
     chain_id=0,
     eip1559_support=False,
@@ -32,7 +35,7 @@ StarknetRPC = Network(
     explorer='https://starkscan.co/',
 )
 
-zkSyncEra = Network(
+zkSyncEraRPC = Network(
     name='zkSync',
     rpc=[
         'https://mainnet.era.zksync.io',
@@ -56,7 +59,7 @@ ScrollRPC = Network(
     explorer='https://scrollscan.com/'
 )
 
-Arbitrum = Network(
+ArbitrumRPC = Network(
     name='Arbitrum',
     rpc=[
         'https://rpc.ankr.com/arbitrum/',
@@ -71,7 +74,7 @@ Arbitrum = Network(
 )
 
 
-Optimism = Network(
+OptimismRPC = Network(
     name='Optimism',
     rpc=[
         'https://rpc.ankr.com/optimism/',
@@ -86,7 +89,7 @@ Optimism = Network(
 )
 
 
-Polygon = Network(
+PolygonRPC = Network(
     name='Polygon',
     rpc=[
         'https://rpc.ankr.com/polygon',
@@ -101,7 +104,7 @@ Polygon = Network(
 )
 
 
-Avalanche = Network(
+AvalancheRPC = Network(
     name='Avalanche',
     rpc=[
         'https://rpc.ankr.com/avalanche/',
@@ -116,7 +119,7 @@ Avalanche = Network(
 )
 
 
-Ethereum = Network(
+EthereumRPC = Network(
     name='Ethereum',
     rpc=[
         'https://rpc.ankr.com/eth',
@@ -133,7 +136,7 @@ Ethereum = Network(
     explorer='https://etherscan.io/'
 )
 
-Arbitrum_nova = Network(
+Arbitrum_novaRPC = Network(
     name='Arbitrum Nova',
     rpc=[
         'https://rpc.ankr.com/arbitrumnova',
@@ -147,13 +150,14 @@ Arbitrum_nova = Network(
     explorer='https://nova.arbiscan.io/'
 )
 
-Base = Network(
+BaseRPC = Network(
     name='Base',
     rpc=[
+        'https://mainnet.base.org',
         'https://base.llamarpc.com',
-        'https://base.publicnode.com',
+        'https://1rpc.io/base',
         'https://base.meowrpc.com',
-        'https://1rpc.io/base'
+        'https://base.drpc.org',
     ],
     chain_id=8453,
     eip1559_support=True,
@@ -161,7 +165,7 @@ Base = Network(
     explorer='https://basescan.org/'
 )
 
-Linea = Network(
+LineaRPC = Network(
     name='Linea',
     rpc=[
         'https://linea.drpc.org',
@@ -174,7 +178,7 @@ Linea = Network(
     explorer='https://lineascan.build/'
 )
 
-Zora = Network(
+ZoraRPC = Network(
     name='Zora',
     rpc=[
         'https://rpc.zora.energy'
@@ -185,7 +189,7 @@ Zora = Network(
     explorer='https://zora.superscan.network/'
 )
 
-Polygon_ZKEVM = Network(
+Polygon_ZKEVM_RPC = Network(
     name='Polygon ZKEVM',
     rpc=[
         'https://1rpc.io/polygon/zkevm',
@@ -198,7 +202,7 @@ Polygon_ZKEVM = Network(
     explorer='https://zkevm.polygonscan.com/'
 )
 
-BSC = Network(
+BSC_RPC = Network(
     name='BNB chain',
     rpc=[
         'https://binance.llamarpc.com',
@@ -212,7 +216,7 @@ BSC = Network(
     explorer='https://bscscan.com/'
 )
 
-Manta = Network(
+MantaRPC = Network(
     name='Manta',
     rpc=[
         'https://pacific-rpc.manta.network/http'
@@ -223,7 +227,7 @@ Manta = Network(
     explorer='https://pacific-explorer.manta.network/'
 )
 
-Mantle = Network(
+MantleRPC = Network(
     name='Mantle',
     rpc=[
         'https://mantle.publicnode.com',
@@ -238,7 +242,7 @@ Mantle = Network(
     explorer='https://explorer.mantle.xyz/'
 )
 
-OpBNB = Network(
+OpBNB_RPC = Network(
     name='OpBNB',
     rpc=[
         'https://opbnb.publicnode.com',

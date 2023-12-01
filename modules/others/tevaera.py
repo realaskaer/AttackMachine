@@ -16,29 +16,23 @@ class Tevaera(Minter, Logger):
 
     @repeater
     async def mint_id(self):
-        try:
-            self.logger_msg(*self.client.acc_info, msg=f'Mint Tevaera Citizen ID')
+        self.logger_msg(*self.client.acc_info, msg=f'Mint Tevaera Citizen ID')
 
-            tx_params = await self.client.prepare_transaction(value=300000000000000)
+        tx_params = await self.client.prepare_transaction(value=300000000000000)
 
-            transaction = await self.id_contract.functions.mintCitizenId().build_transaction(tx_params)
+        transaction = await self.id_contract.functions.mintCitizenId().build_transaction(tx_params)
 
-            return await self.client.send_transaction(transaction)
-        except Exception as error:
-            raise RuntimeError(f'{error}')
+        return await self.client.send_transaction(transaction)
 
     @repeater
     async def mint_nft(self):
-        try:
-            self.logger_msg(*self.client.acc_info, msg=f'Mint Tevaera Guardian NFT')
+        self.logger_msg(*self.client.acc_info, msg=f'Mint Tevaera Guardian NFT')
 
-            tx_params = await self.client.prepare_transaction()
+        tx_params = await self.client.prepare_transaction()
 
-            transaction = await self.nft_contract.functions.mint().build_transaction(tx_params)
+        transaction = await self.nft_contract.functions.mint().build_transaction(tx_params)
 
-            return await self.client.send_transaction(transaction)
-        except Exception as error:
-            raise RuntimeError(f"{error}")
+        return await self.client.send_transaction(transaction)
 
     # def mint_karma(self):
     #

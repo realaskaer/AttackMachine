@@ -8,13 +8,14 @@ class GnosisSafe(Creator, Logger):
     def __init__(self, client):
         super().__init__()
         self.client = client
+        self.network = self.client.network.name
 
     @repeater
     @gas_checker
     async def create(self):
         self.logger_msg(*self.client.acc_info, msg=f'Create safe on chain')
 
-        safe_contract = self.client.get_contract(SAFE_CONTRACTS['proxy_factory'], SAFE_ABI)
+        safe_contract = self.client.get_contract(SAFE_CONTRACTS[self.network]['proxy_factory'], SAFE_ABI)
         tx_params = await self.client.prepare_transaction()
         deadline = int(time()) + 1800
 
@@ -25,7 +26,7 @@ class GnosisSafe(Creator, Logger):
                 1,
                 ZERO_ADDRESS,
                 "0x",
-                SAFE_CONTRACTS['fallback_handler'],
+                SAFE_CONTRACTS[self.network]['fallback_handler'],
                 ZERO_ADDRESS,
                 0,
                 ZERO_ADDRESS
@@ -33,7 +34,7 @@ class GnosisSafe(Creator, Logger):
         )
 
         transaction = await safe_contract.functions.createProxyWithNonce(
-            SAFE_CONTRACTS['gnosis_safe'],
+            SAFE_CONTRACTS[self.network]['gnosis_safe'],
             setup_data,
             deadline
         ).build_transaction(tx_params)
