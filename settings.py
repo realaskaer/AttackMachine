@@ -16,7 +16,7 @@ TRANSFER_AMOUNT = (0.00001, 0.00005)  # Применяется для транс
 MIN_BALANCE = 0.001  # Количество ETH на аккаунте
 
 """
--------------------------------------------------OKX WITHDRAW-----------------------------------------------------------
+--------------------------------------------------OKX CONTROL-----------------------------------------------------------
     Выберите сети для вывода и ввода с OKX. Софт работает только с токеном ETH. Не забудьте вставить API ключи снизу.
 
     1 - ETH-ERC20
@@ -49,9 +49,9 @@ OKX_DEPOSIT_NETWORK = 5                # Сеть из которой плани
 OKX_DEPOSIT_AMOUNT = (0.001, 0.001)    # (минимальная, максимальная) сумма в ETH на пополнение OKX
 
 """
-------------------------------------------------LayerSwap Bridge--------------------------------------------------------
+------------------------------------------------BRIDGE CONTROL----------------------------------------------------------
     Проверьте руками, работает ли сеть на сайте. (Софт сам проверит, но зачем его напрягать?)
-    Софт работает только с токеном ETH. Не забудьте вставить API ключи снизу.
+    Софт работает только с нативным токеном(ETH). Не забудьте вставить API ключ для LayerSwap снизу.
     
     Можно указать минимальную/максимальную сумму или минимальный/максимальный % от баланса
     
@@ -106,8 +106,10 @@ BRIDGE_WITHDRAW_AMOUNT = (0.003, 0.004)   # (минимум, максимум) E
     
     *   - Могут быть использованы как исходящие сеть для Zerius, Merkly
     (B) - Поддерживаемые входящие сети в Bungee
-    **  - Сумму для Merkly нужно подавать в нативном токене входящей сети. И указывайте на 5-10% меньше от лимита,
-            во избежания ошибок работы софта. Смотреть лимиты можно здесь https://minter.merkly.com/gas  
+    **  - Сумму для Merkly и Zerius нужно подавать в нативном токене входящей сети. Указывайте на 10% меньше от лимита,
+            во избежания ошибок работы LayerZero мостов. Смотреть лимиты можно здесь: 
+                1) Zerius - https://zerius.io/refuel
+                2) Merkly - https://minter.merkly.com/gas  
 """
 SOURCE_CHAIN_ZERIUS = [5]  # Исходящая сеть для Zerius
 DESTINATION_ZERIUS = [1, 4, 8]  # Входящая сеть для Zerius
@@ -158,7 +160,7 @@ DESTINATION_L2TELEGRAPH = [22]  # Входящая сеть для L2Telegraph. 
     GOOGLE_SHEET_URL        | Ссылка на вашу Google таблицу с прогрессом аккаунтов
     GOOGLE_SHEET_PAGE_NAME  | Аналогично EXCEL_PAGE_NAME   
 """
-GLOBAL_NETWORK = 11             # 16.11.2023 поддерживается только zkSync и Starknet. Следите за новостями.
+GLOBAL_NETWORK = 11             # 02.11.2023 поддерживается zkSync, Starknet, Linea, Base и Scroll.
 SOFTWARE_MODE = 0               # 0 - последовательный запуск / 1 - параллельный запуск
 ACCOUNTS_IN_STREAM = 1          # Только для SOFTWARE_MODE = 1 (параллельный запуск)
 WALLETS_TO_WORK = 0             # 0 / 3 / 3, 20 / [3, 20]
@@ -228,6 +230,7 @@ LAYERSWAP_API_KEY = ""
 --------------------------------------------------OTHER SETTINGS--------------------------------------------------------
 
     STARKSTARS_NFT_CONTRACTS | Укажите какие NFT ID будут участвовать в минте. Все что в скобках, будут использованы
+    ZKSTARS_NFT_CONTRACTS | Укажите какие NFT ID будут участвовать в минте. Все что в скобках, будут использованы
     NEW_WALLET_TYPE | Определяет какой кошелек будет задеплоен, если вы решили создать новый. 0 - ArgentX | 1 - Braavos
 """
 
@@ -265,15 +268,15 @@ HELP_NEW_MODULE = False       # True или False | Добавляет случ�
 EXCLUDED_MODULES = ['swap_openocean']  # Исключает выбранные модули из маршрута. Список в Classic-Routes.
 
 DEPOSIT_CONFIG = {
-    'okx_withdraw'                        : 0,  # смотри OKX настройки
+    'okx_withdraw'                        : 0,  # смотри OKX CONTROL
     'upgrade_stark_wallet'                : 0,  # обновляет кошелек, во время маршрута
     'deploy_stark_wallet'                 : 0,  # деплоит кошелек, после вывода с OKX
-    'bridge_rhino'                        : 0,  # смотри Rhino настройки
-    'bridge_layerswap'                    : 0,  # смотри LayerSwap настройки
-    'bridge_orbiter'                      : 0,  # смотри Orbiter настройки
-    'bridge_native'                       : 0,  # смотри Native Bridge настройки
-    'okx_deposit'                         : 0,  # смотри OKX настройки
-    'okx_collect_from_sub'                : 0   # смотри OKX настройки
+    'bridge_rhino'                        : 0,  # смотри BRIDGE CONTROL
+    'bridge_layerswap'                    : 0,  # смотри BRIDGE CONTROL
+    'bridge_orbiter'                      : 0,  # смотри BRIDGE CONTROL
+    'bridge_native'                       : 0,  # смотри BRIDGE CONTROL
+    'okx_deposit'                         : 0,  # ввод средств на биржу
+    'okx_collect_from_sub'                : 0   # сбор средств на субАккаунтов на основной счет
 }
 
 """
@@ -282,11 +285,11 @@ DEPOSIT_CONFIG = {
 ---------------------------------------------------DEPOSIT--------------------------------------------------------------        
 
     
-    okx_withdraw                     # смотри OKX настройки
-    bridge_rhino                     # смотри Rhino настройки
-    bridge_layerswap                 # смотри LayerSwap настройки
-    bridge_orbiter                   # смотри Orbiter настройки
-    bridge_native                    # смотри Native Bridge настройки
+    okx_withdraw                     # смотри OKX CONTROL
+    bridge_rhino                     # смотри BRIDGE CONTROL
+    bridge_layerswap                 # смотри BRIDGE CONTROL
+    bridge_orbiter                   # смотри BRIDGE CONTROL
+    bridge_native                    # смотри BRIDGE CONTROL
     okx_deposit                      # ввод средств на биржу
     okx_collect_from_sub             # сбор средств на субАккаунтов на основной счет
     
@@ -324,18 +327,26 @@ DEPOSIT_CONFIG = {
     mint_and_bridge_l2telegraph      # mint и bridge nft через L2Telegraph
     mint_domain_ens                  # 0.003 ETH domain
     mint_domain_zns                  # 0.003 ETH domain
-    mint_mailzero                    # mint бесплатной NFT on MainZero
+    mint_mailzero                    # mint бесплатной NFT на MainZero
     mint_tevaera                     # mint 2 NFT on Tevaera
     mint_zerius                      # mint NFT on Zerius
     bridge_zerius                    # bridge последней NFT on Zerius
     deploy_contract                  # deploy вашего контракта
-    refuel_bungee                    # смотри Omni-Chain настройки
-    refuel_merkly                    # смотри Omni-Chain настройки
+    refuel_bungee                    # смотри OMNI-CHAIN CONTROL
+    refuel_merkly                    # смотри OMNI-CHAIN CONTROL
+    refuel_zerius                    # смотри OMNI-CHAIN CONTROL
     send_message_dmail               
-    send_message_l2telegraph         # смотри Omni-Chain настройки
+    send_message_l2telegraph         # смотри OMNI-CHAIN CONTROL
     transfer_eth                     
     transfer_eth_to_myself           
-    withdraw_native_bridge    
+    withdraw_native_bridge 
+    withdraw_basilisk               
+    withdraw_eralend                
+    withdraw_reactorfusion          
+    withdraw_zerolend               
+    disable_collateral_basilisk     
+    disable_collateral_eralend      
+    disable_collateral_reactorfusion   
                   
 ----------------------------------------------------STARKNET------------------------------------------------------------        
     
@@ -436,14 +447,14 @@ DEPOSIT_CONFIG = {
     
     CLASSIC_ROUTES_MODULES_USING = [
         ['okx_withdraw'],
-        ['bridge_layerswap', 'bridge_txsync', None],
+        ['bridge_layerswap', 'bridge_native', None],
         ['swap_mute', 'swap_izumi', 'mint_domain_ens'],
         ...
     ]
 """
 CLASSIC_ROUTES_MODULES_USING = [
-    ['create_omnisea'],
     ['okx_withdraw'],
+    ['bridge_native'],
     ['send_message_dmail'],
     ['random_approve', 'enable_collateral_zklend', 'send_message_dmail'],
     ['enable_collateral_eralend', 'enable_collateral_zerolend'],
@@ -458,5 +469,5 @@ CLASSIC_ROUTES_MODULES_USING = [
     ['refuel_bungee', 'refuel_merkly'],
     ['swap_oneinch', 'mint_domain_ens'],
     ['mint_mailzero', 'swap_vesync'],
-    ['withdraw_txsync']
+    ['withdraw_native']
 ]
