@@ -2,7 +2,7 @@ from .interfaces import DEX, Aggregator, Bridge, Refuel, Messenger, Landing, Min
 from .okx import OKX
 from .client import Client
 from .stark_client import StarknetClient
-from .blockchains import ZkSync, Starknet, StarknetEVM
+from .blockchains import ZkSync, Starknet, StarknetEVM, Base, Scroll, Linea
 from .swaps import Izumi
 from .swaps import JediSwap
 from .swaps import Maverick
@@ -24,6 +24,8 @@ from .swaps import AVNU
 from .swaps import SithSwap
 from .swaps import Protoss
 from .swaps import MySwap
+from .swaps import Uniswap
+from .swaps import SushiSwap
 from .bridges import LayerSwap
 from .bridges import Orbiter
 from .bridges import Rhino
@@ -31,6 +33,7 @@ from .onmichain import Bungee
 from .onmichain import L2Telegraph
 from .onmichain import Merkly
 from .onmichain import Zerius
+from .onmichain import RocketSam
 from .others import Dmail
 from .others import EraDomainService
 from .others import GnosisSafe
@@ -40,9 +43,11 @@ from .others import Tevaera
 from .others import ZkSyncNameService
 from .others import StarkStars
 from .others import StarknetId
+from .others import ZkStars
 from .landings import EraLend
 from .landings import ZeroLend
 from .landings import ReactorFusion
 from .landings import Basilisk
 from .landings import Nostra
 from .landings import ZkLend
+from .landings import LayerBank
