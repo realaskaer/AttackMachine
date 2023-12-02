@@ -13,7 +13,7 @@ from utils.route_generator import RouteGenerator, AVAILABLE_MODULES_INFO, get_fu
 from config import ACCOUNT_NAMES, PRIVATE_KEYS_EVM, PRIVATE_KEYS, PROXIES, CHAIN_NAME
 from settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, HELP_NEW_MODULE, TG_ID, TG_TOKEN, MOBILE_PROXY,
                       MOBILE_PROXY_URL_CHANGER, WALLETS_TO_WORK, TELEGRAM_NOTIFICATIONS, GLOBAL_NETWORK,
-                      SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM)
+                      SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM, EXCLUDED_MODULES)
 
 BRIDGE_NAMES = ['bridge_rhino', 'bridge_layerswap', 'bridge_orbiter', 'bridge_native']
 
@@ -189,11 +189,19 @@ class Runner(Logger):
                 self.logger_msg(account_name, None, f"Bad data in proxy, but you want proxy! Error: {error}", 'error')
                 raise RuntimeError("Proxy error")
 
+    def get_help_module(self, used_modules):
+        random_module = random.choice([i for i in AVAILABLE_MODULES_INFO.values()
+                                       if i[3] == 1 and GLOBAL_NETWORK in i[4]])
+        random_module_name = random_module[0].__name__
+        used_modules.extend(EXCLUDED_MODULES)
+        if random_module_name not in used_modules:
+            return random_module
+        return self.get_help_module(used_modules)
+
     async def run_account_modules(self, account_name, private_key, network, proxy, smart_route_type, index):
-        message_list, result_list = [], []
+        message_list, result_list, used_modules = [], [], []
         try:
             route = self.load_routes().get(str(account_name), {}).get('route')
-
             if not route:
                 raise RuntimeError(f"No route available")
 
@@ -211,7 +219,8 @@ class Runner(Logger):
             await self.smart_sleep(account_name, index, accounts_delay=True)
 
             while current_step < len(route):
-                module_func = get_func_by_name(route[current_step])
+                module_name = route[current_step]
+                module_func = get_func_by_name(module_name)
                 self.logger_msg(account_name, None, f"🚀 Launch module: {module_info[module_func][2]}")
 
                 module_input_data = [account_name, private_key, network, proxy]
@@ -221,6 +230,7 @@ class Runner(Logger):
                                               if GLOBAL_NETWORK == 9 else private_key})
 
                 try:
+                    used_modules.append(module_name)
                     result = await module_func(*module_input_data)
                 except Exception as error:
                     info = f"Module name: {module_info[module_func][2]} | Error {error}"
@@ -233,9 +243,7 @@ class Runner(Logger):
                     current_step += 1
                 else:
                     if smart_route_type and HELP_NEW_MODULE:
-                        module_for_help = random.choice([i for i in AVAILABLE_MODULES_INFO.values()
-                                                         if i[3] == 1 and GLOBAL_NETWORK in i[4]])
-
+                        module_for_help = self.get_help_module(used_modules)
                         module_name = module_for_help[0].__name__
                         info = f"Adding new module in route. Module name: {module_for_help[2]}"
                         await asyncio.sleep(1)

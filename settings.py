@@ -183,7 +183,7 @@ GAS_MULTIPLIER = 1.5            # Множитель газа для транз�
 
 '------------------------------------------------RETRY CONTROL---------------------------------------------------------'
 MAXIMUM_RETRY = 2               # Количество повторений при ошибках
-SLEEP_TIME_RETRY = 5            # Время сна после очередного повторения
+SLEEP_TIME_RETRY = (5, 10)      # (минимум, максимум) секунд | Время сна после очередного повторения
 
 
 '------------------------------------------------PROXY CONTROL---------------------------------------------------------'
@@ -457,7 +457,7 @@ CLASSIC_ROUTES_MODULES_USING = [
     ['bridge_native'],
     ['send_message_dmail'],
     ['random_approve', 'enable_collateral_zklend', 'send_message_dmail'],
-    ['enable_collateral_eralend', 'enable_collateral_zerolend'],
+    ['enable_collateral_eralend'],
     ['send_message_dmail'],
     ['mint_tevaera', 'mint_and_bridge_l2telegraph'],
     ['enable_collateral_basilisk', 'enable_collateral_eralend', None],
