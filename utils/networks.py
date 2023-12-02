@@ -25,9 +25,6 @@ StarknetRPC = Network(
     name='Starknet',
     rpc=[
         'https://starknet-mainnet.g.alchemy.com/v2/cUa595b4LBwHdDZ3uHSBZr7PS1NXgFCQ',
-        'https://starknet-mainnet.g.alchemy.com/v2/yAUA5IfXLwHImyuJjmKvrAe0TlEcfi2t',
-        'https://starknet-mainnet.g.alchemy.com/v2/vpa-cuKfny13-2Np_Qz3Ubsp6jEWrMIX',
-        'https://starknet-mainnet.g.alchemy.com/v2/O68huY7AaLNx8Hc0796Y0q8jC-27sjxQ',
     ],
     chain_id=0,
     eip1559_support=False,
