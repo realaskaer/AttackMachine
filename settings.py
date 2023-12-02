@@ -161,8 +161,8 @@ DESTINATION_L2TELEGRAPH = [22]  # Входящая сеть для L2Telegraph. 
     GOOGLE_SHEET_PAGE_NAME  | Аналогично EXCEL_PAGE_NAME   
 """
 GLOBAL_NETWORK = 11             # 02.11.2023 поддерживается zkSync, Starknet, Linea, Base и Scroll.
-SOFTWARE_MODE = 0               # 0 - последовательный запуск / 1 - параллельный запуск
-ACCOUNTS_IN_STREAM = 1          # Только для SOFTWARE_MODE = 1 (параллельный запуск)
+SOFTWARE_MODE = 1               # 0 - последовательный запуск / 1 - параллельный запуск
+ACCOUNTS_IN_STREAM = 9          # Только для SOFTWARE_MODE = 1 (параллельный запуск)
 WALLETS_TO_WORK = 0             # 0 / 3 / 3, 20 / [3, 20]
 SAVE_PROGRESS = False           # True или False | Включает сохранение прогресса аккаунта для Classic-routes
 TELEGRAM_NOTIFICATIONS = False  # True или False | Включает уведомления в Telegram
@@ -178,7 +178,7 @@ GAS_CONTROL = False             # True или False | Включает конт�
 MAXIMUM_GWEI = 40               # Максимальный GWEI для работы софта
 SLEEP_TIME_GAS = 100            # Время очередной проверки газа
 CONTROL_TIMES_FOR_SLEEP = 3     # Количество проверок
-GAS_MULTIPLIER = 1.5            # Множитель газа для транзакций
+GAS_MULTIPLIER = 1.3            # Множитель газа для транзакций
 
 
 '------------------------------------------------RETRY CONTROL---------------------------------------------------------'
@@ -211,7 +211,7 @@ OKX_API_PASSPHRAS = ""
 
 # EXCEL AND GOOGLE INFO
 EXCEL_PASSWORD = False
-EXCEL_PAGE_NAME = "EVM"
+EXCEL_PAGE_NAME = ""
 GOOGLE_SHEET_URL = ""
 GOOGLE_SHEET_PAGE_NAME = ""
 
@@ -335,6 +335,7 @@ DEPOSIT_CONFIG = {
     refuel_bungee                    # смотри OMNI-CHAIN CONTROL
     refuel_merkly                    # смотри OMNI-CHAIN CONTROL
     refuel_zerius                    # смотри OMNI-CHAIN CONTROL
+    random_approve
     send_message_dmail               
     send_message_l2telegraph         # смотри OMNI-CHAIN CONTROL
     transfer_eth                     
@@ -361,6 +362,9 @@ DEPOSIT_CONFIG = {
     swap_protoss
     swap_myswap
     send_message_dmail
+    random_approve
+    transfer_eth                     
+    transfer_eth_to_myself   
     enable_collateral_zklend
     disable_collateral_zklend
     mint_starknet_identity
@@ -391,6 +395,10 @@ DEPOSIT_CONFIG = {
     refuel_bungee
     refuel_merkly
     refuel_zerius
+    random_approve
+    transfer_eth                     
+    transfer_eth_to_myself   
+    send_message_dmail
     send_message_l2telegraph
 
 ------------------------------------------------------LINEA-------------------------------------------------------------        
@@ -415,6 +423,10 @@ DEPOSIT_CONFIG = {
     deploy_contract
     refuel_merkly
     refuel_zerius
+    random_approve
+    transfer_eth                     
+    transfer_eth_to_myself   
+    send_message_dmail
     send_message_l2telegraph
 
 -------------------------------------------------------SCROLL-----------------------------------------------------------        
@@ -436,6 +448,10 @@ DEPOSIT_CONFIG = {
     deploy_contract
     refuel_merkly
     refuel_zerius
+    random_approve
+    transfer_eth                     
+    transfer_eth_to_myself   
+    send_message_dmail
     send_message_l2telegraph
     
     
