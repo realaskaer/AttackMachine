@@ -102,7 +102,7 @@ AVAILABLE_MODULES_INFO = {
     withdraw_zklend                     : (withdraw_zklend, 3, 'zkLend Withdraw', 0, [9]),
     withdraw_layerbank                  : (withdraw_layerbank, 3, 'LayerBank Withdraw', 0, [4, 8]),
     withdraw_rocketsam                  : (withdraw_rocketsam, 3, 'RocketSam Withdraw', 0, [3, 4, 8, 11]),
-    withdraw_native_bridge              : (withdraw_native_bridge, 3, 'Native Bridge Withdraw', 0, [3, 4, 8, 9, 11]),
+    withdraw_native_bridge              : (withdraw_native_bridge, 3, 'Native Bridge Withdraw', 0, [9, 11]),
     okx_deposit                         : (okx_deposit, 4, 'OKX Deposit', 0, [3, 4, 8, 9, 11]),
     okx_collect_from_sub                : (okx_collect_from_sub, 5, 'OKX Collect money', 0, [3, 4, 8, 9, 11])
 }

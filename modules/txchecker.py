@@ -22,7 +22,7 @@ ALL_SYMBOLS = [
 ]
 
 FIELDS = [
-    '#', 'Wallet', 'ETH', 'USDC', 'USDT', 'BUSD', 'TX Count', 'Volume', 'Contracts',
+    '#', 'Wallet', 'Balance', 'ETH', 'USDC', 'USDT', 'BUSD', 'TX Count', 'Volume', 'Contracts',
     'Bridge to/from', 'Days/Weeks/Months', 'First/Last tx', 'Total gas spent'
 ]
 
@@ -164,10 +164,12 @@ class TxChecker:
         txs_data = await self.get_transaction_data(wallet, eth_price)
         first_tx, last_tx = (txs_data['first_tx_date'], txs_data['last_tx_date']) if txs_data['tx_count'] else ('—', '—')
         dwm_date = f'{txs_data["unique_days"]} / {txs_data["unique_weeks"]} / {txs_data["unique_months"]}'
+        sum_balance = balance['USDC'] + balance['USDT'] + balance['BUSD'] + (balance['ETH'] * eth_price)
 
         return {
             '#'                     : index + 1,
             'Wallet'                : f'{wallet}',
+            'Balance'               : f'{sum_balance:.2f}$',
             'ETH'                   : f"{balance['ETH']:.4f} (${(balance['ETH'] * eth_price):.2f})",
             'USDC'                  : f"{balance['USDC']:.2f}",
             'USDT'                  : f"{balance['USDT']:.2f}",

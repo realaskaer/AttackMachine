@@ -70,8 +70,8 @@ OKX_DEPOSIT_AMOUNT = (0.001, 0.001)    # (минимальная, максима
     BRIDGE_CHAIN_ID_FROM(TO) = [2, 4, 16] | Одна из сетей будет выбрана
     BRIDGE_WITHDRAW_AMOUNT | Настройка для вывода из нативного моста
 """
-BRIDGE_CHAIN_ID_FROM = [1]   # Исходящая сеть
-BRIDGE_CHAIN_ID_TO = [8]        # Входящая сеть
+BRIDGE_CHAIN_ID_FROM = [1]                # Исходящая сеть
+BRIDGE_CHAIN_ID_TO = [8]                  # Входящая сеть
 BRIDGE_DEPOSIT_AMOUNT = (0.007, 0.008)    # (минимум, максимум) ETH или %
 BRIDGE_WITHDRAW_AMOUNT = (0.003, 0.004)   # (минимум, максимум) ETH или %
 
@@ -211,7 +211,7 @@ OKX_API_PASSPHRAS = ""
 
 # EXCEL AND GOOGLE INFO
 EXCEL_PASSWORD = False
-EXCEL_PAGE_NAME = ""
+EXCEL_PAGE_NAME = "EVM"
 GOOGLE_SHEET_URL = ""
 GOOGLE_SHEET_PAGE_NAME = ""
 
