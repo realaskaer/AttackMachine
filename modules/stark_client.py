@@ -68,6 +68,7 @@ class StarknetClient(Logger):
     async def initialize_account(self, check_balance:bool = False):
         self.account, self.address, self.WALLET_TYPE = await self.get_wallet_auto(self.w3, self.key_pair,
                                                                                   self.account_name, check_balance)
+        self.address = int(self.address)
         self.acc_info = self.account_name, self.address
         self.account.ESTIMATED_FEE_MULTIPLIER = GAS_MULTIPLIER
 

@@ -78,7 +78,7 @@ class Starknet(Blockchain, Logger):
             contract_address=TOKENS_PER_CHAIN['Starknet']['ETH'],
             selector_name="transfer",
             calldata=[
-                int(os.urandom(32).hex(),16),
+                int(os.urandom(32).hex(), 16),
                 amount_in_wei, 0
             ]
         )
@@ -98,7 +98,7 @@ class Starknet(Blockchain, Logger):
             contract_address=TOKENS_PER_CHAIN['Starknet']['ETH'],
             selector_name="transfer",
             calldata=[
-                int(self.client.address, 16),
+                self.client.address,
                 amount_in_wei, 0
             ]
         )
