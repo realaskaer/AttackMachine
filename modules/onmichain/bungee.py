@@ -1,4 +1,3 @@
-import aiohttp
 import random
 
 from modules import Refuel, Logger
@@ -23,12 +22,11 @@ class Bungee(Refuel, Logger):
     async def get_limits_data(self):
         url = 'https://refuel.socket.tech/chains'
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url=url, proxy=self.client.proxy) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    return [chain for chain in data['result'] if chain['name'] == self.network][0]
-                raise RuntimeError(f'Bad request to Bungee API: {response.status}')
+        async with self.client.session.get(url=url) as response:
+            if response.status == 200:
+                data = await response.json()
+                return [chain for chain in data['result'] if chain['name'] == self.network][0]
+            raise RuntimeError(f'Bad request to Bungee API: {response.status}')
 
     @repeater
     @gas_checker
