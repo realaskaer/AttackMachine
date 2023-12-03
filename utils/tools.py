@@ -142,24 +142,24 @@ def repeater(func):
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
         attempts = 0
+        try:
+            while True:
+                try:
+                    return await func(self, *args, **kwargs)
+                except Exception as error:
+                    await asyncio.sleep(1)
+                    self.logger_msg(
+                        self.client.account_name,
+                        None, msg=f"{error} | Try[{attempts + 1}/{MAXIMUM_RETRY + 1}]", type_msg='error')
+                    await asyncio.sleep(1)
 
-        while True:
-            try:
-                return await func(self, *args, **kwargs)
-            except Exception as error:
-                await asyncio.sleep(1)
-                self.logger_msg(
-                    self.client.account_name,
-                    None, msg=f"{error} | Try[{attempts + 1}/{MAXIMUM_RETRY + 1}]", type_msg='error')
-                await asyncio.sleep(1)
+                    attempts += 1
+                    if attempts > MAXIMUM_RETRY:
+                        break
 
-                attempts += 1
-                if attempts > MAXIMUM_RETRY:
-                    break
-
-                await sleep(self, *SLEEP_TIME_RETRY)
-            finally:
-                await self.client.session.close()
+                    await sleep(self, *SLEEP_TIME_RETRY)
+        finally:
+            await self.client.session.close()
         self.logger_msg(self.client.account_name,
                         None, msg=f"Tries are over, launching next module.\n", type_msg='error')
         return False

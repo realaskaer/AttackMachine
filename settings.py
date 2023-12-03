@@ -10,7 +10,7 @@
 
     MIN_BALANCE | Минимальный баланс для аккаунта. При меньшем балансе будет ошибка: (Insufficient balance on account!)
 """
-AMOUNT_PERCENT = (50, 60)  # Применяется для обменов
+AMOUNT_PERCENT = (55, 60)  # Применяется для обменов
 LIQUIDITY_AMOUNT = (0.0005, 0.001)  # Применяется для добавления ликвидности, депозитов на лендинги и wrap ETH
 TRANSFER_AMOUNT = (0.00001, 0.00005)  # Применяется для трансферов
 MIN_BALANCE = 0.001  # Количество ETH на аккаунте
@@ -161,9 +161,9 @@ DESTINATION_L2TELEGRAPH = [22]  # Входящая сеть для L2Telegraph. 
     GOOGLE_SHEET_PAGE_NAME  | Аналогично EXCEL_PAGE_NAME   
 """
 GLOBAL_NETWORK = 11             # 02.11.2023 поддерживается zkSync, Starknet, Linea, Base и Scroll.
-SOFTWARE_MODE = 1               # 0 - последовательный запуск / 1 - параллельный запуск
-ACCOUNTS_IN_STREAM = 9          # Только для SOFTWARE_MODE = 1 (параллельный запуск)
-WALLETS_TO_WORK = 0             # 0 / 3 / 3, 20 / [3, 20]
+SOFTWARE_MODE = 0               # 0 - последовательный запуск / 1 - параллельный запуск
+ACCOUNTS_IN_STREAM = 1          # Только для SOFTWARE_MODE = 1 (параллельный запуск)
+WALLETS_TO_WORK = []             # 0 / 3 / 3, 20 / [3, 20]
 SAVE_PROGRESS = False           # True или False | Включает сохранение прогресса аккаунта для Classic-routes
 TELEGRAM_NOTIFICATIONS = False  # True или False | Включает уведомления в Telegram
 
@@ -253,8 +253,8 @@ NEW_WALLET_TYPE = 1
 """
 
 DMAIL_IN_ROUTES = False       # True или False | Включает Dmail в маршрут
-TRANSFER_IN_ROUTES = True    # True или False | Включает трансферы в маршрут
-COLLATERAL_IN_ROUTES = True  # True или False | Включает случайное вкл/выкл страховки в маршрут
+TRANSFER_IN_ROUTES = False    # True или False | Включает трансферы в маршрут
+COLLATERAL_IN_ROUTES = False  # True или False | Включает случайное вкл/выкл страховки в маршрут
 
 DMAIL_COUNT = (1, 1)          # (минимум, максимум) дополнительных транзакций для Dmail
 TRANSFER_COUNT = (1, 2)       # (минимум, максимум) дополнительных транзакций для трансферов
@@ -371,7 +371,8 @@ DEPOSIT_CONFIG = {
     mint_starkstars
     withdraw_nostra
     withdraw_zklend
-
+    withdraw_native_bridge
+    
 ------------------------------------------------------BASE--------------------------------------------------------------        
 
     swap_pancake
@@ -453,7 +454,7 @@ DEPOSIT_CONFIG = {
     transfer_eth_to_myself   
     send_message_dmail
     send_message_l2telegraph
-    
+    withdraw_native_bridge
     
     Роуты для настоящих древлян (Машина - зло).
     Выберите необходимые модули для взаимодействия
@@ -485,5 +486,5 @@ CLASSIC_ROUTES_MODULES_USING = [
     ['refuel_bungee', 'refuel_merkly'],
     ['swap_oneinch', 'mint_domain_ens'],
     ['mint_mailzero', 'swap_vesync'],
-    ['withdraw_native']
+    ['withdraw_native_bridge']
 ]
