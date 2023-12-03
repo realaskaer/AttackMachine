@@ -163,7 +163,7 @@ DESTINATION_L2TELEGRAPH = [22]  # Входящая сеть для L2Telegraph. 
 GLOBAL_NETWORK = 11             # 02.11.2023 поддерживается zkSync, Starknet, Linea, Base и Scroll.
 SOFTWARE_MODE = 0               # 0 - последовательный запуск / 1 - параллельный запуск
 ACCOUNTS_IN_STREAM = 1          # Только для SOFTWARE_MODE = 1 (параллельный запуск)
-WALLETS_TO_WORK = []             # 0 / 3 / 3, 20 / [3, 20]
+WALLETS_TO_WORK = 0             # 0 / 3 / 3, 20 / [3, 20]
 SAVE_PROGRESS = False           # True или False | Включает сохранение прогресса аккаунта для Classic-routes
 TELEGRAM_NOTIFICATIONS = False  # True или False | Включает уведомления в Telegram
 
