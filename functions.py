@@ -550,6 +550,8 @@ async def mint_zkstars(account_number, private_key, network, proxy):
 
 
 async def random_approve(account_number, private_key, network, proxy):
-    worker = Starknet(get_client(account_number, private_key, network, proxy))
+    blockchain = get_interface_by_chain_id(GLOBAL_NETWORK)
+
+    worker = blockchain(get_client(account_number, private_key, network, proxy))
     return await worker.random_approve()
 

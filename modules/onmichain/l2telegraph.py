@@ -100,7 +100,7 @@ class L2Telegraph(Messenger, Logger):
 
         await asyncio.sleep(1)
 
-        self.client.logger.info(f"{self.client.info} Bridge fee: {(value / 10 ** 18):.6f} ETH")
+        self.logger_msg(*self.client.acc_info, msg=f"Bridge fee: {(value / 10 ** 18):.6f} ETH")
 
         if await self.client.w3.eth.get_balance(self.client.address) > (mint_price + value):
 
@@ -108,9 +108,7 @@ class L2Telegraph(Messenger, Logger):
 
             transaction = await self.nft_contract.functions.mint().build_transaction(tx_params)
 
-            tx_hash = await self.client.send_transaction(transaction)
-
-            await self.client.verify_transaction(tx_hash)
+            tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
             nft_id = await self.get_nft_id(tx_hash)
 
@@ -132,4 +130,4 @@ class L2Telegraph(Messenger, Logger):
             return await self.client.send_transaction(transaction)
 
         else:
-            raise RuntimeError('Insufficient balance!')
+            raise RuntimeError('Insufficient balance for mint!')

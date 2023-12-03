@@ -319,7 +319,7 @@ class Client(Logger):
         except Exception as error:
             raise RuntimeError(f'Check for approve | {self.get_normalize_error(error)}')
 
-    async def send_transaction(self, transaction):
+    async def send_transaction(self, transaction, need_hash:bool = False):
         try:
             transaction['gas'] = int((await self.w3.eth.estimate_gas(transaction)) * GAS_MULTIPLIER)
         except Exception as error:
@@ -337,6 +337,8 @@ class Client(Logger):
             if 'status' in data and data['status'] == 1:
                 message = f'Transaction was successful: {self.explorer}tx/{tx_hash.hex()}'
                 self.logger_msg(*self.acc_info, msg=message, type_msg='success')
+                if need_hash:
+                    return tx_hash
                 return True
             else:
                 raise RuntimeError(f'Transaction failed: {self.explorer}tx/{data["transactionHash"].hex()}')
