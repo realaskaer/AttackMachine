@@ -135,7 +135,7 @@ def check_progress_file():
 
 
 def check_google_progress_file():
-    file_path = './data/services/wallets_progress.json'
+    file_path = './data/services/google_progress.json'
 
     if os.path.getsize(file_path) > 0:
         return True
