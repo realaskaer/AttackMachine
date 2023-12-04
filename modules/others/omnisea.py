@@ -2,7 +2,7 @@ import random
 import time
 
 from modules import Creator, Logger
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from string import ascii_letters
 from config import OMNISEA_ABI, OMNISEA_CONTRACT
 
@@ -13,7 +13,7 @@ class Omnisea(Creator, Logger):
         self.client = client
         self.network = self.client.network.name
 
-    @repeater
+    @helper
     @gas_checker
     async def create(self):
         self.logger_msg(*self.client.acc_info, msg=f"Create NFT collection on Omnisea")

@@ -1,6 +1,6 @@
 from modules import DEX, Logger
 from config import MYSWAP_CONTRACT, TOKENS_PER_CHAIN
-from utils.tools import repeater, gas_checker
+from utils.tools import helper, gas_checker
 from settings import SLIPPAGE
 
 
@@ -42,7 +42,7 @@ class MySwap(DEX, Logger):
 
         return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE))
 
-    @repeater
+    @helper
     @gas_checker
     async def swap(self):
         await self.client.initialize_account()

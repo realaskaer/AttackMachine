@@ -2,7 +2,7 @@ import asyncio
 import random
 
 from faker import Faker
-from utils.tools import sleep, gas_checker, repeater
+from utils.tools import sleep, gas_checker, helper
 from eth_abi import abi
 from settings import DESTINATION_L2TELEGRAPH
 from modules import Messenger, Logger
@@ -38,7 +38,7 @@ class L2Telegraph(Messenger, Logger):
             return int((tx_receipt.logs[3].topics[3]).hex(), 16)
         return nft_id
 
-    @repeater
+    @helper
     @gas_checker
     async def send_message(self):
         self.logger_msg(*self.client.acc_info, msg=f'Send message on L2Telegraph to {self.dst_chain_name.capitalize()}')
@@ -73,7 +73,7 @@ class L2Telegraph(Messenger, Logger):
 
         return await self.client.send_transaction(transaction)
 
-    @repeater
+    @helper
     @gas_checker
     async def mint_and_bridge(self):
         self.logger_msg(*self.client.acc_info, msg=f"Mint and bridge NFT on L2telegraph. Price for mint: 0.0005 ETH")

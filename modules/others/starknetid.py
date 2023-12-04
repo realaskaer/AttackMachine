@@ -1,6 +1,6 @@
 import random
 from modules import Minter, Logger
-from utils.tools import repeater, gas_checker
+from utils.tools import helper, gas_checker
 from config import STARKNET_ID_CONTRACT
 
 
@@ -9,7 +9,7 @@ class StarknetId(Minter, Logger):
         super().__init__()
         self.client = client
 
-    @repeater
+    @helper
     @gas_checker
     async def mint(self):
         await self.client.initialize_account()

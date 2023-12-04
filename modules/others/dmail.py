@@ -5,7 +5,7 @@ from mnemonic import Mnemonic
 from random import choice, randint
 
 from settings import GLOBAL_NETWORK
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from config import DMAIL_CONTRACT, DMAIL_ABI
 
 
@@ -25,7 +25,7 @@ class Dmail(Messenger, Logger):
 
         return mnemo.generate(128)
 
-    @repeater
+    @helper
     @gas_checker
     async def send_message(self):
         if GLOBAL_NETWORK == 9:

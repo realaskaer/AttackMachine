@@ -1,6 +1,6 @@
 from time import time
 from modules import DEX, Logger
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from settings import SLIPPAGE, USE_PROXY
 from config import (
     VESYNC_CONTRACTS,
@@ -24,7 +24,7 @@ class VeSync(DEX, Logger):
         ).call()
         return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE)), pool_stable_type
 
-    @repeater
+    @helper
     @gas_checker
     async def swap(self):
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()

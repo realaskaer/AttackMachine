@@ -1,7 +1,7 @@
 from random import randint
 from faker import Faker
 
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from modules import Minter, Logger
 from config import ENS_ABI, ENS_CONTRACT
 
@@ -23,10 +23,10 @@ class EraDomainService(Minter, Logger):
 
         await self.get_random_name()
 
-    @repeater
+    @helper
     @gas_checker
     async def mint(self):
-        _, _ = await self.client.check_and_get_eth_for_deposit()
+        _, _ = await self.client.check_and_get_eth()
 
         self.logger_msg(*self.client.acc_info, msg=f'Mint domain on ENS: 0.003 ETH')
 
@@ -38,7 +38,8 @@ class EraDomainService(Minter, Logger):
 
         tx_params = await self.client.prepare_transaction(value=price_in_wei)
 
-        transaction = await self.domain_contract.functions.Register(
+        transaction = await self.domain_contract.functions.register(
+            self.client.address,
             domain
         ).build_transaction(tx_params)
 

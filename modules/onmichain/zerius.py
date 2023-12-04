@@ -2,7 +2,7 @@ import random
 
 from settings import DESTINATION_ZERIUS, DESTINATION_ZERIUS_DATA
 from config import ZERIUS_CONTRACT_PER_CHAINS, ZERIUS_ABI, ZERO_ADDRESS, LAYERZERO_NETWORKS_DATA
-from utils.tools import gas_checker, repeater, sleep
+from utils.tools import gas_checker, helper, sleep
 from eth_abi import encode
 from modules import Minter, Logger
 
@@ -42,7 +42,7 @@ class Zerius(Minter, Logger):
 
         return estimate_gas_bridge_fee
 
-    @repeater
+    @helper
     @gas_checker
     async def mint(self):
         mint_price = await self.onft_contract.functions.mintFee().call()
@@ -57,7 +57,7 @@ class Zerius(Minter, Logger):
         return await self.client.send_transaction(transaction)
 
 
-    @repeater
+    @helper
     @gas_checker
     async def bridge(self):
         dst_chain = random.choice(DESTINATION_ZERIUS)
@@ -99,7 +99,7 @@ class Zerius(Minter, Logger):
 
         return await self.client.send_transaction(transaction)
 
-    @repeater
+    @helper
     @gas_checker
     async def refuel(self):
         dst_data = random.choice(list(DESTINATION_ZERIUS_DATA.items()))

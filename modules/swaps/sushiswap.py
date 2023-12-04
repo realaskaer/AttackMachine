@@ -1,7 +1,7 @@
 import time
 
 from modules import DEX, Logger
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from settings import SLIPPAGE
 from config import (
     SUSHISWAP_ABI,
@@ -30,7 +30,7 @@ class SushiSwap(DEX, Logger):
 
         return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE))
 
-    @repeater
+    @helper
     @gas_checker
     async def swap(self):
         (from_token_name, to_token_name,

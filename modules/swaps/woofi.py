@@ -1,5 +1,5 @@
 from modules import DEX, Logger
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from settings import SLIPPAGE, USE_PROXY
 from config import WOOFI_ROUTER_ABI, TOKENS_PER_CHAIN, WOOFI_CONTRACTS, ETH_MASK
 
@@ -21,7 +21,7 @@ class WooFi(DEX, Logger):
 
         return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE))
 
-    @repeater
+    @helper
     @gas_checker
     async def swap(self):
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount(class_name='WooFi')

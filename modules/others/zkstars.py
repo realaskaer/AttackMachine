@@ -1,4 +1,4 @@
-from utils.tools import repeater, gas_checker
+from utils.tools import helper, gas_checker
 from modules import Minter, Logger
 from config import ZKSTARS_CONTRACTS, ZKSTARS_ABI
 from settings import ZKSTARS_NFT_CONTRACTS
@@ -19,7 +19,7 @@ class ZkStars(Minter, Logger):
 
         raise RuntimeError('All StarkStars NFT have been minted')
 
-    @repeater
+    @helper
     @gas_checker
     async def mint(self):
         nft_contract, contact_id = await self.get_new_nft_id()

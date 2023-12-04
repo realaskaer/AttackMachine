@@ -2,7 +2,7 @@ import random
 
 from modules import Refuel, Logger
 from settings import DESTINATION_BUNGEE_DATA
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from config import (
     BUNGEE_CONTRACTS,
     BUNGEE_REFUEL_ABI,
@@ -28,7 +28,7 @@ class Bungee(Refuel, Logger):
                 return [chain for chain in data['result'] if chain['name'] == self.network][0]
             raise RuntimeError(f'Bad request to Bungee API: {response.status}')
 
-    @repeater
+    @helper
     @gas_checker
     async def refuel(self):
         dst_data = random.choice(list(DESTINATION_BUNGEE_DATA.items()))

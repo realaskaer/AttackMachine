@@ -1,6 +1,6 @@
 from time import time
 from modules import Creator, Logger
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from config import SAFE_ABI, SAFE_CONTRACTS, ZERO_ADDRESS
 
 
@@ -10,7 +10,7 @@ class GnosisSafe(Creator, Logger):
         self.client = client
         self.network = self.client.network.name
 
-    @repeater
+    @helper
     @gas_checker
     async def create(self):
         self.logger_msg(*self.client.acc_info, msg=f'Create safe on chain')

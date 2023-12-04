@@ -1,5 +1,5 @@
 from settings import USE_PROXY
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from modules import Landing, Logger
 from config import NOSTRA_CONTRACTS
 
@@ -9,7 +9,7 @@ class Nostra(Landing, Logger):
         super().__init__()
         self.client = client
 
-    @repeater
+    @helper
     @gas_checker
     async def deposit(self):
         try:
@@ -35,7 +35,7 @@ class Nostra(Landing, Logger):
             if USE_PROXY:
                 await self.client.session.close()
 
-    @repeater
+    @helper
     @gas_checker
     async def withdraw(self):
         try:

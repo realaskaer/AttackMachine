@@ -615,7 +615,7 @@ ZERIUS_REFUEL_CONTRACTS = {
     'arbitrum'      : '0x412aea168aDd34361aFEf6a2e3FC01928Fba1248',
     'polygon'       : '0x2ef766b59e4603250265EcC468cF38a6a00b84b3',
     'polygon_zkevm' : '0xBAf5C493a4c364cBD2CA83C355E75F0ff7042945',
-    # 'zksync'        : '' # temp unavailable,
+    'zksync'        : '0x', # temp unavailable,
     'avalanche'     : '0x5B209E7c81DEaad0ffb8b76b696dBb4633A318CD',
     'gnosis'        : '0x1fe2c567169d39CCc5299727FfAC96362b2Ab90E',
     'fantom'        : '0xBFd3539e4e0b1B29e8b08d17f30F1291C837a18E',
@@ -665,7 +665,7 @@ ZERIUS_CONTRACT_PER_CHAINS = {
     },
     11: {
     'ONFT'                  : '0x7dA50bD0fb3C2E868069d9271A2aeb7eD943c2D6',
-    'refuel'                : '' #TODO ожидаем контракт (L0 scam)
+    'refuel'                : '0x' #TODO ожидаем контракт (L0 scam)
     }
 }
 
@@ -1029,36 +1029,56 @@ LAYERZERO_WRAPED_NETWORKS = {
 }
 
 LAYERZERO_NETWORKS_DATA = {
-    1                       : ('arbitrum', 110, 'ETH', 'ethereum'),
-    2                       : ('astar', 210, 'ASTR', 'astar'),
-    3                       : ('aurora', 211, 'ETH', 'ethereum'),
-    4                       : ('avalanche', 106, 'AVAX', 'avalanche-2'),
-    5                       : ('base', 184, 'ETH', 'ethereum'),
-    6                       : ('bnb chain', 102, 'BNB', 'binancecoin'),
-    7                       : ('canto', 159, 'CANTO', 'canto'),
-    8                       : ('celo', 125, 'CELO', 'celo'),
-    9                       : ('core', 153, 'COREDAO', 'coredaoorg'),
-    10                      : ('ethereum', 101, 'ETH', 'ethereum'),
-    11                      : ('fantom', 112, 'FTM', 'fantom'),
-    12                      : ('fuse', 138, 'FUSE', 'fuse-network-token'),
-    13                      : ('gnosis', 145, 'xDAI', 'xdai'),
-    14                      : ('harmony', 116, 'ONE', 'harmony'),
-    15                      : ('kava', 177, 'KAVA', 'kava'),
-    16                      : ('klaytn', 150, 'KLAY', 'klay-token'),
-    17                      : ('linea', 183, 'ETH', 'ethereum'),
-    18                      : ('meter', 176, 'MTR', 'meter-stable'),
-    19                      : ('metis', 151, 'METIS', 'metis-token'),
-    20                      : ('moonbeam', 126, 'GLMR', 'moonbeam'),
-    21                      : ('moonriver', 167, 'MOVR', 'moonriver'),
-    22                      : ('nova', 175, 'ETH', 'ethereum'),
-    23                      : ('opbnb', 202, 'BNB', 'binancecoin'),
-    24                      : ('optimism', 111, 'ETH', 'ethereum'),
-    25                      : ('polygon', 109, 'MATIC', 'matic-network'),
-    26                      : ('polygon_zkevm', 158, 'ETH', 'ethereum'),
-    27                      : ('scroll', 214, 'ETH', 'ethereum'),
-    28                      : ('tenet', 173, 'TENET', 'tenet-1b000f7b-59cb-4e06-89ce-d62b32d362b9'),
-    29                      : ('zksync', 165, 'ETH', 'ethereum')
+    1                       : ('Arbitrum', 110, 'ETH', 'ethereum'),
+    2                       : ('Arbitrum Nova', 175, 'ETH', 'ethereum'),
+    3                       : ('Astar', 210, 'ASTR', 'astar'),
+    4                       : ('Aurora', 211, 'ETH', 'ethereum'),
+    5                       : ('Avalanche', 106, 'AVAX', 'avalanche-2'),
+    6                       : ('BNB Chain', 102, 'BNB', 'binancecoin'),
+    7                       : ('Base', 184, 'ETH', 'ethereum'),
+    8                       : ('Canto', 159, 'CANTO', 'canto'),
+    9                       : ('Celo', 125, 'CELO', 'celo'),
+    10                       : ('Conflux', 212, 'CFX', 'conflux-token'),
+    11                      : ('CoreDAO', 153, 'COREDAO', 'coredaoorg'),
+    12                      : ('DFK', 115, 'JEWEL', 'defi-kingdoms'),
+    13                      : ('Ethereum', 101, 'ETH', 'ethereum'),
+    14                      : ('Fantom', 112, 'FTM', 'fantom'),
+    15                      : ('Fuse', 138, 'FUSE', 'fuse-network-token'),
+    16                      : ('Goerli', 145, 'GETH', 'goerli-eth'),
+    17                      : ('Gnosis', 145, 'xDAI', 'xdai'),
+    18                      : ('Harmony ONE', 116, 'ONE', 'harmony'),
+    19                      : ('Horizen EON', 215, 'ZEN', 'zencash'),
+    20                      : ('Kava', 177, 'KAVA', 'kava'),
+    21                      : ('Klaytn', 150, 'KLAY', 'klay-token'),
+    22                      : ('Linea', 183, 'ETH', 'ethereum'),
+    23                      : ('Loot', 197, 'AGLD', 'adventure-gold'),
+    24                      : ('Manta Pacific', 217, 'ETH', 'ethereum'),
+    25                      : ('Mantle', 181, 'MNT', 'mantle'),
+    26                      : ('Meter', 176, 'MTR', 'meter-stable'),
+    27                      : ('Metis', 151, 'METIS', 'metis-token'),
+    28                      : ('Moonbeam', 126, 'GLMR', 'moonbeam'),
+    29                      : ('Moonriver', 167, 'MOVR', 'moonriver'),
+    30                      : ('OKX Chain', 155, 'OKT', 'oec-token'),
+    31                      : ('Optimism', 111, 'ETH', 'ethereum'),
+    32                      : ('Orderly', 213, 'ETH', 'ethereum'),
+    33                      : ('Polygon', 109, 'MATIC', 'matic-network'),
+    34                      : ('Polygon zkEVM', 158, 'ETH', 'ethereum'),
+    35                      : ('Scroll', 214, 'ETH', 'ethereum'),
+    36                      : ('ShimmerEVM', 230, 'SMR', 'shimmer'),
+    37                      : ('Telos', 199, 'TLOS', 'telos'),
+    38                      : ('TomoChain', 199, 'TOMOE', 'tomoe'),
+    39                      : ('Tenet', 173, 'TENET', 'tenet-1b000f7b-59cb-4e06-89ce-d62b32d362b9'),
+    40                      : ('XPLA', 216, 'XPLA', 'xpla'),
+    41                      : ('Zora', 195, 'ETH', 'ethereum'),
+    42                      : ('opBNB', 202, 'BNB', 'binancecoin'),
+    43                      : ('zkSync', 165, 'ETH', 'ethereum'),
 }
+
+
+
+
+
+
 
 
 HELP_SOFTWARE = True  # True or False | True = You support me 1% amount of transactions on aggregator`s

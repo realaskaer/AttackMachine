@@ -1,5 +1,5 @@
 from config import BASILISK_CONTRACTS, BASILISK_ABI
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from modules import Landing, Logger
 
 
@@ -11,11 +11,11 @@ class Basilisk(Landing, Logger):
         self.landing_contract = self.client.get_contract(BASILISK_CONTRACTS['landing'], BASILISK_ABI)
         self.collateral_contract = self.client.get_contract(BASILISK_CONTRACTS['collateral'], BASILISK_ABI)
 
-    @repeater
+    @helper
     @gas_checker
     async def deposit(self):
 
-        amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
+        amount, amount_in_wei = await self.client.check_and_get_eth()
 
         self.logger_msg(*self.client.acc_info, msg=f'Deposit to Basilisk: {amount} ETH')
 
@@ -27,7 +27,7 @@ class Basilisk(Landing, Logger):
 
         return await self.client.send_transaction(tx_params)
 
-    @repeater
+    @helper
     @gas_checker
     async def withdraw(self):
         self.logger_msg(*self.client.acc_info, msg=f'Withdraw from Basilisk')
@@ -46,7 +46,7 @@ class Basilisk(Landing, Logger):
         else:
             raise RuntimeError("Insufficient balance on Basilisk!")
 
-    @repeater
+    @helper
     @gas_checker
     async def enable_collateral(self):
         self.logger_msg(*self.client.acc_info, msg=f'Enable collateral on Basilisk')
@@ -59,7 +59,7 @@ class Basilisk(Landing, Logger):
 
         return await self.client.send_transaction(transaction)
 
-    @repeater
+    @helper
     @gas_checker
     async def disable_collateral(self):
         self.logger_msg(*self.client.acc_info, msg=f'Disable collateral on Basilisk')

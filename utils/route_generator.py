@@ -1,8 +1,8 @@
 import asyncio
 import os
 import json
-import time
 
+from utils.tools import clean_progress_file
 from functions import *
 from web3 import AsyncWeb3
 from config import ACCOUNT_NAMES
@@ -18,7 +18,7 @@ GSHEET_CONFIG = "./data/services/service_account.json"
 os.environ["GSPREAD_SILENCE_WARNINGS"] = "1"
 
 AVAILABLE_MODULES_INFO = {
-    # module_name                       : (module name, priority, tg info, can be used in help module, network)
+    # module_name                       : (module name, priority, tg info, can be help module, supported network)
     okx_withdraw                        : (okx_withdraw, -1, 'OKX Withdraw', 0, [3, 4, 8, 9, 11]),
     deploy_stark_wallet                 : (deploy_stark_wallet, 0, 'Deploy Wallet', 0, [9]),
     bridge_rhino                        : (bridge_rhino, 1, 'Rhino Bridge', 0, [3, 4, 8, 9, 11]),
@@ -37,11 +37,11 @@ AVAILABLE_MODULES_INFO = {
     deposit_zklend                      : (deposit_zklend, 2, 'zkLend Deposit', 0, [9]),
     deposit_layerbank                   : (deposit_layerbank, 2, 'LayerBank Deposit', 0, [4, 8]),
     deposit_rocketsam                   : (deposit_rocketsam, 2, 'RocketSam Deposit', 0, [3, 4, 8, 11]),
-    enable_collateral_basilisk          : (enable_collateral_basilisk, 2, 'Basilisk Collateral', 1, [11]),
-    enable_collateral_eralend           : (enable_collateral_eralend, 2, 'EraLend Collateral', 1, [11]),
-    enable_collateral_reactorfusion     : (enable_collateral_reactorfusion, 2, 'ReactorFusion Collateral', 1, [11]),
-    enable_collateral_zklend            : (enable_collateral_zklend, 2, 'zkLend Collateral', 1, [9]),
-    enable_collateral_layerbank         : (enable_collateral_layerbank, 2, 'LayerBank Collateral', 1, [4, 8]),
+    enable_collateral_basilisk          : (enable_collateral_basilisk, 2, 'Enable Basilisk Collateral', 1, [11]),
+    enable_collateral_eralend           : (enable_collateral_eralend, 2, 'Enable EraLend Collateral', 1, [11]),
+    enable_collateral_reactorfusion     : (enable_collateral_reactorfusion, 2, 'Enable ReactorFusion Collateral', 1, [11]),
+    enable_collateral_zklend            : (enable_collateral_zklend, 2, 'Enable zkLend Collateral', 1, [9]),
+    enable_collateral_layerbank         : (enable_collateral_layerbank, 2, 'Enable LayerBank Collateral', 1, [4, 8]),
     swap_jediswap                       : (swap_jediswap, 2, 'JediSwap Swap', 1, [9]),
     swap_avnu                           : (swap_avnu, 2, 'AVNU Swap', 1, [9]),
     swap_10kswap                        : (swap_10kswap, 2, '10kSwap Swap', 1, [9]),
@@ -63,14 +63,15 @@ AVAILABLE_MODULES_INFO = {
     swap_vesync                         : (swap_vesync, 2, 'VeSync Swap', 1, [11]),
     swap_woofi                          : (swap_woofi, 2, 'WooFi Swap', 1, [3, 4, 11]),
     swap_zkswap                         : (swap_zkswap, 2, 'zkSwap Swap', 1, [11]),
-    swap_uniswap                        : (swap_uniswap, 2, 'Uniswap Swap', 1, [3, 11]),
-    swap_sushiswap                      : (swap_sushiswap, 2, 'SushiSwap Swap', 1, [3, 11]),
+    swap_uniswap                        : (swap_uniswap, 2, 'Uniswap Swap', 1, [3]),
+    swap_sushiswap                      : (swap_sushiswap, 2, 'SushiSwap Swap', 1, [3]),
     wrap_eth                            : (wrap_eth, 2, 'Wrap ETH', 0, [11]),
     random_approve                      : (random_approve, 2, 'Random Approve', 0, [3, 4, 8, 9, 11]),
-    disable_collateral_basilisk         : (disable_collateral_basilisk, 3, 'Basilisk Collateral', 1, [11]),
-    disable_collateral_eralend          : (disable_collateral_eralend, 3, 'EraLend Collateral', 1, [11]),
-    disable_collateral_reactorfusion    : (disable_collateral_reactorfusion, 3, 'ReactorFusion Collateral', 1, [11]),
-    disable_collateral_layerbank        : (disable_collateral_layerbank, 3, 'LayerBank Collateral', 1, [4, 8]),
+    disable_collateral_basilisk         : (disable_collateral_basilisk, 3, 'Disable Basilisk Collateral', 1, [11]),
+    disable_collateral_eralend          : (disable_collateral_eralend, 3, 'Disable EraLend Collateral', 1, [11]),
+    disable_collateral_reactorfusion    : (disable_collateral_reactorfusion, 3, 'Disable ReactorFusion Collateral', 1, [11]),
+    disable_collateral_zklend           : (disable_collateral_zklend, 2, 'Disable zkLend Collateral', 1, [9]),
+    disable_collateral_layerbank        : (disable_collateral_layerbank, 3, 'Disable LayerBank Collateral', 1, [4, 8]),
     create_omnisea                      : (create_omnisea, 2, 'Omnisea Create NFT', 0, [4, 8, 11]),
     create_safe                         : (create_safe, 2, 'Gnosis Safe', 0, [3, 11]),
     mint_and_bridge_l2telegraph         : (mint_and_bridge_l2telegraph, 3, 'L2Telegraph NFT bridge', 0, [3, 4, 8, 11]),
@@ -441,6 +442,7 @@ class RouteGenerator(Logger):
         self.smart_routes_json_save(account_name, smart_route_with_priority)
 
     def classic_routes_json_save(self):
+        clean_progress_file()
         with open('./data/services/wallets_progress.json', 'w') as file:
             accounts_data = {}
             for account_name in ACCOUNT_NAMES:
@@ -475,19 +477,3 @@ class RouteGenerator(Logger):
         self.logger_msg(
             None, None,
             f'Successfully generated smart routes for {account_name}', 'success')
-
-    def save_google_progress_offline(self, accounts_progress):
-        bad_progress_file_path = './data/services/google_progress.json'
-        try:
-            with open(bad_progress_file_path, 'r') as file:
-                data = json.load(file)
-        except (FileNotFoundError, json.JSONDecodeError):
-            data = {}
-
-        data[f"{time.time()}"] = f'{accounts_progress}'
-
-        with open(bad_progress_file_path, 'w') as file:
-            json.dump(data, file, indent=4)
-
-        self.logger_msg(
-            None, None, 'Successfully saved progress in files', 'success')

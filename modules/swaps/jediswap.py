@@ -3,7 +3,7 @@ import time
 from modules import DEX, Logger
 from settings import SLIPPAGE
 from config import JEDISWAP_CONTRACT, TOKENS_PER_CHAIN
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 
 
 class JediSwap(DEX, Logger):
@@ -20,7 +20,7 @@ class JediSwap(DEX, Logger):
 
         return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE))
 
-    @repeater
+    @helper
     @gas_checker
     async def swap(self):
         await self.client.initialize_account()

@@ -1,5 +1,5 @@
 from modules import Aggregator, Logger
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from settings import SLIPPAGE, ONEINCH_API_KEY
 from config import TOKENS_PER_CHAIN, ETH_MASK, HELP_SOFTWARE
 
@@ -37,7 +37,7 @@ class OneInch(Aggregator, Logger):
 
         return await self.make_request(url=url, params=params, headers=headers)
 
-    @repeater
+    @helper
     @gas_checker
     async def swap(self, help_deposit: bool = False):
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()

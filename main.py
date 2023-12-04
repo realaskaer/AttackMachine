@@ -7,7 +7,7 @@ from modules import txchecker
 from questionary import Choice, select
 from utils.modules_runner import Runner
 from utils.route_generator import RouteGenerator
-from utils.tools import create_okx_withdrawal_list, drop_date, clean_stark_file
+from utils.tools import create_okx_withdrawal_list, drop_date, clean_stark_file, check_progress_file
 
 
 def when():
@@ -15,22 +15,22 @@ def when():
 
 
 def are_you_sure(module=None):
-
-    answer = select(
-        '\n ⚠️⚠️⚠️ THAT ACTION WILL DELETE ALL PREVIOUS PROGRESS FOR CLASSIC-ROUTES, continue? ⚠️⚠️⚠️ \n',
-        choices=[
-            Choice("❌ NO", 'main'),
-            Choice("✅ YES", 'module'),
-        ],
-        qmark='☢️',
-        pointer='👉'
-    ).ask()
-    print()
-    if answer == 'main':
-        main()
-    else:
-        if module:
-            module()
+    if check_progress_file():
+        answer = select(
+            '\n ⚠️⚠️⚠️ THAT ACTION WILL DELETE ALL PREVIOUS PROGRESS FOR CLASSIC-ROUTES, continue? ⚠️⚠️⚠️ \n',
+            choices=[
+                Choice("❌ NO", 'main'),
+                Choice("✅ YES", 'module'),
+            ],
+            qmark='☢️',
+            pointer='👉'
+        ).ask()
+        print()
+        if answer == 'main':
+            main()
+        else:
+            if module:
+                module()
 
 
 def main():

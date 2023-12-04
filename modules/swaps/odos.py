@@ -1,5 +1,5 @@
 from modules import Aggregator, Logger
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from settings import SLIPPAGE
 from config import TOKENS_PER_CHAIN, ZERO_ADDRESS, HELP_SOFTWARE
 
@@ -53,7 +53,7 @@ class Odos(Aggregator, Logger):
 
         return await self.make_request(method='POST', url=assemble_url, headers=headers, json=assemble_request_body)
 
-    @repeater
+    @helper
     @gas_checker
     async def swap(self, help_deposit: bool = False):
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()

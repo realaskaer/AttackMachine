@@ -1,5 +1,5 @@
 from config import AVNU_CONTRACT, TOKENS_PER_CHAIN, HELP_SOFTWARE
-from utils.tools import repeater, gas_checker
+from utils.tools import helper, gas_checker
 from settings import SLIPPAGE
 from modules import Aggregator, Logger
 
@@ -34,7 +34,7 @@ class AVNU(Aggregator, Logger):
 
         return await self.make_request(method='POST', url=url, json=data)
 
-    @repeater
+    @helper
     @gas_checker
     async def swap(self, help_deposit:bool = False):
         await self.client.initialize_account()

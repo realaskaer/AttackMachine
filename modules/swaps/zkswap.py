@@ -1,5 +1,5 @@
 from time import time
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from settings import SLIPPAGE
 from modules import DEX, Logger
 from config import (
@@ -27,7 +27,7 @@ class ZkSwap(DEX, Logger):
 
         return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE))
 
-    @repeater
+    @helper
     @gas_checker
     async def swap(self):
 

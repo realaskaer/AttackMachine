@@ -2,7 +2,7 @@ import random
 
 from modules import Landing, Logger
 from config import ROCKETSAM_ABI, ROCKETSAM_CONTRACTS
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 
 
 class RocketSam(Landing, Logger):
@@ -29,10 +29,10 @@ class RocketSam(Landing, Logger):
             contract_address = random.choice(ROCKETSAM_CONTRACTS[self.network])
             return self.client.get_contract(contract_address, ROCKETSAM_ABI), contract_address
 
-    @repeater
+    @helper
     @gas_checker
     async def deposit(self):
-        amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
+        amount, amount_in_wei = await self.client.check_and_get_eth()
 
         pool_contract, pool_address = await self.get_pool()
 
@@ -47,7 +47,7 @@ class RocketSam(Landing, Logger):
 
         return await self.client.send_transaction(transaction)
 
-    @repeater
+    @helper
     @gas_checker
     async def withdraw(self):
         pool_contract, pool_address, pool_balance = await self.get_pool(withdraw_mode=True)

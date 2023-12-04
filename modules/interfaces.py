@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from random import uniform
 
 from settings import (LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS,
-                      OKX_API_SECRET, GLOBAL_NETWORK, USE_PROXY)
+                      OKX_API_SECRET, GLOBAL_NETWORK)
 from utils.networks import StarknetRPC
 
 CHAINS_NAME = {
@@ -137,8 +137,7 @@ class Bridge(ABC):
                 await stark_client.initialize_account()
                 return hex(stark_client.address)
             finally:
-                if USE_PROXY and stark_client:
-                    await stark_client.session.close()
+                await stark_client.session.close()
         else:
             return AsyncWeb3().eth.account.from_key(private_key).address
 

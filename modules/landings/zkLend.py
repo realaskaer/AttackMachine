@@ -1,7 +1,7 @@
 import random
 
 from modules import Landing, Logger
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from config import ZKLEND_CONTRACTS, TOKENS_PER_CHAIN
 
 
@@ -10,7 +10,7 @@ class ZkLend(Landing, Logger):
         super().__init__()
         self.client = client
 
-    @repeater
+    @helper
     @gas_checker
     async def deposit(self):
         await self.client.initialize_account()
@@ -31,7 +31,7 @@ class ZkLend(Landing, Logger):
 
         return await self.client.send_transaction(approve_call, deposit_call)
 
-    @repeater
+    @helper
     @gas_checker
     async def withdraw(self):
         await self.client.initialize_account()
@@ -49,7 +49,7 @@ class ZkLend(Landing, Logger):
         return await self.client.send_transaction(withdraw_call)
 
 
-    @repeater
+    @helper
     @gas_checker
     async def enable_collateral(self):
         await self.client.initialize_account()
@@ -66,7 +66,7 @@ class ZkLend(Landing, Logger):
 
         return await self.client.send_transaction(enable_collateral_call)
 
-    @repeater
+    @helper
     @gas_checker
     async def disable_collateral(self):
         await self.client.initialize_account()

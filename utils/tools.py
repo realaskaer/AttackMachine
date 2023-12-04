@@ -1,5 +1,6 @@
 import io
 import json
+import os
 import random
 import asyncio
 import functools
@@ -19,8 +20,8 @@ from settings import (
     GLOBAL_NETWORK,
     SLEEP_TIME_RETRY,
     MAXIMUM_RETRY,
-    GAS_CONTROL,
     MAXIMUM_GWEI,
+    GAS_CONTROL,
     SLEEP_TIME_GAS,
     EXCEL_PASSWORD,
     CONTROL_TIMES_FOR_SLEEP,
@@ -114,6 +115,34 @@ def clean_progress_file():
         file.truncate(0)
 
 
+def clean_google_progress_file():
+    with open('./data/services/google_progress.json', 'w') as file:
+        file.truncate(0)
+
+
+def clean_gwei_file():
+    with open('./data/services/maximum_gwei.json', 'w') as file:
+        file.truncate(0)
+
+
+def check_progress_file():
+    file_path = './data/services/wallets_progress.json'
+
+    if os.path.getsize(file_path) > 0:
+        return True
+    else:
+        return False
+
+
+def check_google_progress_file():
+    file_path = './data/services/wallets_progress.json'
+
+    if os.path.getsize(file_path) > 0:
+        return True
+    else:
+        return False
+
+
 def drop_date():
     current_date = datetime.now()
     random_months = random.randint(1, 4)
@@ -138,13 +167,15 @@ def create_okx_withdrawal_list():
         cprint('❌ Put your wallets into files, before running this function', 'light_red')
 
 
-def repeater(func):
+def helper(func):
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
         attempts = 0
         try:
             while True:
                 try:
+                    if GLOBAL_NETWORK != 9 and not await self.client.get_auto_amount(token_name_search='ETH'):
+                        await self.client.check_and_get_eth()
                     return await func(self, *args, **kwargs)
                 except Exception as error:
                     await asyncio.sleep(1)
@@ -186,7 +217,7 @@ def gas_checker(func):
                     gas = float(f"{(await self.client.get_gas_price()):.2f}")
                 else:
                     gas = round(AsyncWeb3.from_wei(await w3.eth.gas_price, 'gwei'), 3)
-                if gas < MAXIMUM_GWEI:
+                if gas < get_max_gwei_setting():
                     await asyncio.sleep(1)
                     self.logger_msg(self.client.account_name,
                                     None, f"{gas} Gwei | Gas price is good", type_msg='success')
@@ -206,6 +237,22 @@ def gas_checker(func):
                     await asyncio.sleep(SLEEP_TIME_GAS)
         return await func(self, *args, **kwargs)
     return wrapper
+
+
+def get_max_gwei_setting():
+    file_path = './data/services/maximum_gwei.json'
+    data = {}
+
+    try:
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        data['maximum_gwei'] = MAXIMUM_GWEI
+
+    with open(file_path, 'w') as file:
+        json.dump(data, file, indent=4)
+
+    return data['maximum_gwei']
 
 
 async def get_eth_price():

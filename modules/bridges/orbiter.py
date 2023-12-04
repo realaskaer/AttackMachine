@@ -1,5 +1,5 @@
 from modules import Bridge, Logger
-from utils.tools import repeater, gas_checker
+from utils.tools import helper, gas_checker
 from config import ORBITER_CONTRACTS, ORBITER_ABI, TOKENS_PER_CHAIN
 from settings import GLOBAL_NETWORK
 from web3 import AsyncWeb3
@@ -43,7 +43,7 @@ class Orbiter(Bridge, Logger):
             return bridge_data
         raise RuntimeError(f'That bridge is not active!')
 
-    @repeater
+    @helper
     @gas_checker
     async def bridge(self, chain_from_id:int, private_keys:dict = None, help_okx:bool = False):
         if GLOBAL_NETWORK == 9 and chain_from_id == 9:

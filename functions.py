@@ -96,12 +96,15 @@ async def send_message_dmail(account_number, private_key, _, proxy):
     return await worker.send_message()
 
 
-async def bridge_native(account_number, private_key, _, proxy):
+async def bridge_native(account_number, _, __, proxy, *args, **kwargs):
     network = get_network_by_chain_id(14)
-    blockchain = get_interface_by_chain_id(GLOBAL_NETWORK, deposit_module=True)
 
-    worker = blockchain(get_client(account_number, private_key, network, proxy))
-    return await worker.deposit()
+    blockchain = get_interface_by_chain_id(GLOBAL_NETWORK, deposit_module=True)
+    bridge_from_evm = True if GLOBAL_NETWORK == 9 else False
+    private_key = get_key_by_id_from(args, 14)
+
+    worker = blockchain(get_client(account_number, private_key, network, proxy, bridge_from_evm))
+    return await worker.deposit(*args, **kwargs)
 
 
 async def transfer_eth(account_number, private_key, network, proxy):
@@ -118,9 +121,13 @@ async def transfer_eth_to_myself(account_number, private_key, network, proxy):
     return await worker.transfer_eth_to_myself()
 
 
-async def withdraw_native_bridge(account_number, private_key, network, proxy):
-    worker = ZkSync(get_client(account_number, private_key, network, proxy))
-    return await worker.withdraw()
+async def withdraw_native_bridge(account_number, _, __, proxy, *args, **kwargs):
+    blockchain = get_interface_by_chain_id(GLOBAL_NETWORK)
+    network = get_network_by_chain_id(GLOBAL_NETWORK)
+    private_key = get_key_by_id_from(args, GLOBAL_NETWORK)
+
+    worker = blockchain(get_client(account_number, private_key, network, proxy))
+    return await worker.withdraw(*args, **kwargs)
 
 
 async def wrap_eth(account_number, private_key, network, proxy):
@@ -554,4 +561,3 @@ async def random_approve(account_number, private_key, network, proxy):
 
     worker = blockchain(get_client(account_number, private_key, network, proxy))
     return await worker.random_approve()
-

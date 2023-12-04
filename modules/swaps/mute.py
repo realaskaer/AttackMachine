@@ -1,6 +1,6 @@
 from time import time
 from modules import DEX, Logger
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from settings import SLIPPAGE
 from config import (
     MUTE_ROUTER_ABI,
@@ -26,7 +26,7 @@ class Mute(DEX, Logger):
         ).call()
         return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE)), stable_mode, fee
 
-    @repeater
+    @helper
     @gas_checker
     async def swap(self, help_add_liquidity:bool = False, amount_to_help: float = 0):
         if help_add_liquidity:
@@ -79,10 +79,10 @@ class Mute(DEX, Logger):
 
         return await self.client.send_transaction(transaction)
 
-    @repeater
+    @helper
     @gas_checker
     async def add_liquidity(self):
-        amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
+        amount, amount_in_wei = await self.client.check_and_get_eth()
 
         usdc_balance_in_wei, usdc_balance, _ = await self.client.get_token_balance('USDC')
 
@@ -121,7 +121,7 @@ class Mute(DEX, Logger):
 
         return await self.client.send_transaction(transaction)
 
-    @repeater
+    @helper
     @gas_checker
     async def withdraw_liquidity(self):
         self.logger_msg(*self.client.acc_info, msg=f'Withdraw liquidity from Mute')

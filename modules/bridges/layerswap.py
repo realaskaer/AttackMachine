@@ -3,7 +3,7 @@ import json
 from config import TOKENS_PER_CHAIN
 from modules import Bridge, Logger
 from settings import GLOBAL_NETWORK
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 
 
 class LayerSwap(Bridge, Logger):
@@ -67,7 +67,7 @@ class LayerSwap(Bridge, Logger):
         elif isinstance(address, str):
             return hex(int(address, 16))
 
-    @repeater
+    @helper
     @gas_checker
     async def bridge(self, chain_from_id: int, private_keys:dict = None, help_okx:bool = False):
         if GLOBAL_NETWORK == 9 and chain_from_id == 9:

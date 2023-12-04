@@ -5,7 +5,7 @@ import asyncio
 from hashlib import sha256
 from modules import CEX, Logger
 from datetime import datetime, timezone
-from utils.tools import repeater, sleep, gas_checker
+from utils.tools import helper, sleep, gas_checker
 from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN
 from settings import (
     OKX_WITHDRAW_NETWORK,
@@ -50,9 +50,9 @@ class OKX(CEX, Logger):
 
         return await self.make_request(url=url, headers=headers, params=params, module_name='Token info')
 
-    @repeater
+    @helper
     async def withdraw(self):
-        if GLOBAL_NETWORK == 9 and OKX_WITHDRAW_NETWORK == 5:
+        if GLOBAL_NETWORK == 9:
             await self.client.initialize_account(check_balance=True)
 
         url = 'https://www.okx.cab/api/v5/asset/withdrawal'
@@ -73,7 +73,7 @@ class OKX(CEX, Logger):
 
             body = {
                 "ccy": 'ETH',
-                "amt": amount - float(network_data['min_fee']),
+                "amt": amount,
                 "dest": "4",
                 "toAddr": address,
                 "fee": network_data['min_fee'],
@@ -92,7 +92,7 @@ class OKX(CEX, Logger):
         else:
             raise RuntimeError(f"Withdraw {network_name} is not available")
 
-    @repeater
+    @helper
     async def transfer_from_subaccounts(self):
 
         self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
@@ -136,7 +136,7 @@ class OKX(CEX, Logger):
                                 msg=f"Transfer {float(sub_balance):.6f} ETH to main account complete",
                                 type_msg='success')
 
-    @repeater
+    @helper
     async def transfer_from_spot_to_funding(self):
 
         url_balance = "https://www.okx.cab/api/v5/account/balance?ccy=ETH"
@@ -168,13 +168,13 @@ class OKX(CEX, Logger):
                 self.logger_msg(*self.client.acc_info, msg=f"Main trading account balance: 0 ETH", type_msg='error')
                 break
 
-    @repeater
+    @helper
     @gas_checker
     async def deposit_to_okx(self):
         if GLOBAL_NETWORK == 9:
             await self.client.initialize_account()
 
-        amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit(OKX_DEPOSIT_AMOUNT)
+        amount, amount_in_wei = await self.client.check_and_get_eth(OKX_DEPOSIT_AMOUNT)
 
         try:
             with open('./data/services/okx_withdraw_list.json') as file:
@@ -224,7 +224,7 @@ class OKX(CEX, Logger):
         await sleep(self, 600, 700)
         return result
 
-    @repeater
+    @helper
     async def collect_from_sub(self):
 
         await self.transfer_from_subaccounts()

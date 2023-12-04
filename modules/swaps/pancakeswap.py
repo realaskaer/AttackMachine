@@ -1,5 +1,5 @@
 from modules import DEX, Logger
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from settings import SLIPPAGE
 from hexbytes import HexBytes
 from config import (
@@ -34,7 +34,7 @@ class PancakeSwap(DEX, Logger):
 
         return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE))
 
-    @repeater
+    @helper
     @gas_checker
     async def swap(self):
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()

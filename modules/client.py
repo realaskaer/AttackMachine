@@ -105,7 +105,7 @@ class Client(Logger):
         dst_chains = OKX_WRAPED_ID[OKX_DEPOSIT_NETWORK] if help_okx else random.choice(BRIDGE_CHAIN_ID_TO)
         destination_chain = bridge_info[dst_chains]
 
-        amount, _ = await self.check_and_get_eth_for_deposit(deposit_info, initial_chain_id=src_chain_id)
+        amount, _ = await self.check_and_get_eth(deposit_info, initial_chain_id=src_chain_id)
         return source_chain, destination_chain, amount
 
     async def bridge_from_source(self) -> None:
@@ -126,7 +126,7 @@ class Client(Logger):
         await asyncio.sleep(1)
         await func(self.account_name, self.private_key, self.network, self.proxy_init, help_okx=True)
 
-    async def check_and_get_eth_for_deposit(self, settings:tuple = None, initial_chain_id:int = 0) -> [float, int]:
+    async def check_and_get_eth(self, settings:tuple = None, initial_chain_id:int = 0) -> [float, int]:
         from functions import swap_odos, swap_oneinch, swap_openocean, swap_xyfinance, swap_rango
 
         func = {
@@ -286,7 +286,8 @@ class Client(Logger):
 
         return await self.send_transaction(transaction)
 
-    async def check_for_approved(self, token_address: str, spender_address: str, amount_in_wei: int) -> bool:
+    async def check_for_approved(self, token_address: str, spender_address: str,
+                                 amount_in_wei: int, without_bal_check:bool = False) -> bool:
         try:
             contract = self.get_contract(token_address)
 
@@ -299,7 +300,7 @@ class Client(Logger):
 
             await asyncio.sleep(1)
 
-            if balance_in_wei <= 0:
+            if not without_bal_check and balance_in_wei <= 0:
                 raise RuntimeError(f'Zero {symbol} balance')
 
             approved_amount_in_wei = await self.get_allowance(

@@ -72,29 +72,29 @@ OKX_DEPOSIT_AMOUNT = (0.001, 0.001)    # (минимальная, максима
 """
 BRIDGE_CHAIN_ID_FROM = [1]                # Исходящая сеть
 BRIDGE_CHAIN_ID_TO = [8]                  # Входящая сеть
-BRIDGE_DEPOSIT_AMOUNT = (0.007, 0.008)    # (минимум, максимум) ETH или %
-BRIDGE_WITHDRAW_AMOUNT = (0.003, 0.004)   # (минимум, максимум) ETH или %
+BRIDGE_DEPOSIT_AMOUNT = (0.001, 0.002)    # (минимум, максимум) ETH или %
+BRIDGE_WITHDRAW_AMOUNT = (0.0001, 0.0002)   # (минимум, максимум) ETH или %
 
 """
 ---------------------------------------------OMNI-CHAIN CONTROL---------------------------------------------------------
     Проверьте руками, работают ли сети на сайте. (Софт сам проверит, но зачем его напрягать?)
-
-    *(B)Arbitrum = 1              Kava = 15
-        Astar = 2                 Klaytn = 16
-     (B)Aurora = 3               *Linea = 17
-     (B)Avalanche = 4             Meter = 18
-    *(B)Base = 5                  Metis = 19
-        BNB chain = 6             Moonbeam = 20
-        Canto = 7                 Moonriver = 21
-        Celo = 8                 *Arbitrum Nova = 22
-        Core = 9                  OpBNB = 23
-        Ethereum = 10         *(B)Optimism = 24
-        Fantom = 11           *(B)Polygon = 25
-        Fuse = 12             *(B)Polygon ZKEVM = 26
-        Gnosis = 13              *Scroll = 27
-        Harmony = 14              Tenet = 28
-                                 *zkSync Era = 29
-
+       
+    *(B)Arbitrum = 1                  Goerli = 16                        OKX = 30
+        Arbitrum Nova = 2             Gnosis = 17                    *(B)Optimism = 31
+        Astar = 3                     Harmony = 18                       Orderly = 32
+     (B)Aurora = 4                    Horizen = 19                   *(B)Polygon = 33  
+     (B)Avalanche = 5                 Kava = 20                      *(B)Polygon zkEVM = 34
+        BNB = 6                       Klaytn = 21                       *Scroll = 35
+    *(B)Base = 7                     *Linea = 22                         ShimmerEVM = 36
+        Canto = 8                     Loot = 23                          Telos = 37
+        Celo = 9                      Manta = 24                         TomoChain = 38 
+        Conflux = 10                  Mantle = 25                        Tenet = 39
+        CoreDAO = 12                  Meter = 26                         XPLA = 40
+        DFK = 12                      Metis = 27                        *Zora = 41  
+        Ethereum = 13                 Moonbeam = 28                      opBNB = 42
+        Fantom = 14                   Moonriver = 29                    *zkSync = 43
+        Fuse = 15          
+                             
     SOURCE_CHAIN_ZERIUS = [27, 29] | Одна из сетей будет выбрана (REFUEL/BRIDGE NFT)
     SOURCE_CHAIN_MERKLY = [27, 29] | Одна из сетей будет выбрана (REFUEL)
     DESTINATION_MERKLY_DATA = {
@@ -112,7 +112,7 @@ BRIDGE_WITHDRAW_AMOUNT = (0.003, 0.004)   # (минимум, максимум) E
                 2) Merkly - https://minter.merkly.com/gas  
 """
 SOURCE_CHAIN_ZERIUS = [5]  # Исходящая сеть для Zerius
-DESTINATION_ZERIUS = [1, 4, 8]  # Входящая сеть для Zerius
+DESTINATION_ZERIUS = [1, 4, 8]  # Входящая сеть для Zerius Mint NFT
 
 DESTINATION_ZERIUS_DATA = {
     29: (0.0001, 0.0002),  # Chain ID: (минимум, максимум) в нативном токене входящей сети**
@@ -160,7 +160,7 @@ DESTINATION_L2TELEGRAPH = [22]  # Входящая сеть для L2Telegraph. 
     GOOGLE_SHEET_URL        | Ссылка на вашу Google таблицу с прогрессом аккаунтов
     GOOGLE_SHEET_PAGE_NAME  | Аналогично EXCEL_PAGE_NAME   
 """
-GLOBAL_NETWORK = 11             # 02.11.2023 поддерживается zkSync, Starknet, Linea, Base и Scroll.
+GLOBAL_NETWORK = 11              # 02.11.2023 поддерживается zkSync, Starknet, Linea, Base и Scroll.
 SOFTWARE_MODE = 0               # 0 - последовательный запуск / 1 - параллельный запуск
 ACCOUNTS_IN_STREAM = 1          # Только для SOFTWARE_MODE = 1 (параллельный запуск)
 WALLETS_TO_WORK = 0             # 0 / 3 / 3, 20 / [3, 20]
@@ -174,16 +174,16 @@ SLEEP_TIME = (25, 30)           # (минимум, максимум) секун�
 SLEEP_TIME_STREAM = (10, 20)    # (минимум, максимум) секунд | Время сна между аккаунтами.
 
 '-------------------------------------------------GAS CONTROL----------------------------------------------------------'
-GAS_CONTROL = False             # True или False | Включает контроль газа
-MAXIMUM_GWEI = 40               # Максимальный GWEI для работы софта
+GAS_CONTROL = False              # True или False | Включает контроль газа
+MAXIMUM_GWEI = 40               # Максимальный GWEI для работы софта, изменять во время работы софта в maximum_gwei.json
 SLEEP_TIME_GAS = 100            # Время очередной проверки газа
-CONTROL_TIMES_FOR_SLEEP = 3     # Количество проверок
-GAS_MULTIPLIER = 1.3            # Множитель газа для транзакций
+CONTROL_TIMES_FOR_SLEEP = 5     # Количество проверок
+GAS_MULTIPLIER = 1.5            # Множитель газа для транзакций
 
 
 '------------------------------------------------RETRY CONTROL---------------------------------------------------------'
-MAXIMUM_RETRY = 2               # Количество повторений при ошибках
-SLEEP_TIME_RETRY = (5, 10)      # (минимум, максимум) секунд | Время сна после очередного повторения
+MAXIMUM_RETRY = 0               # Количество повторений при ошибках
+SLEEP_TIME_RETRY = (10, 15)     # (минимум, максимум) секунд | Время сна после очередного повторения
 
 
 '------------------------------------------------PROXY CONTROL---------------------------------------------------------'
@@ -471,20 +471,6 @@ DEPOSIT_CONFIG = {
 """
 CLASSIC_ROUTES_MODULES_USING = [
     ['okx_withdraw'],
-    ['bridge_native'],
-    ['send_message_dmail'],
-    ['random_approve', 'enable_collateral_zklend', 'send_message_dmail'],
-    ['enable_collateral_eralend'],
-    ['send_message_dmail'],
-    ['mint_tevaera', 'mint_and_bridge_l2telegraph'],
-    ['enable_collateral_basilisk', 'enable_collateral_eralend', None],
-    ['swap_rango', 'swap_zkswap'],
-    ['refuel_merkly', 'swap_syncswap'],
-    ['mint_domain_zns', 'mint_domain_ens'],
-    [None, 'wrap_eth', 'swap_pancake'],
-    ['swap_mute', 'swap_spacefi', 'swap_pancake'],
-    ['refuel_bungee', 'refuel_merkly'],
-    ['swap_oneinch', 'mint_domain_ens'],
-    ['mint_mailzero', 'swap_vesync'],
-    ['withdraw_native_bridge']
+    ['bridge_layerswap', 'bridge_native', None],
+    ['swap_mute', 'swap_izumi', 'mint_domain_ens'],
 ]

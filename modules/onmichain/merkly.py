@@ -3,7 +3,7 @@ import random
 from modules import Refuel, Logger
 from eth_abi import abi
 from settings import DESTINATION_MERKLY_DATA
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from config import (
     MERKLY_CONTRACTS_PER_CHAINS,
     MERKLY_ROUTER_ABI,
@@ -16,7 +16,7 @@ class Merkly(Refuel, Logger):
         super().__init__()
         self.client = client
 
-    @repeater
+    @helper
     @gas_checker
     async def refuel(self, chain_from_id):
         dst_data = random.choice(list(DESTINATION_MERKLY_DATA.items()))

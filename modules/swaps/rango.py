@@ -1,4 +1,4 @@
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from config import TOKENS_PER_CHAIN, HELP_SOFTWARE
 from settings import SLIPPAGE, UNLIMITED_APPROVE
 from modules import Aggregator, Logger
@@ -72,7 +72,7 @@ class Rango(Aggregator, Logger):
 
         return await self.make_request(method='POST', url=url, headers=headers, json=swap_payload)
 
-    @repeater
+    @helper
     @gas_checker
     async def swap(self, help_deposit: bool = False):
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()

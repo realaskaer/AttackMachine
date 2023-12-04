@@ -1,4 +1,4 @@
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from config import MAILZERO_ABI, MAILZERO_CONTRACT
 from modules import Minter, Logger
 
@@ -8,7 +8,7 @@ class MailZero(Minter, Logger):
         super().__init__()
         self.client = client
 
-    @repeater
+    @helper
     @gas_checker
     async def mint(self, code_nft: int = 1):
         self.logger_msg(*self.client.acc_info, msg=f"Mint free NFT on MailZero")

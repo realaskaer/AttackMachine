@@ -1,6 +1,6 @@
 from time import time
 from modules import DEX, Logger
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from settings import SLIPPAGE
 from config import (
     ZERO_ADDRESS,
@@ -58,7 +58,7 @@ class Maverick(DEX, Logger):
             raise RuntimeError('Maverick does not support this pool')
         return pool_address
 
-    @repeater
+    @helper
     @gas_checker
     async def swap(self):
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount(class_name='Maverick')
@@ -109,10 +109,10 @@ class Maverick(DEX, Logger):
 
         return await self.client.send_transaction(transaction)
 
-    @repeater
+    @helper
     @gas_checker
     async def add_liquidity(self):
-        amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
+        amount, amount_in_wei = await self.client.check_and_get_eth()
 
         self.logger_msg(
             *self.client.acc_info, msg=f'Add liquidity to Maverick USDC/ETH pool: {amount} ETH')
@@ -155,7 +155,7 @@ class Maverick(DEX, Logger):
 
         return await self.client.send_transaction(transaction)
 
-    @repeater
+    @helper
     @gas_checker
     async def withdraw_liquidity(self):
         self.logger_msg(*self.client.acc_info, msg=f'Withdraw liquidity from Maverick')

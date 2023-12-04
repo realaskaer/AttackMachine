@@ -3,8 +3,8 @@ import random
 import time
 
 
-from modules import Blockchain, Logger
-from utils.tools import repeater, gas_checker
+from modules import Blockchain, Logger, Bridge
+from utils.tools import helper, gas_checker
 from starknet_py.hash.selector import get_selector_from_name
 from utils.stark_signature.stark_deployer import BraavosCurveSigner
 from settings import BRIDGE_WITHDRAW_AMOUNT, TRANSFER_AMOUNT
@@ -13,10 +13,15 @@ from config import (NATIVE_CONTRACTS_PER_CHAIN, SPACESHARD_CONTRACT, TOKENS_PER_
                     BRAAVOS_IMPLEMENTATION_CLASS_HASH_NEW, BRAAVOS_IMPLEMENTATION_CLASS_HASH)
 
 
-class Starknet(Blockchain, Logger):
+class Starknet(Blockchain, Logger, Bridge):
     def __init__(self, client):
         Logger.__init__(self)
-        super().__init__(client)
+        Bridge.__init__(self, client)
+        Blockchain.__init__(self, client)
+
+    async def bridge(self, *args, **kwargs):
+        # bridge = deposit
+        pass
 
     async def deposit(self):
         # реализован в blockchain/StarknetEVM
@@ -30,18 +35,21 @@ class Starknet(Blockchain, Logger):
         # не поддерживается в Starknet
         pass
 
-    @repeater
+    @helper
     @gas_checker
-    async def withdraw(self, receiver):
+    async def withdraw(self, private_keys:dict = None):
         await self.client.initialize_account()
 
-        amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit(BRIDGE_WITHDRAW_AMOUNT)
+        receiver = await self.get_address_for_bridge(private_keys['evm_key'], stark_key_type=False)
+
+        amount, amount_in_wei = await self.client.check_and_get_eth(BRIDGE_WITHDRAW_AMOUNT)
 
         stark_contract_address = NATIVE_CONTRACTS_PER_CHAIN['Starknet']['stark_contract']
-        url = f"https://starkgate.spaceshard.io/v1/gas-cost/{stark_contract_address}/{str(int(time.time()))}"
+
+        url = f"https://starkgate.spaceshard.io/v1/gas-cost/0x{hex(stark_contract_address)[2:]:0>64}/{time.time()}"
 
         self.logger_msg(
-            *self.client.acc_info, msg=f'Withdraw on StarkGate to {receiver}: {amount} ETH Starknet -> ERC20')
+            *self.client.acc_info, msg=f'Withdraw on StarkGate to {receiver}: {amount} ETH Starknet -> ERC20.')
 
         transfer_gas_fee = int((await self.make_request(method='GET', url=url))["result"]["gasCost"])
 
@@ -55,7 +63,7 @@ class Starknet(Blockchain, Logger):
         )
 
         withdraw_call = self.client.prepare_call(
-            contract_address=NATIVE_CONTRACTS_PER_CHAIN['Starknet']['stark_contract'],
+            contract_address=stark_contract_address,
             selector_name="initiate_withdraw",
             calldata=[
                 int(receiver, 16),
@@ -65,12 +73,12 @@ class Starknet(Blockchain, Logger):
 
         return await self.client.send_transaction(transfer_call, withdraw_call)
 
-    @repeater
+    @helper
     @gas_checker
     async def transfer_eth(self):
         await self.client.initialize_account()
 
-        amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit(TRANSFER_AMOUNT)
+        amount, amount_in_wei = await self.client.check_and_get_eth(TRANSFER_AMOUNT)
 
         self.logger_msg(*self.client.acc_info, msg=f'Transfer ETH to random Starknet address: {amount} ETH')
 
@@ -85,12 +93,12 @@ class Starknet(Blockchain, Logger):
 
         return await self.client.send_transaction(transfer_call)
 
-    @repeater
+    @helper
     @gas_checker
     async def transfer_eth_to_myself(self):
         await self.client.initialize_account()
 
-        amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit(TRANSFER_AMOUNT)
+        amount, amount_in_wei = await self.client.check_and_get_eth(TRANSFER_AMOUNT)
 
         self.logger_msg(*self.client.acc_info, msg=f"Transfer {amount} ETH to your own address")
 
@@ -105,7 +113,7 @@ class Starknet(Blockchain, Logger):
 
         return await self.client.send_transaction(transfer_call)
 
-    @repeater
+    @helper
     @gas_checker
     async def random_approve(self):
         from config import (MYSWAP_CONTRACT, JEDISWAP_CONTRACT, SITHSWAP_CONTRACT, TENKSWAP_CONTRACT,
@@ -136,7 +144,7 @@ class Starknet(Blockchain, Logger):
 
         return await self.client.send_transaction(approve_call)
 
-    @repeater
+    @helper
     @gas_checker
     async def deploy_wallet(self):
         await self.client.initialize_account(check_balance=True)
@@ -172,7 +180,7 @@ class Starknet(Blockchain, Logger):
         tx_hash = (await self.client.account.client.deploy_account(signed_tx)).transaction_hash
         return await self.client.send_transaction(check_hash=True, hash_for_check=tx_hash)
 
-    @repeater
+    @helper
     @gas_checker
     async def upgrade_wallet(self):
         await self.client.initialize_account()

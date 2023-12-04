@@ -1,6 +1,6 @@
 from faker import Faker
 from random import randint
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from config import ZNS_CONTRACT, ZNS_ABI
 from modules import Minter, Logger
 
@@ -22,7 +22,7 @@ class ZkSyncNameService(Minter, Logger):
 
         await self.get_random_name()
 
-    @repeater
+    @helper
     @gas_checker
     async def mint(self):
         self.logger_msg(*self.client.acc_info, msg=f'Mint domain on ZNS')

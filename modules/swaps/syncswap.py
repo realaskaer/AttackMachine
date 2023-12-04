@@ -1,7 +1,7 @@
 from time import time
 from eth_abi import abi
 from modules import DEX, Logger
-from utils.tools import gas_checker, repeater
+from utils.tools import gas_checker, helper
 from settings import SLIPPAGE
 from config import (
     SYNCSWAP_CONTRACTS,
@@ -36,7 +36,7 @@ class SyncSwap(DEX, Logger):
 
         return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE))
 
-    @repeater
+    @helper
     @gas_checker
     async def swap(self):
         try:
@@ -87,11 +87,11 @@ class SyncSwap(DEX, Logger):
         finally:
             await self.client.session.close()
 
-    @repeater
+    @helper
     @gas_checker
     async def add_liquidity(self):
         try:
-            amount, amount_in_wei = await self.client.check_and_get_eth_for_deposit()
+            amount, amount_in_wei = await self.client.check_and_get_eth()
 
             self.logger_msg(
                 *self.client.acc_info, msg=f'Add liquidity to SyncSwap USDC/ETH pool: {amount} ETH')
@@ -126,7 +126,7 @@ class SyncSwap(DEX, Logger):
         finally:
             await self.client.session.close()
 
-    @repeater
+    @helper
     @gas_checker
     async def withdraw_liquidity(self):
         self.logger_msg(*self.client.acc_info, msg=f'Withdraw liquidity from SyncSwap')
