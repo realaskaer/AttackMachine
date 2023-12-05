@@ -14,8 +14,8 @@ def when():
     cprint(f"{drop_date()}", color='light_red', attrs=["blink"])
 
 
-def are_you_sure(module=None):
-    if check_progress_file():
+def are_you_sure(module=None, gen_route:bool = False):
+    if gen_route or check_progress_file():
         answer = select(
             '\n ⚠️⚠️⚠️ THAT ACTION WILL DELETE ALL PREVIOUS PROGRESS FOR CLASSIC-ROUTES, continue? ⚠️⚠️⚠️ \n',
             choices=[
@@ -80,7 +80,7 @@ def main():
             print()
         elif answer == 'classic_routes_gen':
             generator = RouteGenerator()
-            are_you_sure(generator.classic_routes_json_save)
+            are_you_sure(generator.classic_routes_json_save, gen_route=True)
         elif answer == 'when':
             print()
             when()
