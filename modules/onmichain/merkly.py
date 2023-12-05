@@ -33,7 +33,7 @@ class Merkly(Refuel, Logger):
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
 
-        gas_limit = 200000
+        gas_limit = 250000
 
         adapter_params = abi.encode(["uint16", "uint64", "uint256"],
                                     [2, gas_limit, dst_native_gas_amount])
