@@ -19,6 +19,7 @@ class Merkly(Refuel, Logger):
     @helper
     @gas_checker
     async def refuel(self, chain_from_id):
+        src_chain_name = LAYERZERO_NETWORKS_DATA[chain_from_id][0]
         dst_data = random.choice(list(DESTINATION_MERKLY_DATA.items()))
         dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
         dst_amount = self.client.round_amount(*dst_data[1])
@@ -28,7 +29,7 @@ class Merkly(Refuel, Logger):
         refuel_contract = self.client.get_contract(merkly_contracts['gas_refuel'], MERKLY_ROUTER_ABI)
         router_contract = self.client.get_contract(merkly_contracts['ONFT'], MERKLY_ROUTER_ABI)
 
-        refuel_info = f'{dst_amount} {dst_native_name} to {dst_chain_name}'
+        refuel_info = f'{dst_amount} {dst_native_name} from {src_chain_name} to {dst_chain_name}'
         self.logger_msg(*self.client.acc_info, msg=f'Refuel on Merkly: {refuel_info}')
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
