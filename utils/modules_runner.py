@@ -16,7 +16,8 @@ from settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, HELP_NEW
                       MOBILE_PROXY_URL_CHANGER, WALLETS_TO_WORK, TELEGRAM_NOTIFICATIONS, GLOBAL_NETWORK,
                       SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM, EXCLUDED_MODULES)
 
-BRIDGE_NAMES = ['bridge_rhino', 'bridge_layerswap', 'bridge_orbiter', 'bridge_native', 'withdraw_native_bridge']
+BRIDGE_NAMES = ['bridge_rhino', 'bridge_layerswap', 'bridge_orbiter', 'bridge_across',
+                'bridge_native', 'withdraw_native_bridge']
 
 
 class Runner(Logger):
@@ -366,7 +367,8 @@ class Runner(Logger):
             if MOBILE_PROXY:
                 await self.change_ip_proxy()
 
-            clean_progress_file()
+            if smart_route:
+                clean_progress_file()
 
             self.logger_msg(None, None, f"Wallets in stream completed their tasks, launching next stream\n", 'success')
 
