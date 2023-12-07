@@ -2,7 +2,7 @@ from .interfaces import DEX, Aggregator, Bridge, Refuel, Messenger, Landing, Min
 from .okx import OKX
 from .client import Client
 from .stark_client import StarknetClient
-from .blockchains import ZkSync, Starknet, StarknetEVM, Base, Scroll, Linea
+from .blockchains import ZkSync, Starknet, StarknetEVM, Base, Scroll, Linea, ArbitrumNova, Zora
 from .swaps import Izumi
 from .swaps import JediSwap
 from .swaps import Maverick
@@ -29,6 +29,7 @@ from .swaps import SushiSwap
 from .bridges import LayerSwap
 from .bridges import Orbiter
 from .bridges import Rhino
+from .bridges import Across
 from .onmichain import Bungee
 from .onmichain import L2Telegraph
 from .onmichain import Merkly
@@ -44,6 +45,7 @@ from .others import ZkSyncNameService
 from .others import StarkStars
 from .others import StarknetId
 from .others import ZkStars
+from .others import MintFun
 from .landings import EraLend
 from .landings import ZeroLend
 from .landings import ReactorFusion

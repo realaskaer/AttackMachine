@@ -15,11 +15,13 @@ def get_client(account_number, private_key, network, proxy, bridge_from_evm:bool
 
 def get_interface_by_chain_id(chain_id, deposit_module:bool = False):
     return {
+        2: ArbitrumNova,
         3: Base,
         4: Linea,
         8: Scroll,
         9: StarknetEVM if deposit_module else Starknet,
         11: ZkSync,
+        12: Zora
     }[chain_id]
 
 
@@ -337,6 +339,17 @@ async def bridge_rhino(account_number, _, __, proxy, *args, **kwargs):
     return await worker.bridge(chain_from_id, *args, **kwargs)
 
 
+async def bridge_across(account_number, _, __, proxy, *args, **kwargs):
+    chain_from_id = random.choice(BRIDGE_CHAIN_ID_FROM)
+    network = get_network_by_chain_id(chain_from_id)
+
+    bridge_from_evm = True if 9 not in BRIDGE_CHAIN_ID_FROM else False
+    private_key = get_key_by_id_from(args, chain_from_id)
+
+    worker = Across(get_client(account_number, private_key, network, proxy, bridge_from_evm))
+    return await worker.bridge(chain_from_id, *args, **kwargs)
+
+
 async def refuel_merkly(account_number, private_key, _, proxy):
     chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SOURCE_CHAIN_MERKLY)]
     network = get_network_by_chain_id(chain_from_id)
@@ -561,3 +574,27 @@ async def random_approve(account_number, private_key, network, proxy):
 
     worker = blockchain(get_client(account_number, private_key, network, proxy))
     return await worker.random_approve()
+
+
+async def zksync_rhino_checker(account_number, private_key, network, proxy):
+
+    worker = Rhino(get_client(account_number, private_key, network, proxy))
+    return await worker.check_eligible()
+
+
+async def zksync_rhino_mint(account_number, private_key, network, proxy):
+
+    worker = Rhino(get_client(account_number, private_key, network, proxy))
+    return await worker.mint_common()
+
+
+async def zksync_rhino_mint_pro(account_number, private_key, network, proxy):
+
+    worker = Rhino(get_client(account_number, private_key, network, proxy))
+    return await worker.mint_rare()
+
+
+async def mint_mintfun(account_number, private_key, network, proxy):
+
+    worker = MintFun(get_client(account_number, private_key, network, proxy))
+    return await worker.mint()

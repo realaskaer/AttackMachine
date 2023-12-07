@@ -24,6 +24,7 @@ AVAILABLE_MODULES_INFO = {
     bridge_rhino                        : (bridge_rhino, 1, 'Rhino Bridge', 0, [3, 4, 8, 9, 11]),
     bridge_layerswap                    : (bridge_layerswap, 1, 'LayerSwap Bridge', 0, [3, 4, 8, 9, 11]),
     bridge_orbiter                      : (bridge_orbiter, 1, 'Orbiter Bridge', 0, [3, 4, 8, 9, 11]),
+    bridge_across                       : (bridge_across, 1, 'Across Bridge', 0, [3, 11]),
     bridge_native                       : (bridge_native, 1, 'Native Bridge', 0, [3, 4, 8, 9, 11]),
     upgrade_stark_wallet                : (upgrade_stark_wallet, 2, 'Upgrade Wallet', 0, [9]),
     add_liquidity_maverick              : (add_liquidity_maverick, 2, 'Maverick Liquidity', 0, [11]),
@@ -83,6 +84,7 @@ AVAILABLE_MODULES_INFO = {
     mint_starknet_identity              : (mint_starknet_identity, 2, 'Mint Starknet ID', 0, [9]),
     mint_starkstars                     : (mint_starkstars, 2, 'StarkStars Mint', 0, [9]),
     mint_zkstars                        : (mint_zkstars, 2, 'zkStars Mint', 0, [3, 4, 8, 11]),
+    mint_mintfun                        : (mint_mintfun, 2, 'Mintfun Mint', 0, [3, 4, 8, 11]),
     deploy_contract                     : (deploy_contract, 3, 'Contract Deploy', 0, [3, 4, 8, 9, 11]),
     bridge_zerius                       : (bridge_zerius, 3, 'Zerius Bridge NFT', 0, [3, 4, 8, 11]),
     refuel_bungee                       : (refuel_bungee, 3, 'Bungee Refuel', 0, [3, 11]),
@@ -104,6 +106,9 @@ AVAILABLE_MODULES_INFO = {
     withdraw_layerbank                  : (withdraw_layerbank, 3, 'LayerBank Withdraw', 0, [4, 8]),
     withdraw_rocketsam                  : (withdraw_rocketsam, 3, 'RocketSam Withdraw', 0, [3, 4, 8, 11]),
     withdraw_native_bridge              : (withdraw_native_bridge, 3, 'Native Bridge Withdraw', 0, [9, 11]),
+    zksync_rhino_checker                : (zksync_rhino_checker, 3, 'Rhino Checker', 0, [11]),
+    zksync_rhino_mint                   : (zksync_rhino_mint, 3, 'Rhino Mint zkSync Hunter NFT', 0, [11]),
+    zksync_rhino_mint_pro               : (zksync_rhino_mint_pro, 3, 'Rhino Mint zkSync Pro Hunter NFT', 0, [11]),
     okx_deposit                         : (okx_deposit, 4, 'OKX Deposit', 0, [3, 4, 8, 9, 11]),
     okx_collect_from_sub                : (okx_collect_from_sub, 5, 'OKX Collect money', 0, [3, 4, 8, 9, 11])
 }

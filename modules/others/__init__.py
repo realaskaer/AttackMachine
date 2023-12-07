@@ -8,3 +8,4 @@ from .znsnameservice import ZkSyncNameService
 from .starknetid import StarknetId
 from .starkstars import StarkStars
 from .zkstars import ZkStars
+from .mintfun import MintFun

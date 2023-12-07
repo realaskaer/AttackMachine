@@ -52,8 +52,7 @@ class Orbiter(Bridge, Logger):
             await self.client.session.close()
             self.client = await self.client.initialize_evm_client(private_keys['evm_key'], chain_from_id)
 
-        from_chain, to_chain, amount = await self.client.get_bridge_data(chain_from_id, help_okx,
-                                                                         'Orbiter')
+        from_chain, to_chain, amount = await self.client.get_bridge_data(chain_from_id, help_okx, 'Orbiter')
         token_name = 'ETH'
 
         bridge_info = f'{amount} {token_name} from {from_chain["name"]} to {to_chain["name"]}'

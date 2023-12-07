@@ -7,7 +7,7 @@ from aiohttp_socks import ProxyConnector
 
 from modules import Logger
 from utils.networks import Network
-from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, OKX_WRAPED_ID
+from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, OKX_WRAPED_ID, CHAIN_IDS
 from web3 import AsyncHTTPProvider, AsyncWeb3
 from config import RHINO_CHAIN_INFO, ORBITER_CHAINS_INFO, LAYERSWAP_CHAIN_NAME
 from settings import (
@@ -98,6 +98,7 @@ class Client(Logger):
             'Rhino': RHINO_CHAIN_INFO,
             'LayerSwap': LAYERSWAP_CHAIN_NAME,
             'Orbiter': ORBITER_CHAINS_INFO,
+            'Across': CHAIN_IDS
         }[module_name]
 
         src_chain_id = GLOBAL_NETWORK if help_okx else chain_from_id
@@ -239,18 +240,15 @@ class Client(Logger):
             spender_address
         ).call()
 
-    async def get_fee_options(self):
+    async def get_priotiry_fee(self):
         fee_history = await self.w3.eth.fee_history(25, 'latest', [20.0])
         non_empty_block_priority_fees = [fee[0] for fee in fee_history["reward"] if fee[0] != 0]
-        non_empty_block_base_fees = [fee for fee in fee_history["baseFeePerGas"] if fee != 0]
 
         divisor_priority = max(len(non_empty_block_priority_fees), 1)
-        divisor_base = max(len(non_empty_block_base_fees), 1)
 
         priority_fee = int(round(sum(non_empty_block_priority_fees) / divisor_priority))
-        base_fee = int(round(sum(non_empty_block_base_fees) / divisor_base))
 
-        return base_fee, priority_fee
+        return priority_fee
 
     async def prepare_transaction(self, value: int = 0):
         try:
@@ -263,7 +261,8 @@ class Client(Logger):
 
             if self.network.eip1559_support:
 
-                base_fee, max_priority_fee_per_gas = await self.get_fee_options()
+                base_fee = await self.w3.eth.gas_price
+                max_priority_fee_per_gas = await self.get_priotiry_fee()
                 max_fee_per_gas = base_fee + max_priority_fee_per_gas
 
                 tx_params['maxPriorityFeePerGas'] = max_priority_fee_per_gas
@@ -320,9 +319,10 @@ class Client(Logger):
         except Exception as error:
             raise RuntimeError(f'Check for approve | {self.get_normalize_error(error)}')
 
-    async def send_transaction(self, transaction, need_hash:bool = False):
+    async def send_transaction(self, transaction, need_hash:bool = False, without_gas:bool = False):
         try:
-            transaction['gas'] = int((await self.w3.eth.estimate_gas(transaction)) * GAS_MULTIPLIER)
+            if not without_gas:
+                transaction['gas'] = int((await self.w3.eth.estimate_gas(transaction)) * GAS_MULTIPLIER)
         except Exception as error:
             raise RuntimeError(f'Gas calculating | {self.get_normalize_error(error)}')
 

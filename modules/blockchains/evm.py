@@ -359,3 +359,15 @@ class Linea(Blockchain, SimpleEVM):
     def __init__(self, client):
         SimpleEVM.__init__(self, client)
         Blockchain.__init__(self, client)
+
+
+class ArbitrumNova(Blockchain, SimpleEVM):
+    def __init__(self, client):
+        SimpleEVM.__init__(self, client)
+        Blockchain.__init__(self, client)
+
+
+class Zora(Blockchain, SimpleEVM):
+    def __init__(self, client):
+        SimpleEVM.__init__(self, client)
+        Blockchain.__init__(self, client)
