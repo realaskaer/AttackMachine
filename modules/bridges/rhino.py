@@ -332,8 +332,10 @@ class Rhino(Bridge, Logger):
             if GLOBAL_NETWORK == 9 and chain_from_id == 9:
                 await self.client.initialize_account()
             if GLOBAL_NETWORK == 9:
+                await self.client.initialize_account()
                 self.evm_client = await self.client.initialize_evm_client(private_keys['evm_key'], chain_from_id)
-            self.evm_client = self.client
+            if GLOBAL_NETWORK != 9:
+                self.evm_client = self.client
 
             self.nonce, self.signature = self.get_authentication_data()
 
