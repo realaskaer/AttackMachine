@@ -51,7 +51,7 @@ class OKX(CEX, Logger):
         return await self.make_request(url=url, headers=headers, params=params, module_name='Token info')
 
     @helper
-    async def withdraw(self):
+    async def withdraw(self, want_balance:float = 0):
         if GLOBAL_NETWORK == 9:
             await self.client.initialize_account(check_balance=True)
 
@@ -64,7 +64,10 @@ class OKX(CEX, Logger):
 
         network_name = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK]
         network_data = networks_data[network_name]
-        amount = await self.client.get_smart_amount(OKX_WITHDRAW_AMOUNT)
+        if want_balance:
+            amount = want_balance
+        else:
+            amount = await self.client.get_smart_amount(OKX_WITHDRAW_AMOUNT)
 
         self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount} ETH to {network_name[4:]}")
 

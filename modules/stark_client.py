@@ -231,7 +231,7 @@ class StarknetClient(Logger):
 
         source_chain = bridge_info[chain_from_id]
         destination_chain = bridge_info[random.choice(BRIDGE_CHAIN_ID_TO)]
-        amount, _ = await self.check_and_get_eth(deposit_info, initial_chain_id=chain_from_id)
+        amount, _ = await self.check_and_get_eth(deposit_info, bridge_mode=True, initial_chain_id=chain_from_id)
 
         return source_chain, destination_chain, amount
 
@@ -279,11 +279,14 @@ class StarknetClient(Logger):
             raise RuntimeError(f'Insufficient balance on account!')
         raise RuntimeError(f'Insufficient balance on {class_name} pools!')
 
-    async def check_and_get_eth(self, settings:tuple = None, initial_chain_id:int = 0) -> [float, int]:
+    async def check_and_get_eth(self, settings:tuple = None, bridge_mode:bool = False,
+                                initial_chain_id:int = 0) -> [float, int]:
         from functions import swap_avnu
 
         data = True
-        if initial_chain_id and initial_chain_id in [3, 4, 8, 9, 11]:
+        if bridge_mode and initial_chain_id in [3, 4, 8, 9, 11]:
+            data = await self.get_auto_amount(token_name_search='ETH')
+        elif not bridge_mode:
             data = await self.get_auto_amount(token_name_search='ETH')
 
         amount = await self.get_smart_amount(settings if settings else LIQUIDITY_AMOUNT)

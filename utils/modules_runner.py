@@ -42,7 +42,7 @@ class Runner(Logger):
             return zip(account_names, accounts)
 
         elif isinstance(WALLETS_TO_WORK, list):
-            range_count = range(WALLETS_TO_WORK[0], WALLETS_TO_WORK[1])
+            range_count = range(WALLETS_TO_WORK[0], WALLETS_TO_WORK[1] + 1)
             account_names = [ACCOUNT_NAMES[i - 1] for i in range_count]
             accounts = [PRIVATE_KEYS[i - 1] for i in range_count]
             return zip(account_names, accounts)

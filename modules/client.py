@@ -64,7 +64,7 @@ class Client(Logger):
     async def get_smart_amount(self, settings):
         if isinstance(settings[0], str):
             _, amount, _ = await self.get_token_balance()
-            percent = round(random.uniform(int(settings[0]), int(settings[1]))) / 100
+            percent = round(random.uniform(float(settings[0]), float(settings[1]))) / 100
             amount = round(amount * percent, 6)
         else:
             amount = self.round_amount(*settings)
@@ -106,7 +106,7 @@ class Client(Logger):
         dst_chains = OKX_WRAPED_ID[OKX_DEPOSIT_NETWORK] if help_okx else random.choice(BRIDGE_CHAIN_ID_TO)
         destination_chain = bridge_info[dst_chains]
 
-        amount, _ = await self.check_and_get_eth(deposit_info, initial_chain_id=src_chain_id)
+        amount, _ = await self.check_and_get_eth(deposit_info, bridge_mode=True, initial_chain_id=src_chain_id)
         return source_chain, destination_chain, amount
 
     async def bridge_from_source(self) -> None:
@@ -127,7 +127,8 @@ class Client(Logger):
         await asyncio.sleep(1)
         await func(self.account_name, self.private_key, self.network, self.proxy_init, help_okx=True)
 
-    async def check_and_get_eth(self, settings:tuple = None, initial_chain_id:int = 0) -> [float, int]:
+    async def check_and_get_eth(self, settings:tuple = None, bridge_mode:bool = False,
+                                initial_chain_id:int = 0) -> [float, int]:
         from functions import swap_odos, swap_oneinch, swap_openocean, swap_xyfinance, swap_rango
 
         func = {
@@ -140,7 +141,9 @@ class Client(Logger):
         module_func = random.choice(func)
 
         data = True
-        if initial_chain_id and initial_chain_id in [3, 4, 8, 9, 11]:
+        if bridge_mode and initial_chain_id in [2, 3, 4, 8, 9, 11, 12]:
+            data = await self.get_auto_amount(token_name_search='ETH')
+        elif not bridge_mode:
             data = await self.get_auto_amount(token_name_search='ETH')
 
         amount = await self.get_smart_amount(settings if settings else LIQUIDITY_AMOUNT)

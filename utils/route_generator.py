@@ -12,20 +12,22 @@ from gspread import Client, Spreadsheet, Worksheet, service_account
 from settings import (GOOGLE_SHEET_URL, GOOGLE_SHEET_PAGE_NAME, MODULES_COUNT, ALL_MODULES_TO_RUN,
                       TRANSFER_IN_ROUTES, TRANSFER_COUNT, EXCLUDED_MODULES,
                       DMAIL_IN_ROUTES, DMAIL_COUNT, COLLATERAL_IN_ROUTES, COLLATERAL_COUNT,
-                      CLASSIC_ROUTES_MODULES_USING, WITHDRAW_LP, WITHDRAW_LANDING, DEPOSIT_CONFIG)
+                      CLASSIC_ROUTES_MODULES_USING, WITHDRAW_LP, WITHDRAW_LANDING, HELPERS_CONFIG)
 
 GSHEET_CONFIG = "./data/services/service_account.json"
 os.environ["GSPREAD_SILENCE_WARNINGS"] = "1"
 
 AVAILABLE_MODULES_INFO = {
     # module_name                       : (module name, priority, tg info, can be help module, supported network)
-    okx_withdraw                        : (okx_withdraw, -1, 'OKX Withdraw', 0, [3, 4, 8, 9, 11]),
+    okx_withdraw                        : (okx_withdraw, -3, 'OKX Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
+    make_balance_to_average             : (make_balance_to_average, -2, 'Check and make wanted balance', 0, [0]),
+    collector_eth                       : (collector_eth, -1, 'Collect ETH from tokens', 0, [2, 3, 4, 8, 9, 11, 12]),
     deploy_stark_wallet                 : (deploy_stark_wallet, 0, 'Deploy Wallet', 0, [9]),
-    bridge_rhino                        : (bridge_rhino, 1, 'Rhino Bridge', 0, [3, 4, 8, 9, 11]),
-    bridge_layerswap                    : (bridge_layerswap, 1, 'LayerSwap Bridge', 0, [3, 4, 8, 9, 11]),
-    bridge_orbiter                      : (bridge_orbiter, 1, 'Orbiter Bridge', 0, [3, 4, 8, 9, 11]),
-    bridge_across                       : (bridge_across, 1, 'Across Bridge', 0, [3, 11]),
-    bridge_native                       : (bridge_native, 1, 'Native Bridge', 0, [3, 4, 8, 9, 11]),
+    bridge_rhino                        : (bridge_rhino, 1, 'Rhino Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
+    bridge_layerswap                    : (bridge_layerswap, 1, 'LayerSwap Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
+    bridge_orbiter                      : (bridge_orbiter, 1, 'Orbiter Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
+    bridge_across                       : (bridge_across, 1, 'Across Bridge', 0, [2, 3, 11, 12]),
+    bridge_native                       : (bridge_native, 1, 'Native Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
     upgrade_stark_wallet                : (upgrade_stark_wallet, 2, 'Upgrade Wallet', 0, [9]),
     add_liquidity_maverick              : (add_liquidity_maverick, 2, 'Maverick Liquidity', 0, [11]),
     add_liquidity_mute                  : (add_liquidity_mute, 2, 'Mute Liquidity', 0, [11]),
@@ -37,7 +39,7 @@ AVAILABLE_MODULES_INFO = {
     deposit_nostra                      : (deposit_nostra, 2, 'Nostra Deposit', 0, [9]),
     deposit_zklend                      : (deposit_zklend, 2, 'zkLend Deposit', 0, [9]),
     deposit_layerbank                   : (deposit_layerbank, 2, 'LayerBank Deposit', 0, [4, 8]),
-    deposit_rocketsam                   : (deposit_rocketsam, 2, 'RocketSam Deposit', 0, [3, 4, 8, 11]),
+    deposit_rocketsam                   : (deposit_rocketsam, 2, 'RocketSam Deposit', 0, [2, 3, 4, 8, 11, 12]),
     enable_collateral_basilisk          : (enable_collateral_basilisk, 2, 'Enable Basilisk Collateral', 1, [11]),
     enable_collateral_eralend           : (enable_collateral_eralend, 2, 'Enable EraLend Collateral', 1, [11]),
     enable_collateral_reactorfusion     : (enable_collateral_reactorfusion, 2, 'Enable ReactorFusion Collateral', 1, [11]),
@@ -65,9 +67,9 @@ AVAILABLE_MODULES_INFO = {
     swap_woofi                          : (swap_woofi, 2, 'WooFi Swap', 1, [3, 4, 11]),
     swap_zkswap                         : (swap_zkswap, 2, 'zkSwap Swap', 1, [11]),
     swap_uniswap                        : (swap_uniswap, 2, 'Uniswap Swap', 1, [3]),
-    swap_sushiswap                      : (swap_sushiswap, 2, 'SushiSwap Swap', 1, [3]),
-    wrap_eth                            : (wrap_eth, 2, 'Wrap ETH', 0, [11]),
-    random_approve                      : (random_approve, 2, 'Random Approve', 0, [3, 4, 8, 9, 11]),
+    swap_sushiswap                      : (swap_sushiswap, 2, 'SushiSwap Swap', 1, [2, 3]),
+    wrap_eth                            : (wrap_eth, 2, 'Wrap ETH', 0, [2, 3, 4, 8, 11, 12]),
+    random_approve                      : (random_approve, 2, 'Random Approve', 0, [2, 3, 4, 8, 9, 11, 12]),
     disable_collateral_basilisk         : (disable_collateral_basilisk, 3, 'Disable Basilisk Collateral', 1, [11]),
     disable_collateral_eralend          : (disable_collateral_eralend, 3, 'Disable EraLend Collateral', 1, [11]),
     disable_collateral_reactorfusion    : (disable_collateral_reactorfusion, 3, 'Disable ReactorFusion Collateral', 1, [11]),
@@ -80,20 +82,20 @@ AVAILABLE_MODULES_INFO = {
     mint_domain_zns                     : (mint_domain_zns, 2, 'ZNS Domain Mint', 0, [11]),
     mint_mailzero                       : (mint_mailzero, 2, 'MailZero NFT mint', 0, [11]),
     mint_tevaera                        : (mint_tevaera, 2, 'Tevaera ID & NFT mint', 0, [11]),
-    mint_zerius                         : (mint_zerius, 2, 'Zerius Mint NFT', 0, [3, 4, 8, 11]),
+    mint_zerius                         : (mint_zerius, 2, 'Zerius Mint NFT', 0, [2, 3, 4, 8, 11, 12]),
     mint_starknet_identity              : (mint_starknet_identity, 2, 'Mint Starknet ID', 0, [9]),
     mint_starkstars                     : (mint_starkstars, 2, 'StarkStars Mint', 0, [9]),
-    mint_zkstars                        : (mint_zkstars, 2, 'zkStars Mint', 0, [3, 4, 8, 11]),
+    mint_zkstars                        : (mint_zkstars, 2, 'zkStars Mint', 0, [3, 4, 8, 11, 12]),
     mint_mintfun                        : (mint_mintfun, 2, 'Mintfun Mint', 0, [3, 4, 8, 11]),
-    deploy_contract                     : (deploy_contract, 3, 'Contract Deploy', 0, [3, 4, 8, 9, 11]),
-    bridge_zerius                       : (bridge_zerius, 3, 'Zerius Bridge NFT', 0, [3, 4, 8, 11]),
+    deploy_contract                     : (deploy_contract, 3, 'Contract Deploy', 0, [2, 3, 4, 8, 9, 11, 12]),
+    bridge_zerius                       : (bridge_zerius, 3, 'Zerius Bridge NFT', 0, [2, 3, 4, 8, 11, 12]),
     refuel_bungee                       : (refuel_bungee, 3, 'Bungee Refuel', 0, [3, 11]),
-    refuel_merkly                       : (refuel_merkly, 3, 'Merkly Refuel', 0, [3, 4, 8, 11]),
-    refuel_zerius                       : (refuel_zerius, 3, 'Zerius Refuel', 0, [3, 4, 8, 11]),
+    refuel_merkly                       : (refuel_merkly, 3, 'Merkly Refuel', 0, [2, 3, 4, 8, 11, 12]),
+    refuel_zerius                       : (refuel_zerius, 3, 'Zerius Refuel', 0, [2, 3, 4, 8, 11, 12]),
     send_message_dmail                  : (send_message_dmail, 2, 'Dmail Message', 1, [3, 4, 8, 9, 11]),
-    send_message_l2telegraph            : (send_message_l2telegraph, 2, 'L2Telegraph Message', 0, [3, 4, 8, 11]),
-    transfer_eth                        : (transfer_eth, 2, 'Transfer ETH', 0, [9, 11]),
-    transfer_eth_to_myself              : (transfer_eth_to_myself, 2, 'Transfer ETH to myself', 0, [9, 11]),
+    send_message_l2telegraph            : (send_message_l2telegraph, 2, 'L2Telegraph Message', 0, [2, 3, 4, 8, 11, 12]),
+    transfer_eth                        : (transfer_eth, 2, 'Transfer ETH', 0, [2, 3, 4, 8, 9, 11, 12]),
+    transfer_eth_to_myself              : (transfer_eth_to_myself, 2, 'Transfer ETH to myself', 0, [2, 3, 4,8,9,11,12]),
     withdraw_liquidity_maverick         : (withdraw_liquidity_maverick, 3, 'Maverick Withdraw', 0, [11]),
     withdraw_liquidity_mute             : (withdraw_liquidity_mute, 3, 'Mute Withdraw', 0, [11]),
     withdraw_liquidity_syncswap         : (withdraw_liquidity_syncswap, 3, 'SyncSwap Withdraw', 0, [11]),
@@ -104,13 +106,13 @@ AVAILABLE_MODULES_INFO = {
     withdraw_nostra                     : (withdraw_nostra, 3, 'Nostra Withdraw', 0, [9]),
     withdraw_zklend                     : (withdraw_zklend, 3, 'zkLend Withdraw', 0, [9]),
     withdraw_layerbank                  : (withdraw_layerbank, 3, 'LayerBank Withdraw', 0, [4, 8]),
-    withdraw_rocketsam                  : (withdraw_rocketsam, 3, 'RocketSam Withdraw', 0, [3, 4, 8, 11]),
+    withdraw_rocketsam                  : (withdraw_rocketsam, 3, 'RocketSam Withdraw', 0, [2, 3, 4, 8, 11, 12]),
     withdraw_native_bridge              : (withdraw_native_bridge, 3, 'Native Bridge Withdraw', 0, [9, 11]),
     zksync_rhino_checker                : (zksync_rhino_checker, 3, 'Rhino Checker', 0, [11]),
     zksync_rhino_mint                   : (zksync_rhino_mint, 3, 'Rhino Mint zkSync Hunter NFT', 0, [11]),
     zksync_rhino_mint_pro               : (zksync_rhino_mint_pro, 3, 'Rhino Mint zkSync Pro Hunter NFT', 0, [11]),
-    okx_deposit                         : (okx_deposit, 4, 'OKX Deposit', 0, [3, 4, 8, 9, 11]),
-    okx_collect_from_sub                : (okx_collect_from_sub, 5, 'OKX Collect money', 0, [3, 4, 8, 9, 11])
+    okx_deposit                         : (okx_deposit, 4, 'OKX Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
+    okx_collect_from_sub                : (okx_collect_from_sub, 5, 'OKX Collect money', 0, [2, 3, 4, 8, 9, 11, 12])
 }
 
 
@@ -421,24 +423,28 @@ class RouteGenerator(Logger):
                 smart_route.append(AVAILABLE_MODULES_INFO[withdraw_layerbank])
                 smart_route.append(AVAILABLE_MODULES_INFO[withdraw_rocketsam])
 
-        bridge_modules = [AVAILABLE_MODULES_INFO[bridge_rhino] if DEPOSIT_CONFIG['bridge_rhino'] else None,
-                          AVAILABLE_MODULES_INFO[bridge_layerswap] if DEPOSIT_CONFIG['bridge_layerswap'] else None,
-                          AVAILABLE_MODULES_INFO[bridge_orbiter] if DEPOSIT_CONFIG['bridge_orbiter'] else None,
-                          AVAILABLE_MODULES_INFO[bridge_native] if DEPOSIT_CONFIG['bridge_native'] else None]
+        bridge_modules = [AVAILABLE_MODULES_INFO[bridge_across] if HELPERS_CONFIG['bridge_across'] else None,
+                          AVAILABLE_MODULES_INFO[bridge_rhino] if HELPERS_CONFIG['bridge_rhino'] else None,
+                          AVAILABLE_MODULES_INFO[bridge_layerswap] if HELPERS_CONFIG['bridge_layerswap'] else None,
+                          AVAILABLE_MODULES_INFO[bridge_orbiter] if HELPERS_CONFIG['bridge_orbiter'] else None,
+                          AVAILABLE_MODULES_INFO[bridge_native] if HELPERS_CONFIG['bridge_native'] else None]
 
         bridge_to_add = [i for i in bridge_modules if i]
 
         if bridge_to_add:
             smart_route.append(random.choice(bridge_to_add))
 
-        smart_route.append(AVAILABLE_MODULES_INFO[okx_withdraw] if DEPOSIT_CONFIG['okx_withdraw'] else None)
-        smart_route.append(AVAILABLE_MODULES_INFO[okx_deposit] if DEPOSIT_CONFIG['okx_deposit'] else None)
+        smart_route.append(AVAILABLE_MODULES_INFO[okx_withdraw] if HELPERS_CONFIG['okx_withdraw'] else None)
+        smart_route.append(AVAILABLE_MODULES_INFO[okx_deposit] if HELPERS_CONFIG['okx_deposit'] else None)
+        smart_route.append(AVAILABLE_MODULES_INFO[collector_eth] if HELPERS_CONFIG['collector_eth'] else None)
         smart_route.append(
-            AVAILABLE_MODULES_INFO[okx_collect_from_sub] if DEPOSIT_CONFIG['okx_collect_from_sub'] else None)
+            AVAILABLE_MODULES_INFO[make_balance_to_average] if HELPERS_CONFIG['make_balance_to_average'] else None)
         smart_route.append(
-            AVAILABLE_MODULES_INFO[upgrade_stark_wallet] if DEPOSIT_CONFIG['upgrade_stark_wallet'] else None)
+            AVAILABLE_MODULES_INFO[okx_collect_from_sub] if HELPERS_CONFIG['okx_collect_from_sub'] else None)
         smart_route.append(
-            AVAILABLE_MODULES_INFO[deploy_stark_wallet] if DEPOSIT_CONFIG['deploy_stark_wallet'] else None)
+            AVAILABLE_MODULES_INFO[upgrade_stark_wallet] if HELPERS_CONFIG['upgrade_stark_wallet'] else None)
+        smart_route.append(
+            AVAILABLE_MODULES_INFO[deploy_stark_wallet] if HELPERS_CONFIG['deploy_stark_wallet'] else None)
 
         random.shuffle(smart_route)
 

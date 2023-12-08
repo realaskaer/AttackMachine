@@ -417,9 +417,9 @@ async def create_safe(account_number, private_key, network, proxy):
     return await worker.create()
 
 
-async def okx_withdraw(account_number, private_key, network, proxy):
+async def okx_withdraw(account_number, private_key, network, proxy, *args, **kwargs):
     worker = OKX(get_client(account_number, private_key, network, proxy))
-    return await worker.withdraw()
+    return await worker.withdraw(*args, **kwargs)
 
 
 async def okx_deposit(account_number, private_key, _, proxy):
@@ -598,3 +598,16 @@ async def mint_mintfun(account_number, private_key, network, proxy):
 
     worker = MintFun(get_client(account_number, private_key, network, proxy))
     return await worker.mint()
+
+
+async def collector_eth(account_number, private_key, network, proxy):
+
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.collect_eth()
+
+
+async def make_balance_to_average(account_number, private_key, network, proxy):
+
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.balance_average()
+
