@@ -37,19 +37,22 @@ class Custom(Logger, Aggregator):
                 if token_name != 'ETH':
                     amount_in_wei = wallet_balance[token_name][0]
                     amount = float(f"{(amount_in_wei / 10 ** await self.client.get_decimals(token_name)):.5f}")
-                    from_token_name, to_token_name = token_name, 'ETH'
-                    data = from_token_name, to_token_name, amount, amount_in_wei
-                    while True:
-                        result = False
-                        module_func = random.choice(func)
-                        try:
-                            self.logger_msg(*self.client.acc_info, msg=f'Launching swap module', type_msg='warning')
-                            result = await module_func(self.client.account_name, self.client.private_key,
-                                                       self.client.network, self.client.proxy_init, swapdata=data)
-                        except:
-                            pass
-                        if result:
-                            break
+                    if amount > 1:
+                        from_token_name, to_token_name = token_name, 'ETH'
+                        data = from_token_name, to_token_name, amount, amount_in_wei
+                        while True:
+                            result = False
+                            module_func = random.choice(func)
+                            try:
+                                self.logger_msg(*self.client.acc_info, msg=f'Launching swap module', type_msg='warning')
+                                result = await module_func(self.client.account_name, self.client.private_key,
+                                                           self.client.network, self.client.proxy_init, swapdata=data)
+                            except:
+                                pass
+                            if result:
+                                break
+                    else:
+                        self.logger_msg(*self.client.acc_info, msg=f"{token_name} balance < 1$")
 
             return True
         else:
