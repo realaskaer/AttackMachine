@@ -221,7 +221,7 @@ class StarknetClient(Logger):
             raise RuntimeError(
                 f'DEX price impact > your wanted impact | DEX impact: {price_impact:.3}% > Your impact {PRICE_IMPACT}%')
 
-    async def get_bridge_data(self, chain_from_id: int, _, __, module_name: str):
+    async def get_bridge_data(self, chain_from_id: int, _, module_name: str = None):
         deposit_info = BRIDGE_DEPOSIT_AMOUNT
         bridge_info = {
             'Rhino': RHINO_CHAIN_INFO,
