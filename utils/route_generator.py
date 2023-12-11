@@ -189,6 +189,18 @@ class RouteGenerator(Logger):
                 'Mint Starknet ID': mint_starknet_identity,
                 'Mint StarkStars': mint_starkstars,
             }
+        elif GLOBAL_NETWORK == 2:
+            map_data = {
+                'SushiSwap Swap': swap_sushiswap,
+                'RocketSam Deposit': deposit_rocketsam,
+                'Zerius Mint': mint_zerius,
+                'Zerius Bridge': bridge_zerius,
+                'Contract Deploy': deploy_contract,
+                'Merkly Refuel': refuel_merkly,
+                'Zerius Refuel': refuel_zerius,
+                'L2Telegraph Bridge NFT': mint_and_bridge_l2telegraph,
+                'L2Telegraph Message': send_message_l2telegraph,
+            }
         elif GLOBAL_NETWORK == 3:
             map_data = {
                 'PancakeSwap Swap': swap_pancake,
@@ -252,6 +264,19 @@ class RouteGenerator(Logger):
                 'Contract Deploy': deploy_contract,
                 'Merkly Refuel': refuel_merkly,
                 'Zerius Refuel': refuel_zerius,
+                'L2Telegraph Message': send_message_l2telegraph,
+            }
+        elif GLOBAL_NETWORK == 12:
+            map_data = {
+                'MintFun Mint': mint_mintfun,
+                'zkStars Mint': mint_zkstars,
+                'RocketSam Deposit': deposit_rocketsam,
+                'Zerius Mint': mint_zerius,
+                'Zerius Bridge': bridge_zerius,
+                'Contract Deploy': deploy_contract,
+                'Merkly Refuel': refuel_merkly,
+                'Zerius Refuel': refuel_zerius,
+                'L2Telegraph Bridge NFT': mint_and_bridge_l2telegraph,
                 'L2Telegraph Message': send_message_l2telegraph,
             }
         else:
