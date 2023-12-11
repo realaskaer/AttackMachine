@@ -79,7 +79,7 @@ class CEX(ABC):
                            headers:dict = None, module_name:str = 'Request'):
 
         async with ClientSession() as session:
-            async with session.get(method=method, url=url, headers=headers, data=data, params=params) as response:
+            async with session.request(method=method, url=url, headers=headers, data=data, params=params) as response:
 
                 data = await response.json()
                 if data['code'] != 0 and data['msg'] != '':
