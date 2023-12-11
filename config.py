@@ -1170,7 +1170,7 @@ CHAIN_NAME = {
     10: 'Polygon ZKEVM',
     11: 'zkSync',
     12: 'Zora',
-    13: 'Etherium',
+    14: 'Etherium',
 }
 
 ACCOUNT_NAMES, PRIVATE_KEYS_EVM, PRIVATE_KEYS, PROXIES, OKX_WALLETS = get_accounts_data()

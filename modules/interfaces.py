@@ -1,4 +1,4 @@
-from aiohttp import ContentTypeError
+from aiohttp import ContentTypeError, ClientSession
 from loguru import logger
 from sys import stderr
 from datetime import datetime
@@ -74,20 +74,20 @@ class CEX(ABC):
     async def withdraw(self):
         pass
 
-    async def make_request(self, method:str = 'GET', url:str = None, data:str = None, params:dict = None,
+    @staticmethod
+    async def make_request(method:str = 'GET', url:str = None, data:str = None, params:dict = None,
                            headers:dict = None, module_name:str = 'Request'):
 
-        headers = (headers or {}) | {'User-Agent': USER_AGENT}
-        async with self.client.session.request(method=method, url=url, headers=headers, data=data,
-                                               params=params) as response:
+        async with ClientSession() as session:
+            async with session.get(method=method, url=url, headers=headers, data=data, params=params) as response:
 
-            data = await response.json()
-            if data['code'] != 0 and data['msg'] != '':
-                error = f"Error code: {data['code']} Msg: {data['msg']}"
-                raise RuntimeError(f"Bad request to OKX({module_name}): {error}")
-            else:
-                # self.logger.success(f"{self.info} {module_name}")
-                return data['data']
+                data = await response.json()
+                if data['code'] != 0 and data['msg'] != '':
+                    error = f"Error code: {data['code']} Msg: {data['msg']}"
+                    raise RuntimeError(f"Bad request to OKX({module_name}): {error}")
+                else:
+                    # self.logger.success(f"{self.info} {module_name}")
+                    return data['data']
 
 
 class Aggregator(ABC):
