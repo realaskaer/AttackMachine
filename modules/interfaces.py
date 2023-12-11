@@ -11,11 +11,13 @@ from settings import (LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS,
 from utils.networks import StarknetRPC
 
 CHAINS_NAME = {
+    2: 'Arbitrum Nova',
     3: 'Base',
     4: 'Linea',
     8: 'Scroll',
     9: 'Starknet',
-    11: 'zkSync'
+    11: 'zkSync',
+    12: 'Zora'
 }
 
 random_version = f"{uniform(520, 540):.2f}"
