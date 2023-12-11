@@ -40,11 +40,12 @@ class Custom(Logger, Aggregator):
             for token_name, token_balance in valid_wallet_balance.items():
                 if token_name != 'ETH':
                     amount_in_wei = wallet_balance[token_name][0]
-                    amount = float(f"{(amount_in_wei / 10 ** await self.client.get_decimals(token_name)):.5f}")
+                    amount = float(f"{(amount_in_wei / 10 ** await self.client.get_decimals(token_name)):.6f}")
                     amount_in_usd = valid_wallet_balance[token_name]
                     if amount_in_usd > 1:
                         from_token_name, to_token_name = token_name, 'ETH'
                         data = from_token_name, to_token_name, amount, amount_in_wei
+                        counter = 0
                         while True:
                             result = False
                             module_func = random.choice(func)
@@ -53,8 +54,9 @@ class Custom(Logger, Aggregator):
                                 result = await module_func(self.client.account_name, self.client.private_key,
                                                            self.client.network, self.client.proxy_init, swapdata=data)
                             except:
+                                counter += 1
                                 pass
-                            if result:
+                            if result or counter == 3:
                                 break
                     else:
                         self.logger_msg(*self.client.acc_info, msg=f"{token_name} balance < 1$")
@@ -123,33 +125,38 @@ class Custom(Logger, Aggregator):
 
         if 'WETH' in valid_wallet_balance:
             valid_wallet_balance['WETH'] = valid_wallet_balance['WETH'] * eth_price
+            valid_wallet_balance['ETH'] = 0
 
         max_token = max(valid_wallet_balance, key=lambda x: valid_wallet_balance[x])
         percent = round(random.uniform(*AMOUNT_PERCENT)) / 100 if max_token == 'ETH' else 1
         amount_in_wei = int(wallet_balance[max_token][0] * percent)
-        amount = round(amount_in_wei / 10 ** 18, 6)
+        amount = float(f"{amount_in_wei / 10 ** 18:.6f}")
 
         if max_token == 'ETH':
-            msg = f'Wrap {amount:.5f} ETH'
+            msg = f'Wrap {amount:.6f} ETH'
             from_token_name, to_token_name = 'ETH', 'WETH'
         else:
-            msg = f'Unwrap {amount:.5f} WETH'
+            msg = f'Unwrap {amount:.6f} WETH'
             from_token_name, to_token_name = 'WETH', 'ETH'
 
         self.logger_msg(*self.client.acc_info, msg=msg)
 
-        if valid_wallet_balance[max_token] > 1:
+        if (max_token == 'ETH' and valid_wallet_balance[max_token] > 1
+                or max_token == 'WETH' and valid_wallet_balance[max_token] != 0):
             data = from_token_name, to_token_name, amount, amount_in_wei
+            counter = 0
+            result = False
             while True:
                 module_func = random.choice(func)
                 try:
                     result = await module_func(self.client.account_name, self.client.private_key,
                                                self.client.network, self.client.proxy_init, swapdata=data)
 
-                except Exception as erros:
-                    raise erros
-                if result:
+                except:
+                    pass
+                if result or counter == 3:
                     break
+
             return result
         else:
-            self.logger_msg(*self.client.acc_info, msg=f"{from_token_name} balance < 1$")
+            self.logger_msg(*self.client.acc_info, msg=f"{from_token_name} balance is too low (lower 1$)")
