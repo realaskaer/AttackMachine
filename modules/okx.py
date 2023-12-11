@@ -91,9 +91,9 @@ class OKX(CEX, Logger):
                 await self.make_request(method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
 
                 self.logger_msg(*self.client.acc_info,
-                                msg=f"Withdraw complete. Note: wait 1-2 minute to receive funds", type_msg='success')
+                                msg=f"Withdraw complete. Note: wait 3-6 minute to receive funds", type_msg='success')
 
-                await sleep(self, 200, 260)
+                await sleep(self, 180, 300)
                 return True
             else:
                 raise RuntimeError(f"Limit range for withdraw: {min_wd:.5f} ETH - {max_wd} ETH")

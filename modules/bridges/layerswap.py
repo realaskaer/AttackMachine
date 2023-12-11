@@ -3,7 +3,7 @@ import json
 from config import TOKENS_PER_CHAIN
 from modules import Bridge, Logger
 from settings import GLOBAL_NETWORK
-from utils.tools import gas_checker, helper
+from utils.tools import gas_checker, helper, sleep
 
 
 class LayerSwap(Bridge, Logger):
@@ -144,7 +144,14 @@ class LayerSwap(Bridge, Logger):
                             'data': tx_data['data']
                         }]
 
-                    return await self.client.send_transaction(*transaction)
+                    result = await self.client.send_transaction(*transaction)
+
+                    self.logger_msg(*self.client.acc_info,
+                                    msg=f"Bridge complete. Note: wait 3-5 minute to receive funds", type_msg='success')
+
+                    await sleep(self, 180, 300)
+
+                    return result
 
                 else:
                     raise RuntimeError("Insufficient balance!")

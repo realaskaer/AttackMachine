@@ -380,6 +380,11 @@ class Rhino(Bridge, Logger):
 
                 await self.withdraw_from_rhino(rhino_user_config, amount, chain_to_name, dst_address)
 
+                self.logger_msg(*self.client.acc_info,
+                                msg=f"Bridge complete. Note: wait 3-5 minute to receive funds", type_msg='success')
+
+                await sleep(self, 180, 300)
+
                 return True
             else:
                 self.logger_msg(

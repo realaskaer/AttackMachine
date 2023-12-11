@@ -1,5 +1,5 @@
 from modules import Bridge, Logger
-from utils.tools import helper, gas_checker
+from utils.tools import helper, gas_checker, sleep
 from config import ORBITER_CONTRACTS, ORBITER_ABI, TOKENS_PER_CHAIN
 from settings import GLOBAL_NETWORK
 from web3 import AsyncWeb3
@@ -103,7 +103,14 @@ class Orbiter(Bridge, Logger):
             balance_in_wei, _, _ = await self.client.get_token_balance(token_name)
             if balance_in_wei > full_amount:
 
-                return await self.client.send_transaction(*transaction)
+                result = await self.client.send_transaction(*transaction)
+
+                self.logger_msg(*self.client.acc_info,
+                                msg=f"Bridge complete. Note: wait 3-5 minute to receive funds", type_msg='success')
+
+                await sleep(self, 180, 300)
+
+                return result
 
             else:
                 raise RuntimeError(f'Insufficient balance!')

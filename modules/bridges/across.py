@@ -1,7 +1,7 @@
 import time
 
 from modules import Bridge, Logger
-from utils.tools import helper, gas_checker
+from utils.tools import helper, gas_checker, sleep
 from config import TOKENS_PER_CHAIN, ACROSS_ABI, CHAIN_NAME_FROM_ID, ACROSS_CONTRACT
 from settings import GLOBAL_NETWORK, GAS_MULTIPLIER
 
@@ -99,7 +99,15 @@ class Across(Bridge, Logger):
                 transaction['data'] += 'd00dfeeddeadbeef000000a679c2fb345ddefbae3c42bee92c0fb7a5'
                 transaction['gas'] = int(transaction['gas'] * GAS_MULTIPLIER)
 
-                return await self.client.send_transaction(transaction, without_gas=True)
+                result = await self.client.send_transaction(transaction, without_gas=True)
+
+                self.logger_msg(*self.client.acc_info,
+                                msg=f"Bridge complete. Note: wait 3-5 minute to receive funds", type_msg='success')
+
+                await sleep(self, 180, 300)
+
+                return result
+
             else:
                 raise RuntimeError(f'Bridge route is not available!')
         else:
