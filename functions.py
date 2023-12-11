@@ -615,7 +615,7 @@ async def make_balance_to_average(account_number, private_key, network, proxy):
     return await worker.balance_average()
 
 
-async def wrap_abuse(account_number, private_key, network, proxy):
+async def wrap_abuser(account_number, private_key, network, proxy):
 
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.wraps_abuser()

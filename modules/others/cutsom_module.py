@@ -145,9 +145,11 @@ class Custom(Logger, Aggregator):
                 try:
                     result = await module_func(self.client.account_name, self.client.private_key,
                                                self.client.network, self.client.proxy_init, swapdata=data)
+
                 except Exception as erros:
                     raise erros
                 if result:
                     break
+            return result
         else:
             self.logger_msg(*self.client.acc_info, msg=f"{from_token_name} balance < 1$")
