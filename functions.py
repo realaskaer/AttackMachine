@@ -3,8 +3,8 @@ import random
 from modules import *
 from utils.networks import *
 from config import OKX_WRAPED_ID, LAYERZERO_WRAPED_NETWORKS
-from settings import (BRIDGE_CHAIN_ID_FROM, OKX_DEPOSIT_NETWORK, SOURCE_CHAIN_MERKLY,
-                      SOURCE_CHAIN_ZERIUS, GLOBAL_NETWORK)
+from settings import (ORBITER_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, RHINO_CHAIN_ID_FROM, ACROSS_CHAIN_ID_FROM,
+                      OKX_DEPOSIT_NETWORK, SRC_CHAIN_MERKLY, SOURCE_CHAIN_ZERIUS, GLOBAL_NETWORK)
 
 
 def get_client(account_number, private_key, network, proxy, bridge_from_evm:bool = False) -> Client | StarknetClient:
@@ -301,10 +301,10 @@ async def bridge_layerswap(account_number, _, __, proxy, *args, **kwargs):
     if kwargs.get('help_okx') is True:
         chain_from_id = GLOBAL_NETWORK
     else:
-        chain_from_id = random.choice(BRIDGE_CHAIN_ID_FROM)
+        chain_from_id = random.choice(LAYERSWAP_CHAIN_ID_FROM)
     network = get_network_by_chain_id(chain_from_id)
 
-    bridge_from_evm = True if 9 not in BRIDGE_CHAIN_ID_FROM else False
+    bridge_from_evm = True if 9 not in LAYERSWAP_CHAIN_ID_FROM else False
     private_key = get_key_by_id_from(args, chain_from_id)
 
     worker = LayerSwap(get_client(account_number, private_key, network, proxy, bridge_from_evm))
@@ -315,10 +315,10 @@ async def bridge_orbiter(account_number, _, __, proxy, *args, **kwargs):
     if kwargs.get('help_okx') is True:
         chain_from_id = GLOBAL_NETWORK
     else:
-        chain_from_id = random.choice(BRIDGE_CHAIN_ID_FROM)
+        chain_from_id = random.choice(ORBITER_CHAIN_ID_FROM)
     network = get_network_by_chain_id(chain_from_id)
 
-    bridge_from_evm = True if 9 not in BRIDGE_CHAIN_ID_FROM else False
+    bridge_from_evm = True if 9 not in ORBITER_CHAIN_ID_FROM else False
     private_key = get_key_by_id_from(args, chain_from_id)
 
     worker = Orbiter(get_client(account_number, private_key, network, proxy, bridge_from_evm))
@@ -329,10 +329,10 @@ async def bridge_rhino(account_number, _, __, proxy, *args, **kwargs):
     if kwargs.get('help_okx') is True:
         chain_from_id = GLOBAL_NETWORK
     else:
-        chain_from_id = random.choice(BRIDGE_CHAIN_ID_FROM)
+        chain_from_id = random.choice(RHINO_CHAIN_ID_FROM)
     network = get_network_by_chain_id(chain_from_id)
 
-    bridge_from_evm = True if 9 not in BRIDGE_CHAIN_ID_FROM else False
+    bridge_from_evm = True if 9 not in RHINO_CHAIN_ID_FROM else False
     private_key = get_key_by_id_from(args, chain_from_id)
 
     worker = Rhino(get_client(account_number, private_key, network, proxy, bridge_from_evm))
@@ -340,10 +340,13 @@ async def bridge_rhino(account_number, _, __, proxy, *args, **kwargs):
 
 
 async def bridge_across(account_number, _, __, proxy, *args, **kwargs):
-    chain_from_id = random.choice(BRIDGE_CHAIN_ID_FROM)
+    if kwargs.get('help_okx') is True:
+        chain_from_id = GLOBAL_NETWORK
+    else:
+        chain_from_id = random.choice(ACROSS_CHAIN_ID_FROM)
     network = get_network_by_chain_id(chain_from_id)
 
-    bridge_from_evm = True if 9 not in BRIDGE_CHAIN_ID_FROM else False
+    bridge_from_evm = True if 9 not in ACROSS_CHAIN_ID_FROM else False
     private_key = get_key_by_id_from(args, chain_from_id)
 
     worker = Across(get_client(account_number, private_key, network, proxy, bridge_from_evm))
@@ -351,7 +354,7 @@ async def bridge_across(account_number, _, __, proxy, *args, **kwargs):
 
 
 async def refuel_merkly(account_number, private_key, _, proxy):
-    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SOURCE_CHAIN_MERKLY)]
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_MERKLY)]
     network = get_network_by_chain_id(chain_from_id)
 
     worker = Merkly(get_client(account_number, private_key, network, proxy))
@@ -359,7 +362,7 @@ async def refuel_merkly(account_number, private_key, _, proxy):
 
 
 async def refuel_zerius(account_number, private_key, _, proxy):
-    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SOURCE_CHAIN_MERKLY)]
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_MERKLY)]
     network = get_network_by_chain_id(chain_from_id)
 
     worker = Zerius(get_client(account_number, private_key, network, proxy), chain_from_id)
@@ -611,3 +614,8 @@ async def make_balance_to_average(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.balance_average()
 
+
+async def wrap_abuse(account_number, private_key, network, proxy):
+
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.wraps_abuser()

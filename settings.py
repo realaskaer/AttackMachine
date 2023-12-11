@@ -55,6 +55,7 @@ OKX_BALANCE_WANTED = 0.005             # Необходимый баланс н�
 ------------------------------------------------BRIDGE CONTROL----------------------------------------------------------
     Проверьте руками, работает ли сеть на сайте. (Софт сам проверит, но зачем его напрягать?)
     Софт работает только с нативным токеном(ETH). Не забудьте вставить API ключ для LayerSwap снизу.
+    Для каждого моста поддерживается уникальная настройка
     
     Можно указать минимальную/максимальную сумму или минимальный/максимальный % от баланса
     
@@ -71,13 +72,27 @@ OKX_BALANCE_WANTED = 0.005             # Необходимый баланс н�
     
     * - не поддерживается в Rhino.fi
     (A) - сети, поддерживаемые Across мостом
-    BRIDGE_CHAIN_ID_FROM(TO) = [2, 4, 16] | Одна из сетей будет выбрана
-    BRIDGE_WITHDRAW_AMOUNT | Настройка для вывода из нативного моста (withdraw_native_bridge)
+    ORBITER_CHAIN_ID_FROM(TO) = [2, 4, 16] | Одна из сетей будет выбрана
+    NATIVE_WITHDRAW_AMOUNT | Настройка для вывода из нативного моста (withdraw_native_bridge)
 """
-BRIDGE_CHAIN_ID_FROM = [7]                # Исходящая сеть
-BRIDGE_CHAIN_ID_TO = [11]                  # Входящая сеть
-BRIDGE_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) ETH или %
-BRIDGE_WITHDRAW_AMOUNT = (0.0001, 0.0002)   # (минимум, максимум) ETH или %
+NATIVE_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) ETH или %
+NATIVE_WITHDRAW_AMOUNT = (0.0001, 0.0002)   # (минимум, максимум) ETH или %
+
+ORBITER_CHAIN_ID_FROM = [9]                # Исходящая сеть
+ORBITER_CHAIN_ID_TO = [4]                  # Входящая сеть
+ORBITER_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) ETH или %
+
+LAYERSWAP_CHAIN_ID_FROM = [9]                # Исходящая сеть
+LAYERSWAP_CHAIN_ID_TO = [4]                  # Входящая сеть
+LAYERSWAP_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) ETH или %
+
+RHINO_CHAIN_ID_FROM = [9]                # Исходящая сеть
+RHINO_CHAIN_ID_TO = [4]                  # Входящая сеть
+RHINO_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) ETH или %
+
+ACROSS_CHAIN_ID_FROM = [9]                # Исходящая сеть
+ACROSS_CHAIN_ID_TO = [4]                  # Входящая сеть
+ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) ETH или %
 
 """
 ---------------------------------------------OMNI-CHAIN CONTROL---------------------------------------------------------
@@ -116,26 +131,26 @@ BRIDGE_WITHDRAW_AMOUNT = (0.0001, 0.0002)   # (минимум, максимум)
                 2) Merkly - https://minter.merkly.com/gas  
 """
 SOURCE_CHAIN_ZERIUS = [5]  # Исходящая сеть для Zerius
-DESTINATION_ZERIUS = [1, 4, 8]  # Входящая сеть для Zerius Mint NFT
+DST_CHAIN_ZERIUS_NFT = [1, 4, 8]  # Входящая сеть для Zerius Mint NFT
 
-DESTINATION_ZERIUS_DATA = {
+DST_CHAIN_ZERIUS_REFUEL = {
     29: (0.0001, 0.0002),  # Chain ID: (минимум, максимум) в нативном токене входящей сети**
     27: (0.0001, 0.0002)
 }
 
 
-SOURCE_CHAIN_MERKLY = [43]       # Исходящая сеть для Merkly
-DESTINATION_MERKLY_DATA = {
-    3: (0.001, 0.002),  # Chain ID: (минимум, максимум) в нативном токене входящей сети**
+SRC_CHAIN_MERKLY = [43]       # Исходящая сеть для Merkly
+DST_CHAIN_MERKLY_REFUEL = {
+    8: (0.00018, 0.00018),  # Chain ID: (минимум, максимум) в нативном токене входящей сети**
     39: (0.001, 0.002)
 }
 
-DESTINATION_BUNGEE_DATA = {
+DST_CHAIN_BUNGEE_REFUEL = {
     3:  (0.001, 0.0015),  # Chain ID: (min amount, max amount) in ETH
     22: (0.001, 0.0015)   # Chain ID: (min amount, max amount) in ETH
 }
 
-DESTINATION_L2TELEGRAPH = [22]  # Входящая сеть для L2Telegraph. Можно указать несколько ([1, 2]) и будет выбрана одна.
+DST_CHAIN_L2TELEGRAPH = [22]  # Входящая сеть для L2Telegraph. Можно указать несколько ([1, 2]) и будет выбрана одна.
 
 """
 ------------------------------------------------GENERAL SETTINGS--------------------------------------------------------
@@ -186,7 +201,7 @@ GAS_MULTIPLIER = 1.5            # Множитель газа для транз�
 
 
 '------------------------------------------------RETRY CONTROL---------------------------------------------------------'
-MAXIMUM_RETRY = 0               # Количество повторений при ошибках
+MAXIMUM_RETRY = 2               # Количество повторений при ошибках
 SLEEP_TIME_RETRY = (5, 10)      # (минимум, максимум) секунд | Время сна после очередного повторения
 
 
@@ -358,7 +373,8 @@ HELPERS_CONFIG = {
     send_message_dmail               
     send_message_l2telegraph         # смотри OMNI-CHAIN CONTROL
     transfer_eth                     
-    transfer_eth_to_myself           
+    transfer_eth_to_myself     
+    wrap_abuser                      # свапы ETH-WETH      
     withdraw_native_bridge 
     withdraw_basilisk               
     withdraw_eralend                
@@ -387,6 +403,7 @@ HELPERS_CONFIG = {
     random_approve
     transfer_eth                     
     transfer_eth_to_myself   
+    wrap_abuser                     
     enable_collateral_zklend
     disable_collateral_zklend
     mint_starknet_identity
@@ -421,7 +438,8 @@ HELPERS_CONFIG = {
     refuel_zerius
     random_approve
     transfer_eth                     
-    transfer_eth_to_myself   
+    transfer_eth_to_myself
+    wrap_abuser                      
     send_message_dmail
     send_message_l2telegraph
 
@@ -449,7 +467,8 @@ HELPERS_CONFIG = {
     refuel_zerius
     random_approve
     transfer_eth                     
-    transfer_eth_to_myself   
+    transfer_eth_to_myself
+    wrap_abuser                     
     send_message_dmail
     send_message_l2telegraph
 
@@ -477,6 +496,7 @@ HELPERS_CONFIG = {
     transfer_eth_to_myself   
     send_message_dmail
     send_message_l2telegraph
+    wrap_abuser                     
     withdraw_native_bridge
     
 --------------------------------------------------------ZORA------------------------------------------------------------        
@@ -490,6 +510,7 @@ HELPERS_CONFIG = {
     bridge_zerius
     mint_and_bridge_l2telegraph
     send_message_l2telegraph
+    wrap_abuser                           
     transfer_eth                     
     transfer_eth_to_myself
 
@@ -503,6 +524,7 @@ HELPERS_CONFIG = {
     bridge_zerius
     mint_and_bridge_l2telegraph
     send_message_l2telegraph
+    wrap_abuser                          
     transfer_eth                     
     transfer_eth_to_myself
     

@@ -7,7 +7,7 @@ from modules import Blockchain, Logger, Bridge
 from utils.tools import helper, gas_checker
 from starknet_py.hash.selector import get_selector_from_name
 from utils.stark_signature.stark_deployer import BraavosCurveSigner
-from settings import BRIDGE_WITHDRAW_AMOUNT, TRANSFER_AMOUNT
+from settings import NATIVE_WITHDRAW_AMOUNT, TRANSFER_AMOUNT
 from config import (NATIVE_CONTRACTS_PER_CHAIN, SPACESHARD_CONTRACT, TOKENS_PER_CHAIN,
                     ARGENT_IMPLEMENTATION_CLASS_HASH_NEW, BRAAVOS_PROXY_CLASS_HASH,
                     BRAAVOS_IMPLEMENTATION_CLASS_HASH_NEW, BRAAVOS_IMPLEMENTATION_CLASS_HASH)
@@ -42,7 +42,7 @@ class Starknet(Blockchain, Logger, Bridge):
 
         receiver = await self.get_address_for_bridge(private_keys['evm_key'], stark_key_type=False)
 
-        amount, amount_in_wei = await self.client.check_and_get_eth(BRIDGE_WITHDRAW_AMOUNT)
+        amount, amount_in_wei = await self.client.check_and_get_eth(NATIVE_WITHDRAW_AMOUNT)
 
         stark_contract_address = NATIVE_CONTRACTS_PER_CHAIN['Starknet']['stark_contract']
 

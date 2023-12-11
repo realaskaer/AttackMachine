@@ -9,8 +9,8 @@ from modules import Blockchain, Logger, Bridge
 from utils.networks import StarknetRPC
 from utils.tools import gas_checker, helper
 from settings import (
-    BRIDGE_DEPOSIT_AMOUNT,
-    BRIDGE_WITHDRAW_AMOUNT,
+    NATIVE_WITHDRAW_AMOUNT,
+    NATIVE_DEPOSIT_AMOUNT,
     TRANSFER_AMOUNT
 )
 from config import (
@@ -182,10 +182,10 @@ class Scroll(Blockchain, SimpleEVM):
     @gas_checker
     async def deposit(self):
 
-        amount = self.client.round_amount(*BRIDGE_DEPOSIT_AMOUNT)
+        amount = await self.client.get_smart_amount(NATIVE_DEPOSIT_AMOUNT)
         amount_in_wei = int(amount * 10 ** 18)
 
-        self.client.logger.info(f'{self.client.info} Scroll | Bridge {amount} ETH | ERC20 -> Scroll')
+        self.client.logger.info(f'{self.client.info} Bridge {amount} ETH ERC20 -> Scroll')
 
         if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
@@ -207,7 +207,7 @@ class Scroll(Blockchain, SimpleEVM):
     @gas_checker
     async def withdraw(self):
 
-        amount, amount_in_wei = await self.client.check_and_get_eth(BRIDGE_WITHDRAW_AMOUNT)
+        amount, amount_in_wei = await self.client.check_and_get_eth(NATIVE_WITHDRAW_AMOUNT)
 
         self.client.logger.info(
             f'{self.client.info} Scroll | Withdraw {amount} ETH Scroll -> ERC20')
@@ -243,7 +243,7 @@ class ZkSync(Blockchain, SimpleEVM):
     @gas_checker
     async def deposit(self):
 
-        amount = await self.client.get_smart_amount(BRIDGE_DEPOSIT_AMOUNT)
+        amount = await self.client.get_smart_amount(NATIVE_DEPOSIT_AMOUNT)
         amount_in_wei = int(amount * 10 ** 18)
 
         self.logger_msg(*self.client.acc_info, msg=f'Bridge on txSync: {amount} ETH ERC20 -> zkSync Era')
@@ -279,7 +279,7 @@ class ZkSync(Blockchain, SimpleEVM):
     @gas_checker
     async def withdraw(self):
 
-        amount, amount_in_wei = await self.client.check_and_get_eth(BRIDGE_WITHDRAW_AMOUNT)
+        amount, amount_in_wei = await self.client.check_and_get_eth(NATIVE_WITHDRAW_AMOUNT)
 
         self.logger_msg(*self.client.acc_info, msg=f'Withdraw on txSync: {amount} ETH zkSync Era -> ERC20')
 
@@ -328,7 +328,7 @@ class StarknetEVM(Blockchain, Logger, Bridge):
 
         receiver = await self.get_address_for_bridge(private_keys['stark_key'], stark_key_type=True)
 
-        amount = await self.client.get_smart_amount(BRIDGE_DEPOSIT_AMOUNT)
+        amount = await self.client.get_smart_amount(NATIVE_DEPOSIT_AMOUNT)
         amount_in_wei = int(amount * 10 ** 18)
 
         self.logger_msg(self.client.account_name, None,

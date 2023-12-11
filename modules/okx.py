@@ -59,8 +59,8 @@ class OKX(CEX, Logger):
 
         withdraw_data = await self.get_currencies()
 
-        networks_data = {item['chain']: {'can_withdraw': item['canWd'], 'min_fee': item['minFee']} for item in
-                         withdraw_data}
+        networks_data = {item['chain']: {'can_withdraw': item['canWd'], 'min_fee': item['minFee'],
+                                         'min_wd': item['minWd'], 'max_wd': item['maxWd']} for item in withdraw_data}
 
         network_name = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK]
         network_data = networks_data[network_name]
@@ -73,27 +73,32 @@ class OKX(CEX, Logger):
 
         if network_data['can_withdraw']:
             address = f"0x{hex(self.client.address)[2:]:0>64}" if OKX_WITHDRAW_NETWORK == 5 else self.client.address
+            min_wd, max_wd = float(network_data['min_wd']), float(network_data['max_wd'])
 
-            body = {
-                "ccy": 'ETH',
-                "amt": amount,
-                "dest": "4",
-                "toAddr": address,
-                "fee": network_data['min_fee'],
-                "chain": f"{network_name}",
-            }
+            if min_wd <= amount <= max_wd:
 
-            headers = await self.get_headers(method="POST", request_path=url, body=str(body))
+                body = {
+                    "ccy": 'ETH',
+                    "amt": amount,
+                    "dest": "4",
+                    "toAddr": address,
+                    "fee": network_data['min_fee'],
+                    "chain": f"{network_name}",
+                }
 
-            await self.make_request(method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
+                headers = await self.get_headers(method="POST", request_path=url, body=str(body))
 
-            self.logger_msg(*self.client.acc_info,
-                            msg=f"Withdraw complete. Note: wait 1-2 minute to receive funds", type_msg='success')
+                await self.make_request(method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
 
-            await sleep(self, 200, 260)
-            return True
+                self.logger_msg(*self.client.acc_info,
+                                msg=f"Withdraw complete. Note: wait 1-2 minute to receive funds", type_msg='success')
+
+                await sleep(self, 200, 260)
+                return True
+            else:
+                raise RuntimeError(f"Limit range for withdraw: {min_wd:.5f} ETH - {max_wd} ETH")
         else:
-            raise RuntimeError(f"Withdraw {network_name} is not available")
+            raise RuntimeError(f"Withdraw from {network_name} is not available")
 
     @helper
     async def transfer_from_subaccounts(self):
@@ -196,23 +201,41 @@ class OKX(CEX, Logger):
 
         self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} ETH from {network_name} to OKX wallet: {info}")
 
-        if self.client.network.name == 'Starknet':
-            await self.client.initialize_account()
-            transaction = self.client.prepare_call(
-                contract_address=TOKENS_PER_CHAIN['Starknet']['ETH'],
-                selector_name="transfer",
-                calldata=[
-                    int(okx_wallet, 16),
-                    amount_in_wei, 0
-                ]
-            )
-        else:
-            transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
-                'to': self.client.w3.to_checksum_address(okx_wallet),
-                'data': '0x'
-            }
+        withdraw_data = await self.get_currencies()
 
-        return await self.client.send_transaction(transaction)
+        networks_data = {item['chain']: {'can_dep': item['canDep'], 'min_dep': item['minDep']}
+                         for item in withdraw_data}
+
+        network_name = OKX_NETWORKS_NAME[OKX_DEPOSIT_NETWORK]
+        network_data = networks_data[network_name]
+
+        if network_data['can_dep']:
+
+            min_dep = network_data['min_dep']
+
+            if amount >= min_dep:
+
+                if self.client.network.name == 'Starknet':
+                    await self.client.initialize_account()
+                    transaction = self.client.prepare_call(
+                        contract_address=TOKENS_PER_CHAIN['Starknet']['ETH'],
+                        selector_name="transfer",
+                        calldata=[
+                            int(okx_wallet, 16),
+                            amount_in_wei, 0
+                        ]
+                    )
+                else:
+                    transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
+                        'to': self.client.w3.to_checksum_address(okx_wallet),
+                        'data': '0x'
+                    }
+
+                return await self.client.send_transaction(transaction)
+            else:
+                raise RuntimeError(f"Minimum to deposit: {min_dep} ETH")
+        else:
+            raise RuntimeError(f"Deposit to {network_name} is not available")
 
     async def deposit(self):
 

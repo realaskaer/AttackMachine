@@ -1,3 +1,5 @@
+import asyncio
+
 from modules import Aggregator, Logger
 from utils.tools import gas_checker, helper
 from settings import SLIPPAGE, ONEINCH_API_KEY
@@ -15,7 +17,8 @@ class OneInch(Aggregator, Logger):
 
         headers = {
             'Authorization': f'Bearer {ONEINCH_API_KEY}',
-            'accept': 'application/json'}
+            'accept': 'application/json'
+        }
 
         return await self.make_request(url=url, headers=headers)
 
@@ -25,15 +28,15 @@ class OneInch(Aggregator, Logger):
 
         headers = {
             'Authorization': f'Bearer {ONEINCH_API_KEY}',
-            'accept': 'application/json'}
+        }
 
         params = {
             "src": from_token_address,
             "dst": to_token_address,
-            "amount": f"{amount}",
+            "amount": amount,
             "from": self.client.address,
             "slippage": SLIPPAGE,
-        } | ({"referrer": '0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5', "fee": 1} if HELP_SOFTWARE else {})
+        } | ({"fee": 1, "referrer": '0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5'} if HELP_SOFTWARE else {})
 
         return await self.make_request(url=url, params=params, headers=headers)
 
@@ -59,6 +62,8 @@ class OneInch(Aggregator, Logger):
 
         if from_token_name != 'ETH':
             await self.client.check_for_approved(from_token_address, contract_address, amount_in_wei)
+
+        await asyncio.sleep(5)
 
         swap_quote_data = await self.build_swap_transaction(from_token_address, to_token_address, amount_in_wei)
 

@@ -35,8 +35,14 @@ from settings import (
     AMOUNT_PERCENT,
     MIN_BALANCE,
     LIQUIDITY_AMOUNT,
-    BRIDGE_DEPOSIT_AMOUNT,
-    BRIDGE_CHAIN_ID_TO,
+    ORBITER_CHAIN_ID_TO,
+    ORBITER_DEPOSIT_AMOUNT,
+    LAYERSWAP_CHAIN_ID_TO,
+    LAYERSWAP_DEPOSIT_AMOUNT,
+    RHINO_CHAIN_ID_TO,
+    RHINO_DEPOSIT_AMOUNT,
+    ACROSS_CHAIN_ID_TO,
+    ACROSS_DEPOSIT_AMOUNT,
     PRICE_IMPACT,
     NEW_WALLET_TYPE
 )
@@ -221,18 +227,18 @@ class StarknetClient(Logger):
             raise RuntimeError(
                 f'DEX price impact > your wanted impact | DEX impact: {price_impact:.3}% > Your impact {PRICE_IMPACT}%')
 
-    async def get_bridge_data(self, chain_from_id: int, _, module_name: str = None):
-        deposit_info = BRIDGE_DEPOSIT_AMOUNT
+    async def get_bridge_data(self, chain_from_id: int, _: bool, module_name: str):
         bridge_info = {
-            'Rhino': RHINO_CHAIN_INFO,
-            'LayerSwap': LAYERSWAP_CHAIN_NAME,
-            'Orbiter': ORBITER_CHAINS_INFO,
+            'Rhino': (RHINO_CHAIN_INFO, RHINO_CHAIN_ID_TO, RHINO_DEPOSIT_AMOUNT),
+            'LayerSwap': (LAYERSWAP_CHAIN_NAME, LAYERSWAP_CHAIN_ID_TO, LAYERSWAP_DEPOSIT_AMOUNT),
+            'Orbiter': (ORBITER_CHAINS_INFO, ORBITER_CHAIN_ID_TO, ORBITER_DEPOSIT_AMOUNT),
         }[module_name]
 
-        source_chain = bridge_info[chain_from_id]
-        destination_chain = bridge_info[random.choice(BRIDGE_CHAIN_ID_TO)]
-        amount, _ = await self.check_and_get_eth(deposit_info, bridge_mode=True, initial_chain_id=chain_from_id)
+        deposit_info = bridge_info[2]
+        source_chain = bridge_info[0][chain_from_id]
+        destination_chain = bridge_info[0][random.choice(bridge_info[1])]
 
+        amount, _ = await self.check_and_get_eth(deposit_info, bridge_mode=True, initial_chain_id=chain_from_id)
         return source_chain, destination_chain, amount
 
     async def get_landing_data(self, class_name:str, deposit:bool = False):

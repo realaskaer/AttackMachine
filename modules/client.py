@@ -19,8 +19,16 @@ from settings import (
     OKX_BRIDGE_MODE,
     OKX_BRIDGE_AMOUNT,
     PRICE_IMPACT,
-    BRIDGE_DEPOSIT_AMOUNT,
-    BRIDGE_CHAIN_ID_TO, GLOBAL_NETWORK, OKX_DEPOSIT_NETWORK
+    ORBITER_CHAIN_ID_TO,
+    ORBITER_DEPOSIT_AMOUNT,
+    LAYERSWAP_CHAIN_ID_TO,
+    LAYERSWAP_DEPOSIT_AMOUNT,
+    RHINO_CHAIN_ID_TO,
+    RHINO_DEPOSIT_AMOUNT,
+    ACROSS_CHAIN_ID_TO,
+    ACROSS_DEPOSIT_AMOUNT,
+    GLOBAL_NETWORK,
+    OKX_DEPOSIT_NETWORK
 )
 
 
@@ -93,18 +101,18 @@ class Client(Logger):
                 f'DEX price impact > your wanted impact | DEX impact: {price_impact:.3}% > Your impact {PRICE_IMPACT}%')
 
     async def get_bridge_data(self, chain_from_id:int, help_okx:bool, module_name:str):
-        deposit_info = OKX_BRIDGE_AMOUNT if help_okx else BRIDGE_DEPOSIT_AMOUNT
         bridge_info = {
-            'Rhino': RHINO_CHAIN_INFO,
-            'LayerSwap': LAYERSWAP_CHAIN_NAME,
-            'Orbiter': ORBITER_CHAINS_INFO,
-            'Across': CHAIN_IDS
+            'Rhino': (RHINO_CHAIN_INFO, RHINO_CHAIN_ID_TO, RHINO_DEPOSIT_AMOUNT),
+            'LayerSwap': (LAYERSWAP_CHAIN_NAME, LAYERSWAP_CHAIN_ID_TO, LAYERSWAP_DEPOSIT_AMOUNT),
+            'Orbiter': (ORBITER_CHAINS_INFO, ORBITER_CHAIN_ID_TO, ORBITER_DEPOSIT_AMOUNT),
+            'Across': (CHAIN_IDS, ACROSS_CHAIN_ID_TO, ACROSS_DEPOSIT_AMOUNT)
         }[module_name]
 
+        deposit_info = OKX_BRIDGE_AMOUNT if help_okx else bridge_info[2]
         src_chain_id = GLOBAL_NETWORK if help_okx else chain_from_id
-        source_chain = bridge_info[src_chain_id]
-        dst_chains = OKX_WRAPED_ID[OKX_DEPOSIT_NETWORK] if help_okx else random.choice(BRIDGE_CHAIN_ID_TO)
-        destination_chain = bridge_info[dst_chains]
+        source_chain = bridge_info[0][src_chain_id]
+        dst_chains = OKX_WRAPED_ID[OKX_DEPOSIT_NETWORK] if help_okx else random.choice(bridge_info[1])
+        destination_chain = bridge_info[0][dst_chains]
 
         amount, _ = await self.check_and_get_eth(deposit_info, bridge_mode=True, initial_chain_id=src_chain_id)
         return source_chain, destination_chain, amount
@@ -336,7 +344,7 @@ class Client(Logger):
             raise RuntimeError(f'Send transaction | {self.get_normalize_error(error)}')
 
         try:
-            await asyncio.sleep(4)
+            await asyncio.sleep(10)
             data = await self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=360)
             if 'status' in data and data['status'] == 1:
                 message = f'Transaction was successful: {self.explorer}tx/{tx_hash.hex()}'

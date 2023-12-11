@@ -53,14 +53,14 @@ class Across(Bridge, Logger):
 
     @helper
     @gas_checker
-    async def bridge(self, chain_from_id:int, private_keys:dict = None, *args, **kwargs):
+    async def bridge(self, chain_from_id:int, private_keys:dict = None, help_okx:bool = False):
         if GLOBAL_NETWORK == 9 and chain_from_id == 9:
             await self.client.initialize_account()
         elif GLOBAL_NETWORK == 9 and chain_from_id != 9:
             await self.client.session.close()
             self.client = await self.client.initialize_evm_client(private_keys['evm_key'], chain_from_id)
 
-        from_chain, to_chain, amount = await self.client.get_bridge_data(chain_from_id, False, 'Across')
+        from_chain, to_chain, amount = await self.client.get_bridge_data(chain_from_id, help_okx, 'Across')
 
         bridge_info = f'{self.client.network.name} -> ETH {CHAIN_NAME_FROM_ID[to_chain]}'
         self.logger_msg(*self.client.acc_info, msg=f'Bridge on Across: {amount} ETH {bridge_info}')

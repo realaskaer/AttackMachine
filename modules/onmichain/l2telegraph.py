@@ -4,7 +4,7 @@ import random
 from faker import Faker
 from utils.tools import sleep, gas_checker, helper
 from eth_abi import abi
-from settings import DESTINATION_L2TELEGRAPH
+from settings import DST_CHAIN_L2TELEGRAPH
 from modules import Messenger, Logger
 from config import (
     L2TELEGRAPH_CONTRACTS,
@@ -28,7 +28,7 @@ class L2Telegraph(Messenger, Logger):
         self.nft_contract = self.client.get_contract(
             L2TELEGRAPH_CONTRACTS[self.network]['cross_nft'],
             L2TELEGRAPH_NFT_BRIDGE_ABI)
-        dst_data = random.choice(list(DESTINATION_L2TELEGRAPH))
+        dst_data = random.choice(list(DST_CHAIN_L2TELEGRAPH))
         self.dst_chain_name, self.dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_data]
 
     async def get_nft_id(self, tx_hash: bytes):

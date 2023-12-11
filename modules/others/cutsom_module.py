@@ -2,7 +2,7 @@ import random
 
 from config import ETH_PRICE, TOKENS_PER_CHAIN
 from modules import Logger, Aggregator
-from settings import GLOBAL_NETWORK, OKX_BALANCE_WANTED
+from settings import GLOBAL_NETWORK, OKX_BALANCE_WANTED, AMOUNT_PERCENT
 from utils.tools import helper, gas_checker
 
 
@@ -30,6 +30,10 @@ class Custom(Logger, Aggregator):
         wallet_balance = {k: await self.client.get_token_balance(k, False)
                           for k, v in TOKENS_PER_CHAIN[self.client.network.name].items()}
         valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
+        eth_price = ETH_PRICE
+
+        if 'ETH' in valid_wallet_balance:
+            valid_wallet_balance['ETH'] = valid_wallet_balance['ETH'] * eth_price
 
         if len(valid_wallet_balance.values()) > 1:
 
@@ -37,7 +41,8 @@ class Custom(Logger, Aggregator):
                 if token_name != 'ETH':
                     amount_in_wei = wallet_balance[token_name][0]
                     amount = float(f"{(amount_in_wei / 10 ** await self.client.get_decimals(token_name)):.5f}")
-                    if amount > 1:
+                    amount_in_usd = valid_wallet_balance[token_name]
+                    if amount_in_usd > 1:
                         from_token_name, to_token_name = token_name, 'ETH'
                         data = from_token_name, to_token_name, amount, amount_in_wei
                         while True:
@@ -93,3 +98,56 @@ class Custom(Logger, Aggregator):
             return await okx_withdraw(self.client.account_name, self.client.private_key, self.client.network,
                                       self.client.proxy_init, want_balance=need_to_withdraw)
         raise RuntimeError('Account has enough tokens on balance!')
+
+    @helper
+    @gas_checker
+    async def wraps_abuser(self):
+        from functions import swap_odos, swap_oneinch, swap_openocean, swap_xyfinance, swap_avnu
+
+        func = {
+            3: [swap_odos, swap_oneinch, swap_openocean, swap_xyfinance],
+            4: [swap_openocean, swap_xyfinance],
+            8: [swap_openocean, swap_xyfinance],
+            9: [swap_avnu],
+            11: [swap_odos, swap_oneinch, swap_openocean, swap_xyfinance]
+        }[GLOBAL_NETWORK]
+
+        current_tokens = list(TOKENS_PER_CHAIN[self.client.network.name].items())[:2]
+
+        wallet_balance = {k: await self.client.get_token_balance(k, False) for k, v in current_tokens}
+        valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
+        eth_price = ETH_PRICE
+
+        if 'ETH' in valid_wallet_balance:
+            valid_wallet_balance['ETH'] = valid_wallet_balance['ETH'] * eth_price
+
+        if 'WETH' in valid_wallet_balance:
+            valid_wallet_balance['WETH'] = valid_wallet_balance['WETH'] * eth_price
+
+        max_token = max(valid_wallet_balance, key=lambda x: valid_wallet_balance[x])
+        percent = round(random.uniform(*AMOUNT_PERCENT)) / 100 if max_token == 'ETH' else 1
+        amount_in_wei = int(wallet_balance[max_token][0] * percent)
+        amount = round(amount_in_wei / 10 ** 18, 6)
+
+        if max_token == 'ETH':
+            msg = f'Wrap {amount:.5f} ETH'
+            from_token_name, to_token_name = 'ETH', 'WETH'
+        else:
+            msg = f'Unwrap {amount:.5f} WETH'
+            from_token_name, to_token_name = 'WETH', 'ETH'
+
+        self.logger_msg(*self.client.acc_info, msg=msg)
+
+        if valid_wallet_balance[max_token] > 1:
+            data = from_token_name, to_token_name, amount, amount_in_wei
+            while True:
+                module_func = random.choice(func)
+                try:
+                    result = await module_func(self.client.account_name, self.client.private_key,
+                                               self.client.network, self.client.proxy_init, swapdata=data)
+                except Exception as erros:
+                    raise erros
+                if result:
+                    break
+        else:
+            self.logger_msg(*self.client.acc_info, msg=f"{from_token_name} balance < 1$")

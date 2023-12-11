@@ -1,7 +1,7 @@
 import random
 
 from modules import Refuel, Logger
-from settings import DESTINATION_BUNGEE_DATA
+from settings import DST_CHAIN_BUNGEE_REFUEL
 from utils.tools import gas_checker, helper
 from config import (
     BUNGEE_CONTRACTS,
@@ -31,7 +31,7 @@ class Bungee(Refuel, Logger):
     @helper
     @gas_checker
     async def refuel(self):
-        dst_data = random.choice(list(DESTINATION_BUNGEE_DATA.items()))
+        dst_data = random.choice(list(DST_CHAIN_BUNGEE_REFUEL.items()))
         dst_chain_name, _, dst_native_name, _ = LAYERZERO_NETWORKS_DATA[dst_data[0]]
         dst_amount = self.client.round_amount(*dst_data[1])
 

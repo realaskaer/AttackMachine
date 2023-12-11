@@ -29,9 +29,12 @@ class MintFun(Minter, Logger):
         data = [self.client.address, 1, None]
 
         for index, item in enumerate(data, 1):
-            contract = self.client.get_contract(nft_contract, MINTFUN_ABI[index])
-            transaction = await contract.functions.mint(
-                item
-            ).build_transaction(await self.client.prepare_transaction(value=mint_price))
+            try:
+                contract = self.client.get_contract(nft_contract, MINTFUN_ABI[index])
+                transaction = await contract.functions.mint(
+                    item
+                ).build_transaction(await self.client.prepare_transaction(value=mint_price))
 
-            return await self.client.send_transaction(transaction)
+                return await self.client.send_transaction(transaction)
+            except:
+                pass

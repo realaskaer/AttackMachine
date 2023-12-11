@@ -108,6 +108,7 @@ AVAILABLE_MODULES_INFO = {
     withdraw_layerbank                  : (withdraw_layerbank, 3, 'LayerBank Withdraw', 0, [4, 8]),
     withdraw_rocketsam                  : (withdraw_rocketsam, 3, 'RocketSam Withdraw', 0, [2, 3, 4, 8, 11, 12]),
     withdraw_native_bridge              : (withdraw_native_bridge, 3, 'Native Bridge Withdraw', 0, [9, 11]),
+    wrap_abuse                          : (wrap_abuse, 2, 'Wrap Abuse =)', 0, [0]),
     zksync_rhino_checker                : (zksync_rhino_checker, 3, 'Rhino Checker', 0, [11]),
     zksync_rhino_mint                   : (zksync_rhino_mint, 3, 'Rhino Mint zkSync Hunter NFT', 0, [11]),
     zksync_rhino_mint_pro               : (zksync_rhino_mint_pro, 3, 'Rhino Mint zkSync Pro Hunter NFT', 0, [11]),
@@ -421,6 +422,8 @@ class RouteGenerator(Logger):
                 smart_route.append(AVAILABLE_MODULES_INFO[withdraw_nostra])
             elif GLOBAL_NETWORK in [4, 8]:
                 smart_route.append(AVAILABLE_MODULES_INFO[withdraw_layerbank])
+                smart_route.append(AVAILABLE_MODULES_INFO[withdraw_rocketsam])
+            elif GLOBAL_NETWORK in [2, 3, 12]:
                 smart_route.append(AVAILABLE_MODULES_INFO[withdraw_rocketsam])
 
         bridge_modules = [AVAILABLE_MODULES_INFO[bridge_across] if HELPERS_CONFIG['bridge_across'] else None,

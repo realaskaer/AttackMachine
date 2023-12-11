@@ -1,6 +1,6 @@
 import random
 
-from settings import DESTINATION_ZERIUS, DESTINATION_ZERIUS_DATA
+from settings import DST_CHAIN_ZERIUS_NFT, DST_CHAIN_ZERIUS_REFUEL
 from config import ZERIUS_CONTRACT_PER_CHAINS, ZERIUS_ABI, ZERO_ADDRESS, LAYERZERO_NETWORKS_DATA
 from utils.tools import gas_checker, helper, sleep
 from eth_abi import encode
@@ -60,7 +60,7 @@ class Zerius(Minter, Logger):
     @helper
     @gas_checker
     async def bridge(self):
-        dst_chain = random.choice(DESTINATION_ZERIUS)
+        dst_chain = random.choice(DST_CHAIN_ZERIUS_NFT)
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
 
         nft_id = await self.get_nft_id()
@@ -102,7 +102,7 @@ class Zerius(Minter, Logger):
     @helper
     @gas_checker
     async def refuel(self):
-        dst_data = random.choice(list(DESTINATION_ZERIUS_DATA.items()))
+        dst_data = random.choice(list(DST_CHAIN_ZERIUS_REFUEL.items()))
         dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
         dst_amount = self.client.round_amount(*dst_data[1])
 
@@ -117,13 +117,13 @@ class Zerius(Minter, Logger):
         adapter_params = encode(["uint16", "uint256", "uint256", "address"],
                                 [2, gas_limit, dst_native_gas_amount, self.client.address])
 
-        estimate_gas_bridge_fee = (await self.refuel_contract.functions.estimateSendFee(
+        estimate_send_fee = (await self.refuel_contract.functions.estimateSendFee(
             dst_chain_id,
             dst_contract_address,
             adapter_params
         ).call())[0]
 
-        tx_params = await self.client.prepare_transaction(value=estimate_gas_bridge_fee)
+        tx_params = await self.client.prepare_transaction(value=estimate_send_fee)
 
         transaction = await self.refuel_contract.functions.refuel(
             dst_chain_id,
