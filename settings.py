@@ -130,7 +130,7 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) E
                 1) Zerius - https://zerius.io/refuel
                 2) Merkly - https://minter.merkly.com/gas  
 """
-SOURCE_CHAIN_ZERIUS = [5]  # Исходящая сеть для Zerius
+SRC_CHAIN_ZERIUS = [5]  # Исходящая сеть для Zerius
 DST_CHAIN_ZERIUS_NFT = [1, 4, 8]  # Входящая сеть для Zerius Mint NFT
 
 DST_CHAIN_ZERIUS_REFUEL = {

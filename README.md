@@ -83,16 +83,18 @@
     42. ENS             (Минт домена для zkSync)
     43. Safe (Gnosis)   (Создание сейфа на zkSync и Base)
     44. MailZero        (Минт Free NFT)
-    45. Zerius          (Минт / бридж NFT + Refuel во все сети из L2)
-    46. Tevaera         (Минт двух NFT)
-    47. Omnisea         (Создание коллекции)
-    48. Starknet ID     (Минт Starknet identity)
-    49. StarkStars      (Минт рандомной NFT)
-    50. zkStars         (Минт рандомной NFT)
-    51. Dmail           (Отправка сообщений)
-    52. L2Telegraph     (Отправка сообщений + минт и брижд во все сети)
-    53. Sending ETH to random addresses (Отправка пыли в ETH на рандомные адресса)
-    54. Wrap/Unwrap ETH
+    45. Mint.fun        (Минт NFT по контракту)
+    46. Zerius          (Минт / бридж NFT + Refuel во все сети из L2)
+    47. Tevaera         (Минт двух NFT)
+    48. Omnisea         (Создание коллекции)
+    49. Starknet ID     (Минт Starknet identity)
+    50. StarkStars      (Минт рандомной NFT)
+    51. zkStars         (Минт рандомной NFT)
+    52. Dmail           (Отправка сообщений)
+    53. L2Telegraph     (Отправка сообщений + минт и брижд во все сети)
+    54. CustomModule    (Сборка полезных инструментов: cборщик ETH, уровнитель баланса, свапы ETH <-> WETH)
+    55. Sending ETH to random addresses (Отправка пыли в ETH на рандомные адресса)
+    56. Wrap/Unwrap ETH
 
 
 ## ♾️Основные функции
@@ -162,7 +164,7 @@
 * `WALLETS_TO_WORK` - определяет какие кошельки будут работать. Варианты работы: Одиночный, Выборка, От Х до У, Все сразу. Подробнее в настройках.
 * `SAVE_PROGRESS` - включает сохранение прогресса для аккаунтов
 * `TELEGRAM_NOTIFICATIONS` - включает уведомления в Telegram
-* `SOURCE_CHAIN_ZERIUS`, `SOURCE_CHAIN_MERKLY`, `DESTINATION_MERKLY_DATA`, `DESTINATION_BUNGEE_DATA`, `DESTINATION_BUNGEE_DATA` и `DESTINATION_ZERIUS` - определяют исходящий / входящий блокчейн(куда делаем refuel/бридж) и минимальную/максимальную
+* `SRC_CHAIN_ZERIUS`, `SRC_CHAIN_MERKLY`, `DST_CHAIN_ZERIUS_REFUEL`, `DST_CHAIN_MERKLY_REFUEL`, `DST_CHAIN_BUNGEE_REFUEL` и `DST_CHAIN_ZERIUS_NFT` - определяют исходящий / входящий блокчейн(куда делаем refuel/бридж) и минимальную/максимальную
 сумму для refuel. Также можно выбрать несколько сетей, софт выберет одну случайную.
 * `AMOUNT_PERCENT`, `LIQUIDITY_AMOUNT`, `TRANSFER_AMOUNT` - благодаря этим параметрам, софт понимает, сколько % от вашего баланса ему необходимо использовать в модулях
 в свапах, депозитах на лендинги и добавлении ликвидности. Более подробно описал [**здесь**](https://github.com/realaskaer/zkSync#%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%BD%D1%8B%D0%B5-%D0%BE%D1%81%D0%BE%D0%B1%D0%B5%D0%BD%D0%BD%D0%BE%D1%81%D1%82%D0%B8)

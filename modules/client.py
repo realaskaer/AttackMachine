@@ -72,7 +72,7 @@ class Client(Logger):
     async def get_smart_amount(self, settings):
         if isinstance(settings[0], str):
             _, amount, _ = await self.get_token_balance()
-            percent = round(random.uniform(float(settings[0]), float(settings[1]))) / 100
+            percent = round(random.uniform(float(settings[0]), float(settings[1])), 6) / 100
             amount = round(amount * percent, 6)
         else:
             amount = self.round_amount(*settings)

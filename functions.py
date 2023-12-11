@@ -4,7 +4,7 @@ from modules import *
 from utils.networks import *
 from config import OKX_WRAPED_ID, LAYERZERO_WRAPED_NETWORKS
 from settings import (ORBITER_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, RHINO_CHAIN_ID_FROM, ACROSS_CHAIN_ID_FROM,
-                      OKX_DEPOSIT_NETWORK, SRC_CHAIN_MERKLY, SOURCE_CHAIN_ZERIUS, GLOBAL_NETWORK)
+                      OKX_DEPOSIT_NETWORK, SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, GLOBAL_NETWORK)
 
 
 def get_client(account_number, private_key, network, proxy, bridge_from_evm:bool = False) -> Client | StarknetClient:
@@ -370,7 +370,7 @@ async def refuel_zerius(account_number, private_key, _, proxy):
 
 
 async def mint_zerius(account_number, private_key, _, proxy):
-    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SOURCE_CHAIN_ZERIUS)]
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_ZERIUS)]
     network = get_network_by_chain_id(chain_from_id)
 
     worker = Zerius(get_client(account_number, private_key, network, proxy), chain_from_id)
@@ -378,7 +378,7 @@ async def mint_zerius(account_number, private_key, _, proxy):
 
 
 async def bridge_zerius(account_number, private_key, _, proxy):
-    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SOURCE_CHAIN_ZERIUS)]
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_ZERIUS)]
     network = get_network_by_chain_id(chain_from_id)
 
     worker = Zerius(get_client(account_number, private_key, network, proxy), chain_from_id)
