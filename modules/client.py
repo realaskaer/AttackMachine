@@ -115,7 +115,7 @@ class Client(Logger):
         destination_chain = bridge_info[0][dst_chains]
 
         amount, _ = await self.check_and_get_eth(deposit_info, bridge_mode=True, initial_chain_id=src_chain_id)
-        return source_chain, destination_chain, amount
+        return source_chain, destination_chain, amount, dst_chains
 
     async def bridge_from_source(self) -> None:
         from functions import bridge_layerswap, bridge_rhino, bridge_orbiter
@@ -134,6 +134,34 @@ class Client(Logger):
 
         await asyncio.sleep(1)
         await func(self.account_name, self.private_key, self.network, self.proxy_init, help_okx=True)
+
+    async def new_client(self, chain_id):
+        from functions import get_network_by_chain_id
+        new_client = Client(self.account_name, self.private_key,
+                            get_network_by_chain_id(chain_id), self.proxy_init)
+        return new_client
+
+    async def wait_for_receiving(self, chain_id:int, amount_in_wei: int, sleep_time:int = 30, timeout: int = 1200):
+        client = await self.new_client(chain_id)
+
+        eth_balance = await client.w3.eth.get_balance(self.address)
+        amount = round(amount_in_wei / 10 ** 18, 6)
+        print('old',eth_balance)
+        self.logger_msg(*self.acc_info, msg=f'Waiting {amount} ETH to receive')
+
+        t = 0
+        while t < timeout:
+            new_eth_balance = await client.w3.eth.get_balance(self.address)
+            print('new',new_eth_balance)
+            if new_eth_balance >= eth_balance:
+                self.logger_msg(*self.acc_info, msg=f'{amount} ETH was received', type_msg='success')
+                return True
+            else:
+                self.logger_msg(*self.acc_info, msg=f'Still waiting for receiving', type_msg='warning')
+                await asyncio.sleep(sleep_time)
+                t += sleep_time
+
+        raise RuntimeError(f'ETH has not been received within {timeout}, terminating the route')
 
     async def check_and_get_eth(self, settings:tuple = None, bridge_mode:bool = False,
                                 initial_chain_id:int = 0) -> [float, int]:

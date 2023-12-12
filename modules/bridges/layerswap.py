@@ -76,8 +76,8 @@ class LayerSwap(Bridge, Logger):
             await self.client.session.close()
             self.client = await self.client.initialize_evm_client(private_keys['evm_key'], chain_from_id)
 
-        (source_chain, destination_chain, amount) = await self.client.get_bridge_data(chain_from_id, help_okx,
-                                                                                      'LayerSwap')
+        (source_chain, destination_chain,
+         amount, to_chain_id) = await self.client.get_bridge_data(chain_from_id, help_okx, 'LayerSwap')
 
         source_asset, destination_asset, refuel = 'ETH', 'ETH', False
 
@@ -146,10 +146,7 @@ class LayerSwap(Bridge, Logger):
 
                     result = await self.client.send_transaction(*transaction)
 
-                    self.logger_msg(*self.client.acc_info,
-                                    msg=f"Bridge complete. Note: wait 3-5 minute to receive funds", type_msg='success')
-
-                    await sleep(self, 180, 300)
+                    await self.client.wait_for_receiving(to_chain_id, amount_in_wei)
 
                     return result
 

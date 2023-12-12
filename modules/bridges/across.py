@@ -60,7 +60,7 @@ class Across(Bridge, Logger):
             await self.client.session.close()
             self.client = await self.client.initialize_evm_client(private_keys['evm_key'], chain_from_id)
 
-        from_chain, to_chain, amount = await self.client.get_bridge_data(chain_from_id, help_okx, 'Across')
+        from_chain, to_chain, amount, to_chain_id = await self.client.get_bridge_data(chain_from_id, help_okx, 'Across')
 
         bridge_info = f'{self.client.network.name} -> ETH {CHAIN_NAME_FROM_ID[to_chain]}'
         self.logger_msg(*self.client.acc_info, msg=f'Bridge on Across: {amount} ETH {bridge_info}')
@@ -101,10 +101,7 @@ class Across(Bridge, Logger):
 
                 result = await self.client.send_transaction(transaction, without_gas=True)
 
-                self.logger_msg(*self.client.acc_info,
-                                msg=f"Bridge complete. Note: wait 3-5 minute to receive funds", type_msg='success')
-
-                await sleep(self, 180, 300)
+                await self.client.wait_for_receiving(to_chain_id, amount_in_wei)
 
                 return result
 

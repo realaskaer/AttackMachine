@@ -360,7 +360,8 @@ class Rhino(Bridge, Logger):
 
             await asyncio.sleep(1)
 
-            chain_from_name, chain_to_name, amount = await self.client.get_bridge_data(chain_from_id, help_okx, 'Rhino')
+            (chain_from_name, chain_to_name,
+             amount, to_chain_id) = await self.client.get_bridge_data(chain_from_id, help_okx, 'Rhino')
 
             _, balance, _ = await self.client.get_token_balance()
 
@@ -380,10 +381,7 @@ class Rhino(Bridge, Logger):
 
                 await self.withdraw_from_rhino(rhino_user_config, amount, chain_to_name, dst_address)
 
-                self.logger_msg(*self.client.acc_info,
-                                msg=f"Bridge complete. Note: wait 3-5 minute to receive funds", type_msg='success')
-
-                await sleep(self, 180, 300)
+                await self.client.wait_for_receiving(to_chain_id, int(amount * 10 ** 18))
 
                 return True
             else:

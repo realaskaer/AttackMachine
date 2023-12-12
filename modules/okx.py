@@ -6,7 +6,7 @@ from hashlib import sha256
 from modules import CEX, Logger
 from datetime import datetime, timezone
 from utils.tools import helper, sleep, gas_checker
-from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN
+from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, OKX_WRAPED_ID
 from settings import (
     OKX_WITHDRAW_NETWORK,
     OKX_WITHDRAW_AMOUNT,
@@ -91,9 +91,10 @@ class OKX(CEX, Logger):
                 await self.make_request(method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
 
                 self.logger_msg(*self.client.acc_info,
-                                msg=f"Withdraw complete. Note: wait 3-6 minute to receive funds", type_msg='success')
+                                msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success')
 
-                await sleep(self, 180, 300)
+                await self.client.wait_for_receiving(OKX_WRAPED_ID[OKX_WITHDRAW_NETWORK],int(amount * 10 ** 18))
+
                 return True
             else:
                 raise RuntimeError(f"Limit range for withdraw: {min_wd:.5f} ETH - {max_wd} ETH")
