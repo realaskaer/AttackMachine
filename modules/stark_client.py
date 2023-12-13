@@ -25,7 +25,7 @@ from config import (
     LAYERSWAP_CHAIN_NAME,
     ARGENT_IMPLEMENTATION_CLASS_HASH_NEW,
     BRAAVOS_PROXY_CLASS_HASH, BRAAVOS_IMPLEMENTATION_CLASS_HASH, ARGENT_PROXY_CLASS_HASH,
-    ARGENT_IMPLEMENTATION_CLASS_HASH, ZKLEND_CONTRACTS, NOSTRA_CONTRACTS, ETH_PRICE
+    ARGENT_IMPLEMENTATION_CLASS_HASH, ZKLEND_CONTRACTS, NOSTRA_CONTRACTS, ETH_PRICE, CHAIN_IDS
 )
 
 from settings import (
@@ -227,19 +227,28 @@ class StarknetClient(Logger):
             raise RuntimeError(
                 f'DEX price impact > your wanted impact | DEX impact: {price_impact:.3}% > Your impact {PRICE_IMPACT}%')
 
-    async def get_bridge_data(self, chain_from_id: int, _: bool, module_name: str):
+    async def get_bridge_data(self, chain_from_id: int, module_name: str):
         bridge_info = {
             'Rhino': (RHINO_CHAIN_INFO, RHINO_CHAIN_ID_TO, RHINO_DEPOSIT_AMOUNT),
             'LayerSwap': (LAYERSWAP_CHAIN_NAME, LAYERSWAP_CHAIN_ID_TO, LAYERSWAP_DEPOSIT_AMOUNT),
             'Orbiter': (ORBITER_CHAINS_INFO, ORBITER_CHAIN_ID_TO, ORBITER_DEPOSIT_AMOUNT),
+            'Across': (CHAIN_IDS, ACROSS_CHAIN_ID_TO, ACROSS_DEPOSIT_AMOUNT)
         }[module_name]
 
         deposit_info = bridge_info[2]
-        source_chain = bridge_info[0][chain_from_id]
-        destination_chain = bridge_info[0][random.choice(bridge_info[1])]
+        src_chain_id = chain_from_id
+        source_chain = bridge_info[0][src_chain_id]
+        dst_chains = random.choice(bridge_info[1])
+        destination_chain = bridge_info[0][dst_chains]
 
-        amount, _ = await self.check_and_get_eth(deposit_info, bridge_mode=True, initial_chain_id=chain_from_id)
-        return source_chain, destination_chain, amount
+        amount, _ = await self.check_and_get_eth(deposit_info, bridge_mode=True, initial_chain_id=src_chain_id)
+        return source_chain, destination_chain, amount, dst_chains
+
+    async def wait_for_receiving(self, chain_id:int, old_balance:int = 0, token_name:str = 'ETH', sleep_time:int = 30,
+                                 timeout: int = 1200, check_balance_on_dst:bool = False):
+        duration = random.randint(550, 650)
+        self.logger_msg(*self.acc_info, msg=f'💤 Sleeping for {duration} seconds')
+        await asyncio.sleep(duration)
 
     async def get_landing_data(self, class_name:str, deposit:bool = False):
         landing_token_contracts = NOSTRA_CONTRACTS if class_name == 'Nostra' else ZKLEND_CONTRACTS
@@ -290,7 +299,7 @@ class StarknetClient(Logger):
         from functions import swap_avnu
 
         data = True
-        if bridge_mode and initial_chain_id in [3, 4, 8, 9, 11]:
+        if bridge_mode and initial_chain_id in [2, 3, 4, 8, 9, 11, 12]:
             data = await self.get_auto_amount(token_name_search='ETH')
         elif not bridge_mode:
             data = await self.get_auto_amount(token_name_search='ETH')
@@ -300,9 +309,7 @@ class StarknetClient(Logger):
 
         if data is False:
             self.logger_msg(*self.acc_info, msg=f'Not enough ETH! Launching swap module', type_msg='warning')
-
-            await asyncio.sleep(1)
-            await swap_avnu(self.account_name, self.private_key, self.network, self.proxy_init, help_deposit=True)
+            await swap_avnu(self.account_name, self.private_key, self.network, self.proxy_init)
 
         return amount, amount_in_wei
 
