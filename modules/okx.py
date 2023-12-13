@@ -297,8 +297,10 @@ class OKX(CEX, Logger):
     @helper
     async def collect_from_sub(self):
 
-        await self.transfer_from_subaccounts()
+        result = await self.transfer_from_subaccounts()
 
         await sleep(self, 5, 10)
 
-        await self.transfer_from_spot_to_funding()
+        result = await self.transfer_from_spot_to_funding()
+
+        return result
