@@ -185,6 +185,9 @@ class Client(Logger):
         if 'ETH' in valid_wallet_balance:
             valid_wallet_balance['ETH'] = valid_wallet_balance['ETH'] * eth_price
 
+        if 'WETH' in valid_wallet_balance:
+            valid_wallet_balance['WETH'] = valid_wallet_balance['WETH'] * eth_price
+
         if sum(valid_wallet_balance.values()) > MIN_BALANCE * eth_price:
 
             valid_wallet_balance = {k: round(v, 7) for k, v in valid_wallet_balance.items()}
@@ -201,7 +204,9 @@ class Client(Logger):
 
             token_names_list = list(filter(lambda token_name: token_name != biggest_token_balance_name,
                                            TOKENS_PER_CHAIN[self.network.name].keys()))
-            token_names_list.remove('WETH')
+
+            if biggest_token_balance_name != 'WETH':
+                token_names_list.remove('WETH')
 
             if biggest_token_balance_name == 'ETH':
                 if GLOBAL_NETWORK == 11:

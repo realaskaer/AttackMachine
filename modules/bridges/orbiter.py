@@ -103,6 +103,9 @@ class Orbiter(Bridge, Logger):
             balance_in_wei, _, _ = await self.client.get_token_balance(token_name)
             if balance_in_wei > full_amount:
 
+                if int(f"{transaction[0]['value']}"[-4:]) != destination_code:
+                    raise RuntimeError('Math problem in Python. Machine will save your money =)')
+
                 old_balance_on_dst = await self.client.wait_for_receiving(to_chain_id, check_balance_on_dst=True)
 
                 result = await self.client.send_transaction(*transaction)
