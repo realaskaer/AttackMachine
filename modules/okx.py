@@ -218,7 +218,7 @@ class OKX(CEX, Logger):
         while total_time < timeout:
             new_sub_balances = await self.get_sub_balances(ccy=ccy)
             for sub_name, sub_balance in new_sub_balances.items():
-                if sub_balance - old_sub_balances[sub_name] == amount:
+                if sub_balance > old_sub_balances[sub_name]:
                     self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} complete", type_msg='success')
                     return True
                 else:
