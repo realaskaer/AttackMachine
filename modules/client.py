@@ -120,7 +120,7 @@ class Client(Logger):
                             get_network_by_chain_id(chain_id), self.proxy_init)
         return new_client
 
-    async def wait_for_receiving(self, chain_id:int, sleep_time:int = 30, timeout: int = 1200):
+    async def wait_for_receiving(self, chain_id:int, token_name:str = 'ETH', sleep_time:int = 30, timeout: int = 1200):
         client = await self.new_client(chain_id)
         try:
             eth_balance = await client.w3.eth.get_balance(self.address)
@@ -133,14 +133,14 @@ class Client(Logger):
 
                 if new_eth_balance > eth_balance:
                     amount = round((new_eth_balance - eth_balance) / 10 ** 18, 6)
-                    self.logger_msg(*self.acc_info, msg=f'{amount} ETH was received', type_msg='success')
+                    self.logger_msg(*self.acc_info, msg=f'{amount} {token_name} was received', type_msg='success')
                     return True
                 else:
-                    self.logger_msg(*self.acc_info, msg=f'Bridge still in progress...', type_msg='warning')
+                    self.logger_msg(*self.acc_info, msg=f'Still waiting {token_name} to receive...', type_msg='warning')
                     await asyncio.sleep(sleep_time)
                     t += sleep_time
 
-            raise RuntimeError(f'ETH has not been received within {timeout}, terminating the route')
+            raise RuntimeError(f'{token_name} has not been received within {timeout}')
         finally:
             await client.session.close()
 
