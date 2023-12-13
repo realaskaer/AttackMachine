@@ -884,36 +884,36 @@ JEDISWAP_CONTRACT = {
 
 MERKLY_CONTRACTS_PER_CHAINS = {
     1: {
-    'gas_refuel'            : '0x4Ae8CEBcCD7027820ba83188DFD73CCAD0A92806',
-    'ONFT'                  : '0xAa58e77238f0E4A565343a89A79b4aDDD744d649'
+    'refuel'            : '0x4Ae8CEBcCD7027820ba83188DFD73CCAD0A92806',
+    'endpoint'                  : '0xAa58e77238f0E4A565343a89A79b4aDDD744d649'
     },
     2: {
-    'gas_refuel'            : '0xB6789dACf323d60F650628dC1da344d502bC41E3',
-    'ONFT'                  : '0x484c402B0c8254BD555B68827239BAcE7F491023'
+    'refuel'            : '0xB6789dACf323d60F650628dC1da344d502bC41E3',
+    'endpoint'                  : '0x484c402B0c8254BD555B68827239BAcE7F491023'
     },
     3: {
-    'gas_refuel'            : '0x6bf98654205B1AC38645880Ae20fc00B0bB9FFCA',
-    'ONFT'                  : '0xF882c982a95F4D3e8187eFE12713835406d11840'
+    'refuel'            : '0x6bf98654205B1AC38645880Ae20fc00B0bB9FFCA',
+    'endpoint'                  : '0xF882c982a95F4D3e8187eFE12713835406d11840'
     },
     4: {
-    'gas_refuel'            : '0xc9B753d73B17DDb5E87093ff04A9e31845a43af0',
-    'ONFT'                  : '0xDB3Bb6D5a8EeEAfc64C66C176900E6B82b23dd5f'
+    'refuel'            : '0xc9B753d73B17DDb5E87093ff04A9e31845a43af0',
+    'endpoint'                  : '0xDB3Bb6D5a8EeEAfc64C66C176900E6B82b23dd5f'
     },
     6: {
-    'gas_refuel'            : '0x0E1f20075C90Ab31FC2Dd91E536e6990262CF76d',
-    'ONFT'                  : '0xa184998eC58dc1dA77a1F9f1e361541257A50CF4'
+    'refuel'            : '0x0E1f20075C90Ab31FC2Dd91E536e6990262CF76d',
+    'endpoint'                  : '0xa184998eC58dc1dA77a1F9f1e361541257A50CF4'
     },
     7: {
-    'gas_refuel'            : '0xD7bA4057f43a7C4d4A34634b2A3151a60BF78f0d',
-    'ONFT'                  : '0xa2C203d7EF78ed80810da8404090f926d67Cd892'
+    'refuel'            : '0xD7bA4057f43a7C4d4A34634b2A3151a60BF78f0d',
+    'endpoint'                  : '0xa2C203d7EF78ed80810da8404090f926d67Cd892'
     },
     8: {
-    'gas_refuel'            : '0x7dFb5E7808B5eb4fB8b9e7169537575f6fF1a218',
-    'ONFT'                  : '0x6E55472109E6aBE4054a8E8b8d9EdFfCb31032C5'
+    'refuel'            : '0x7dFb5E7808B5eb4fB8b9e7169537575f6fF1a218',
+    'endpoint'                  : '0x6E55472109E6aBE4054a8E8b8d9EdFfCb31032C5'
     },
     10: {
-    'gas_refuel'            : '0xE62d19Df93D84b3552498260188D19A772296B10',
-    'ONFT'                  : '0xb58f5110855fBEF7A715d325D60543E7D4c18143'
+    'refuel'            : '0xE62d19Df93D84b3552498260188D19A772296B10',
+    'endpoint'                  : '0xb58f5110855fBEF7A715d325D60543E7D4c18143'
     },
     11: {
     'refuel'                    : '0x5673B6e6e51dE3479B8deB22dF46B12308db5E1e',
