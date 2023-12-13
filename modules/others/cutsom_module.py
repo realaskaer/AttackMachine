@@ -125,7 +125,6 @@ class Custom(Logger, Aggregator):
 
         if 'WETH' in valid_wallet_balance:
             valid_wallet_balance['WETH'] = valid_wallet_balance['WETH'] * eth_price
-            valid_wallet_balance['ETH'] = 0
 
         max_token = max(valid_wallet_balance, key=lambda x: valid_wallet_balance[x])
         percent = round(random.uniform(*AMOUNT_PERCENT)) / 100 if max_token == 'ETH' else 1
