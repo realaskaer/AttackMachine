@@ -142,7 +142,7 @@ class Client(Logger):
                     self.logger_msg(*self.acc_info, msg=f'Still waiting {token_name} to receive...', type_msg='warning')
                     await asyncio.sleep(sleep_time)
                     t += sleep_time
-
+        except Exception:
             raise RuntimeError(f'{token_name} has not been received within {timeout}')
         finally:
             await client.session.close()
