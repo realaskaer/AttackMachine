@@ -120,10 +120,13 @@ class Client(Logger):
                             get_network_by_chain_id(chain_id), self.proxy_init)
         return new_client
 
-    async def wait_for_receiving(self, chain_id:int, token_name:str = 'ETH', sleep_time:int = 30, timeout: int = 1200):
+    async def wait_for_receiving(self, chain_id:int, old_balance:int = 0, token_name:str = 'ETH', sleep_time:int = 30,
+                                 timeout: int = 1200, check_balance_on_dst:bool = False):
         client = await self.new_client(chain_id)
         try:
-            eth_balance = await client.w3.eth.get_balance(self.address)
+            if check_balance_on_dst:
+                old_balance = await client.w3.eth.get_balance(self.address)
+                return old_balance
 
             self.logger_msg(*self.acc_info, msg=f'Waiting ETH to receive')
 
@@ -131,8 +134,8 @@ class Client(Logger):
             while t < timeout:
                 new_eth_balance = await client.w3.eth.get_balance(self.address)
 
-                if new_eth_balance > eth_balance:
-                    amount = round((new_eth_balance - eth_balance) / 10 ** 18, 6)
+                if new_eth_balance > old_balance:
+                    amount = round((new_eth_balance - old_balance) / 10 ** 18, 6)
                     self.logger_msg(*self.acc_info, msg=f'{amount} {token_name} was received', type_msg='success')
                     return True
                 else:

@@ -86,13 +86,16 @@ class OKX(CEX, Logger):
                 }
 
                 headers = await self.get_headers(method="POST", request_path=url, body=str(body))
+                dst_chain_id = OKX_WRAPED_ID[OKX_WITHDRAW_NETWORK]
+
+                old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, check_balance_on_dst=True)
 
                 await self.make_request(method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
 
                 self.logger_msg(*self.client.acc_info,
                                 msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success')
 
-                await self.client.wait_for_receiving(OKX_WRAPED_ID[OKX_WITHDRAW_NETWORK])
+                await self.client.wait_for_receiving(dst_chain_id, old_balance_on_dst)
 
                 return True
             else:
@@ -297,10 +300,10 @@ class OKX(CEX, Logger):
     @helper
     async def collect_from_sub(self):
 
-        result = await self.transfer_from_subaccounts()
+        await self.transfer_from_subaccounts()
 
         await sleep(self, 5, 10)
 
-        result = await self.transfer_from_spot_to_funding()
+        await self.transfer_from_spot_to_funding()
 
-        return result
+        return True

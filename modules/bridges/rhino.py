@@ -371,6 +371,8 @@ class Rhino(Bridge, Logger):
 
                 await asyncio.sleep(1)
 
+                old_balance_on_dst = await self.client.wait_for_receiving(to_chain_id, check_balance_on_dst=True)
+
                 await self.deposit_to_rhino(amount, source_chain_info, chain_from_name, chain_to_name, private_keys)
 
                 await asyncio.sleep(1)
@@ -381,7 +383,7 @@ class Rhino(Bridge, Logger):
 
                 await self.withdraw_from_rhino(rhino_user_config, amount, chain_to_name, dst_address)
 
-                await self.client.wait_for_receiving(to_chain_id)
+                await self.client.wait_for_receiving(to_chain_id, old_balance_on_dst)
 
                 return True
             else:

@@ -97,9 +97,14 @@ class Across(Bridge, Logger):
                 transaction['data'] += 'd00dfeeddeadbeef000000a679c2fb345ddefbae3c42bee92c0fb7a5'
                 transaction['gas'] = int(transaction['gas'] * GAS_MULTIPLIER)
 
+                old_balance_on_dst = await self.client.wait_for_receiving(to_chain_id, check_balance_on_dst=True)
+
                 result = await self.client.send_transaction(transaction, without_gas=True)
 
-                await self.client.wait_for_receiving(to_chain_id)
+                self.logger_msg(*self.client.acc_info,
+                                msg=f"Bridge complete. Note: wait a little for receiving funds", type_msg='success')
+
+                await self.client.wait_for_receiving(to_chain_id, old_balance_on_dst)
 
                 return result
 
