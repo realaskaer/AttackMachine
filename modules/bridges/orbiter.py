@@ -1,5 +1,5 @@
 from modules import Bridge, Logger
-from utils.tools import helper, gas_checker, sleep
+from utils.tools import helper, gas_checker
 from config import ORBITER_CONTRACTS, ORBITER_ABI, TOKENS_PER_CHAIN
 from settings import GLOBAL_NETWORK
 from web3 import AsyncWeb3
@@ -45,15 +45,14 @@ class Orbiter(Bridge, Logger):
 
     @helper
     @gas_checker
-    async def bridge(self, chain_from_id:int, private_keys:dict = None, help_okx:bool = False):
+    async def bridge(self, chain_from_id:int, private_keys:dict = None):
         if GLOBAL_NETWORK == 9 and chain_from_id == 9:
             await self.client.initialize_account()
         elif GLOBAL_NETWORK == 9 and chain_from_id != 9:
             await self.client.session.close()
             self.client = await self.client.initialize_evm_client(private_keys['evm_key'], chain_from_id)
 
-        from_chain, to_chain, amount, to_chain_id = await self.client.get_bridge_data(chain_from_id,
-                                                                                      help_okx, 'Orbiter')
+        from_chain, to_chain, amount, to_chain_id = await self.client.get_bridge_data(chain_from_id, 'Orbiter')
         token_name = 'ETH'
 
         bridge_info = f'{amount} {token_name} from {from_chain["name"]} to {to_chain["name"]}'
@@ -106,7 +105,7 @@ class Orbiter(Bridge, Logger):
 
                 result = await self.client.send_transaction(*transaction)
 
-                await self.client.wait_for_receiving(to_chain_id, amount_in_wei)
+                await self.client.wait_for_receiving(to_chain_id)
 
                 return result
 

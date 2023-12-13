@@ -76,10 +76,11 @@ class CEX(ABC):
 
     @staticmethod
     async def make_request(method:str = 'GET', url:str = None, data:str = None, params:dict = None,
-                           headers:dict = None, module_name:str = 'Request'):
+                           headers:dict = None, json:dict = None, module_name:str = 'Request'):
 
         async with ClientSession() as session:
-            async with session.request(method=method, url=url, headers=headers, data=data, params=params) as response:
+            async with session.request(method=method, url=url, headers=headers, data=data, json=json,
+                                       params=params) as response:
 
                 data = await response.json()
                 if data['code'] != 0 and data['msg'] != '':

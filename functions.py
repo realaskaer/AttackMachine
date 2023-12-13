@@ -298,10 +298,7 @@ async def mint_domain_ens(account_number, private_key, network, proxy):
 
 
 async def bridge_layerswap(account_number, _, __, proxy, *args, **kwargs):
-    if kwargs.get('help_okx') is True:
-        chain_from_id = GLOBAL_NETWORK
-    else:
-        chain_from_id = random.choice(LAYERSWAP_CHAIN_ID_FROM)
+    chain_from_id = random.choice(LAYERSWAP_CHAIN_ID_FROM)
     network = get_network_by_chain_id(chain_from_id)
 
     bridge_from_evm = True if 9 not in LAYERSWAP_CHAIN_ID_FROM else False
@@ -312,10 +309,7 @@ async def bridge_layerswap(account_number, _, __, proxy, *args, **kwargs):
 
 
 async def bridge_orbiter(account_number, _, __, proxy, *args, **kwargs):
-    if kwargs.get('help_okx') is True:
-        chain_from_id = GLOBAL_NETWORK
-    else:
-        chain_from_id = random.choice(ORBITER_CHAIN_ID_FROM)
+    chain_from_id = random.choice(ORBITER_CHAIN_ID_FROM)
     network = get_network_by_chain_id(chain_from_id)
 
     bridge_from_evm = True if 9 not in ORBITER_CHAIN_ID_FROM else False
@@ -326,10 +320,7 @@ async def bridge_orbiter(account_number, _, __, proxy, *args, **kwargs):
 
 
 async def bridge_rhino(account_number, _, __, proxy, *args, **kwargs):
-    if kwargs.get('help_okx') is True:
-        chain_from_id = GLOBAL_NETWORK
-    else:
-        chain_from_id = random.choice(RHINO_CHAIN_ID_FROM)
+    chain_from_id = random.choice(RHINO_CHAIN_ID_FROM)
     network = get_network_by_chain_id(chain_from_id)
 
     bridge_from_evm = True if 9 not in RHINO_CHAIN_ID_FROM else False
@@ -340,10 +331,7 @@ async def bridge_rhino(account_number, _, __, proxy, *args, **kwargs):
 
 
 async def bridge_across(account_number, _, __, proxy, *args, **kwargs):
-    if kwargs.get('help_okx') is True:
-        chain_from_id = GLOBAL_NETWORK
-    else:
-        chain_from_id = random.choice(ACROSS_CHAIN_ID_FROM)
+    chain_from_id = random.choice(ACROSS_CHAIN_ID_FROM)
     network = get_network_by_chain_id(chain_from_id)
 
     bridge_from_evm = True if 9 not in ACROSS_CHAIN_ID_FROM else False

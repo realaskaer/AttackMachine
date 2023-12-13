@@ -3,7 +3,7 @@ import json
 from config import TOKENS_PER_CHAIN
 from modules import Bridge, Logger
 from settings import GLOBAL_NETWORK
-from utils.tools import gas_checker, helper, sleep
+from utils.tools import gas_checker, helper
 
 
 class LayerSwap(Bridge, Logger):
@@ -69,7 +69,7 @@ class LayerSwap(Bridge, Logger):
 
     @helper
     @gas_checker
-    async def bridge(self, chain_from_id: int, private_keys:dict = None, help_okx:bool = False):
+    async def bridge(self, chain_from_id: int, private_keys:dict = None):
         if GLOBAL_NETWORK == 9 and chain_from_id == 9:
             await self.client.initialize_account()
         elif GLOBAL_NETWORK == 9 and chain_from_id != 9:
@@ -77,7 +77,7 @@ class LayerSwap(Bridge, Logger):
             self.client = await self.client.initialize_evm_client(private_keys['evm_key'], chain_from_id)
 
         (source_chain, destination_chain,
-         amount, to_chain_id) = await self.client.get_bridge_data(chain_from_id, help_okx, 'LayerSwap')
+         amount, to_chain_id) = await self.client.get_bridge_data(chain_from_id, 'LayerSwap')
 
         source_asset, destination_asset, refuel = 'ETH', 'ETH', False
 
@@ -146,7 +146,7 @@ class LayerSwap(Bridge, Logger):
 
                     result = await self.client.send_transaction(*transaction)
 
-                    await self.client.wait_for_receiving(to_chain_id, amount_in_wei)
+                    await self.client.wait_for_receiving(to_chain_id)
 
                     return result
 

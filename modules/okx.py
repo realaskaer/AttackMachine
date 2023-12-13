@@ -11,7 +11,6 @@ from settings import (
     OKX_WITHDRAW_NETWORK,
     OKX_WITHDRAW_AMOUNT,
     OKX_DEPOSIT_NETWORK,
-    OKX_BRIDGE_NEED,
     GLOBAL_NETWORK,
     OKX_DEPOSIT_AMOUNT
 )
@@ -93,7 +92,7 @@ class OKX(CEX, Logger):
                 self.logger_msg(*self.client.acc_info,
                                 msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success')
 
-                await self.client.wait_for_receiving(OKX_WRAPED_ID[OKX_WITHDRAW_NETWORK],int(amount * 10 ** 18))
+                await self.client.wait_for_receiving(OKX_WRAPED_ID[OKX_WITHDRAW_NETWORK])
 
                 return True
             else:
@@ -108,6 +107,7 @@ class OKX(CEX, Logger):
 
         url_sub_list = "https://www.okx.cab/api/v5/users/subaccount/list"
 
+        flag = True
         headers = await self.get_headers(request_path=url_sub_list)
         sub_list = await self.make_request(url=url_sub_list, headers=headers, module_name='Get subAccounts list')
         await asyncio.sleep(1)
@@ -124,7 +124,7 @@ class OKX(CEX, Logger):
             await asyncio.sleep(1)
 
             if float(sub_balance) != 0.0:
-
+                flag = False
                 self.logger_msg(*self.client.acc_info, msg=f'{sub_name} | subAccount balance : {sub_balance} ETH')
 
                 body = {
@@ -142,8 +142,11 @@ class OKX(CEX, Logger):
                                         module_name='SubAccount transfer')
 
                 self.logger_msg(*self.client.acc_info,
-                                msg=f"Transfer {float(sub_balance):.6f} ETH to main account complete",
+                                msg=f"Transfer {sub_balance} ETH to main account complete",
                                 type_msg='success')
+        if flag:
+            self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 ETH', type_msg='warning')
+        return True
 
     @helper
     async def transfer_from_spot_to_funding(self):
@@ -174,12 +177,59 @@ class OKX(CEX, Logger):
                                 type_msg='success')
                 break
             else:
-                self.logger_msg(*self.client.acc_info, msg=f"Main trading account balance: 0 ETH", type_msg='error')
+                self.logger_msg(*self.client.acc_info, msg=f"Main trading account balance: 0 ETH", type_msg='warning')
                 break
+
+        return True
+
+    async def get_sub_balances(self, ccy:str = 'ETH'):
+        sub_balances = {}
+        url_sub_list = "https://www.okx.cab/api/v5/users/subaccount/list"
+
+        headers = await self.get_headers(request_path=url_sub_list)
+        sub_list = await self.make_request(url=url_sub_list, headers=headers, module_name='Get subAccounts list')
+        await asyncio.sleep(1)
+
+        for sub_data in sub_list:
+            sub_name = sub_data['subAcct']
+
+            url_sub_balance = f"https://www.okx.cab/api/v5/asset/subaccount/balances?subAcct={sub_name}&ccy={ccy}"
+            headers = await self.get_headers(request_path=url_sub_balance)
+
+            sub_balance = (await self.make_request(url=url_sub_balance, headers=headers,
+                                                   module_name='Get subAccount balance'))[0]['availBal']
+
+            await asyncio.sleep(1)
+
+            sub_balances[sub_name] = float(sub_balance)
+
+        return sub_balances
+
+    async def wait_deposit_confirmation(self, amount:float, old_sub_balances:dict, ccy:str = 'ETH',
+                                        check_time:int = 45, timeout:int = 1200):
+
+        self.logger_msg(*self.client.acc_info, msg=f"Start checking CEX balances")
+
+        await asyncio.sleep(10)
+        total_time = 0
+        while total_time < timeout:
+            new_sub_balances = await self.get_sub_balances(ccy=ccy)
+            for sub_name, sub_balance in new_sub_balances.items():
+                if sub_balance - old_sub_balances[sub_name] == amount:
+                    self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} complete", type_msg='success')
+                    return True
+                else:
+                    continue
+            else:
+                total_time += check_time
+                self.logger_msg(*self.client.acc_info, msg=f"Deposit still in progress...", type_msg='warning')
+                await asyncio.sleep(check_time)
+
+        raise RuntimeError(f'Deposit does not complete in {timeout} seconds')
 
     @helper
     @gas_checker
-    async def deposit_to_okx(self):
+    async def deposit(self):
         if GLOBAL_NETWORK == 9:
             await self.client.initialize_account()
 
@@ -193,7 +243,7 @@ class OKX(CEX, Logger):
             self.logger_msg(None, None, f"Bad data in okx_wallet_list.json", 'error')
 
         try:
-            okx_wallet = okx_withdraw_list[self.client.account_name]
+            okx_wallet = self.client.w3.to_checksum_address(okx_withdraw_list[self.client.account_name])
         except Exception as error:
             raise RuntimeError(f'There is no wallet listed for deposit to OKX: {error}')
 
@@ -212,7 +262,7 @@ class OKX(CEX, Logger):
 
         if network_data['can_dep']:
 
-            min_dep = network_data['min_dep']
+            min_dep = float(network_data['min_dep'])
 
             if amount >= min_dep:
 
@@ -228,28 +278,21 @@ class OKX(CEX, Logger):
                     )
                 else:
                     transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
-                        'to': self.client.w3.to_checksum_address(okx_wallet),
+                        'to': okx_wallet,
                         'data': '0x'
                     }
 
-                return await self.client.send_transaction(transaction)
+                sub_balances = await self.get_sub_balances()
+
+                result = await self.client.send_transaction(transaction)
+
+                await self.wait_deposit_confirmation(amount, sub_balances)
+
+                return result
             else:
                 raise RuntimeError(f"Minimum to deposit: {min_dep} ETH")
         else:
             raise RuntimeError(f"Deposit to {network_name} is not available")
-
-    async def deposit(self):
-
-        if OKX_DEPOSIT_NETWORK not in (5, 6):
-
-            if OKX_BRIDGE_NEED:
-                await self.client.bridge_from_source()
-
-                await sleep(self, 60, 80)
-
-        result = await self.deposit_to_okx()
-        await sleep(self, 600, 700)
-        return result
 
     @helper
     async def collect_from_sub(self):

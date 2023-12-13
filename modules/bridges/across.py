@@ -1,7 +1,5 @@
-import time
-
 from modules import Bridge, Logger
-from utils.tools import helper, gas_checker, sleep
+from utils.tools import helper, gas_checker
 from config import TOKENS_PER_CHAIN, ACROSS_ABI, CHAIN_NAME_FROM_ID, ACROSS_CONTRACT
 from settings import GLOBAL_NETWORK, GAS_MULTIPLIER
 
@@ -53,14 +51,14 @@ class Across(Bridge, Logger):
 
     @helper
     @gas_checker
-    async def bridge(self, chain_from_id:int, private_keys:dict = None, help_okx:bool = False):
+    async def bridge(self, chain_from_id:int, private_keys:dict = None):
         if GLOBAL_NETWORK == 9 and chain_from_id == 9:
             await self.client.initialize_account()
         elif GLOBAL_NETWORK == 9 and chain_from_id != 9:
             await self.client.session.close()
             self.client = await self.client.initialize_evm_client(private_keys['evm_key'], chain_from_id)
 
-        from_chain, to_chain, amount, to_chain_id = await self.client.get_bridge_data(chain_from_id, help_okx, 'Across')
+        from_chain, to_chain, amount, to_chain_id = await self.client.get_bridge_data(chain_from_id, 'Across')
 
         bridge_info = f'{self.client.network.name} -> ETH {CHAIN_NAME_FROM_ID[to_chain]}'
         self.logger_msg(*self.client.acc_info, msg=f'Bridge on Across: {amount} ETH {bridge_info}')
@@ -101,7 +99,7 @@ class Across(Bridge, Logger):
 
                 result = await self.client.send_transaction(transaction, without_gas=True)
 
-                await self.client.wait_for_receiving(to_chain_id, amount_in_wei)
+                await self.client.wait_for_receiving(to_chain_id)
 
                 return result
 

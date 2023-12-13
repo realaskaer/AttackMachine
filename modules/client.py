@@ -7,7 +7,7 @@ from aiohttp_socks import ProxyConnector
 
 from modules import Logger
 from utils.networks import Network
-from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, OKX_WRAPED_ID, CHAIN_IDS
+from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, CHAIN_IDS
 from web3 import AsyncHTTPProvider, AsyncWeb3
 from config import RHINO_CHAIN_INFO, ORBITER_CHAINS_INFO, LAYERSWAP_CHAIN_NAME
 from settings import (
@@ -16,8 +16,6 @@ from settings import (
     AMOUNT_PERCENT,
     MIN_BALANCE,
     LIQUIDITY_AMOUNT,
-    OKX_BRIDGE_MODE,
-    OKX_BRIDGE_AMOUNT,
     PRICE_IMPACT,
     ORBITER_CHAIN_ID_TO,
     ORBITER_DEPOSIT_AMOUNT,
@@ -28,7 +26,6 @@ from settings import (
     ACROSS_CHAIN_ID_TO,
     ACROSS_DEPOSIT_AMOUNT,
     GLOBAL_NETWORK,
-    OKX_DEPOSIT_NETWORK
 )
 
 
@@ -100,7 +97,7 @@ class Client(Logger):
             raise RuntimeError(
                 f'DEX price impact > your wanted impact | DEX impact: {price_impact:.3}% > Your impact {PRICE_IMPACT}%')
 
-    async def get_bridge_data(self, chain_from_id:int, help_okx:bool, module_name:str):
+    async def get_bridge_data(self, chain_from_id:int, module_name:str):
         bridge_info = {
             'Rhino': (RHINO_CHAIN_INFO, RHINO_CHAIN_ID_TO, RHINO_DEPOSIT_AMOUNT),
             'LayerSwap': (LAYERSWAP_CHAIN_NAME, LAYERSWAP_CHAIN_ID_TO, LAYERSWAP_DEPOSIT_AMOUNT),
@@ -108,32 +105,14 @@ class Client(Logger):
             'Across': (CHAIN_IDS, ACROSS_CHAIN_ID_TO, ACROSS_DEPOSIT_AMOUNT)
         }[module_name]
 
-        deposit_info = OKX_BRIDGE_AMOUNT if help_okx else bridge_info[2]
-        src_chain_id = GLOBAL_NETWORK if help_okx else chain_from_id
+        deposit_info = bridge_info[2]
+        src_chain_id = chain_from_id
         source_chain = bridge_info[0][src_chain_id]
-        dst_chains = OKX_WRAPED_ID[OKX_DEPOSIT_NETWORK] if help_okx else random.choice(bridge_info[1])
+        dst_chains = random.choice(bridge_info[1])
         destination_chain = bridge_info[0][dst_chains]
 
         amount, _ = await self.check_and_get_eth(deposit_info, bridge_mode=True, initial_chain_id=src_chain_id)
         return source_chain, destination_chain, amount, dst_chains
-
-    async def bridge_from_source(self) -> None:
-        from functions import bridge_layerswap, bridge_rhino, bridge_orbiter
-
-        self.logger_msg(*self.acc_info, msg=f"Bridge balance from {self.network.name} for OKX deposit")
-
-        bridge_by_id = {
-            1: bridge_rhino,
-            2: bridge_orbiter,
-            3: bridge_layerswap
-        }
-
-        bridge_id = random.choice(OKX_BRIDGE_MODE)
-
-        func = bridge_by_id[bridge_id]
-
-        await asyncio.sleep(1)
-        await func(self.account_name, self.private_key, self.network, self.proxy_init, help_okx=True)
 
     async def new_client(self, chain_id):
         from functions import get_network_by_chain_id
@@ -141,27 +120,29 @@ class Client(Logger):
                             get_network_by_chain_id(chain_id), self.proxy_init)
         return new_client
 
-    async def wait_for_receiving(self, chain_id:int, amount_in_wei: int, sleep_time:int = 30, timeout: int = 1200):
+    async def wait_for_receiving(self, chain_id:int, sleep_time:int = 30, timeout: int = 1200):
         client = await self.new_client(chain_id)
+        try:
+            eth_balance = await client.w3.eth.get_balance(self.address)
 
-        eth_balance = await client.w3.eth.get_balance(self.address)
-        amount = round(amount_in_wei / 10 ** 18, 6)
-        print('old',eth_balance)
-        self.logger_msg(*self.acc_info, msg=f'Waiting {amount} ETH to receive')
+            self.logger_msg(*self.acc_info, msg=f'Waiting ETH to receive')
 
-        t = 0
-        while t < timeout:
-            new_eth_balance = await client.w3.eth.get_balance(self.address)
-            print('new',new_eth_balance)
-            if new_eth_balance >= eth_balance:
-                self.logger_msg(*self.acc_info, msg=f'{amount} ETH was received', type_msg='success')
-                return True
-            else:
-                self.logger_msg(*self.acc_info, msg=f'Still waiting for receiving', type_msg='warning')
-                await asyncio.sleep(sleep_time)
-                t += sleep_time
+            t = 0
+            while t < timeout:
+                new_eth_balance = await client.w3.eth.get_balance(self.address)
 
-        raise RuntimeError(f'ETH has not been received within {timeout}, terminating the route')
+                if new_eth_balance > eth_balance:
+                    amount = round((new_eth_balance - eth_balance) / 10 ** 18, 6)
+                    self.logger_msg(*self.acc_info, msg=f'{amount} ETH was received', type_msg='success')
+                    return True
+                else:
+                    self.logger_msg(*self.acc_info, msg=f'Bridge still in progress...', type_msg='warning')
+                    await asyncio.sleep(sleep_time)
+                    t += sleep_time
+
+            raise RuntimeError(f'ETH has not been received within {timeout}, terminating the route')
+        finally:
+            await client.session.close()
 
     async def check_and_get_eth(self, settings:tuple = None, bridge_mode:bool = False,
                                 initial_chain_id:int = 0) -> [float, int]:
@@ -209,6 +190,8 @@ class Client(Logger):
 
             if token_name_search == 'ETH' and biggest_token_balance_name != 'ETH':
                 return False
+            elif token_name_search == 'ETH' and biggest_token_balance_name == 'ETH':
+                return True
 
             amount_from_token_on_balance = wallet_balance[biggest_token_balance_name][1]
             amount_from_token_on_balance_in_wei = wallet_balance[biggest_token_balance_name][0]
