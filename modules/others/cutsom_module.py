@@ -127,7 +127,7 @@ class Custom(Logger, Aggregator):
             valid_wallet_balance['WETH'] = valid_wallet_balance['WETH'] * eth_price
 
         max_token = max(valid_wallet_balance, key=lambda x: valid_wallet_balance[x])
-        percent = round(random.uniform(*AMOUNT_PERCENT)) / 100 if max_token == 'ETH' else 1
+        percent = round(random.uniform(*AMOUNT_PERCENT), 9) / 100 if max_token == 'ETH' else 1
         amount_in_wei = int(wallet_balance[max_token][0] * percent)
         amount = float(f"{amount_in_wei / 10 ** 18:.6f}")
 

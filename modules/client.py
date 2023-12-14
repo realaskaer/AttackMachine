@@ -237,12 +237,12 @@ class Client(Logger):
                 raise RuntimeError(f'No available pair from {biggest_token_balance_name}')
 
             if biggest_token_balance_name == 'ETH':
-                percent = round(random.uniform(*AMOUNT_PERCENT)) / 100
+                percent = round(random.uniform(*AMOUNT_PERCENT), 9) / 100
             else:
                 percent = 1
 
             amount = round(amount_from_token_on_balance * percent, 7)
-            amount_in_wei = int(round(amount_from_token_on_balance_in_wei * percent))
+            amount_in_wei = int(amount_from_token_on_balance_in_wei * percent)
 
             return biggest_token_balance_name, random_to_token_name, amount, amount_in_wei
 
