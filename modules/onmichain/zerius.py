@@ -114,8 +114,10 @@ class Zerius(Minter, Logger):
 
         gas_limit = await self.refuel_contract.functions.minDstGasLookup(dst_chain_id, 0).call()
 
-        adapter_params = encode(["uint16", "uint256", "uint256", "address"],
-                                [2, gas_limit, dst_native_gas_amount, self.client.address])
+        adapter_params = encode(["uint16", "uint64", "uint256"],
+                                [2, gas_limit, dst_native_gas_amount])
+
+        adapter_params = self.client.w3.to_hex(adapter_params[30:]) + self.client.address[2:].lower()
 
         estimate_send_fee = (await self.refuel_contract.functions.estimateSendFee(
             dst_chain_id,
