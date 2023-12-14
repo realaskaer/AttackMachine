@@ -156,7 +156,6 @@ class Bridge(ABC):
         headers = (headers or {}) | {'User-Agent': get_user_agent()}
         async with self.client.session.request(method=method, url=url, headers=headers, data=data, json=json,
                                                params=params) as response:
-            print(response)
             data = await response.json()
             if response.status in [200, 201]:
                 return data
