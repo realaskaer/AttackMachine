@@ -38,7 +38,6 @@ class Client(Logger):
         self.explorer = network.explorer
         self.chain_id = network.chain_id
 
-        self.proxy = f"http://{proxy}" if proxy else ""
         self.proxy_init = proxy
         self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}") if proxy else None)
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
@@ -132,8 +131,12 @@ class Client(Logger):
             self.logger_msg(*self.acc_info, msg=f'Waiting ETH to receive')
 
             t = 0
+            new_eth_balance = 0
             while t < timeout:
-                new_eth_balance = await client.w3.eth.get_balance(self.address)
+                try:
+                    new_eth_balance = await client.w3.eth.get_balance(self.address)
+                except:
+                    pass
 
                 if new_eth_balance > old_balance:
                     amount = round((new_eth_balance - old_balance) / 10 ** 18, 6)
@@ -144,7 +147,7 @@ class Client(Logger):
                     await asyncio.sleep(sleep_time)
                     t += sleep_time
         except Exception:
-            raise RuntimeError(f'{token_name} has not been received within {timeout}')
+            raise RuntimeError(f'{token_name} has not been received within {timeout} seconds')
         finally:
             await client.session.close()
 
