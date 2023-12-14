@@ -38,7 +38,7 @@ class Client(Logger):
         self.explorer = network.explorer
         self.chain_id = network.chain_id
 
-        self.proxy = f"http://{proxy}"
+        self.proxy = f"http://{proxy}" if proxy else ""
         self.proxy_init = proxy
         self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}") if proxy else None)
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
