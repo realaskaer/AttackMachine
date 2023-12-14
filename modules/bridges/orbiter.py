@@ -1,3 +1,6 @@
+import json
+import random
+
 from modules import Bridge, Logger
 from utils.tools import helper, gas_checker
 from config import ORBITER_CONTRACTS, ORBITER_ABI, TOKENS_PER_CHAIN
@@ -10,34 +13,21 @@ class Orbiter(Bridge, Logger):
         Logger.__init__(self)
         super().__init__(client)
 
-    async def get_maker_data(self, from_chain: int, to_chain:int, token_name: str):
+    @staticmethod
+    def get_maker_data(from_id:int, to_id:int, token_name: str):
 
-        url = 'https://openapi.orbiter.finance/explore/v3/yj6toqvwh1177e1sexfy0u1pxx5j8o47'
+        path = random.choice(['orbiter_maker1.json', 'orbiter_maker2.json'])
+        with open(f'./data/services/{path}') as file:
+            data = json.load(file)
 
-        request_data = {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "method": "orbiter_getTradingPairs",
-            "params": []
-        }
+        maker_data = data[f"{from_id}-{to_id}"][f"{token_name}-{token_name}"]
 
-        response = await self.make_request(method='POST', url=url, json=request_data)
-
-        data = response['result']['ruleList']
-        bridge_data = {}
-
-        path = f'{from_chain}-{to_chain}:{token_name}-{token_name}'
-
-        for chain_data in data:
-            if chain_data['pairId'] == path:
-
-                bridge_data = {
-                    'maker': chain_data['sender'],
-                    'fee': chain_data['tradingFee'],
-                    'decimals': chain_data['fromChain']['decimals'],
-                    'min_amount': chain_data['fromChain']['minPrice'],
-                    'max_amount': chain_data['fromChain']['maxPrice'],
-                } | ({'recipient': chain_data['recipient']} if GLOBAL_NETWORK == 9 else {})
+        bridge_data = {
+            'maker': maker_data['makerAddress'],
+            'fee': maker_data['tradingFee'],
+            'min_amount': maker_data['minPrice'],
+            'max_amount': maker_data['maxPrice'],
+        } | ({'sender': maker_data['sender']} if GLOBAL_NETWORK == 9 else {})
 
         if bridge_data:
             return bridge_data
@@ -58,11 +48,12 @@ class Orbiter(Bridge, Logger):
         bridge_info = f'{amount} {token_name} from {from_chain["name"]} to {to_chain["name"]}'
         self.logger_msg(*self.client.acc_info, msg=f'Bridge on Orbiter: {bridge_info}')
 
-        bridge_data = await self.get_maker_data(from_chain['chainId'], to_chain['chainId'], token_name)
+        bridge_data = self.get_maker_data(from_chain['id'], to_chain['id'], token_name)
         destination_code = 9000 + to_chain['id']
-        fee = int(float(bridge_data['fee']) * 10 ** bridge_data['decimals'])
+        decimals = 18 if token_name == 'ETH' else 6
+        fee = int(float(bridge_data['fee']) * 10 ** decimals)
         min_price, max_price = bridge_data['min_amount'], bridge_data['max_amount']
-        amount_in_wei = int(amount * 10 ** bridge_data['decimals'])
+        amount_in_wei = int(amount * 10 ** decimals)
         full_amount = amount_in_wei + destination_code + fee
 
         if from_chain['name'] != 'Starknet' and to_chain['name'] == 'Starknet':
@@ -73,7 +64,7 @@ class Orbiter(Bridge, Logger):
             receiver = await self.get_address_for_bridge(private_keys['stark_key'], stark_key_type=True)
 
             transaction = [await contract.functions.transfer(
-                AsyncWeb3.to_checksum_address(bridge_data['recipient']),
+                AsyncWeb3.to_checksum_address(bridge_data['maker']),
                 "0x03" + f'{receiver[2:]:0>64}'
             ).build_transaction(await self.client.prepare_transaction(value=full_amount))]
 
@@ -87,7 +78,7 @@ class Orbiter(Bridge, Logger):
 
             bridge_call = contract.functions["transferERC20"].prepare(
                 eth_address,
-                int(bridge_data['recipient'], 16),
+                int(bridge_data['maker'], 16),
                 full_amount,
                 int(await self.get_address_for_bridge(private_keys['evm_key'], stark_key_type=False), 16)
             )

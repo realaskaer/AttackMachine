@@ -154,14 +154,13 @@ class Bridge(ABC):
                            data:str = None, json:dict = None):
 
         headers = (headers or {}) | {'User-Agent': get_user_agent()}
-        async with ClientSession() as session:
-            async with session.request(method=method, url=url, headers=headers, data=data, json=json,
-                                       params=params, proxy=self.client.proxy) as response:
-
-                data = await response.json()
-                if response.status in [200, 201]:
-                    return data
-                raise RuntimeError(f"Bad request to {self.__class__.__name__} API: {response.status}")
+        async with self.client.session.request(method=method, url=url, headers=headers, data=data, json=json,
+                                               params=params) as response:
+            print(response)
+            data = await response.json()
+            if response.status in [200, 201]:
+                return data
+            raise RuntimeError(f"Bad request to {self.__class__.__name__} API: {response.status}")
 
 
 class Refuel(ABC):
