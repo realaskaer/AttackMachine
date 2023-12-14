@@ -38,6 +38,7 @@ class Client(Logger):
         self.explorer = network.explorer
         self.chain_id = network.chain_id
 
+        self.proxy = f"http://{proxy}"
         self.proxy_init = proxy
         self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}") if proxy else None)
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
@@ -174,6 +175,9 @@ class Client(Logger):
             await module_func(self.account_name, self.private_key, self.network, self.proxy_init, help_deposit=True)
 
         return amount, amount_in_wei
+
+    async def auto_l0_amount(self, class_name:str = None):
+        pass
 
     async def get_auto_amount(self, token_name_search:str = None, class_name:str = None) -> [str, float, int]:
 

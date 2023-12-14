@@ -20,9 +20,11 @@ CHAINS_NAME = {
     12: 'Zora'
 }
 
-random_version = f"{uniform(520, 540):.2f}"
-USER_AGENT = (f'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/{random_version} (KHTML, like Gecko)'
-              f' Chrome/119.0.0.0 Safari/{random_version} Edg/119.0.0.0')
+
+def get_user_agent():
+    random_version = f"{uniform(520, 540):.2f}"
+    return (f'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/{random_version} (KHTML, like Gecko)'
+            f' Chrome/119.0.0.0 Safari/{random_version} Edg/119.0.0.0')
 
 
 class Logger(ABC):
@@ -102,7 +104,7 @@ class Aggregator(ABC):
     async def make_request(self, method:str = 'GET', url:str = None, headers:dict = None, params: dict = None,
                            data:str = None, json:dict = None):
 
-        headers = (headers or {}) | {'User-Agent': USER_AGENT}
+        headers = (headers or {}) | {'User-Agent': get_user_agent()}
         async with self.client.session.request(method=method, url=url, headers=headers, data=data,
                                                params=params, json=json) as response:
             try:
@@ -151,14 +153,15 @@ class Bridge(ABC):
     async def make_request(self, method:str = 'GET', url:str = None, headers:dict = None, params: dict = None,
                            data:str = None, json:dict = None):
 
-        headers = (headers or {}) | {'User-Agent': USER_AGENT}
-        async with self.client.session.request(method=method, url=url, headers=headers, data=data,
-                                               params=params, json=json) as response:
+        headers = (headers or {}) | {'User-Agent': get_user_agent()}
+        async with ClientSession() as session:
+            async with session.request(method=method, url=url, headers=headers, data=data, json=json,
+                                       params=params, proxy=self.client.proxy) as response:
 
-            data = await response.json()
-            if response.status in [200, 201]:
-                return data
-            raise RuntimeError(f"Bad request to {self.__class__.__name__} API: {response.status}")
+                data = await response.json()
+                if response.status in [200, 201]:
+                    return data
+                raise RuntimeError(f"Bad request to {self.__class__.__name__} API: {response.status}")
 
 
 class Refuel(ABC):
@@ -218,7 +221,7 @@ class Blockchain(ABC):
     async def make_request(self, method:str = 'GET', url:str = None, headers:dict = None, params: dict = None,
                            data:str = None, json:dict = None):
 
-        headers = (headers or {}) | {'User-Agent': USER_AGENT}
+        headers = (headers or {}) | {'User-Agent': get_user_agent()}
         async with self.client.session.request(method=method, url=url, headers=headers, data=data,
                                                params=params, json=json) as response:
 

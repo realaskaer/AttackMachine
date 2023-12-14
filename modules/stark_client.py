@@ -16,7 +16,7 @@ from starknet_py.net.client_models import Call
 from aiohttp import ClientSession
 from aiohttp_socks import ProxyConnector
 from modules import Logger
-from modules.interfaces import USER_AGENT
+from modules.interfaces import get_user_agent
 from utils.networks import Network
 from config import (
     TOKENS_PER_CHAIN,
@@ -409,7 +409,7 @@ class StarknetClient(Logger):
     async def make_request(self, method:str = 'GET', url:str = None, headers:dict = None, params: dict = None,
                            data:str = None, json:dict = None, module_name:str = None):
 
-        headers = (headers or {}) | {'User-Agent': USER_AGENT}
+        headers = (headers or {}) | {'User-Agent': get_user_agent()}
         async with self.session.request(method=method, url=url, headers=headers, data=data,
                                         params=params, json=json) as response:
 

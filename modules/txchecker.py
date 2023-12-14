@@ -12,7 +12,7 @@ from datetime import datetime
 from config import PRIVATE_KEYS, PROXIES
 from collections import defaultdict
 
-from modules.interfaces import USER_AGENT
+from modules.interfaces import get_user_agent
 
 API_URL = "https://block-explorer-api.mainnet.zksync.io"
 
@@ -35,7 +35,7 @@ class TxChecker:
                            data: str = None, json: dict = None):
 
         proxy = random.choice(PROXIES)
-        headers = (headers or {}) | {'User-Agent': USER_AGENT}
+        headers = (headers or {}) | {'User-Agent': get_user_agent()}
 
         async with ClientSession() as session:
             async with session.request(method=method, url=url, headers=headers, data=data,
