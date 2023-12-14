@@ -56,7 +56,6 @@ class Zerius(Minter, Logger):
 
         return await self.client.send_transaction(transaction)
 
-
     @helper
     @gas_checker
     async def bridge(self):
@@ -73,7 +72,7 @@ class Zerius(Minter, Logger):
             *self.client.acc_info,
             msg=f"Bridge Zerius NFT from {self.network} to {dst_chain_name.capitalize()}. ID: {nft_id}")
 
-        await sleep(5, 10)
+        await sleep(self, 5, 10)
 
         version, gas_limit = 1, await self.onft_contract.functions.minDstGasLookup(dst_chain_id, 1).call()
 
