@@ -104,14 +104,14 @@ class Custom(Logger, Aggregator):
     @helper
     @gas_checker
     async def wraps_abuser(self):
-        from functions import swap_odos, swap_oneinch, swap_openocean, swap_xyfinance, swap_avnu
+        from functions import swap_odos, swap_oneinch, swap_xyfinance, swap_avnu
 
         func = {
-            3: [swap_odos, swap_oneinch, swap_openocean, swap_xyfinance],
-            4: [swap_openocean, swap_xyfinance],
-            8: [swap_openocean, swap_xyfinance],
+            3: [swap_odos, swap_oneinch, swap_xyfinance],
+            4: [swap_xyfinance],
+            8: [swap_xyfinance],
             9: [swap_avnu],
-            11: [swap_odos, swap_oneinch, swap_openocean, swap_xyfinance]
+            11: [swap_odos, swap_oneinch, swap_xyfinance]
         }[GLOBAL_NETWORK]
 
         current_tokens = list(TOKENS_PER_CHAIN[self.client.network.name].items())[:2]
