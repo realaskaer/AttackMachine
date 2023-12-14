@@ -120,7 +120,7 @@ class Client(Logger):
                             get_network_by_chain_id(chain_id), self.proxy_init)
         return new_client
 
-    async def wait_for_receiving(self, chain_id:int, old_balance:int = 0, token_name:str = 'ETH', sleep_time:int = 30,
+    async def wait_for_receiving(self, chain_id:int, old_balance:int = 0, token_name:str = 'ETH', sleep_time:int = 60,
                                  timeout: int = 1200, check_balance_on_dst:bool = False):
         client = await self.new_client(chain_id)
         try:
