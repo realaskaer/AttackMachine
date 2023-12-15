@@ -220,7 +220,7 @@ TOKENS_PER_CHAIN = {
         "USDC"              : 0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8,
         "USDT"              : 0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8,
         "DAI"               : 0x00da114221cb83fa859dbdb4c44beeaa0bb37c7537ad5ae66fe5e0efd20e6eb3,
-        "MEMCOIN"           : 0x079337c58d486aec3f2c5648271345d7c54657a158d88a1e3bd3521129c7cc94
+        "MEMCOIN"           : 0x0511932333ef61dd3f4e5272ce46099b5e05042b4dcf706f11256eb161b153d0
     },
     "Base":{
         "ETH"               : "0x4200000000000000000000000000000000000006",
