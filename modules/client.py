@@ -7,7 +7,7 @@ from aiohttp_socks import ProxyConnector
 
 from modules import Logger
 from utils.networks import Network
-from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, CHAIN_IDS
+from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, CHAIN_IDS, TOKENS_PER_CHAIN2
 from web3 import AsyncHTTPProvider, AsyncWeb3
 from config import RHINO_CHAIN_INFO, ORBITER_CHAINS_INFO, LAYERSWAP_CHAIN_NAME
 from settings import (
@@ -26,6 +26,8 @@ from settings import (
     ACROSS_CHAIN_ID_TO,
     ACROSS_DEPOSIT_AMOUNT,
     GLOBAL_NETWORK,
+    STARGATE_CHAINS,
+    STARGATE_TOKENS
 )
 
 
@@ -178,9 +180,6 @@ class Client(Logger):
             await module_func(self.account_name, self.private_key, self.network, self.proxy_init, help_deposit=True)
 
         return amount, amount_in_wei
-
-    async def auto_l0_amount(self, class_name:str = None):
-        pass
 
     async def get_auto_amount(self, token_name_search:str = None, class_name:str = None) -> [str, float, int]:
 
@@ -367,7 +366,11 @@ class Client(Logger):
             singed_tx = self.w3.eth.account.sign_transaction(transaction, self.private_key)
             tx_hash = await self.w3.eth.send_raw_transaction(singed_tx.rawTransaction)
         except Exception as error:
-            raise RuntimeError(f'Send transaction | {self.get_normalize_error(error)}')
+            if self.get_normalize_error(error) == 'already known':
+                self.logger_msg(*self.acc_info, msg='RPC got error, but tx was send', type_msg='warning')
+                return True
+            else:
+                raise RuntimeError(f'Send transaction | {self.get_normalize_error(error)}')
 
         try:
             await asyncio.sleep(10)

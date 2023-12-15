@@ -39,8 +39,38 @@ def get_network_by_chain_id(chain_id):
         10: Polygon_ZKEVM_RPC,
         11: zkSyncEraRPC,
         12: ZoraRPC,
-        13: zkSyncEraRPC,
-        14: EthereumRPC,
+        13: EthereumRPC,
+        14: AvalancheRPC,
+        15: BSC_RPC,
+        16: MoonbeamRPC,
+        17: HarmonyRPC,
+        18: TelosRPC,
+        19: CeloRPC,
+        20: GnosisRPC,
+        21: CoreRPC,
+        22: TomoChainRPC,
+        23: ConfluxRPC,
+        24: OrderlyRPC,
+        25: HorizenRPC,
+        26: MetisRPC,
+        27: AstarRPC,
+        28: OpBNB_RPC,
+        29: MantleRPC,
+        30: MoonriverRPC,
+        31: KlaytnRPC,
+        32: KavaRPC,
+        33: FantomRPC,
+        34: AuroraRPC,
+        35: CantoRPC,
+        36: DFK_RPC,
+        37: FuseRPC,
+        38: GoerliRPC,
+        39: MeterRPC,
+        40: OKX_RPC,
+        41: ShimmerRPC,
+        42: TenetRPC,
+        43: XPLA_RPC,
+        44: LootChainRPC
     }[chain_id]
 
 
@@ -607,3 +637,10 @@ async def wrap_abuser(account_number, private_key, network, proxy):
 
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.wraps_abuser()
+
+
+async def bridge_stargate(account_number, private_key, _, proxy):
+    network = get_network_by_chain_id(random.choice())
+
+    worker = Stargate(get_client(account_number, private_key, network, proxy))
+    return await worker.bridge()

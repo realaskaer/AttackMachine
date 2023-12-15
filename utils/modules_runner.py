@@ -14,7 +14,7 @@ from utils.route_generator import RouteGenerator, AVAILABLE_MODULES_INFO, get_fu
 from config import ACCOUNT_NAMES, PRIVATE_KEYS_EVM, PRIVATE_KEYS, PROXIES, CHAIN_NAME
 from settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, HELP_NEW_MODULE, TG_ID, TG_TOKEN, MOBILE_PROXY,
                       MOBILE_PROXY_URL_CHANGER, WALLETS_TO_WORK, TELEGRAM_NOTIFICATIONS, GLOBAL_NETWORK,
-                      SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM, EXCLUDED_MODULES)
+                      SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM, EXCLUDED_MODULES, SHUFFLE_WALLETS)
 
 BRIDGE_NAMES = ['bridge_rhino', 'bridge_layerswap', 'bridge_orbiter', 'bridge_across',
                 'bridge_native', 'withdraw_native_bridge']
@@ -31,21 +31,30 @@ class Runner(Logger):
     @staticmethod
     def get_wallets():
         if WALLETS_TO_WORK == 0:
-            return zip(ACCOUNT_NAMES, PRIVATE_KEYS)
+            accounts_data = zip(ACCOUNT_NAMES, PRIVATE_KEYS)
 
         elif isinstance(WALLETS_TO_WORK, int):
-            return zip([ACCOUNT_NAMES[WALLETS_TO_WORK - 1]], [PRIVATE_KEYS[WALLETS_TO_WORK - 1]])
+            accounts_data = zip([ACCOUNT_NAMES[WALLETS_TO_WORK - 1]], [PRIVATE_KEYS[WALLETS_TO_WORK - 1]])
 
         elif isinstance(WALLETS_TO_WORK, tuple):
             account_names = [ACCOUNT_NAMES[i - 1] for i in WALLETS_TO_WORK]
             accounts = [PRIVATE_KEYS[i - 1] for i in WALLETS_TO_WORK]
-            return zip(account_names, accounts)
+            accounts_data = zip(account_names, accounts)
 
         elif isinstance(WALLETS_TO_WORK, list):
             range_count = range(WALLETS_TO_WORK[0], WALLETS_TO_WORK[1] + 1)
             account_names = [ACCOUNT_NAMES[i - 1] for i in range_count]
             accounts = [PRIVATE_KEYS[i - 1] for i in range_count]
-            return zip(account_names, accounts)
+            accounts_data = zip(account_names, accounts)
+        else:
+            accounts_data = []
+
+        accounts_data = list(accounts_data)
+
+        if SHUFFLE_WALLETS:
+            random.shuffle(accounts_data)
+
+        return accounts_data
 
     @staticmethod
     async def make_request(method: str = 'GET', url: str = None, headers: dict = None):

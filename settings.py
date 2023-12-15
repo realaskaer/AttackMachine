@@ -8,7 +8,8 @@
     Количество - (0.01, 0.02)
     Процент    - ("55", "60") ⚠️ Значения в скобках
 
-    AMOUNT_PERCENT | Указывать только %, без кавычек. Остальные настройки сумм для работы в % указывать в кавычках.
+    AMOUNT_PERCENT | Указывать только %, без кавычек. Можно указывать с точностью до 6 цифры (99.123456, 99.654321).
+                        ⚠️Остальные настройки сумм указывать в кавычках(если хотите работать в %)⚠️
     MIN_BALANCE | Минимальный баланс для аккаунта. При меньшем балансе будет ошибка: (Insufficient balance on account!)
 """
 AMOUNT_PERCENT = (55, 60)  # Применяется для обменов.
@@ -18,31 +19,26 @@ MIN_BALANCE = 0.001  # Количество ETH на аккаунте
 
 """
 --------------------------------------------------OKX CONTROL-----------------------------------------------------------
-    Выберите сети для вывода и ввода с OKX. Софт работает только с токеном ETH. Не забудьте вставить API ключи снизу.
+    Выберите сети/суммы для вывода и ввода с OKX. Не забудьте вставить API ключи снизу.
 
-    1 - ETH-ERC20
-    2 - ETH-Arbitrum One
-    3 - ETH-zkSync Lite
-    4 - ETH-Optimism
-    5 - ETH-Starknet
-    6 - ETH-zkSync Era
-    7 - ETH-Linea
-    8 - ETH-Base
-
-    
-    OKX_DEPOSIT_AMOUNT | Определяет % от баланса основной сети (GLOBAL_NETWORK) для выполнения бриджа в сеть
-                            пополнения OKX (OKX_DEPOSIT_NETWORK)
-    OKX_DEPOSIT_AMOUNT = 90 | % of MAX TOKEN BALANCE. Will withdraw this amount from the largest token balance in zkSync
+    1 - ETH-ERC20              9  - CELO-Celo           17 - KLAY-Klaytn
+    2 - ETH-Arbitrum One       10 - ONE-Harmony         18 - FTM-Fantom
+    3 - ETH-zkSync Lite        11 - GLMR-Moonbeam       19 - AVAX-Avalanche
+    4 - ETH-Optimism           12 - MOVR-Moonriver      20 - ASTR-Astar
+    5 - ETH-Starknet           13 - METIS-Metis         21 - BNB-BSC
+    6 - ETH-zkSync Era         14 - CORE-CORE
+    7 - ETH-Linea              15 - CFX-Conflux 
+    8 - ETH-Base               16 - ZEN-Horizen
 
 ------------------------------------------------------------------------------------------------------------------------
 """
-OKX_WITHDRAW_NETWORK = 5               # Сеть вывода из OKX
-OKX_WITHDRAW_AMOUNT = (0.0001, 0.0001)  # (минимальная, максимальная) сумма в ETH для вывода
+OKX_WITHDRAW_NETWORK = 5                 # Сеть вывода из OKX
+OKX_WITHDRAW_AMOUNT = (0.0001, 0.0001)   # (минимальная, максимальная) сумма для вывода из OKX
 
-OKX_DEPOSIT_NETWORK = 2                # Сеть из которой планируется пополнение OKX
-OKX_DEPOSIT_AMOUNT = (0.0001, 0.0001)    # (минимальная, максимальная) сумма в ETH на пополнение OKX
+OKX_DEPOSIT_NETWORK = 2                  # Сеть из которой планируется пополнение OKX
+OKX_DEPOSIT_AMOUNT = (0.0001, 0.0001)    # (минимальная, максимальная) сумма для пополнения OKX
 
-OKX_BALANCE_WANTED = 0.005             # Необходимый баланс на аккаунтах для уравнителя (make_balance_to_average)
+OKX_BALANCE_WANTED = 0.005               # Необходимый баланс на аккаунтах для уравнителя (make_balance_to_average)
 
 """
 ------------------------------------------------BRIDGE CONTROL----------------------------------------------------------
@@ -55,16 +51,19 @@ OKX_BALANCE_WANTED = 0.005             # Необходимый баланс н�
     Количество - (0.01, 0.02)
     Процент    - ("10", "20") ⚠️ Значения в скобках
        
-     (A)Arbitrum = 1         (A)Optimism = 7
-        Arbitrum Nova = 2       Scroll = 8  
-     (A)Base = 3                Starknet = 9   
-        Linea = 4               Polygon ZKEVM = 10    
-        Manta = 5            (A)zkSync Era = 11  
-       *Polygon = 6            *Zora = 12
-                               *zkSync Lite = 13
+     (A)Arbitrum = 1                    Polygon ZKEVM = 10 
+        Arbitrum Nova = 2            (A)zkSync Era = 11     
+     (A)Base = 3                       *Zora = 12 
+        Linea = 4                       Ethereum = 13
+        Manta = 5                      *Avalanche = 14
+       *Polygon = 6                     BNB Chain = 15
+     (A)Optimism = 7                 (O)Metis = 26        
+        Scroll = 8                     *OpBNB = 28
+        Starknet = 9                   *Mantle = 29   
     
     * - не поддерживается в Rhino.fi
     (A) - сети, поддерживаемые Across мостом
+    (0) - поддерживается только для Orbiter моста
     ORBITER_CHAIN_ID_FROM(TO) = [2, 4, 16] | Одна из сетей будет выбрана
     NATIVE_WITHDRAW_AMOUNT | Настройка для вывода из нативного моста (withdraw_native_bridge)
 """
@@ -72,7 +71,7 @@ NATIVE_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) E
 NATIVE_WITHDRAW_AMOUNT = (0.0001, 0.0002)   # (минимум, максимум) ETH или %
 
 ORBITER_CHAIN_ID_FROM = [11]                # Исходящая сеть
-ORBITER_CHAIN_ID_TO = [3]                  # Входящая сеть
+ORBITER_CHAIN_ID_TO = [1]                  # Входящая сеть
 ORBITER_DEPOSIT_AMOUNT = (0.001, 0.001)    # (минимум, максимум) ETH или %
 
 LAYERSWAP_CHAIN_ID_FROM = [9]                # Исходящая сеть
@@ -91,20 +90,20 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) E
 ---------------------------------------------OMNI-CHAIN CONTROL---------------------------------------------------------
     Проверьте руками, работают ли сети на сайте. (Софт сам проверит, но зачем его напрягать?)
        
-    *(B)Arbitrum = 1                  Goerli = 16                        OKX = 30
-        Arbitrum Nova = 2             Gnosis = 17                    *(B)Optimism = 31
+     (B)Arbitrum = 1                  Goerli = 16                        OKX = 30
+        Arbitrum Nova = 2             Gnosis = 17                     (B)Optimism = 31
         Astar = 3                     Harmony = 18                       Orderly = 32
-     (B)Aurora = 4                    Horizen = 19                   *(B)Polygon = 33  
-     (B)Avalanche = 5                 Kava = 20                      *(B)Polygon zkEVM = 34
-        BNB = 6                       Klaytn = 21                       *Scroll = 35
-    *(B)Base = 7                     *Linea = 22                         ShimmerEVM = 36
+     (B)Aurora = 4                    Horizen = 19                    (B)Polygon = 33  
+     (B)Avalanche = 5                 Kava = 20                       (B)Polygon zkEVM = 34
+        BNB = 6                       Klaytn = 21                        Scroll = 35
+     (B)Base = 7                      Linea = 22                         ShimmerEVM = 36
         Canto = 8                     Loot = 23                          Telos = 37
         Celo = 9                      Manta = 24                         TomoChain = 38 
         Conflux = 10                  Mantle = 25                        Tenet = 39
         CoreDAO = 11                  Meter = 26                         XPLA = 40
-        DFK = 12                      Metis = 27                        *Zora = 41  
+        DFK = 12                      Metis = 27                         Zora = 41  
         Ethereum = 13                 Moonbeam = 28                      opBNB = 42
-        Fantom = 14                   Moonriver = 29                    *zkSync = 43
+        Fantom = 14                   Moonriver = 29                     zkSync = 43
         Fuse = 15          
                              
     SOURCE_CHAIN_ZERIUS = [27, 29] | Одна из сетей будет выбрана (REFUEL/BRIDGE NFT)
@@ -116,18 +115,19 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) E
     
     DESTINATION_ZERIUS_DATA | Аналогично DESTINATION_MERKLY_DATA
     
-    *   - Могут быть использованы как исходящие сеть для Zerius, Merkly
     (B) - Поддерживаемые входящие сети в Bungee
-    **  - Сумму для Merkly и Zerius нужно подавать в нативном токене входящей сети. Указывайте на 10% меньше от лимита,
-            во избежания ошибок работы LayerZero мостов. Смотреть лимиты можно здесь: 
-                1) Zerius - https://zerius.io/refuel
-                2) Merkly - https://minter.merkly.com/gas  
+    Сумму для Merkly и Zerius нужно подавать в нативном токене входящей сети. Указывайте на 10% меньше от лимита,
+    во избежания ошибок работы LayerZero мостов. Смотреть лимиты можно здесь: 
+            1) Zerius - https://zerius.io/refuel
+            2) Merkly - https://minter.merkly.com/gas  
 """
-SRC_CHAIN_ZERIUS = [5]  # Исходящая сеть для Zerius
-DST_CHAIN_ZERIUS_NFT = [1, 4, 8]  # Входящая сеть для Zerius Mint NFT
+STARGATE_CHAINS = [5, 6]
+STARGATE_TOKENS = ['USDT', 'BUSD']
 
+SRC_CHAIN_ZERIUS = [43]  # Исходящая сеть для Zerius
+DST_CHAIN_ZERIUS_NFT = [1, 4, 8]  # Входящая сеть для Zerius Mint NFT
 DST_CHAIN_ZERIUS_REFUEL = {
-    29: (0.0001, 0.0002),  # Chain ID: (минимум, максимум) в нативном токене входящей сети**
+    1: (0.0001, 0.0002),  # Chain ID: (минимум, максимум) в нативном токене входящей сети**
     27: (0.0001, 0.0002)
 }
 
@@ -176,8 +176,9 @@ GLOBAL_NETWORK = 11             # 07.12.2023 поддерживается zkSync
 SOFTWARE_MODE = 0               # 0 - последовательный запуск / 1 - параллельный запуск
 ACCOUNTS_IN_STREAM = 1          # Только для SOFTWARE_MODE = 1 (параллельный запуск)
 WALLETS_TO_WORK = 0             # 0 / 3 / 3, 20 / [3, 20]
+SHUFFLE_WALLETS = False         # Перемешивает кошельки перед запуском
 SAVE_PROGRESS = False           # True или False | Включает сохранение прогресса аккаунта для Classic-routes
-TELEGRAM_NOTIFICATIONS = False  # True или False | Включает уведомления в Telegram
+TELEGRAM_NOTIFICATIONS = False   # True или False | Включает уведомления в Telegram
 
 
 '------------------------------------------------SLEEP CONTROL---------------------------------------------------------'
@@ -212,7 +213,7 @@ PRICE_IMPACT = 3            # 0.54321 = 0.54321%, 1 = 1% | Максимальн�
 
 
 '-----------------------------------------------APPROVE CONTROL--------------------------------------------------------'
-UNLIMITED_APPROVE = False       # True или False Включает безлимитный Approve для контракта
+UNLIMITED_APPROVE = True       # True или False Включает безлимитный Approve для контракта
 
 
 '------------------------------------------------SECURE DATA-----------------------------------------------------------'
@@ -288,7 +289,7 @@ EXCLUDED_MODULES = ['swap_openocean']  # Исключает выбранные �
 
 HELPERS_CONFIG = {
     'okx_withdraw'                        : 0,  # смотри OKX CONTROL
-    'collector_eth'                       : 0,  # сбор всех токенов в ETH
+    'collector_eth'                       : 0,  # сбор всех токенов в ETH внутри сети GLOBAL_NETWORK
     'make_balance_to_average'             : 0,  # уравнивает ваши балансы на аккаунтах (см. инструкцию к софту)
     'upgrade_stark_wallet'                : 0,  # обновляет кошелек, во время маршрута
     'deploy_stark_wallet'                 : 0,  # деплоит кошелек, после вывода с OKX
@@ -316,7 +317,7 @@ HELPERS_CONFIG = {
     'bridge_rhino'                        : 0,  # смотри BRIDGE CONTROL
     'bridge_layerswap'                    : 0,  # смотри BRIDGE CONTROL
     'bridge_orbiter'                      : 0,  # смотри BRIDGE CONTROL
-    'bridge_native'                       : 0,  # смотри BRIDGE CONTROL
+    'bridge_native'                       : 0,  # смотри BRIDGE CONTROL. (кол-во из NATIVE_DEPOSIT_AMOUNT)
     'okx_deposit'                         : 0,  # ввод средств на биржу
     'okx_collect_from_sub'                : 0   # сбор средств на субАккаунтов на основной счет
     
@@ -325,60 +326,60 @@ HELPERS_CONFIG = {
     add_liquidity_maverick           # USDC/WETH LP
     add_liquidity_mute               # USDC/WETH LP
     add_liquidity_syncswap           # USDC/WETH LP
-    deposit_basilisk                 
+    deposit_basilisk                 # делает депозит в лендинг на LIQUIDITY_AMOUNT.
     deposit_eralend                  
     deposit_reactorfusion            
     deposit_zerolend                 
-    enable_collateral_basilisk       
+    enable_collateral_basilisk       # включает страховку для депозита на лендинге
     enable_collateral_eralend        
     enable_collateral_reactorfusion  
-    swap_izumi                       
-    swap_maverick                    
-    swap_jediswap                    
-    swap_mute                        
+    swap_izumi                       # делает случайный свап токенов на AMOUNT_PERCENT для ETH и на 100% для других.
+    swap_maverick                      пары выбираются случайно, с учетом баланса на кошельке. Свапы работаю по   
+    swap_jediswap                      следующим направлениям: ETH -> Token, Token -> ETH. Token -> Token не будет, во
+    swap_mute                          избежания проблем с платой за газ.
     swap_odos                        
     swap_oneinch                     
     swap_openocean                   
     swap_pancake                     
     swap_rango                       
     swap_spacefi                     
-    swap_syncswap  
-    swap_velocore                 
+    swap_syncswap                    
+    swap_velocore                    
     swap_xyfinance                   
     swap_vesync                      
     swap_woofi                       
     swap_zkswap                      
-    wrap_eth                         
-    create_omnisea                   # создание новой NFT коллекции
-    create_safe                      # создает сейф в сети
-    mint_and_bridge_l2telegraph      # mint и bridge nft через L2Telegraph
+    wrap_eth                         # wrap/unwrap ETH через офф. контракт токена WETH. (кол-во из LIQUIDITY_AMOUNT)
+    create_omnisea                   # создание новой NFT коллекции. Все параметры будут рандомными
+    create_safe                      # создает сейф в сети GLOBAL_NETWORK
+    mint_and_bridge_l2telegraph      # mint и bridge nft через L2Telegraph в случайную сеть из DST_CHAIN_L2TELEGRAPH
     mint_domain_ens                  # 0.003 ETH domain
     mint_domain_zns                  # 0.003 ETH domain
-    mint_mailzero                    # mint бесплатной NFT на MainZero
-    mint_tevaera                     # mint 2 NFT on Tevaera
-    mint_zerius                      # mint NFT on Zerius
+    mint_mailzero                    # mint бесплатной NFT на MainZero. Плата только за газ.
+    mint_tevaera                     # mint 2 NFT on Tevaera. Price: 0.0003 ETH
+    mint_zerius                      # mint NFT on Zerius. Price: уточняйте по факту на сайте.
     bridge_zerius                    # bridge последней NFT on Zerius
-    deploy_contract                  # deploy вашего контракта
-    refuel_bungee                    # смотри OMNI-CHAIN CONTROL
+    deploy_contract                  # deploy вашего контракта. Контракт находится в data/services/contract_data.json
+    refuel_bungee                    # смотри OMNI-CHAIN CONTROL. Исходящая сеть - GLOBAL_NETWORK
     refuel_merkly                    # смотри OMNI-CHAIN CONTROL
     refuel_zerius                    # смотри OMNI-CHAIN CONTROL
-    random_approve
-    send_message_dmail               
+    random_approve                   # рандомный апрув случайного токена для свапалок 
+    send_message_dmail               # отправка сообщения через Dmail на рандомный Web2 адрес (почтовый ящик)
     send_message_l2telegraph         # смотри OMNI-CHAIN CONTROL
-    transfer_eth                     
-    transfer_eth_to_myself     
-    wrap_abuser                      # свапы ETH-WETH      
-    withdraw_native_bridge 
-    withdraw_basilisk               
-    withdraw_eralend                
-    withdraw_reactorfusion          
-    withdraw_zerolend               
-    disable_collateral_basilisk     
-    disable_collateral_eralend      
-    disable_collateral_reactorfusion
-    zksync_rhino_checker            # проверка на eligible
-    zksync_rhino_mint               # минт Hunter NFT
-    zksync_rhino_mint_pro           # проверка на eligible и минт Pro Hunter NFT
+    transfer_eth                     # переводит (TRANSFER_AMOUNT) ETH на случайный адрес
+    transfer_eth_to_myself           # переводит (TRANSFER_AMOUNT) ETH на ваш адрес
+    wrap_abuser                      # свапы ETH-WETH через контракты агрегаторов. (кол-во из AMOUNT_PERCENT)     
+    withdraw_native_bridge           # вывод ETH через официальный мост. (кол-во из NATIVE_WITHDRAW_AMOUNT)
+    withdraw_basilisk                # вывод ликвидности из лендинга
+    withdraw_eralend                 
+    withdraw_reactorfusion           
+    withdraw_zerolend                
+    disable_collateral_basilisk      # выключение страховки депозита на лендинге
+    disable_collateral_eralend       
+    disable_collateral_reactorfusion 
+    zksync_rhino_checker             # проверка на eligible для минта Rhino.fi Pro Hunter NFT 
+    zksync_rhino_mint                # минт Rhino.fi Hunter NFT
+    zksync_rhino_mint_pro            # проверка на eligible и минт Rhino.fi Pro Hunter NFT
                   
 ----------------------------------------------------STARKNET------------------------------------------------------------        
     
@@ -537,5 +538,5 @@ HELPERS_CONFIG = {
 CLASSIC_ROUTES_MODULES_USING = [
     ['okx_withdraw'],
     ['bridge_layerswap', 'bridge_native', None],
-    ['swap_mute', 'swap_izumi', 'mint_domain_ens']
+    ['swap_mute', 'swap_izumi', 'mint_domain_ens'],
 ]

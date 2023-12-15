@@ -35,6 +35,7 @@ from .onmichain import L2Telegraph
 from .onmichain import Merkly
 from .onmichain import Zerius
 from .onmichain import RocketSam
+from .onmichain import Stargate
 from .others import Dmail
 from .others import EraDomainService
 from .others import GnosisSafe

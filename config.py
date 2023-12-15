@@ -85,9 +85,10 @@ SPACEFI_ROUTER_ABI = [{'inputs': [{'internalType': 'address', 'name': '_factory'
 STARKSTARS_ABI = [{'name': 'SRC5Impl', 'type': 'impl', 'interface_name': 'openzeppelin::introspection::interface::ISRC5'}, {'name': 'core::bool', 'type': 'enum', 'variants': [{'name': 'False', 'type': '()'}, {'name': 'True', 'type': '()'}]}, {'name': 'openzeppelin::introspection::interface::ISRC5', 'type': 'interface', 'items': [{'name': 'supports_interface', 'type': 'function', 'inputs': [{'name': 'interface_id', 'type': 'core::felt252'}], 'outputs': [{'type': 'core::bool'}], 'state_mutability': 'view'}]}, {'name': 'SRC5CamelImpl', 'type': 'impl', 'interface_name': 'openzeppelin::introspection::interface::ISRC5Camel'}, {'name': 'openzeppelin::introspection::interface::ISRC5Camel', 'type': 'interface', 'items': [{'name': 'supportsInterface', 'type': 'function', 'inputs': [{'name': 'interfaceId', 'type': 'core::felt252'}], 'outputs': [{'type': 'core::bool'}], 'state_mutability': 'view'}]}, {'name': 'ERC721MetadataImpl', 'type': 'impl', 'interface_name': 'openzeppelin::token::erc721::interface::IERC721Metadata'}, {'name': 'core::integer::u256', 'type': 'struct', 'members': [{'name': 'low', 'type': 'core::integer::u128'}, {'name': 'high', 'type': 'core::integer::u128'}]}, {'name': 'openzeppelin::token::erc721::interface::IERC721Metadata', 'type': 'interface', 'items': [{'name': 'name', 'type': 'function', 'inputs': [], 'outputs': [{'type': 'core::felt252'}], 'state_mutability': 'view'}, {'name': 'symbol', 'type': 'function', 'inputs': [], 'outputs': [{'type': 'core::felt252'}], 'state_mutability': 'view'}, {'name': 'token_uri', 'type': 'function', 'inputs': [{'name': 'token_id', 'type': 'core::integer::u256'}], 'outputs': [{'type': 'core::felt252'}], 'state_mutability': 'view'}]}, {'name': 'ERC721MetadataCamelOnlyImpl', 'type': 'impl', 'interface_name': 'openzeppelin::token::erc721::interface::IERC721MetadataCamelOnly'}, {'name': 'openzeppelin::token::erc721::interface::IERC721MetadataCamelOnly', 'type': 'interface', 'items': [{'name': 'tokenURI', 'type': 'function', 'inputs': [{'name': 'tokenId', 'type': 'core::integer::u256'}], 'outputs': [{'type': 'core::felt252'}], 'state_mutability': 'view'}]}, {'name': 'ERC721Impl', 'type': 'impl', 'interface_name': 'openzeppelin::token::erc721::interface::IERC721'}, {'name': 'core::array::Span::<core::felt252>', 'type': 'struct', 'members': [{'name': 'snapshot', 'type': '@core::array::Array::<core::felt252>'}]}, {'name': 'openzeppelin::token::erc721::interface::IERC721', 'type': 'interface', 'items': [{'name': 'balance_of', 'type': 'function', 'inputs': [{'name': 'account', 'type': 'core::starknet::contract_address::ContractAddress'}], 'outputs': [{'type': 'core::integer::u256'}], 'state_mutability': 'view'}, {'name': 'owner_of', 'type': 'function', 'inputs': [{'name': 'token_id', 'type': 'core::integer::u256'}], 'outputs': [{'type': 'core::starknet::contract_address::ContractAddress'}], 'state_mutability': 'view'}, {'name': 'transfer_from', 'type': 'function', 'inputs': [{'name': 'from', 'type': 'core::starknet::contract_address::ContractAddress'}, {'name': 'to', 'type': 'core::starknet::contract_address::ContractAddress'}, {'name': 'token_id', 'type': 'core::integer::u256'}], 'outputs': [], 'state_mutability': 'external'}, {'name': 'safe_transfer_from', 'type': 'function', 'inputs': [{'name': 'from', 'type': 'core::starknet::contract_address::ContractAddress'}, {'name': 'to', 'type': 'core::starknet::contract_address::ContractAddress'}, {'name': 'token_id', 'type': 'core::integer::u256'}, {'name': 'data', 'type': 'core::array::Span::<core::felt252>'}], 'outputs': [], 'state_mutability': 'external'}, {'name': 'approve', 'type': 'function', 'inputs': [{'name': 'to', 'type': 'core::starknet::contract_address::ContractAddress'}, {'name': 'token_id', 'type': 'core::integer::u256'}], 'outputs': [], 'state_mutability': 'external'}, {'name': 'set_approval_for_all', 'type': 'function', 'inputs': [{'name': 'operator', 'type': 'core::starknet::contract_address::ContractAddress'}, {'name': 'approved', 'type': 'core::bool'}], 'outputs': [], 'state_mutability': 'external'}, {'name': 'get_approved', 'type': 'function', 'inputs': [{'name': 'token_id', 'type': 'core::integer::u256'}], 'outputs': [{'type': 'core::starknet::contract_address::ContractAddress'}], 'state_mutability': 'view'}, {'name': 'is_approved_for_all', 'type': 'function', 'inputs': [{'name': 'owner', 'type': 'core::starknet::contract_address::ContractAddress'}, {'name': 'operator', 'type': 'core::starknet::contract_address::ContractAddress'}], 'outputs': [{'type': 'core::bool'}], 'state_mutability': 'view'}]}, {'name': 'ERC721CamelOnlyImpl', 'type': 'impl', 'interface_name': 'openzeppelin::token::erc721::interface::IERC721CamelOnly'}, {'name': 'openzeppelin::token::erc721::interface::IERC721CamelOnly', 'type': 'interface', 'items': [{'name': 'balanceOf', 'type': 'function', 'inputs': [{'name': 'account', 'type': 'core::starknet::contract_address::ContractAddress'}], 'outputs': [{'type': 'core::integer::u256'}], 'state_mutability': 'view'}, {'name': 'ownerOf', 'type': 'function', 'inputs': [{'name': 'tokenId', 'type': 'core::integer::u256'}], 'outputs': [{'type': 'core::starknet::contract_address::ContractAddress'}], 'state_mutability': 'view'}, {'name': 'transferFrom', 'type': 'function', 'inputs': [{'name': 'from', 'type': 'core::starknet::contract_address::ContractAddress'}, {'name': 'to', 'type': 'core::starknet::contract_address::ContractAddress'}, {'name': 'tokenId', 'type': 'core::integer::u256'}], 'outputs': [], 'state_mutability': 'external'}, {'name': 'safeTransferFrom', 'type': 'function', 'inputs': [{'name': 'from', 'type': 'core::starknet::contract_address::ContractAddress'}, {'name': 'to', 'type': 'core::starknet::contract_address::ContractAddress'}, {'name': 'tokenId', 'type': 'core::integer::u256'}, {'name': 'data', 'type': 'core::array::Span::<core::felt252>'}], 'outputs': [], 'state_mutability': 'external'}, {'name': 'setApprovalForAll', 'type': 'function', 'inputs': [{'name': 'operator', 'type': 'core::starknet::contract_address::ContractAddress'}, {'name': 'approved', 'type': 'core::bool'}], 'outputs': [], 'state_mutability': 'external'}, {'name': 'getApproved', 'type': 'function', 'inputs': [{'name': 'tokenId', 'type': 'core::integer::u256'}], 'outputs': [{'type': 'core::starknet::contract_address::ContractAddress'}], 'state_mutability': 'view'}, {'name': 'isApprovedForAll', 'type': 'function', 'inputs': [{'name': 'owner', 'type': 'core::starknet::contract_address::ContractAddress'}, {'name': 'operator', 'type': 'core::starknet::contract_address::ContractAddress'}], 'outputs': [{'type': 'core::bool'}], 'state_mutability': 'view'}]}, {'name': 'IStarkStarsImpl', 'type': 'impl', 'interface_name': 'achievments::contract::contract::IStarkStars'}, {'name': 'achievments::contract::contract::IStarkStars', 'type': 'interface', 'items': [{'name': 'get_price', 'type': 'function', 'inputs': [], 'outputs': [{'type': 'core::integer::u256'}], 'state_mutability': 'view'}, {'name': 'mint', 'type': 'function', 'inputs': [], 'outputs': [], 'state_mutability': 'external'}, {'name': 'withdraw', 'type': 'function', 'inputs': [], 'outputs': [], 'state_mutability': 'external'}, {'name': 'set_price', 'type': 'function', 'inputs': [{'name': 'price', 'type': 'core::integer::u256'}], 'outputs': [], 'state_mutability': 'external'}]}, {'name': 'constructor', 'type': 'constructor', 'inputs': [{'name': 'recipient', 'type': 'core::starknet::contract_address::ContractAddress'}, {'name': 'base_uri', 'type': 'core::felt252'}]}, {'kind': 'struct', 'name': 'achievments::contract::contract::Transfer', 'type': 'event', 'members': [{'kind': 'key', 'name': 'from', 'type': 'core::starknet::contract_address::ContractAddress'}, {'kind': 'key', 'name': 'to', 'type': 'core::starknet::contract_address::ContractAddress'}, {'kind': 'key', 'name': 'token_id', 'type': 'core::integer::u256'}]}, {'kind': 'struct', 'name': 'achievments::contract::contract::Approval', 'type': 'event', 'members': [{'kind': 'key', 'name': 'owner', 'type': 'core::starknet::contract_address::ContractAddress'}, {'kind': 'key', 'name': 'approved', 'type': 'core::starknet::contract_address::ContractAddress'}, {'kind': 'key', 'name': 'token_id', 'type': 'core::integer::u256'}]}, {'kind': 'struct', 'name': 'achievments::contract::contract::ApprovalForAll', 'type': 'event', 'members': [{'kind': 'key', 'name': 'owner', 'type': 'core::starknet::contract_address::ContractAddress'}, {'kind': 'key', 'name': 'operator', 'type': 'core::starknet::contract_address::ContractAddress'}, {'kind': 'data', 'name': 'approved', 'type': 'core::bool'}]}, {'kind': 'enum', 'name': 'achievments::contract::contract::Event', 'type': 'event', 'variants': [{'kind': 'nested', 'name': 'Transfer', 'type': 'achievments::contract::contract::Transfer'}, {'kind': 'nested', 'name': 'Approval', 'type': 'achievments::contract::contract::Approval'}, {'kind': 'nested', 'name': 'ApprovalForAll', 'type': 'achievments::contract::contract::ApprovalForAll'}]}]
 
 STARGATE_ABI = {
-    'Arbitrum': {
-        'eth_router': [{'inputs': [{'internalType': 'address', 'name': '_stargateEthVault', 'type': 'address'}, {'internalType': 'address', 'name': '_stargateRouter', 'type': 'address'}, {'internalType': 'uint16', 'name': '_poolId', 'type': 'uint16'}], 'stateMutability': 'nonpayable', 'type': 'constructor'}, {'inputs': [], 'name': 'addLiquidityETH', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [], 'name': 'poolId', 'outputs': [{'internalType': 'uint16', 'name': '', 'type': 'uint16'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'stargateEthVault', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'stargateRouter', 'outputs': [{'internalType': 'contract IStargateRouter', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'address payable', 'name': '_refundAddress', 'type': 'address'}, {'internalType': 'bytes', 'name': '_toAddress', 'type': 'bytes'}, {'internalType': 'uint256', 'name': '_amountLD', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_minAmountLD', 'type': 'uint256'}], 'name': 'swapETH', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'stateMutability': 'payable', 'type': 'receive'}]
-    }
+    'router': [{'inputs': [], 'stateMutability': 'nonpayable', 'type': 'constructor'}, {'anonymous': False, 'inputs': [{'indexed': False, 'internalType': 'uint16', 'name': 'chainId', 'type': 'uint16'}, {'indexed': False, 'internalType': 'bytes', 'name': 'srcAddress', 'type': 'bytes'}, {'indexed': False, 'internalType': 'uint256', 'name': 'nonce', 'type': 'uint256'}, {'indexed': False, 'internalType': 'address', 'name': 'token', 'type': 'address'}, {'indexed': False, 'internalType': 'uint256', 'name': 'amountLD', 'type': 'uint256'}, {'indexed': False, 'internalType': 'address', 'name': 'to', 'type': 'address'}, {'indexed': False, 'internalType': 'bytes', 'name': 'payload', 'type': 'bytes'}, {'indexed': False, 'internalType': 'bytes', 'name': 'reason', 'type': 'bytes'}], 'name': 'CachedSwapSaved', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': True, 'internalType': 'address', 'name': 'previousOwner', 'type': 'address'}, {'indexed': True, 'internalType': 'address', 'name': 'newOwner', 'type': 'address'}], 'name': 'OwnershipTransferred', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': False, 'internalType': 'uint16', 'name': 'srcChainId', 'type': 'uint16'}, {'indexed': True, 'internalType': 'bytes', 'name': 'srcAddress', 'type': 'bytes'}, {'indexed': True, 'internalType': 'uint256', 'name': 'nonce', 'type': 'uint256'}, {'indexed': False, 'internalType': 'uint256', 'name': 'srcPoolId', 'type': 'uint256'}, {'indexed': False, 'internalType': 'uint256', 'name': 'dstPoolId', 'type': 'uint256'}, {'indexed': False, 'internalType': 'address', 'name': 'to', 'type': 'address'}, {'indexed': False, 'internalType': 'uint256', 'name': 'amountSD', 'type': 'uint256'}, {'indexed': False, 'internalType': 'uint256', 'name': 'mintAmountSD', 'type': 'uint256'}], 'name': 'RedeemLocalCallback', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': False, 'internalType': 'uint8', 'name': 'bridgeFunctionType', 'type': 'uint8'}, {'indexed': False, 'internalType': 'uint16', 'name': 'chainId', 'type': 'uint16'}, {'indexed': False, 'internalType': 'bytes', 'name': 'srcAddress', 'type': 'bytes'}, {'indexed': False, 'internalType': 'uint256', 'name': 'nonce', 'type': 'uint256'}], 'name': 'Revert', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': False, 'internalType': 'uint16', 'name': 'srcChainId', 'type': 'uint16'}, {'indexed': False, 'internalType': 'uint256', 'name': '_srcPoolId', 'type': 'uint256'}, {'indexed': False, 'internalType': 'uint256', 'name': '_dstPoolId', 'type': 'uint256'}, {'indexed': False, 'internalType': 'bytes', 'name': 'to', 'type': 'bytes'}, {'indexed': False, 'internalType': 'uint256', 'name': 'redeemAmountSD', 'type': 'uint256'}, {'indexed': False, 'internalType': 'uint256', 'name': 'mintAmountSD', 'type': 'uint256'}, {'indexed': True, 'internalType': 'uint256', 'name': 'nonce', 'type': 'uint256'}, {'indexed': True, 'internalType': 'bytes', 'name': 'srcAddress', 'type': 'bytes'}], 'name': 'RevertRedeemLocal', 'type': 'event'}, {'inputs': [{'internalType': 'uint256', 'name': '_poolId', 'type': 'uint256'}, {'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_dstPoolId', 'type': 'uint256'}], 'name': 'activateChainPath', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint256', 'name': '_poolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_amountLD', 'type': 'uint256'}, {'internalType': 'address', 'name': '_to', 'type': 'address'}], 'name': 'addLiquidity', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [], 'name': 'bridge', 'outputs': [{'internalType': 'contract Bridge', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '', 'type': 'bytes'}, {'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'name': 'cachedSwapLookup', 'outputs': [{'internalType': 'address', 'name': 'token', 'type': 'address'}, {'internalType': 'uint256', 'name': 'amountLD', 'type': 'uint256'}, {'internalType': 'address', 'name': 'to', 'type': 'address'}, {'internalType': 'bytes', 'name': 'payload', 'type': 'bytes'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint256', 'name': '_poolId', 'type': 'uint256'}, {'internalType': 'bool', 'name': '_fullMode', 'type': 'bool'}], 'name': 'callDelta', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_srcChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_srcAddress', 'type': 'bytes'}, {'internalType': 'uint256', 'name': '_nonce', 'type': 'uint256'}], 'name': 'clearCachedSwap', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint256', 'name': '_poolId', 'type': 'uint256'}, {'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_dstPoolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_weight', 'type': 'uint256'}], 'name': 'createChainPath', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint256', 'name': '_poolId', 'type': 'uint256'}, {'internalType': 'address', 'name': '_token', 'type': 'address'}, {'internalType': 'uint8', 'name': '_sharedDecimals', 'type': 'uint8'}, {'internalType': 'uint8', 'name': '_localDecimals', 'type': 'uint8'}, {'internalType': 'string', 'name': '_name', 'type': 'string'}, {'internalType': 'string', 'name': '_symbol', 'type': 'string'}], 'name': 'createPool', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_dstPoolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_srcPoolId', 'type': 'uint256'}, {'components': [{'internalType': 'uint256', 'name': 'credits', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'idealBalance', 'type': 'uint256'}], 'internalType': 'struct Pool.CreditObj', 'name': '_c', 'type': 'tuple'}], 'name': 'creditChainPath', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [], 'name': 'factory', 'outputs': [{'internalType': 'contract Factory', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_srcPoolId', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_amountLP', 'type': 'uint256'}, {'internalType': 'address', 'name': '_to', 'type': 'address'}], 'name': 'instantRedeemLocal', 'outputs': [{'internalType': 'uint256', 'name': 'amountSD', 'type': 'uint256'}], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [], 'name': 'mintFeeOwner', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'owner', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'protocolFeeOwner', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'uint8', 'name': '_functionType', 'type': 'uint8'}, {'internalType': 'bytes', 'name': '_toAddress', 'type': 'bytes'}, {'internalType': 'bytes', 'name': '_transferAndCallPayload', 'type': 'bytes'}, {'components': [{'internalType': 'uint256', 'name': 'dstGasForCall', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'dstNativeAmount', 'type': 'uint256'}, {'internalType': 'bytes', 'name': 'dstNativeAddr', 'type': 'bytes'}], 'internalType': 'struct IStargateRouter.lzTxObj', 'name': '_lzTxParams', 'type': 'tuple'}], 'name': 'quoteLayerZeroFee', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_srcPoolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_dstPoolId', 'type': 'uint256'}, {'internalType': 'address payable', 'name': '_refundAddress', 'type': 'address'}, {'internalType': 'uint256', 'name': '_amountLP', 'type': 'uint256'}, {'internalType': 'bytes', 'name': '_to', 'type': 'bytes'}, {'components': [{'internalType': 'uint256', 'name': 'dstGasForCall', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'dstNativeAmount', 'type': 'uint256'}, {'internalType': 'bytes', 'name': 'dstNativeAddr', 'type': 'bytes'}], 'internalType': 'struct IStargateRouter.lzTxObj', 'name': '_lzTxParams', 'type': 'tuple'}], 'name': 'redeemLocal', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_srcChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_srcAddress', 'type': 'bytes'}, {'internalType': 'uint256', 'name': '_nonce', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_srcPoolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_dstPoolId', 'type': 'uint256'}, {'internalType': 'address', 'name': '_to', 'type': 'address'}, {'internalType': 'uint256', 'name': '_amountSD', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_mintAmountSD', 'type': 'uint256'}], 'name': 'redeemLocalCallback', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_srcChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_srcAddress', 'type': 'bytes'}, {'internalType': 'uint256', 'name': '_nonce', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_srcPoolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_dstPoolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_amountSD', 'type': 'uint256'}, {'internalType': 'bytes', 'name': '_to', 'type': 'bytes'}], 'name': 'redeemLocalCheckOnRemote', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_srcPoolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_dstPoolId', 'type': 'uint256'}, {'internalType': 'address payable', 'name': '_refundAddress', 'type': 'address'}, {'internalType': 'uint256', 'name': '_amountLP', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_minAmountLD', 'type': 'uint256'}, {'internalType': 'bytes', 'name': '_to', 'type': 'bytes'}, {'components': [{'internalType': 'uint256', 'name': 'dstGasForCall', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'dstNativeAmount', 'type': 'uint256'}, {'internalType': 'bytes', 'name': 'dstNativeAddr', 'type': 'bytes'}], 'internalType': 'struct IStargateRouter.lzTxObj', 'name': '_lzTxParams', 'type': 'tuple'}], 'name': 'redeemRemote', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [], 'name': 'renounceOwnership', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_srcChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_srcAddress', 'type': 'bytes'}, {'internalType': 'uint256', 'name': '_nonce', 'type': 'uint256'}], 'name': 'retryRevert', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '', 'type': 'bytes'}, {'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'name': 'revertLookup', 'outputs': [{'internalType': 'bytes', 'name': '', 'type': 'bytes'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_srcAddress', 'type': 'bytes'}, {'internalType': 'uint256', 'name': '_nonce', 'type': 'uint256'}, {'internalType': 'address payable', 'name': '_refundAddress', 'type': 'address'}, {'components': [{'internalType': 'uint256', 'name': 'dstGasForCall', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'dstNativeAmount', 'type': 'uint256'}, {'internalType': 'bytes', 'name': 'dstNativeAddr', 'type': 'bytes'}], 'internalType': 'struct IStargateRouter.lzTxObj', 'name': '_lzTxParams', 'type': 'tuple'}], 'name': 'revertRedeemLocal', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_srcPoolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_dstPoolId', 'type': 'uint256'}, {'internalType': 'address payable', 'name': '_refundAddress', 'type': 'address'}], 'name': 'sendCredits', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [{'internalType': 'contract Bridge', 'name': '_bridge', 'type': 'address'}, {'internalType': 'contract Factory', 'name': '_factory', 'type': 'address'}], 'name': 'setBridgeAndFactory', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint256', 'name': '_poolId', 'type': 'uint256'}, {'internalType': 'bool', 'name': '_batched', 'type': 'bool'}, {'internalType': 'uint256', 'name': '_swapDeltaBP', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_lpDeltaBP', 'type': 'uint256'}, {'internalType': 'bool', 'name': '_defaultSwapMode', 'type': 'bool'}, {'internalType': 'bool', 'name': '_defaultLPMode', 'type': 'bool'}], 'name': 'setDeltaParam', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint256', 'name': '_poolId', 'type': 'uint256'}, {'internalType': 'address', 'name': '_feeLibraryAddr', 'type': 'address'}], 'name': 'setFeeLibrary', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint256', 'name': '_poolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_mintFeeBP', 'type': 'uint256'}], 'name': 'setFees', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': '_owner', 'type': 'address'}], 'name': 'setMintFeeOwner', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': '_owner', 'type': 'address'}], 'name': 'setProtocolFeeOwner', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint256', 'name': '_poolId', 'type': 'uint256'}, {'internalType': 'bool', 'name': '_swapStop', 'type': 'bool'}], 'name': 'setSwapStop', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint256', 'name': '_poolId', 'type': 'uint256'}, {'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_dstPoolId', 'type': 'uint256'}, {'internalType': 'uint16', 'name': '_weight', 'type': 'uint16'}], 'name': 'setWeightForChainPath', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_srcPoolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_dstPoolId', 'type': 'uint256'}, {'internalType': 'address payable', 'name': '_refundAddress', 'type': 'address'}, {'internalType': 'uint256', 'name': '_amountLD', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_minAmountLD', 'type': 'uint256'}, {'components': [{'internalType': 'uint256', 'name': 'dstGasForCall', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'dstNativeAmount', 'type': 'uint256'}, {'internalType': 'bytes', 'name': 'dstNativeAddr', 'type': 'bytes'}], 'internalType': 'struct IStargateRouter.lzTxObj', 'name': '_lzTxParams', 'type': 'tuple'}, {'internalType': 'bytes', 'name': '_to', 'type': 'bytes'}, {'internalType': 'bytes', 'name': '_payload', 'type': 'bytes'}], 'name': 'swap', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_srcChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_srcAddress', 'type': 'bytes'}, {'internalType': 'uint256', 'name': '_nonce', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_srcPoolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_dstPoolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_dstGasForCall', 'type': 'uint256'}, {'internalType': 'address', 'name': '_to', 'type': 'address'}, {'components': [{'internalType': 'uint256', 'name': 'amount', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'eqFee', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'eqReward', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'lpFee', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'protocolFee', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'lkbRemove', 'type': 'uint256'}], 'internalType': 'struct Pool.SwapObj', 'name': '_s', 'type': 'tuple'}, {'internalType': 'bytes', 'name': '_payload', 'type': 'bytes'}], 'name': 'swapRemote', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': 'newOwner', 'type': 'address'}], 'name': 'transferOwnership', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint256', 'name': '_poolId', 'type': 'uint256'}, {'internalType': 'address', 'name': '_to', 'type': 'address'}], 'name': 'withdrawMintFee', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint256', 'name': '_poolId', 'type': 'uint256'}, {'internalType': 'address', 'name': '_to', 'type': 'address'}], 'name': 'withdrawProtocolFee', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}],
+    'router_eth': [{'inputs': [{'internalType': 'address', 'name': '_stargateEthVault', 'type': 'address'}, {'internalType': 'address', 'name': '_stargateRouter', 'type': 'address'}, {'internalType': 'uint16', 'name': '_poolId', 'type': 'uint16'}], 'stateMutability': 'nonpayable', 'type': 'constructor'}, {'inputs': [], 'name': 'addLiquidityETH', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [], 'name': 'poolId', 'outputs': [{'internalType': 'uint16', 'name': '', 'type': 'uint16'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'stargateEthVault', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'stargateRouter', 'outputs': [{'internalType': 'contract IStargateRouter', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'address payable', 'name': '_refundAddress', 'type': 'address'}, {'internalType': 'bytes', 'name': '_toAddress', 'type': 'bytes'}, {'internalType': 'uint256', 'name': '_amountLD', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_minAmountLD', 'type': 'uint256'}], 'name': 'swapETH', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'stateMutability': 'payable', 'type': 'receive'}],
+    'bridge': [{'inputs': [{'internalType': 'address', 'name': '_layerZeroEndpoint', 'type': 'address'}, {'internalType': 'address', 'name': '_router', 'type': 'address'}], 'stateMutability': 'nonpayable', 'type': 'constructor'}, {'anonymous': False, 'inputs': [{'indexed': True, 'internalType': 'address', 'name': 'previousOwner', 'type': 'address'}, {'indexed': True, 'internalType': 'address', 'name': 'newOwner', 'type': 'address'}], 'name': 'OwnershipTransferred', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': False, 'internalType': 'uint8', 'name': 'msgType', 'type': 'uint8'}, {'indexed': False, 'internalType': 'uint64', 'name': 'nonce', 'type': 'uint64'}], 'name': 'SendMsg', 'type': 'event'}, {'inputs': [{'internalType': 'address', 'name': 'token', 'type': 'address'}, {'internalType': 'address', 'name': 'spender', 'type': 'address'}, {'internalType': 'uint256', 'name': 'amount', 'type': 'uint256'}], 'name': 'approveTokenSpender', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '', 'type': 'uint16'}], 'name': 'bridgeLookup', 'outputs': [{'internalType': 'bytes', 'name': '', 'type': 'bytes'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_srcChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_srcAddress', 'type': 'bytes'}], 'name': 'forceResumeReceive', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '', 'type': 'uint16'}, {'internalType': 'uint8', 'name': '', 'type': 'uint8'}], 'name': 'gasLookup', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'layerZeroEndpoint', 'outputs': [{'internalType': 'contract ILayerZeroEndpoint', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_srcChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_srcAddress', 'type': 'bytes'}, {'internalType': 'uint64', 'name': '_nonce', 'type': 'uint64'}, {'internalType': 'bytes', 'name': '_payload', 'type': 'bytes'}], 'name': 'lzReceive', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [], 'name': 'owner', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_chainId', 'type': 'uint16'}, {'internalType': 'uint8', 'name': '_functionType', 'type': 'uint8'}, {'internalType': 'bytes', 'name': '_toAddress', 'type': 'bytes'}, {'internalType': 'bytes', 'name': '_transferAndCallPayload', 'type': 'bytes'}, {'components': [{'internalType': 'uint256', 'name': 'dstGasForCall', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'dstNativeAmount', 'type': 'uint256'}, {'internalType': 'bytes', 'name': 'dstNativeAddr', 'type': 'bytes'}], 'internalType': 'struct IStargateRouter.lzTxObj', 'name': '_lzTxParams', 'type': 'tuple'}], 'name': 'quoteLayerZeroFee', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_chainId', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_srcPoolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_dstPoolId', 'type': 'uint256'}, {'internalType': 'address payable', 'name': '_refundAddress', 'type': 'address'}, {'components': [{'internalType': 'uint256', 'name': 'credits', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'idealBalance', 'type': 'uint256'}], 'internalType': 'struct Pool.CreditObj', 'name': '_c', 'type': 'tuple'}, {'internalType': 'uint256', 'name': '_amountSD', 'type': 'uint256'}, {'internalType': 'bytes', 'name': '_to', 'type': 'bytes'}, {'components': [{'internalType': 'uint256', 'name': 'dstGasForCall', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'dstNativeAmount', 'type': 'uint256'}, {'internalType': 'bytes', 'name': 'dstNativeAddr', 'type': 'bytes'}], 'internalType': 'struct IStargateRouter.lzTxObj', 'name': '_lzTxParams', 'type': 'tuple'}], 'name': 'redeemLocal', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_chainId', 'type': 'uint16'}, {'internalType': 'address payable', 'name': '_refundAddress', 'type': 'address'}, {'components': [{'internalType': 'uint256', 'name': 'credits', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'idealBalance', 'type': 'uint256'}], 'internalType': 'struct Pool.CreditObj', 'name': '_c', 'type': 'tuple'}, {'components': [{'internalType': 'uint256', 'name': 'dstGasForCall', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'dstNativeAmount', 'type': 'uint256'}, {'internalType': 'bytes', 'name': 'dstNativeAddr', 'type': 'bytes'}], 'internalType': 'struct IStargateRouter.lzTxObj', 'name': '_lzTxParams', 'type': 'tuple'}, {'internalType': 'bytes', 'name': '_payload', 'type': 'bytes'}], 'name': 'redeemLocalCallback', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [], 'name': 'renounceOwnership', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [], 'name': 'router', 'outputs': [{'internalType': 'contract Router', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_chainId', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_srcPoolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_dstPoolId', 'type': 'uint256'}, {'internalType': 'address payable', 'name': '_refundAddress', 'type': 'address'}, {'components': [{'internalType': 'uint256', 'name': 'credits', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'idealBalance', 'type': 'uint256'}], 'internalType': 'struct Pool.CreditObj', 'name': '_c', 'type': 'tuple'}], 'name': 'sendCredits', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_chainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_bridgeAddress', 'type': 'bytes'}], 'name': 'setBridge', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_version', 'type': 'uint16'}, {'internalType': 'uint16', 'name': '_chainId', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_configType', 'type': 'uint256'}, {'internalType': 'bytes', 'name': '_config', 'type': 'bytes'}], 'name': 'setConfig', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_chainId', 'type': 'uint16'}, {'internalType': 'uint8', 'name': '_functionType', 'type': 'uint8'}, {'internalType': 'uint256', 'name': '_gasAmount', 'type': 'uint256'}], 'name': 'setGasAmount', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': 'version', 'type': 'uint16'}], 'name': 'setReceiveVersion', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': 'version', 'type': 'uint16'}], 'name': 'setSendVersion', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'bool', 'name': 'enable', 'type': 'bool'}], 'name': 'setUseLayerZeroToken', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_chainId', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_srcPoolId', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_dstPoolId', 'type': 'uint256'}, {'internalType': 'address payable', 'name': '_refundAddress', 'type': 'address'}, {'components': [{'internalType': 'uint256', 'name': 'credits', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'idealBalance', 'type': 'uint256'}], 'internalType': 'struct Pool.CreditObj', 'name': '_c', 'type': 'tuple'}, {'components': [{'internalType': 'uint256', 'name': 'amount', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'eqFee', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'eqReward', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'lpFee', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'protocolFee', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'lkbRemove', 'type': 'uint256'}], 'internalType': 'struct Pool.SwapObj', 'name': '_s', 'type': 'tuple'}, {'components': [{'internalType': 'uint256', 'name': 'dstGasForCall', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'dstNativeAmount', 'type': 'uint256'}, {'internalType': 'bytes', 'name': 'dstNativeAddr', 'type': 'bytes'}], 'internalType': 'struct IStargateRouter.lzTxObj', 'name': '_lzTxParams', 'type': 'tuple'}, {'internalType': 'bytes', 'name': '_to', 'type': 'bytes'}, {'internalType': 'bytes', 'name': '_payload', 'type': 'bytes'}], 'name': 'swap', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': 'newOwner', 'type': 'address'}], 'name': 'transferOwnership', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [], 'name': 'useLayerZeroToken', 'outputs': [{'internalType': 'bool', 'name': '', 'type': 'bool'}], 'stateMutability': 'view', 'type': 'function'}],
+    'factory': [{'inputs': [{'internalType': 'address', 'name': '_router', 'type': 'address'}], 'stateMutability': 'nonpayable', 'type': 'constructor'}, {'anonymous': False, 'inputs': [{'indexed': True, 'internalType': 'address', 'name': 'previousOwner', 'type': 'address'}, {'indexed': True, 'internalType': 'address', 'name': 'newOwner', 'type': 'address'}], 'name': 'OwnershipTransferred', 'type': 'event'}, {'inputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'name': 'allPools', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'allPoolsLength', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint256', 'name': '_poolId', 'type': 'uint256'}, {'internalType': 'address', 'name': '_token', 'type': 'address'}, {'internalType': 'uint8', 'name': '_sharedDecimals', 'type': 'uint8'}, {'internalType': 'uint8', 'name': '_localDecimals', 'type': 'uint8'}, {'internalType': 'string', 'name': '_name', 'type': 'string'}, {'internalType': 'string', 'name': '_symbol', 'type': 'string'}], 'name': 'createPool', 'outputs': [{'internalType': 'address', 'name': 'poolAddress', 'type': 'address'}], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [], 'name': 'defaultFeeLibrary', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'name': 'getPool', 'outputs': [{'internalType': 'contract Pool', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'owner', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'renounceOwnership', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [], 'name': 'router', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': '_defaultFeeLibrary', 'type': 'address'}], 'name': 'setDefaultFeeLibrary', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': 'newOwner', 'type': 'address'}], 'name': 'transferOwnership', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}]
 }
 
 SYNCSWAP_CLASSIC_POOL_ABI = [{'inputs': [], 'stateMutability': 'nonpayable', 'type': 'constructor'}, {'inputs': [], 'name': 'Expired', 'type': 'error'}, {'inputs': [], 'name': 'InsufficientLiquidityMinted', 'type': 'error'}, {'inputs': [], 'name': 'InvalidSignature', 'type': 'error'}, {'inputs': [], 'name': 'Overflow', 'type': 'error'}, {'anonymous': False, 'inputs': [{'indexed': True, 'internalType': 'address', 'name': 'owner', 'type': 'address'}, {'indexed': True, 'internalType': 'address', 'name': 'spender', 'type': 'address'}, {'indexed': False, 'internalType': 'uint256', 'name': 'amount', 'type': 'uint256'}], 'name': 'Approval', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': True, 'internalType': 'address', 'name': 'sender', 'type': 'address'}, {'indexed': False, 'internalType': 'uint256', 'name': 'amount0', 'type': 'uint256'}, {'indexed': False, 'internalType': 'uint256', 'name': 'amount1', 'type': 'uint256'}, {'indexed': False, 'internalType': 'uint256', 'name': 'liquidity', 'type': 'uint256'}, {'indexed': True, 'internalType': 'address', 'name': 'to', 'type': 'address'}], 'name': 'Burn', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': True, 'internalType': 'address', 'name': 'sender', 'type': 'address'}, {'indexed': False, 'internalType': 'uint256', 'name': 'amount0', 'type': 'uint256'}, {'indexed': False, 'internalType': 'uint256', 'name': 'amount1', 'type': 'uint256'}, {'indexed': False, 'internalType': 'uint256', 'name': 'liquidity', 'type': 'uint256'}, {'indexed': True, 'internalType': 'address', 'name': 'to', 'type': 'address'}], 'name': 'Mint', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': True, 'internalType': 'address', 'name': 'sender', 'type': 'address'}, {'indexed': False, 'internalType': 'uint256', 'name': 'amount0In', 'type': 'uint256'}, {'indexed': False, 'internalType': 'uint256', 'name': 'amount1In', 'type': 'uint256'}, {'indexed': False, 'internalType': 'uint256', 'name': 'amount0Out', 'type': 'uint256'}, {'indexed': False, 'internalType': 'uint256', 'name': 'amount1Out', 'type': 'uint256'}, {'indexed': True, 'internalType': 'address', 'name': 'to', 'type': 'address'}], 'name': 'Swap', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': False, 'internalType': 'uint256', 'name': 'reserve0', 'type': 'uint256'}, {'indexed': False, 'internalType': 'uint256', 'name': 'reserve1', 'type': 'uint256'}], 'name': 'Sync', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': True, 'internalType': 'address', 'name': 'from', 'type': 'address'}, {'indexed': True, 'internalType': 'address', 'name': 'to', 'type': 'address'}, {'indexed': False, 'internalType': 'uint256', 'name': 'amount', 'type': 'uint256'}], 'name': 'Transfer', 'type': 'event'}, {'inputs': [], 'name': 'DOMAIN_SEPARATOR', 'outputs': [{'internalType': 'bytes32', 'name': '', 'type': 'bytes32'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': '', 'type': 'address'}, {'internalType': 'address', 'name': '', 'type': 'address'}], 'name': 'allowance', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': '_spender', 'type': 'address'}, {'internalType': 'uint256', 'name': '_amount', 'type': 'uint256'}], 'name': 'approve', 'outputs': [{'internalType': 'bool', 'name': '', 'type': 'bool'}], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'name': 'balanceOf', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'bytes', 'name': '_data', 'type': 'bytes'}, {'internalType': 'address', 'name': '_sender', 'type': 'address'}, {'internalType': 'address', 'name': '_callback', 'type': 'address'}, {'internalType': 'bytes', 'name': '_callbackData', 'type': 'bytes'}], 'name': 'burn', 'outputs': [{'components': [{'internalType': 'address', 'name': 'token', 'type': 'address'}, {'internalType': 'uint256', 'name': 'amount', 'type': 'uint256'}], 'internalType': 'struct IPool.TokenAmount[]', 'name': '_amounts', 'type': 'tuple[]'}], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'bytes', 'name': '_data', 'type': 'bytes'}, {'internalType': 'address', 'name': '_sender', 'type': 'address'}, {'internalType': 'address', 'name': '_callback', 'type': 'address'}, {'internalType': 'bytes', 'name': '_callbackData', 'type': 'bytes'}], 'name': 'burnSingle', 'outputs': [{'components': [{'internalType': 'address', 'name': 'token', 'type': 'address'}, {'internalType': 'uint256', 'name': 'amount', 'type': 'uint256'}], 'internalType': 'struct IPool.TokenAmount', 'name': '_tokenAmount', 'type': 'tuple'}], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [], 'name': 'decimals', 'outputs': [{'internalType': 'uint8', 'name': '', 'type': 'uint8'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': '_tokenOut', 'type': 'address'}, {'internalType': 'uint256', 'name': '_amountOut', 'type': 'uint256'}, {'internalType': 'address', 'name': '_sender', 'type': 'address'}], 'name': 'getAmountIn', 'outputs': [{'internalType': 'uint256', 'name': '_amountIn', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': '_tokenIn', 'type': 'address'}, {'internalType': 'uint256', 'name': '_amountIn', 'type': 'uint256'}, {'internalType': 'address', 'name': '_sender', 'type': 'address'}], 'name': 'getAmountOut', 'outputs': [{'internalType': 'uint256', 'name': '_amountOut', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'getAssets', 'outputs': [{'internalType': 'address[]', 'name': 'assets', 'type': 'address[]'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'getProtocolFee', 'outputs': [{'internalType': 'uint24', 'name': '_protocolFee', 'type': 'uint24'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'getReserves', 'outputs': [{'internalType': 'uint256', 'name': '_reserve0', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_reserve1', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': '_sender', 'type': 'address'}, {'internalType': 'address', 'name': '_tokenIn', 'type': 'address'}, {'internalType': 'address', 'name': '_tokenOut', 'type': 'address'}, {'internalType': 'bytes', 'name': 'data', 'type': 'bytes'}], 'name': 'getSwapFee', 'outputs': [{'internalType': 'uint24', 'name': '_swapFee', 'type': 'uint24'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'invariantLast', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'master', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'bytes', 'name': '_data', 'type': 'bytes'}, {'internalType': 'address', 'name': '_sender', 'type': 'address'}, {'internalType': 'address', 'name': '_callback', 'type': 'address'}, {'internalType': 'bytes', 'name': '_callbackData', 'type': 'bytes'}], 'name': 'mint', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [], 'name': 'name', 'outputs': [{'internalType': 'string', 'name': '', 'type': 'string'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'name': 'nonces', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': '_owner', 'type': 'address'}, {'internalType': 'address', 'name': '_spender', 'type': 'address'}, {'internalType': 'uint256', 'name': '_amount', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_deadline', 'type': 'uint256'}, {'internalType': 'uint8', 'name': '_v', 'type': 'uint8'}, {'internalType': 'bytes32', 'name': '_r', 'type': 'bytes32'}, {'internalType': 'bytes32', 'name': '_s', 'type': 'bytes32'}], 'name': 'permit', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': '_owner', 'type': 'address'}, {'internalType': 'address', 'name': '_spender', 'type': 'address'}, {'internalType': 'uint256', 'name': '_amount', 'type': 'uint256'}, {'internalType': 'uint256', 'name': '_deadline', 'type': 'uint256'}, {'internalType': 'bytes', 'name': '_signature', 'type': 'bytes'}], 'name': 'permit2', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [], 'name': 'poolType', 'outputs': [{'internalType': 'uint16', 'name': '', 'type': 'uint16'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'reserve0', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'reserve1', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'bytes4', 'name': 'interfaceID', 'type': 'bytes4'}], 'name': 'supportsInterface', 'outputs': [{'internalType': 'bool', 'name': '', 'type': 'bool'}], 'stateMutability': 'pure', 'type': 'function'}, {'inputs': [{'internalType': 'bytes', 'name': '_data', 'type': 'bytes'}, {'internalType': 'address', 'name': '_sender', 'type': 'address'}, {'internalType': 'address', 'name': '_callback', 'type': 'address'}, {'internalType': 'bytes', 'name': '_callbackData', 'type': 'bytes'}], 'name': 'swap', 'outputs': [{'components': [{'internalType': 'address', 'name': 'token', 'type': 'address'}, {'internalType': 'uint256', 'name': 'amount', 'type': 'uint256'}], 'internalType': 'struct IPool.TokenAmount', 'name': '_tokenAmount', 'type': 'tuple'}], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [], 'name': 'symbol', 'outputs': [{'internalType': 'string', 'name': '', 'type': 'string'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'token0', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'token1', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'totalSupply', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': '_to', 'type': 'address'}, {'internalType': 'uint256', 'name': '_amount', 'type': 'uint256'}], 'name': 'transfer', 'outputs': [{'internalType': 'bool', 'name': '', 'type': 'bool'}], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': '_from', 'type': 'address'}, {'internalType': 'address', 'name': '_to', 'type': 'address'}, {'internalType': 'uint256', 'name': '_amount', 'type': 'uint256'}], 'name': 'transferFrom', 'outputs': [{'internalType': 'bool', 'name': '', 'type': 'bool'}], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [], 'name': 'vault', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}]
@@ -662,63 +663,174 @@ BUNGEE_CONTRACTS = {
     }
 }
 
-ZERIUS_REFUEL_CONTRACTS = {
-    'Optimism'      : '0x2076BDd52Af431ba0E5411b3dd9B5eeDa31BB9Eb',
-    'BNB Chain'     : '0x5B209E7c81DEaad0ffb8b76b696dBb4633A318CD',
-    'Arbitrum'      : '0x412aea168aDd34361aFEf6a2e3FC01928Fba1248',
-    'Polygon'       : '0x2ef766b59e4603250265EcC468cF38a6a00b84b3',
-    'Polygon zkEVM' : '0xBAf5C493a4c364cBD2CA83C355E75F0ff7042945',
-    'zkSync'        : '0xeC8Afef7aFe586EB523c228B6BAf3171b1f6dD95', # temp unavailable,
-    'Avalanche'     : '0x5B209E7c81DEaad0ffb8b76b696dBb4633A318CD',
-    'Gnosis'        : '0x1fe2c567169d39CCc5299727FfAC96362b2Ab90E',
-    'Fantom'        : '0xBFd3539e4e0b1B29e8b08d17f30F1291C837a18E',
-    'Arbitrum Nova' : '0x3Fc5913D35105f338cEfcB3a7a0768c48E2Ade8E',
-    'Harmony ONE'   : '0x5B209E7c81DEaad0ffb8b76b696dBb4633A318CD', # unavailable : need to convert it to a one-address
-    'CoreDAO'       : '0xB47D82aA70f839dC27a34573f135eD6dE6CED9A5',
-    'Celo'          : '0xFF21d5a3a8e3E8BA2576e967888Deea583ff02f8',
-    'Moonbeam'      : '0xb0bea3bB2d6EDDD2014952ABd744660bAeF9747d',
-    'Base'          : '0x9415AD63EdF2e0de7D8B9D8FeE4b939dd1e52F2C',
-    'Scroll'        : '0xB074f8D92b930D3415DA6bA80F6D38f69ee4B9cf',
-    'Zora'          : '0x1fe2c567169d39CCc5299727FfAC96362b2Ab90E',
-    'Linea'         : '0x5B209E7c81DEaad0ffb8b76b696dBb4633A318CD',
-    'Metis'         : '0x1b07F1f4F860e72c9367e718a30e38130114AD22',
-}
 ZERIUS_CONTRACT_PER_CHAINS = {
     1: {
-    'ONFT'                  : '0x250c34D06857b9C0A036d44F86d2c1Abe514B3Da',
-    'refuel'                : '0x412aea168aDd34361aFEf6a2e3FC01928Fba1248'
+        'ONFT'                  : '0x250c34D06857b9C0A036d44F86d2c1Abe514B3Da',
+        'refuel'                : '0x412aea168aDd34361aFEf6a2e3FC01928Fba1248'
     },
     2: {
-    'ONFT'                  : '0x5188368a92B49F30f4Cf9bEF64635bCf8459c7A7',
-    'refuel'                : '0x3Fc5913D35105f338cEfcB3a7a0768c48E2Ade8E'
+        'ONFT'                  : '0x5188368a92B49F30f4Cf9bEF64635bCf8459c7A7',
+        'refuel'                : '0x3Fc5913D35105f338cEfcB3a7a0768c48E2Ade8E'
     },
     3: {
-    'ONFT'                  : '0x178608fFe2Cca5d36f3Fc6e69426c4D3A5A74A41',
-    'refuel'                : '0x9415AD63EdF2e0de7D8B9D8FeE4b939dd1e52F2C'
+        'ONFT'                  : '0x178608fFe2Cca5d36f3Fc6e69426c4D3A5A74A41',
+        'refuel'                : '0x9415AD63EdF2e0de7D8B9D8FeE4b939dd1e52F2C'
     },
     4: {
-    'ONFT'                  : '0x5188368a92B49F30f4Cf9bEF64635bCf8459c7A7',
-    'refuel'                : '0x5B209E7c81DEaad0ffb8b76b696dBb4633A318CD'
+        'ONFT'                  : '0x5188368a92B49F30f4Cf9bEF64635bCf8459c7A7',
+        'refuel'                : '0x5B209E7c81DEaad0ffb8b76b696dBb4633A318CD'
     },
     6: {
-    'ONFT'                  : '0x178608fFe2Cca5d36f3Fc6e69426c4D3A5A74A41',
-    'refuel'                : '0x2ef766b59e4603250265EcC468cF38a6a00b84b3'
+        'ONFT'                  : '0x178608fFe2Cca5d36f3Fc6e69426c4D3A5A74A41',
+        'refuel'                : '0x2ef766b59e4603250265EcC468cF38a6a00b84b3'
     },
     7: {
-    'ONFT'                  : '0x178608fFe2Cca5d36f3Fc6e69426c4D3A5A74A41',
-    'refuel'                : '0x2076BDd52Af431ba0E5411b3dd9B5eeDa31BB9Eb'
+        'ONFT'                  : '0x178608fFe2Cca5d36f3Fc6e69426c4D3A5A74A41',
+        'refuel'                : '0x2076BDd52Af431ba0E5411b3dd9B5eeDa31BB9Eb'
     },
     8: {
-    'ONFT'                  : '0xEB22C3e221080eAD305CAE5f37F0753970d973Cd',
-    'refuel'                : '0xB074f8D92b930D3415DA6bA80F6D38f69ee4B9cf'
+        'ONFT'                  : '0xEB22C3e221080eAD305CAE5f37F0753970d973Cd',
+        'refuel'                : '0xB074f8D92b930D3415DA6bA80F6D38f69ee4B9cf'
     },
     10: {
-    'ONFT'                  : '0x4c5AeDA35d8F0F7b67d6EB547eAB1df75aA23Eaf',
-    'refuel'                : '0xBAf5C493a4c364cBD2CA83C355E75F0ff7042945'
+        'ONFT'                  : '0x4c5AeDA35d8F0F7b67d6EB547eAB1df75aA23Eaf',
+        'refuel'                : '0xBAf5C493a4c364cBD2CA83C355E75F0ff7042945'
     },
     11: {
-    'ONFT'                  : '0x7dA50bD0fb3C2E868069d9271A2aeb7eD943c2D6',
-    'refuel'                : '0xeC8Afef7aFe586EB523c228B6BAf3171b1f6dD95'
+        'ONFT'                  : '0x7dA50bD0fb3C2E868069d9271A2aeb7eD943c2D6',
+        'refuel'                : '0xeC8Afef7aFe586EB523c228B6BAf3171b1f6dD95'
+    },
+    12: {
+        'ONFT'                  : '',
+        'refuel'                : '0x1fe2c567169d39CCc5299727FfAC96362b2Ab90E'
+    },
+    13: {
+        'ONFT'                  : '',
+        'refuel'                : ''
+    },
+    14: {
+        'ONFT'                  : '',
+        'refuel'                : '0x5B209E7c81DEaad0ffb8b76b696dBb4633A318CD'
+    },
+    15: {
+        'ONFT'                  : '',
+        'refuel'                : '0x5B209E7c81DEaad0ffb8b76b696dBb4633A318CD'
+    },
+    16: {
+        'ONFT'                  : '',
+        'refuel'                : '0xb0bea3bB2d6EDDD2014952ABd744660bAeF9747d'
+    },
+    17: {
+        'ONFT'                  : '',
+        'refuel'                : '0x5B209E7c81DEaad0ffb8b76b696dBb4633A318CD'
+    },
+    18: {
+        'ONFT'                  : '',
+        'refuel'                : ''
+    },
+    19: {
+        'ONFT'                  : '',
+        'refuel'                : '0xFF21d5a3a8e3E8BA2576e967888Deea583ff02f8'
+    },
+    20: {
+        'ONFT'                  : '',
+        'refuel'                : '0x1fe2c567169d39CCc5299727FfAC96362b2Ab90E'
+    },
+    21: {
+        'ONFT'                  : '',
+        'refuel'                : '0xB47D82aA70f839dC27a34573f135eD6dE6CED9A5'
+    },
+    22: {
+        'ONFT'                  : '',
+        'refuel'                : ''
+    },
+    23: {
+        'ONFT'                  : '',
+        'refuel'                : '0x1fe2c567169d39CCc5299727FfAC96362b2Ab90E'
+    },
+    24: {
+        'ONFT'                  : '',
+        'refuel'                : '0x1fe2c567169d39CCc5299727FfAC96362b2Ab90E'
+    },
+    25: {
+        'ONFT'                  : '',
+        'refuel'                : '0x1fe2c567169d39CCc5299727FfAC96362b2Ab90E'
+    },
+    26: {
+        'ONFT'                  : '',
+        'refuel'                : '0x1b07F1f4F860e72c9367e718a30e38130114AD22'
+    },
+    27: {
+        'ONFT'                  : '',
+        'refuel'                : ''
+    },
+    28: {
+        'refuel'                : '',
+        'endpoint'              : ''
+    },
+    29: {
+        'refuel'                : '',
+        'endpoint'              : ''
+    },
+    30: {
+        'refuel'                : '',
+        'endpoint'              : ''
+    },
+    31: {
+        'refuel'                : '',
+        'endpoint'              : ''
+    },
+    32: {
+        'refuel'                : '',
+        'endpoint'              : ''
+    },
+    33: {
+        'refuel': '',
+        'endpoint': ''
+    },
+    34: {
+        'refuel': '',
+        'endpoint': ''
+    },
+    35: {
+        'refuel': '',
+        'endpoint': ''
+    },
+    36: {
+        'refuel': '',
+        'endpoint': ''
+    },
+    37: {
+        'refuel': '',
+        'endpoint': ''
+    },
+    38: {
+        'refuel': '',
+        'endpoint': ''
+    },
+    39: {
+        'refuel': '',
+        'endpoint': ''
+    },
+    40: {
+        'refuel': '',
+        'endpoint': ''
+    },
+    41: {
+        'refuel': '',
+        'endpoint': ''
+    },
+    42: {
+        'refuel': '',
+        'endpoint': ''
+    },
+    43: {
+        'refuel': '',
+        'endpoint': ''
+    },
+    44: {
+        'refuel': '',
+        'endpoint': ''
     }
 }
 
@@ -888,45 +1000,354 @@ JEDISWAP_CONTRACT = {
 }
 
 STARGATE_CONTRACTS = {
-
+    'Ethereum': {
+        'router': '0x8731d54E9D02c286767d56ac03e8037C07e01e98',
+        'router_eth': '0x150f94B44927F078737562f0fcF3C95c01Cc2376',
+        'router_eth_backend': '0xb1b2eeF380f21747944f46d28f683cD1FBB4d03c',
+        'bridge': '0x296F55F8Fb28E498B858d0BcDA06D955B2Cb3f97',
+        'factory': '0x06D538690AF257Da524f25D0CD52fD85b1c2173E',
+        'stg_token': '0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6',
+        'fee_library': '0x8C3085D9a554884124C998CDB7f6d7219E9C1e6F',
+        'composer': '0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9',
+        'widget_swap': '0x10d16248bED1E0D0c7cF94fFD99A50c336c7Bcdc',
+        'ETH': '0x101816545F6bd2b1076434B54383a1E633390A2E',
+        'USDC': '0xdf0770dF86a8034b3EFEf0A1Bb3c889B8332FF56',
+        'USDT': '0x38EA452219524Bb87e18dE1C24D3bB59510BD783',
+        'USDD': '0x692953e758c3669290cb1677180c64183cEe374e',
+        'DAI': '0x0Faf1d2d3CED330824de3B8200fc8dc6E397850d',
+        'FRAX': '0xfA0F307783AC21C39E939ACFF795e27b650F6e68',
+        'sUSD': '0x590d4f8A68583639f215f675F3a259Ed84790580',
+        'LUSD': '0xE8F55368C82D38bbbbDb5533e7F56AfC2E978CC2',
+        'MAI': '0x9cef9a0b1bE0D289ac9f4a98ff317c33EAA84eb8',
+        'METIS': '0xd8772edBF88bBa2667ed011542343b0eDDaCDa47',
+        'metis.USDT': '0x430Ebff5E3E80A6C58E7e6ADA1d90F5c28AA116d',
+        'lp_staking': '0xB0D502E938ed5f4df2E681fE6E419ff29631d62b',
+        'lp_staking_time_metis': '0x1c3000b8f475A958b87c73a5cc5780Ab763122FC',
+    },
+    'BNB Chain': {
+        'router': '0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8',
+        'bridge': '0x6694340fc020c5E6B96567843da2df01b2CE1eb6',
+        'factory': '0xe7Ec689f432f29383f217e36e680B5C855051f25',
+        'stg_token': '0xB0D502E938ed5f4df2E681fE6E419ff29631d62b',
+        'fee_library':'0xCA6522116e8611A346D53Cc2005AC4192e3fc2BC',
+        'composer': '0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9',
+        'widget_swap': '0x10d16248bED1E0D0c7cF94fFD99A50c336c7Bcdc',
+        'USDT': '0x9aA83081AA06AF7208Dcc7A4cB72C94d057D2cda',
+        'BUSD': '0x98a5737749490856b401DB5Dc27F522fC314A4e1',
+        'USDD': '0x4e145a589e4c03cBe3d28520e4BF3089834289Df',
+        'MAI': '0x7BfD7f2498C4796f10b6C611D9db393D3052510C',
+        'METIS': '0xD4CEc732b3B135eC52a3c0bc8Ce4b8cFb9dacE46',
+        'metis.USDT': '0x68C6c27fB0e02285829e69240BE16f32C5f8bEFe',
+        'lp_staking': '0x3052A0F6ab15b4AE1df39962d5DdEFacA86DaB47',
+        'lp_staking_time_metis': '0x2c6dcEd426D265045737Ff55C2D746C11b2F457a',
+    },
+    'Avalanche':{
+        'router': '0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
+        'bridge': '0x9d1B1669c73b033DFe47ae5a0164Ab96df25B944',
+        'factory': '0x808d7c71ad2ba3FA531b068a2417C63106BC0949',
+        'stg_token': '0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
+        'fee_library': '0x5E8eC15ACB5Aa94D5f0589E54441b31c5e0B992d',
+        'composer': '0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9',
+        'widget_swap': '0x10d16248bED1E0D0c7cF94fFD99A50c336c7Bcdc',
+        'USDC': '0x1205f31718499dBf1fCa446663B532Ef87481fe1',
+        'USDT': '0x29e38769f23701A2e4A8Ef0492e19dA4604Be62c',
+        'FRAX': '0x1c272232Df0bb6225dA87f4dEcD9d37c32f63Eea',
+        'MAI': '0x8736f92646B2542B3e5F3c63590cA7Fe313e283B',
+        'metis.USDT': '0xEAe5c2F6B25933deB62f754f239111413A0A25ef',
+        'lp_staking': '0x8731d54E9D02c286767d56ac03e8037C07e01e98',
+    },
+    'Polygon': {
+        'router': '0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
+        'bridge': '0x9d1B1669c73b033DFe47ae5a0164Ab96df25B944',
+        'factory': '0x808d7c71ad2ba3FA531b068a2417C63106BC0949',
+        'stg_token': '0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
+        'fee_library': '0xb279b324Ea5648bE6402ABc727173A225383494C',
+        'composer': '0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9',
+        'widget_swap': '0x10d16248bED1E0D0c7cF94fFD99A50c336c7Bcdc',
+        'USDC': '0x1205f31718499dBf1fCa446663B532Ef87481fe1',
+        'USDT': '0x29e38769f23701A2e4A8Ef0492e19dA4604Be62c',
+        'DAI': '0x1c272232Df0bb6225dA87f4dEcD9d37c32f63Eea',
+        'MAI': '0x8736f92646B2542B3e5F3c63590cA7Fe313e283B',
+        'lp_staking': '0x8731d54E9D02c286767d56ac03e8037C07e01e98',
+    },
+    'Arbitrum': {
+        'router': '0x53Bf833A5d6c4ddA888F69c22C88C9f356a41614',
+        'router_eth':'0xbf22f0f184bCcbeA268dF387a49fF5238dD23E40',
+        'router_eth_backend':  '0xb1b2eeF380f21747944f46d28f683cD1FBB4d03c',
+        'bridge': '0x352d8275AAE3e0c2404d9f68f6cEE084B5bEB3DD',
+        'factory': '0x55bDb4164D28FBaF0898e0eF14a589ac09Ac9970',
+        'stg_token': '0x6694340fc020c5E6B96567843da2df01b2CE1eb6',
+        'fee_library':'0x1cF31666c06ac3401ed0C1c6346C4A9425dd7De4',
+        'composer': '0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9',
+        'widget_swap': '0x10d16248bED1E0D0c7cF94fFD99A50c336c7Bcdc',
+        'ETH': '0x915A55e36A01285A14f05dE6e81ED9cE89772f8e',
+        'USDC': '0x892785f33CdeE22A30AEF750F285E18c18040c3e',
+        'USDT': '0xB6CfcF89a7B22988bfC96632aC2A9D6daB60d641',
+        'FRAX': '0xaa4BF442F024820B2C28Cd0FD72b82c63e66F56C',
+        'MAI': '0xF39B7Be294cB36dE8c510e267B82bb588705d977',
+        'LUSD': '0x600E576F9d853c95d58029093A16EE49646F3ca5',
+        'lp_staking_time': '0x9774558534036Ff2E236331546691b4eB70594b1',
+    },
+    'Optimism':{
+        'router': '0xB0D502E938ed5f4df2E681fE6E419ff29631d62b',
+        'router_eth': '0xB49c4e680174E331CB0A7fF3Ab58afC9738d5F8b',
+        'router_eth_backend': '0xb1b2eeF380f21747944f46d28f683cD1FBB4d03c',
+        'bridge': '0x701a95707A0290AC8B90b3719e8EE5b210360883',
+        'factory': '0xE3B53AF74a4BF62Ae5511055290838050bf764Df',
+        'stg_token': '0x296F55F8Fb28E498B858d0BcDA06D955B2Cb3f97',
+        'fee_library': '0x505eCDF2f14Cd4f1f413d04624b009A449D38D7E',
+        'composer': '0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9',
+        'widget_swap': '0x10d16248bED1E0D0c7cF94fFD99A50c336c7Bcdc',
+        'ETH': '0xd22363e3762cA7339569F3d33EADe20127D5F98C',
+        'USDC': '0xDecC0c09c3B5f6e92EF4184125D5648a66E35298',
+        'DAI': '0x165137624F1f692e69659f944BF69DE02874ee27',
+        'FRAX': '0x368605D9C6243A80903b9e326f1Cddde088B8924',
+        'sUSD': '0x2F8bC9081c7FCFeC25b9f41a50d97EaA592058ae',
+        'LUSD': '0x3533F5e279bDBf550272a199a223dA798D9eff78',
+        'MAI': '0x5421FA1A48f9FF81e4580557E86C7C0D24C18036',
+        'lp_staking_time': '0x4DeA9e918c6289a52cd469cAC652727B7b412Cd2',
+    },
+    'Fantom':{
+        'router': '0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6',
+        'bridge': '0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
+        'factory': '0x9d1B1669c73b033DFe47ae5a0164Ab96df25B944',
+        'stg_token': '0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
+        'fee_library': '0x616a68BD6DAd19e066661C7278611487d4072839',
+        'composer': '0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9',
+        'widget_swap': '0x10d16248bED1E0D0c7cF94fFD99A50c336c7Bcdc',
+        'USDC': '0xc647ce76ec30033aa319d472ae9f4462068f2ad7',
+        'lp_staking': '0x224D8Fd7aB6AD4c6eb4611Ce56EF35Dec2277F03',
+    },
+    'Metis':{
+        'router': '0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
+        'bridge': '0x45f1A95A4D3f3836523F5c83673c797f4d4d263B',
+        'factory': '0xAF54BE5B6eEc24d6BFACf1cce4eaF680A8239398',
+        'stg_token': '',
+        'fee_library': '0x55bDb4164D28FBaF0898e0eF14a589ac09Ac9970',
+        'composer': '0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9',
+        'widget_swap': '0x10d16248bED1E0D0c7cF94fFD99A50c336c7Bcdc',
+        'METIS': '0xAad094F6A75A14417d39f04E690fC216f080A41a',
+        'm.USDT': '0x2b60473a7C41Deb80EDdaafD5560e963440eb632',
+        'lp_staking_time_metis': '0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
+    },
+    'Base':{
+        'router': '0x45f1A95A4D3f3836523F5c83673c797f4d4d263B',
+        'router_eth': '0x50B6EbC2103BFEc165949CC946d739d5650d7ae4',
+        'bridge': '0xAF54BE5B6eEc24d6BFACf1cce4eaF680A8239398',
+        'factory': '0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6',
+        'stg_token': '0xE3B53AF74a4BF62Ae5511055290838050bf764Df',
+        'fee_library': '0x9d1b1669c73b033dfe47ae5a0164ab96df25b944',
+        'composer': '0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9',
+        'widget_swap': '0x10d16248bED1E0D0c7cF94fFD99A50c336c7Bcdc',
+        'ETH': '0x28fc411f9e1c480AD312b3d9C60c22b965015c6B',
+        'USDC': '0x4c80E24119CFB836cdF0a6b53dc23F04F7e652CA',
+        'LPStakingTime.sol': '0x06Eb48763f117c7Be887296CDcdfad2E4092739C',
+    },
+    'Linea':{
+        'router': '0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
+        'router_eth': '0x8731d54E9D02c286767d56ac03e8037C07e01e98',
+        'bridge': '0x45f1A95A4D3f3836523F5c83673c797f4d4d263B',
+        'factory': '0xaf54be5b6eec24d6bfacf1cce4eaf680a8239398 ',
+        'stg_token': '0x808d7c71ad2ba3FA531b068a2417C63106BC0949 ',
+        'fee_library': '0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
+        'composer': '0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9',
+        'widget_swap': '0x10d16248bED1E0D0c7cF94fFD99A50c336c7Bcdc',
+        'ETH': '0xAad094F6A75A14417d39f04E690fC216f080A41a',
+        'lp_staking_time': '0x4a364f8c717cAAD9A442737Eb7b8A55cc6cf18D8',
+    },
+    'Kava':{
+        'router': '0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
+        'bridge': '0x45f1A95A4D3f3836523F5c83673c797f4d4d263B',
+        'factory': '0xAF54BE5B6eEc24d6BFACf1cce4eaF680A8239398 ',
+        'stg_token': '0x83c30eb8bc9ad7C56532895840039E62659896ea ',
+        'fee_library': '0x45a01e4e04f14f7a4a6702c74187c5f6222033cd',
+        'composer': '0xeCc19E177d24551aA7ed6Bc6FE566eCa726CC8a9',
+        'widget_swap': '0x10d16248bED1E0D0c7cF94fFD99A50c336c7Bcdc',
+        'USDT': '0xAad094F6A75A14417d39f04E690fC216f080A41a',
+        'lp_staking_time': '0x35F78Adf283Fe87732AbC9747d9f6630dF33276C',
+    },
+    'Mantle':{
+        'router': '0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
+        'bridge': '0x45f1A95A4D3f3836523F5c83673c797f4d4d263B',
+        'factory': '0xAF54BE5B6eEc24d6BFACf1cce4eaF680A8239398 ',
+        'stg_token': '0x8731d54E9D02c286767d56ac03e8037C07e01e98 ',
+        'fee_library': '0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
+        'composer': '0x296F55F8Fb28E498B858d0BcDA06D955B2Cb3f97',
+        'widget_swap': '0x06D538690AF257Da524f25D0CD52fD85b1c2173E',
+        'USDC': '0xAad094F6A75A14417d39f04E690fC216f080A41a',
+        'USDT': '0x2b60473a7C41Deb80EDdaafD5560e963440eb632',
+        'lp_staking_time': '0x352d8275AAE3e0c2404d9f68f6cEE084B5bEB3DD',
+    }
 }
 
 MERKLY_CONTRACTS_PER_CHAINS = {
     1: {
-    'refuel'            : '0x4Ae8CEBcCD7027820ba83188DFD73CCAD0A92806',
-    'endpoint'                  : '0xAa58e77238f0E4A565343a89A79b4aDDD744d649'
+        'refuel'                : '0x4Ae8CEBcCD7027820ba83188DFD73CCAD0A92806',
+        'endpoint'              : '0xAa58e77238f0E4A565343a89A79b4aDDD744d649'
     },
     2: {
-    'refuel'            : '0xB6789dACf323d60F650628dC1da344d502bC41E3',
-    'endpoint'                  : '0x484c402B0c8254BD555B68827239BAcE7F491023'
+        'refuel'                : '0xB6789dACf323d60F650628dC1da344d502bC41E3',
+        'endpoint'              : '0x484c402B0c8254BD555B68827239BAcE7F491023'
     },
     3: {
-    'refuel'            : '0x6bf98654205B1AC38645880Ae20fc00B0bB9FFCA',
-    'endpoint'                  : '0xF882c982a95F4D3e8187eFE12713835406d11840'
+        'refuel'                : '0x6bf98654205B1AC38645880Ae20fc00B0bB9FFCA',
+        'endpoint'              : '0xF882c982a95F4D3e8187eFE12713835406d11840'
     },
     4: {
-    'refuel'            : '0xc9B753d73B17DDb5E87093ff04A9e31845a43af0',
-    'endpoint'                  : '0xDB3Bb6D5a8EeEAfc64C66C176900E6B82b23dd5f'
+        'refuel'                : '0xc9B753d73B17DDb5E87093ff04A9e31845a43af0',
+        'endpoint'              : '0xDB3Bb6D5a8EeEAfc64C66C176900E6B82b23dd5f'
     },
     6: {
-    'refuel'            : '0x0E1f20075C90Ab31FC2Dd91E536e6990262CF76d',
-    'endpoint'                  : '0xa184998eC58dc1dA77a1F9f1e361541257A50CF4'
+        'refuel'                : '0x0E1f20075C90Ab31FC2Dd91E536e6990262CF76d',
+        'endpoint'              : '0xa184998eC58dc1dA77a1F9f1e361541257A50CF4'
     },
     7: {
-    'refuel'            : '0xD7bA4057f43a7C4d4A34634b2A3151a60BF78f0d',
-    'endpoint'                  : '0xa2C203d7EF78ed80810da8404090f926d67Cd892'
+        'refuel'                : '0xD7bA4057f43a7C4d4A34634b2A3151a60BF78f0d',
+        'endpoint'              : '0xa2C203d7EF78ed80810da8404090f926d67Cd892'
     },
     8: {
-    'refuel'            : '0x7dFb5E7808B5eb4fB8b9e7169537575f6fF1a218',
-    'endpoint'                  : '0x6E55472109E6aBE4054a8E8b8d9EdFfCb31032C5'
+        'refuel'                : '0x7dFb5E7808B5eb4fB8b9e7169537575f6fF1a218',
+        'endpoint'              : '0x6E55472109E6aBE4054a8E8b8d9EdFfCb31032C5'
     },
     10: {
-    'refuel'            : '0xE62d19Df93D84b3552498260188D19A772296B10',
-    'endpoint'                  : '0xb58f5110855fBEF7A715d325D60543E7D4c18143'
+        'refuel'                : '0xE62d19Df93D84b3552498260188D19A772296B10',
+        'endpoint'              : '0xb58f5110855fBEF7A715d325D60543E7D4c18143'
     },
     11: {
-    'refuel'                    : '0x5673B6e6e51dE3479B8deB22dF46B12308db5E1e',
-    'endpoint'                  : '0x9b896c0e23220469C7AE69cb4BbAE391eAa4C8da'
+        'refuel'                : '0x5673B6e6e51dE3479B8deB22dF46B12308db5E1e',
+        'endpoint'              : '0x9b896c0e23220469C7AE69cb4BbAE391eAa4C8da'
+    },
+    12: {
+        'refuel'                : '0x461fcCF240CA4884Cc5413a5742F1bC56fAf7A0C',
+        'endpoint'              : '0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7'
+    },
+    13: {
+        'refuel'                : '0xAFa5f9313F1F2b599173f24807a882F498Be118c',
+        'endpoint'              : '0x66A71Dcef29A0fFBDBE3c6a460a3B5BC225Cd675'
+    },
+    14: {
+        'refuel'                : '0x5C9BBE51F7F19f8c77DF7a3ADa35aB434aAA86c5',
+        'endpoint'              : '0x3c2269811836af69497E5F486A85D7316753cf62'
+    },
+    15: {
+        'refuel'                : '0xeF1eAE0457e8D56A003d781569489Bc5466E574b',
+        'endpoint'              : '0x3c2269811836af69497E5F486A85D7316753cf62'
+    },
+    16: {
+        'refuel'                : '0x671861008497782F7108D908D4dF18eBf9598b82',
+        'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
+    },
+    17: {
+        'refuel'                : '0x671861008497782F7108D908D4dF18eBf9598b82',
+        'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
+    },
+    18: {
+        'refuel'                : '0x2935a2804E4F902E722B64C51a831Bce2526a576',
+        'endpoint'              : '0x66A71Dcef29A0fFBDBE3c6a460a3B5BC225Cd675'
+    },
+    19: {
+        'refuel'                : '0xa513F61Bc23F0eB1FC0aC4d9dab376d79bC7F3cB',
+        'endpoint'              : '0x3A73033C0b1407574C76BdBAc67f126f6b4a9AA9'
+    },
+    20: {
+        'refuel'                : '0x556F119C7433b2232294FB3De267747745A1dAb4',
+        'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
+    },
+    21: {
+        'refuel'                : '0xa513F61Bc23F0eB1FC0aC4d9dab376d79bC7F3cB',
+        'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
+    },
+    22: {
+        'refuel'                : '0x457Fd60FFA26576E226252092c98921f12E90FbB',
+        'endpoint'              : ''
+    },
+    23: {
+        'refuel'                : '0xE47b05F2026a82048caAECf5caE58e5AAE2405eA',
+        'endpoint'              : '0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7'
+    },
+    24: {
+        'refuel'                : '0x6f6aE8851a460406bBB3c929a415d2Df9305AcD5',
+        'endpoint'              : '0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7'
+    },
+    25: {
+        'refuel'                : '0x7dFb5E7808B5eb4fB8b9e7169537575f6fF1a218',
+        'endpoint'              : '0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7'
+    },
+    26: {
+        'refuel'                : '0xF450A7b8abfc99D1cDEf6656163399aD762d51Cc',
+        'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
+    },
+    27: {
+        'refuel'                : '0x4fc0D96f3d70b4D9b75671Ab92e7Be01CaBE3863',
+        'endpoint'              : '0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7'
+    },
+    28: {
+        'refuel'                : '0x457Fd60FFA26576E226252092c98921f12E90FbB',
+        'endpoint'              : '0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7'
+    },
+    29: {
+        'refuel'                : '0xE7D454d096d38b22e0C30470e7FB20B1B2aCf70D',
+        'endpoint'              : '0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7'
+    },
+    30: {
+        'refuel'                : '0xd379c3D0930d70022B3C6EBA8217e4B990705540',
+        'endpoint'              : '0x7004396C99D5690da76A7C59057C5f3A53e01704'
+    },
+    31: {
+        'refuel'                : '0x79DB0f1A83f8e743550EeB5DD5B0B83334F2F083',
+        'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
+    },
+    32: {
+        'refuel'                : '0x4c24Ba5177365b4c0eBae62b31945d830a858673',
+        'endpoint'              : '0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7'
+    },
+    33: {
+        'refuel'                : '0xF56605276cefffe32DFD8B6bF80B93c2A6840136',
+        'endpoint'              : '0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7'
+    },
+    34: {
+        'refuel'                : '0xf1CD5b12211664FFaf62Af7E5E5C27b1b558aBa2',
+        'endpoint'              : '0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7'
+    },
+    35: {
+        'refuel'                : '0x4c24Ba5177365b4c0eBae62b31945d830a858673',
+        'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
+    },
+    36: {
+        'refuel'                : '0x457Fd60FFA26576E226252092c98921f12E90FbB',
+        'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
+    },
+    37: {
+        'refuel'                : '0xf6b88C4a86965170dd42DBB8b53e790B3490b912',
+        'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
+    },
+    38: {
+        'refuel'                : '0x95716171f7737CB8D387c621999589bDD04E6A35',
+        'endpoint'              : ''
+    },
+    39: {
+        'refuel'                : '0xB6c5e0d2ffC3Fc80c8D3F5A8b86b7A796A2c5782',
+        'endpoint'              : '0xa3a8e19253Ab400acDac1cB0eA36B88664D8DedF'
+    },
+    40: {
+        'refuel'                : '0x148CaF6FfBaBa15F35deE7e2813d1F4c6da288F3',
+        'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
+    },
+    41: {
+        'refuel'                : '0x5BA99F0E6A42cdfAb564921a382551D8AfEAad61',
+        'endpoint'              : '0xC1b15d3B262bEeC0e3565C11C9e0F6134BdaCB36'
+    },
+    42: {
+        'refuel'                : '0x2935a2804E4F902E722B64C51a831Bce2526a576',
+        'endpoint'              : '0x2D61DCDD36F10b22176E0433B86F74567d529aAa'
+    },
+    43: {
+        'refuel'                : '0xB75Bf6fcdf431a6462a0669326d9118aB48D3307',
+        'endpoint'              : '0xC1b15d3B262bEeC0e3565C11C9e0F6134BdaCB36'
+    },
+    44: {
+        'refuel'                : '0xE47b05F2026a82048caAECf5caE58e5AAE2405eA',
+        'endpoint'              : '0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7'
     }
 }
 
@@ -951,12 +1372,11 @@ LAYERSWAP_CHAIN_NAME = {
     10                      : 'POLYGONZK_MAINNET',
     11                      : 'ZKSYNCERA_MAINNET',
     12                      : 'ZORA_MAINNET',
-    13                      : 'ZKSYNC_MAINNET',
-    # 8                       : 'MANTLE_MAINNET',
-    # 9                       : 'OPBNB_MAINNET',
-    # 4                       : 'BSC_MAINNET',
-    # 5                       : 'ETHEREUM_MAINNET',
-    # 15                      : 'ZKSYNC_MAINNET',
+    13                      : 'ETHEREUM_MAINNET',
+    14                      : 'AVAX_MAINNET',
+    15                      : 'BSC_MAINNET',
+    28                      : 'OPBNB_MAINNET',
+    29                      : 'MANTLE_MAINNET',
 }
 
 ORBITER_CHAINS_INFO = {
@@ -972,12 +1392,132 @@ ORBITER_CHAINS_INFO = {
     10: {'name': 'Polygon zkEVM',  'chainId': 1101,         'id': 17},
     11: {'name': 'zkSync Era',     'chainId': 324,          'id': 14},
     12: {'name': 'Zora',           'chainId': 7777777,      'id': 30},
-    13: {'name': 'zkSync Lite',    'chainId': 'zksync',     'id': 3},
+    13: {'name': 'Ethereum',       'chainId': 1,            'id': 1},
+    14: {'name': 'BNB Chain',      'chainId': 56,           'id': 15},
+    26: {'name': 'Metis',          'chainId': 1088,         'id': 10},
+    28: {'name': 'OpBNB',          'chainId': 204,          'id': 25},
+    29: {'name': 'Mantle',         'chainId': 5000,         'id': 24},
+}
 
-    # 12: {'name': 'BNB Chain', 'chainId': 56, 'id': 15},
-    # 13: {'name': 'Ethereum', 'chainId': 1, 'id': 1},
-    # 14: {'name': 'Mantle', 'chainId': 5000, 'id': 24},
-    # 15: {'name': 'OpBNB', 'chainId': 204, 'id': 25},
+TOKENS_PER_CHAIN2 = {
+    'Ethereum': {
+        'ETH': '',
+        'USDC': '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        'USDT': '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    },
+    'BNB Chain': {
+        'USDT': '0x55d398326f99059fF775485246999027B3197955',
+        'BUSD': '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+    },
+    'Avalanche': {
+        'USDC': '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
+        'USDT': '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',
+    },
+    'Polygon': {
+        'USDC': '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
+        'USDT': '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
+    },
+    'Arbitrum': {
+        'USDC': '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
+        'USDT': '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+        'ETH': '',
+    },
+    'Optimism':{
+        'USDC': '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
+        'ETH': '',
+    },
+    'Fantom':{
+        'USDC': '0x28a92dde19D9989F39A49905d7C9C2FAc7799bDf'
+    },
+    'Base':{
+        'USDC': '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+        'ETH': ''
+    },
+    'Linea':{
+        'ETH': ''
+    },
+    'Kava':{
+        'USDT': '0x919C1c267BC06a7039e03fcc2eF738525769109c',
+    },
+    'Mantle':{
+        'USDC': '0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9',
+        'USDT': '0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE',
+    }
+}
+
+STARGATE_POOLS_ID = {
+    'Ethereum': {
+        'USDC': 1,
+        'USDT': 2,
+        'DAI': 3,
+        'FRAX': 7,
+        'USDD': 11,
+        'ETH': 13,
+        'sUSD': 14,
+        'LUSD': 15,
+        'MAI': 16,
+        'METIS': 17,
+        'metis.USDT': 19,
+    },
+    'BNB Chain': {
+        'USDT': 2,
+        'BUSD': 5,
+        'USDD': 11,
+        'MAI': 16,
+        'METIS': 17,
+        'metis.USDT': 19,
+    },
+    'Avalanche': {
+        'USDC': 1,
+        'USDT': 2,
+        'FRAX': 7,
+        'MAI': 16,
+        'metis.USDT': 19,
+    },
+    'Polygon': {
+        'USDC': 1,
+        'USDT': 2,
+        'DAI': 3,
+        'MAI': 16,
+    },
+    'Arbitrum': {
+        'USDC': 1,
+        'USDT': 2,
+        'FRAX': 7,
+        'ETH': 13,
+        'LUSD': 15,
+        'MAI': 16,
+    },
+    'Optimism':{
+        'USDC': 1,
+        'DAI': 3,
+        'FRAX': 7,
+        'ETH': 13,
+        'sUSD': 14,
+        'LUSD': 15,
+        'MAI': 16,
+    },
+    'Fantom':{
+        'USDC': 21
+    },
+    'Metis':{
+        'METIS': 17,
+        'metis.USDT': 19
+    },
+    'Base':{
+        'USDC': 1,
+        'ETH': 13
+    },
+    'Linea':{
+        'ETH': 13
+    },
+    'Kava':{
+        'USDT': 2,
+    },
+    'Mantle':{
+        'USDC': 1,
+        'USDT': 2,
+    }
 }
 
 CHAIN_IDS = {
@@ -1093,29 +1633,88 @@ OKX_NETWORKS_NAME = {
     6                       : 'ETH-zkSync Era',
     7                       : 'ETH-Linea',
     8                       : 'ETH-Base',
+    9                       : 'CELO-Celo',
+    10                      : 'ONE-Harmony',
+    11                      : 'GLMR-Moonbeam',
+    12                      : 'MOVR-Moonriver',
+    13                      : 'METIS-Metis',
+    14                      : 'CORE-CORE',
+    15                      : 'CFX-Conflux',
+    16                      : 'ZEN-Horizen',
+    17                      : 'KLAY-Klaytn',
+    18                      : 'FTM-Fantom',
+    19                      : 'AVAX-Avalanche C-Chain',
+    20                      : 'ASTR-Astar',
+    21                      : 'BNB-BSC'
 }
 
 OKX_WRAPED_ID = {
-    1                       : 14,
+    1                       : 13,
     2                       : 1,
     4                       : 7,
     5                       : 9,
     6                       : 11,
     7                       : 4,
-    8                       : 3
-
+    8                       : 3,
+    9                       : 19,
+    10                      : 17,
+    11                      : 16,
+    12                      : 30,
+    13                      : 26,
+    14                      : 21,
+    15                      : 23,
+    16                      : 25,
+    17                      : 31,
+    18                      : 33,
+    19                      : 14,
+    20                      : 27,
+    21                      : 15,
 }
 
 LAYERZERO_WRAPED_NETWORKS = {
-    1: 1,
-    2: 2,
-    7: 3,
-    22: 4,
-    31: 7,
-    33: 6,
-    34: 10,
-    35: 8,
-    43: 11,
+    1                       : 1,
+    2                       : 2,
+    3                       : 27,
+    4                       : 34,
+    5                       : 14,
+    6                       : 15,
+    7                       : 3,
+    8                       : 35,
+    9                       : 19,
+    10                      : 23,
+    11                      : 21,
+    12                      : 36,
+    13                      : 13,
+    14                      : 33,
+    15                      : 37,
+    16                      : 38,
+    17                      : 20,
+    18                      : 17,
+    19                      : 25,
+    20                      : 32,
+    21                      : 31,
+    22                      : 4,
+    23                      : 44,
+    24                      : 5,
+    25                      : 29,
+    26                      : 39,
+    27                      : 26,
+    28                      : 16,
+    29                      : 30,
+    30                      : 40,
+    31                      : 7,
+    32                      : 24,
+    33                      : 6,
+    34                      : 10,
+    35                      : 8,
+    36                      : 41,
+    37                      : 18,
+    38                      : 22,
+    39                      : 42,
+    40                      : 43,
+    41                      : 12,
+    42                      : 28,
+    43                      : 11
 }
 
 LAYERZERO_NETWORKS_DATA = {
@@ -1177,9 +1776,29 @@ CHAIN_NAME = {
     8: 'Scroll',
     9: 'Starknet',
     10: 'Polygon ZKEVM',
-    11: 'zkSync',
+    11: 'zkSync Era',
     12: 'Zora',
-    14: 'Etherium',
+    13: 'Etherium',
+    14: 'Avalanch',
+    15: 'BNB Chain',
+    16: 'Moonbeam',
+    17: 'Harmony ONE',
+    18: 'Telos',
+    19: 'Celo',
+    20: 'Gnosis',
+    21: 'CoreDAO',
+    22: 'TomoChai',
+    23: 'Conflux',
+    24: 'Orderly',
+    25: 'Horizen',
+    26: 'Metis',
+    27: 'Astar',
+    28: 'OpBNB',
+    29: 'Mantle',
+    30: 'Moonrive',
+    31: 'Klaytn',
+    32: 'Kava',
+    33: 'Fantom',
 }
 
 ACCOUNT_NAMES, PRIVATE_KEYS_EVM, PRIVATE_KEYS, PROXIES, OKX_WALLETS = get_accounts_data()

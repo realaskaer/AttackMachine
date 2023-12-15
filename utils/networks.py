@@ -253,6 +253,365 @@ OpBNB_RPC = Network(
     explorer='https://opbnbscan.com/'
 )
 
+MoonbeamRPC = Network(
+    name='Moonbeam',
+    rpc=[
+        'https://moonbeam.publicnode.com',
+        'https://1rpc.io/glmr',
+        'https://endpoints.omniatech.io/v1/moonbeam/mainnet/public',
+        'https://moonbeam.public.blastapi.io',
+    ],
+    chain_id=1284,
+    eip1559_support=False,
+    token='GLMR',
+    explorer='https://moonscan.io/'
+)
+
+MoonriverRPC = Network(
+    name='Moonriver',
+    rpc=[
+        'https://moonriver.publicnode.com',
+        'https://moonriver-rpc.dwellir.com',
+        'https://moonriver.public.blastapi.io',
+        'https://moonriver.api.onfinality.io/public',
+    ],
+    chain_id=1285,
+    eip1559_support=False,
+    token='MOVR',
+    explorer='https://moonriver.moonscan.io/'
+)
+
+
+HarmonyRPC = Network(
+    name='Harmony One',
+    rpc=[
+        'https://api.harmony.one',
+        'https://api.s0.t.hmny.io',
+        'https://a.api.s0.t.hmny.io',
+        'https://endpoints.omniatech.io/v1/harmony/mainnet-0/public',
+        'https://1rpc.io/one',
+    ],
+    chain_id=1666600000,
+    eip1559_support=False,
+    token='ONE',
+    explorer='https://explorer.harmony.one/'
+)
+
+TelosRPC = Network(
+    name='Telos',
+    rpc=[
+        'https://mainnet.telos.net/evm',
+        'https://rpc1.eu.telos.net/evm',
+        'https://rpc1.us.telos.net/evm',
+        'https://api.kainosbp.com/evm',
+    ],
+    chain_id=40,
+    eip1559_support=False,
+    token='TLOS',
+    explorer='https://explorer.telos.net/'
+)
+
+CeloRPC = Network(
+    name='Celo',
+    rpc=[
+        'https://forno.celo.org',
+        'https://rpc.ankr.com/celo',
+        'https://1rpc.io/celo',
+        'https://celo.api.onfinality.io/public',
+    ],
+    chain_id=42220,
+    eip1559_support=False,
+    token='CELO',
+    explorer='https://explorer.celo.org/mainnet/'
+)
+
+GnosisRPC = Network(
+    name='Gnosis',
+    rpc=[
+        'https://gnosis-pokt.nodies.app',
+        'https://gnosis.drpc.org',
+        'https://gnosis.publicnode.com',
+        'https://1rpc.io/gnosis',
+    ],
+    chain_id=100,
+    eip1559_support=False,
+    token='XDAI',
+    explorer='https://gnosisscan.io/'
+)
+
+CoreRPC = Network(
+    name='Core',
+    rpc=[
+        'https://core.public.infstones.com',
+        'https://rpc.ankr.com/core',
+        'https://1rpc.io/core',
+        'https://rpc.coredao.org',
+    ],
+    chain_id=1116,
+    eip1559_support=False,
+    token='CORE',
+    explorer='https://scan.coredao.org/'
+)
+
+TomoChainRPC = Network(
+    name='TomoChain',
+    rpc=[
+        'https://rpc.tomochain.com',
+        'https://tomo.blockpi.network/v1/rpc/public',
+        'https://viction.blockpi.network/v1/rpc/public',
+    ],
+    chain_id=88,
+    eip1559_support=False,
+    token='TOMO',
+    explorer='https://tomoscan.io/'
+)
+
+ConfluxRPC = Network(
+    name='Conflux',
+    rpc=[
+        'https://evm.confluxrpc.com',
+        'https://conflux-espace-public.unifra.io',
+    ],
+    chain_id=1030,
+    eip1559_support=False,
+    token='CFX',
+    explorer='https://opbnbscan.com/'
+)
+
+OrderlyRPC = Network(
+    name='Orderly',
+    rpc=[
+        'https://l2-orderly-mainnet-0.t.conduit.xyz',
+        'https://rpc.orderly.network',
+    ],
+    chain_id=291,
+    eip1559_support=False,
+    token='ETH',
+    explorer='https://explorer.orderly.network/'
+)
+
+HorizenRPC = Network(
+    name='Horizen EON',
+    rpc=[
+        'https://rpc.ankr.com/horizen_eon',
+        'https://eon-rpc.horizenlabs.io/ethv1',
+    ],
+    chain_id=7332,
+    eip1559_support=False,
+    token='ZEN',
+    explorer='https://opbnbscan.com/'
+)
+
+MetisRPC = Network(
+    name='Metis',
+    rpc=[
+        'https://metis-mainnet.public.blastapi.io',
+        'https://metis-pokt.nodies.app',
+        'https://andromeda.metis.io/?owner=1088'
+    ],
+    chain_id=1088,
+    eip1559_support=False,
+    token='METIS',
+    explorer='https://explorer.metis.io/'
+)
+
+AstarRPC = Network(
+    name='Astar',
+    rpc=[
+        'https://evm.astar.network',
+        'https://astar.public.blastapi.io',
+        'https://1rpc.io/astr',
+        'https://astar-rpc.dwellir.com'
+    ],
+    chain_id=592,
+    eip1559_support=False,
+    token='ASTR',
+    explorer='https://explorer.metis.io/'
+)
+
+KavaRPC = Network(
+    name='Kava',
+    rpc=[
+        'https://kava-evm.publicnode.com',
+        'https://kava-pokt.nodies.app',
+        'https://evm.kava.io',
+    ],
+    chain_id=2222,
+    eip1559_support=False,
+    token='KAVA',
+    explorer='https://kavascan.com/'
+)
+
+KlaytnRPC = Network(
+    name='Klaytn',
+    rpc=[
+        'https://rpc.ankr.com/klaytn',
+        'https://klaytn.blockpi.network/v1/rpc/public',
+        'https://1rpc.io/klay',
+        'https://klaytn-pokt.nodies.app'
+    ],
+    chain_id=8217,
+    eip1559_support=False,
+    token='KLAY',
+    explorer='https://klaytnscope.com/'
+)
+
+FantomRPC = Network(
+    name='Fantom',
+    rpc=[
+        'https://rpcapi.fantom.network',
+        'https://endpoints.omniatech.io/v1/fantom/mainnet/public',
+        'https://rpc.ankr.com/fantom',
+        'https://rpc.ftm.tools'
+    ],
+    chain_id=250,
+    eip1559_support=False,
+    token='FTM',
+    explorer='https://ftmscan.com/'
+)
+
+AuroraRPC = Network(
+    name='Aurora',
+    rpc=[
+        'https://mainnet.aurora.dev',
+        'https://endpoints.omniatech.io/v1/aurora/mainnet/public',
+        'https://1rpc.io/aurora',
+        'https://aurora.drpc.org'
+    ],
+    chain_id=1313161554,
+    eip1559_support=False,
+    token='ETH',
+    explorer='https://explorer.aurora.dev/'
+)
+
+CantoRPC = Network(
+    name='Canto',
+    rpc=[
+        'https://canto.gravitychain.io',
+        'https://jsonrpc.canto.nodestake.top',
+        'https://mainnode.plexnode.org:8545',
+        'https://canto.slingshot.finance'
+    ],
+    chain_id=7700,
+    eip1559_support=False,
+    token='CANTO',
+    explorer='https://cantoscan.com/'
+)
+
+DFK_RPC = Network(
+    name='DFK',
+    rpc=[
+        'https://avax-pokt.nodies.app/ext/bc/q2aTwKuyzgs8pynF7UXBZCU7DejbZbZ6EUyHr3JQzYgwNPUPi/rpc',
+        'https://dfkchain.api.onfinality.io/public',
+        'https://mainnode.plexnode.org:8545',
+        'https://subnets.avax.network/defi-kingdoms/dfk-chain/rpc'
+    ],
+    chain_id=53935,
+    eip1559_support=False,
+    token='JEWEL',
+    explorer='https://avascan.info/blockchain/dfk'
+)
+
+FuseRPC = Network(
+    name='Fuse',
+    rpc=[
+        'https://rpc.fuse.io',
+        'https://fuse-pokt.nodies.app',
+        'https://fuse.liquify.com',
+        'https://fuse.api.onfinality.io/public'
+    ],
+    chain_id=122,
+    eip1559_support=False,
+    token='FUSE',
+    explorer='https://cantoscan.com/'
+)
+
+GoerliRPC = Network(
+    name='Goerli',
+    rpc=[
+        'https://endpoints.omniatech.io/v1/eth/goerli/public',
+        'https://rpc.ankr.com/eth_goerli',
+        'https://eth-goerli.public.blastapi.io',
+        'https://goerli.blockpi.network/v1/rpc/public'
+    ],
+    chain_id=5,
+    eip1559_support=False,
+    token='ETH',
+    explorer='https://goerli.etherscan.io/'
+)
+
+MeterRPC = Network(
+    name='Meter',
+    rpc=[
+        'https://rpc.meter.io',
+        'https://rpc-meter.jellypool.xyz',
+        'https://meter.blockpi.network/v1/rpc/public',
+    ],
+    chain_id=82,
+    eip1559_support=False,
+    token='MTR',
+    explorer='https://scan.meter.io/'
+)
+
+OKX_RPC = Network(
+    name='OKX Chain',
+    rpc=[
+        'https://exchainrpc.okex.org',
+        'https://oktc-mainnet.public.blastapi.io',
+        'https://1rpc.io/oktc',
+        'https://okt-chain.api.onfinality.io/public'
+    ],
+    chain_id=66,
+    eip1559_support=False,
+    token='OKT',
+    explorer='https://www.oklink.com/ru/oktc'
+)
+
+ShimmerRPC = Network(
+    name='Shimmer',
+    rpc=[
+        'https://json-rpc.evm.shimmer.network',
+    ],
+    chain_id=148,
+    eip1559_support=False,
+    token='SMR',
+    explorer='https://explorer.shimmer.network/'
+)
+
+TenetRPC = Network(
+    name='Tenet',
+    rpc=[
+        'https://rpc.tenet.org',
+        'https://tenet-evm.publicnode.com',
+    ],
+    chain_id=1559,
+    eip1559_support=False,
+    token='TENET',
+    explorer='https://tenetscan.io/'
+)
+
+XPLA_RPC = Network(
+    name='XPLA',
+    rpc=[
+        'https://dimension-evm-rpc.xpla.dev	',
+    ],
+    chain_id=37,
+    eip1559_support=False,
+    token='XPLA',
+    explorer='https://explorer.xpla.io/'
+)
+
+LootChainRPC = Network(
+    name='LootChain',
+    rpc=[
+        'https://rpc.lootchain.com/http',
+    ],
+    chain_id=5151706,
+    eip1559_support=False,
+    token='AGLD',
+    explorer='https://explorer.lootchain.com/'
+)
+
 # zkSyncLite = Network(
 #     name='zksync_lite',
 #     rpc=[],
