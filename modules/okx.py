@@ -62,6 +62,7 @@ class OKX(CEX, Logger):
                                          'min_wd': item['minWd'], 'max_wd': item['maxWd']} for item in withdraw_data}
 
         network_name = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK]
+        ccy = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK].split('-')[0]
         network_data = networks_data[network_name]
         if want_balance:
             amount = want_balance
@@ -77,7 +78,7 @@ class OKX(CEX, Logger):
             if min_wd <= amount <= max_wd:
 
                 body = {
-                    "ccy": 'ETH',
+                    "ccy": ccy,
                     "amt": amount,
                     "dest": "4",
                     "toAddr": address,
@@ -189,9 +190,10 @@ class OKX(CEX, Logger):
         sub_balances = {}
         url_sub_list = "https://www.okx.cab/api/v5/users/subaccount/list"
 
+        await asyncio.sleep(10)
+
         headers = await self.get_headers(request_path=url_sub_list)
         sub_list = await self.make_request(url=url_sub_list, headers=headers, module_name='Get subAccounts list')
-        await asyncio.sleep(1)
 
         for sub_data in sub_list:
             sub_name = sub_data['subAcct']
@@ -202,7 +204,7 @@ class OKX(CEX, Logger):
             sub_balance = (await self.make_request(url=url_sub_balance, headers=headers,
                                                    module_name='Get subAccount balance'))[0]['availBal']
 
-            await asyncio.sleep(1)
+            await asyncio.sleep(3)
 
             sub_balances[sub_name] = float(sub_balance)
 

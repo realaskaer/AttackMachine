@@ -7,7 +7,7 @@ from aiohttp_socks import ProxyConnector
 
 from modules import Logger
 from utils.networks import Network
-from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, CHAIN_IDS, TOKENS_PER_CHAIN2
+from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, CHAIN_IDS
 from web3 import AsyncHTTPProvider, AsyncWeb3
 from config import RHINO_CHAIN_INFO, ORBITER_CHAINS_INFO, LAYERSWAP_CHAIN_NAME
 from settings import (
@@ -26,8 +26,6 @@ from settings import (
     ACROSS_CHAIN_ID_TO,
     ACROSS_DEPOSIT_AMOUNT,
     GLOBAL_NETWORK,
-    STARGATE_CHAINS,
-    STARGATE_TOKENS
 )
 
 
@@ -248,7 +246,8 @@ class Client(Logger):
         else:
             raise RuntimeError('Insufficient balance on account!')
 
-    async def get_token_balance(self, token_name: str = 'ETH', check_symbol: bool = True) -> [float, int, str]:
+    async def get_token_balance(self, token_name: str = 'ETH', check_symbol: bool = True,
+                                omnicheck:bool = False) -> [float, int, str]:
         if token_name != 'ETH':
             contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
 
@@ -373,8 +372,7 @@ class Client(Logger):
                 raise RuntimeError(f'Send transaction | {self.get_normalize_error(error)}')
 
         try:
-            await asyncio.sleep(10)
-            data = await self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=360)
+            data = await self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=360, poll_latency=10)
             if 'status' in data and data['status'] == 1:
                 message = f'Transaction was successful: {self.explorer}tx/{tx_hash.hex()}'
                 self.logger_msg(*self.acc_info, msg=message, type_msg='success')
