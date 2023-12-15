@@ -22,10 +22,13 @@ class JediSwap(DEX, Logger):
 
     @helper
     @gas_checker
-    async def swap(self):
+    async def swap(self, swapdata:tuple = None):
         await self.client.initialize_account()
 
-        from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
+        if swapdata:
+            from_token_name, to_token_name, amount, amount_in_wei = swapdata
+        else:
+            from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
         self.logger_msg(
             *self.client.acc_info, msg=f'Swap on JediSwap: {amount} {from_token_name} -> {to_token_name}')
@@ -39,7 +42,8 @@ class JediSwap(DEX, Logger):
         path = [from_token_address, to_token_address]
         min_amount_out = await self.get_min_amount_out(router_contract, amount_in_wei, path)
 
-        await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
+        if to_token_name != 'MEMCOIN':
+            await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
 
         approve_call = self.client.get_approve_call(from_token_address, router_contract, amount_in_wei)
 

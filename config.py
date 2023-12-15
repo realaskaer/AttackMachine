@@ -219,7 +219,8 @@ TOKENS_PER_CHAIN = {
         "ETH"               : 0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7,
         "USDC"              : 0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8,
         "USDT"              : 0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8,
-        "DAI"               : 0x00da114221cb83fa859dbdb4c44beeaa0bb37c7537ad5ae66fe5e0efd20e6eb3
+        "DAI"               : 0x00da114221cb83fa859dbdb4c44beeaa0bb37c7537ad5ae66fe5e0efd20e6eb3,
+        "MEMCOIN"           : 0x0511932333ef61dd3f4e5272ce46099b5e05042b4dcf706f11256eb161b153d0
     },
     "Base":{
         "ETH"               : "0x4200000000000000000000000000000000000006",
@@ -1407,7 +1408,6 @@ TOKENS_PER_CHAIN2 = {
     },
     'BNB Chain': {
         'USDT': '0x55d398326f99059fF775485246999027B3197955',
-        'BUSD': '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
     },
     'Avalanche': {
         'USDC': '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
@@ -1449,60 +1449,30 @@ STARGATE_POOLS_ID = {
     'Ethereum': {
         'USDC': 1,
         'USDT': 2,
-        'DAI': 3,
-        'FRAX': 7,
-        'USDD': 11,
         'ETH': 13,
-        'sUSD': 14,
-        'LUSD': 15,
-        'MAI': 16,
-        'METIS': 17,
-        'metis.USDT': 19,
     },
     'BNB Chain': {
         'USDT': 2,
-        'BUSD': 5,
-        'USDD': 11,
-        'MAI': 16,
-        'METIS': 17,
-        'metis.USDT': 19,
     },
     'Avalanche': {
         'USDC': 1,
         'USDT': 2,
-        'FRAX': 7,
-        'MAI': 16,
-        'metis.USDT': 19,
     },
     'Polygon': {
         'USDC': 1,
         'USDT': 2,
-        'DAI': 3,
-        'MAI': 16,
     },
     'Arbitrum': {
         'USDC': 1,
         'USDT': 2,
-        'FRAX': 7,
         'ETH': 13,
-        'LUSD': 15,
-        'MAI': 16,
     },
     'Optimism':{
         'USDC': 1,
-        'DAI': 3,
-        'FRAX': 7,
         'ETH': 13,
-        'sUSD': 14,
-        'LUSD': 15,
-        'MAI': 16,
     },
     'Fantom':{
         'USDC': 21
-    },
-    'Metis':{
-        'METIS': 17,
-        'metis.USDT': 19
     },
     'Base':{
         'USDC': 1,
@@ -1645,7 +1615,17 @@ OKX_NETWORKS_NAME = {
     18                      : 'FTM-Fantom',
     19                      : 'AVAX-Avalanche C-Chain',
     20                      : 'ASTR-Astar',
-    21                      : 'BNB-BSC'
+    21                      : 'BNB-BSC',
+    22                      : 'USDT-ERC20',
+    23                      : 'USDT-Polygon',
+    24                      : 'USDT-Optimism',
+    25                      : 'USDT-Avalanche',
+    26                      : 'USDT-Arbitrum One',
+    27                      : 'USDC-ERC20',
+    28                      : 'USDC-Optimism',
+    29                      : 'USDC-Avalanche',
+    30                      : 'USDC-Arbitrum One',
+    31                      : 'USDT-Polygon'
 }
 
 OKX_WRAPED_ID = {
@@ -1669,6 +1649,16 @@ OKX_WRAPED_ID = {
     19                      : 14,
     20                      : 27,
     21                      : 15,
+    22                      : 13,
+    23                      : 6,
+    24                      : 7,
+    25                      : 14,
+    26                      : 1,
+    27                      : 13,
+    28                      : 7,
+    29                      : 14,
+    30                      : 1,
+    31                      : 6,
 }
 
 LAYERZERO_WRAPED_NETWORKS = {

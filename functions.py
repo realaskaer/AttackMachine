@@ -455,9 +455,9 @@ async def okx_collect_from_sub(account_number, private_key, network, proxy):
     return await worker.collect_from_sub()
 
 
-async def swap_jediswap(account_number, private_key, network, proxy):
+async def swap_jediswap(account_number, private_key, network, proxy, *args, **kwargs):
     worker = JediSwap(get_client(account_number, private_key, network, proxy))
-    return await worker.swap()
+    return await worker.swap(*args, **kwargs)
 
 
 async def swap_avnu(account_number, private_key, network, proxy, **kwargs):
@@ -639,8 +639,19 @@ async def wrap_abuser(account_number, private_key, network, proxy):
     return await worker.wraps_abuser()
 
 
-async def bridge_stargate(account_number, private_key, _, proxy):
-    network = get_network_by_chain_id(random.choice())
+async def mint_token_avnu(account_number, private_key, network, proxy):
 
-    worker = Stargate(get_client(account_number, private_key, network, proxy))
-    return await worker.bridge()
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.mint_token_avnu()
+
+
+async def mint_token_jediswap(account_number, private_key, network, proxy):
+
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.mint_token_jediswap()
+
+# async def bridge_stargate(account_number, private_key, _, proxy):
+#     network = get_network_by_chain_id(random.choice())
+#
+#     worker = Stargate(get_client(account_number, private_key, network, proxy))
+#     return await worker.bridge()

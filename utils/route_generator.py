@@ -112,6 +112,8 @@ AVAILABLE_MODULES_INFO = {
     zksync_rhino_checker                : (zksync_rhino_checker, 3, 'Rhino Checker', 0, [11]),
     zksync_rhino_mint                   : (zksync_rhino_mint, 3, 'Rhino Mint zkSync Hunter NFT', 0, [11]),
     zksync_rhino_mint_pro               : (zksync_rhino_mint_pro, 3, 'Rhino Mint zkSync Pro Hunter NFT', 0, [11]),
+    mint_token_avnu                     : (mint_token_avnu, 3, 'Looooot a new one shit coin =)', 0, [0]),
+    mint_token_jediswap                 : (mint_token_jediswap, 3, 'Looooot a new one shit coin =)', 0, [0]),
     okx_deposit                         : (okx_deposit, 4, 'OKX Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
     okx_collect_from_sub                : (okx_collect_from_sub, 5, 'OKX Collect money', 0, [2, 3, 4, 8, 9, 11, 12])
 }

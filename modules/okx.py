@@ -6,7 +6,7 @@ from hashlib import sha256
 from modules import CEX, Logger
 from datetime import datetime, timezone
 from utils.tools import helper, sleep, gas_checker
-from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, OKX_WRAPED_ID
+from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, OKX_WRAPED_ID, TOKENS_PER_CHAIN2
 from settings import (
     OKX_WITHDRAW_NETWORK,
     OKX_WITHDRAW_AMOUNT,
@@ -263,6 +263,7 @@ class OKX(CEX, Logger):
                          for item in withdraw_data}
 
         network_name = OKX_NETWORKS_NAME[OKX_DEPOSIT_NETWORK]
+        ccy = OKX_NETWORKS_NAME[OKX_DEPOSIT_NETWORK].split('-')[0]
         network_data = networks_data[network_name]
 
         if network_data['can_dep']:
@@ -274,7 +275,7 @@ class OKX(CEX, Logger):
                 if self.client.network.name == 'Starknet':
                     await self.client.initialize_account()
                     transaction = self.client.prepare_call(
-                        contract_address=TOKENS_PER_CHAIN['Starknet']['ETH'],
+                        contract_address=TOKENS_PER_CHAIN['Starknet'][ccy],
                         selector_name="transfer",
                         calldata=[
                             int(okx_wallet, 16),
@@ -282,10 +283,17 @@ class OKX(CEX, Logger):
                         ]
                     )
                 else:
-                    transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
-                        'to': okx_wallet,
-                        'data': '0x'
-                    }
+                    if ccy in ['USDT', 'USDC']:
+                        token_contract = self.client.get_contract(TOKENS_PER_CHAIN2[self.client.network.name][ccy])
+                        transaction = await token_contract.functions.transfer(
+                            okx_wallet,
+                            amount_in_wei
+                        ).build_transaction(await self.client.prepare_transaction())
+                    else:
+                        transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
+                            'to': okx_wallet,
+                            'data': '0x'
+                        }
 
                 sub_balances = await self.get_sub_balances()
 

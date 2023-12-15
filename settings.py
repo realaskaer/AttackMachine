@@ -21,18 +21,18 @@ MIN_BALANCE = 0.001  # Количество ETH на аккаунте
 --------------------------------------------------OKX CONTROL-----------------------------------------------------------
     Выберите сети/суммы для вывода и ввода с OKX. Не забудьте вставить API ключи снизу.
 
-    1 - ETH-ERC20              9  - CELO-Celo           17 - KLAY-Klaytn
-    2 - ETH-Arbitrum One       10 - ONE-Harmony         18 - FTM-Fantom
-    3 - ETH-zkSync Lite        11 - GLMR-Moonbeam       19 - AVAX-Avalanche
-    4 - ETH-Optimism           12 - MOVR-Moonriver      20 - ASTR-Astar
-    5 - ETH-Starknet           13 - METIS-Metis         21 - BNB-BSC
-    6 - ETH-zkSync Era         14 - CORE-CORE
-    7 - ETH-Linea              15 - CFX-Conflux 
-    8 - ETH-Base               16 - ZEN-Horizen
+    1 - ETH-ERC20              9  - CELO-Celo           17 - KLAY-Klaytn        25 - USDT-Avalanche
+    2 - ETH-Arbitrum One       10 - ONE-Harmony         18 - FTM-Fantom         26 - USDT-Arbitrum One
+    3 - ETH-zkSync Lite        11 - GLMR-Moonbeam       19 - AVAX-Avalanche     27 - USDC-ERC20   
+    4 - ETH-Optimism           12 - MOVR-Moonriver      20 - ASTR-Astar         28 - USDC-Optimism
+    5 - ETH-Starknet           13 - METIS-Metis         21 - BNB-BSC            29 - USDC-Avalanche
+    6 - ETH-zkSync Era         14 - CORE-CORE           22 - USDT-ERC20         30 - USDC-Arbitrum One
+    7 - ETH-Linea              15 - CFX-Conflux         23 - USDT-Polygon       31 - USDT-Polygon
+    8 - ETH-Base               16 - ZEN-Horizen         24 - USDT-Optimism      
 
 ------------------------------------------------------------------------------------------------------------------------
 """
-OKX_WITHDRAW_NETWORK = 5                 # Сеть вывода из OKX
+OKX_WITHDRAW_NETWORK = 2                 # Сеть вывода из OKX
 OKX_WITHDRAW_AMOUNT = (0.0001, 0.0001)   # (минимальная, максимальная) сумма для вывода из OKX
 
 OKX_DEPOSIT_NETWORK = 2                  # Сеть из которой планируется пополнение OKX
@@ -70,8 +70,8 @@ OKX_BALANCE_WANTED = 0.005               # Необходимый баланс �
 NATIVE_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) ETH или %
 NATIVE_WITHDRAW_AMOUNT = (0.0001, 0.0002)   # (минимум, максимум) ETH или %
 
-ORBITER_CHAIN_ID_FROM = [11]                # Исходящая сеть
-ORBITER_CHAIN_ID_TO = [1]                  # Входящая сеть
+ORBITER_CHAIN_ID_FROM = [4]                # Исходящая сеть
+ORBITER_CHAIN_ID_TO = [11]                  # Входящая сеть
 ORBITER_DEPOSIT_AMOUNT = (0.001, 0.001)    # (минимум, максимум) ETH или %
 
 LAYERSWAP_CHAIN_ID_FROM = [9]                # Исходящая сеть
@@ -172,7 +172,7 @@ DST_CHAIN_L2TELEGRAPH = [22]  # Входящая сеть для L2Telegraph. М
     GOOGLE_SHEET_URL        | Ссылка на вашу Google таблицу с прогрессом аккаунтов
     GOOGLE_SHEET_PAGE_NAME  | Аналогично EXCEL_PAGE_NAME   
 """
-GLOBAL_NETWORK = 11             # 07.12.2023 поддерживается zkSync, Starknet, Linea, Base, Scroll, Nova, Zora
+GLOBAL_NETWORK = 11              # 07.12.2023 поддерживается zkSync, Starknet, Linea, Base, Scroll, Nova, Zora
 SOFTWARE_MODE = 0               # 0 - последовательный запуск / 1 - параллельный запуск
 ACCOUNTS_IN_STREAM = 1          # Только для SOFTWARE_MODE = 1 (параллельный запуск)
 WALLETS_TO_WORK = 0             # 0 / 3 / 3, 20 / [3, 20]
@@ -208,12 +208,12 @@ MOBILE_PROXY_URL_CHANGER = ['',
 
 
 '-----------------------------------------------SLIPPAGE CONTROL-------------------------------------------------------'
-SLIPPAGE = 2                # 0.54321 = 0.54321%, 1 = 1% | Slippage, на сколько % вы готовы получить меньше
+SLIPPAGE = 10                # 0.54321 = 0.54321%, 1 = 1% | Slippage, на сколько % вы готовы получить меньше
 PRICE_IMPACT = 3            # 0.54321 = 0.54321%, 1 = 1% | Максимальное влияние на цену при обменах токенов
 
 
 '-----------------------------------------------APPROVE CONTROL--------------------------------------------------------'
-UNLIMITED_APPROVE = True       # True или False Включает безлимитный Approve для контракта
+UNLIMITED_APPROVE = False       # True или False Включает безлимитный Approve для контракта
 
 
 '------------------------------------------------SECURE DATA-----------------------------------------------------------'
@@ -251,6 +251,7 @@ LAYERSWAP_API_KEY = ""
 STARKSTARS_NFT_CONTRACTS = (1, 2, 3, 20)  # при (0) заминтит случайную новую NFT
 ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 20)  # при (0) заминтит случайную новую NFT
 NEW_WALLET_TYPE = 1
+MEMCOIN_AMOUNT = 0.003
 
 MINTFUN_CONTRACTS = {
     '0x123': 0,
@@ -265,7 +266,7 @@ MINTFUN_CONTRACTS = {
      маршрута под каждый аккаунт в таблице.  
     ⚠️Количество аккаунтов и их расположение должно быть строго одинаковым для вашего Excel и Google Spreadsheets⚠️
                                                          
-    DEPOSIT_CONFIG | Включает в маршрут для каждого аккаунта модули, со значениями '1'
+    HELPERS_CONFIG | Включает в маршрут для каждого аккаунта модули, со значениями '1'
                      'okx_withdraw' всегда будет первой
                      Бриджи всегда после 'okx_withdraw'
                      'okx_deposit' и 'okx_collect_from_sub' всегда последние
@@ -320,6 +321,11 @@ HELPERS_CONFIG = {
     'bridge_native'                       : 0,  # смотри BRIDGE CONTROL. (кол-во из NATIVE_DEPOSIT_AMOUNT)
     'okx_deposit'                         : 0,  # ввод средств на биржу
     'okx_collect_from_sub'                : 0   # сбор средств на субАккаунтов на основной счет
+    
+----------------------------------------------------CUSTOM--------------------------------------------------------------        
+    
+    mint_token_avnu
+    mint_token_jediswap
     
 ----------------------------------------------------ZKSYNC--------------------------------------------------------------        
 

@@ -37,6 +37,8 @@ class AVNU(Aggregator, Logger):
     @helper
     @gas_checker
     async def swap(self, help_deposit: bool = False, swapdata: dict = None):
+        await self.client.initialize_account()
+
         if not swapdata:
             from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
         else:
