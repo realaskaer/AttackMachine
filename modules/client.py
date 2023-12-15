@@ -4,10 +4,11 @@ import random
 from asyncio import sleep
 from aiohttp import ClientSession
 from aiohttp_socks import ProxyConnector
+from web3.exceptions import TransactionNotFound, TimeExhausted
 
 from modules import Logger
 from utils.networks import Network
-from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, CHAIN_IDS
+from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, CHAIN_IDS, TOKENS_PER_CHAIN2
 from web3 import AsyncHTTPProvider, AsyncWeb3
 from config import RHINO_CHAIN_INFO, ORBITER_CHAINS_INFO, LAYERSWAP_CHAIN_NAME
 from settings import (
@@ -249,7 +250,10 @@ class Client(Logger):
     async def get_token_balance(self, token_name: str = 'ETH', check_symbol: bool = True,
                                 omnicheck:bool = False) -> [float, int, str]:
         if token_name != 'ETH':
-            contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
+            if omnicheck:
+                contract = self.get_contract(TOKENS_PER_CHAIN2[self.network.name][token_name])
+            else:
+                contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
 
             amount_in_wei = await contract.functions.balanceOf(self.address).call()
             decimals = await contract.functions.decimals().call()
@@ -354,7 +358,8 @@ class Client(Logger):
         except Exception as error:
             raise RuntimeError(f'Check for approve | {self.get_normalize_error(error)}')
 
-    async def send_transaction(self, transaction, need_hash:bool = False, without_gas:bool = False):
+    async def send_transaction(self, transaction, need_hash:bool = False, without_gas:bool = False,
+                               poll_latency:int = 10, timeout:int = 360):
         try:
             if not without_gas:
                 transaction['gas'] = int((await self.w3.eth.estimate_gas(transaction)) * GAS_MULTIPLIER)
@@ -372,15 +377,29 @@ class Client(Logger):
                 raise RuntimeError(f'Send transaction | {self.get_normalize_error(error)}')
 
         try:
-            data = await self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=360, poll_latency=10)
-            if 'status' in data and data['status'] == 1:
-                message = f'Transaction was successful: {self.explorer}tx/{tx_hash.hex()}'
-                self.logger_msg(*self.acc_info, msg=message, type_msg='success')
-                if need_hash:
-                    return tx_hash
-                return True
-            else:
-                raise RuntimeError(f'Transaction failed: {self.explorer}tx/{data["transactionHash"].hex()}')
+
+            total_time = 0
+            while True:
+                try:
+                    receipts = await self.w3.eth.get_transaction_receipt(tx_hash)
+                    status = receipts.get("status")
+                    if status == 1:
+                        message = f'Transaction was successful: {self.explorer}tx/{tx_hash.hex()}'
+                        self.logger_msg(*self.acc_info, msg=message, type_msg='success')
+                        if need_hash:
+                            return tx_hash
+                        return True
+                    elif status is None:
+                        await asyncio.sleep(poll_latency)
+                    else:
+                        raise RuntimeError(f'Transaction failed: {self.explorer}tx/{tx_hash}')
+                except TransactionNotFound:
+                    if total_time > timeout:
+                        raise TimeExhausted(f"Transaction {tx_hash !r} is not in the chain after {timeout} seconds")
+
+                    total_time += poll_latency
+                    await asyncio.sleep(poll_latency)
+
         except Exception as error:
             raise RuntimeError(f'Verify transaction | {self.get_normalize_error(error)}')
 
