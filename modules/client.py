@@ -117,7 +117,12 @@ class Client(Logger):
 
     async def new_client(self, chain_id):
         from functions import get_network_by_chain_id
-        new_client = Client(self.account_name, self.private_key,
+        from modules import StarknetClient
+        if chain_id != 9:
+            client = Client
+        else:
+            client = StarknetClient
+        new_client = client(self.account_name, self.private_key,
                             get_network_by_chain_id(chain_id), self.proxy_init)
         return new_client
 
@@ -126,7 +131,10 @@ class Client(Logger):
         client = await self.new_client(chain_id)
         try:
             if check_balance_on_dst:
-                old_balance = await client.w3.eth.get_balance(self.address)
+                if chain_id != 9:
+                    old_balance = await client.w3.eth.get_balance(self.address)
+                else:
+                    old_balance = await client.account.get_balance()
                 return old_balance
 
             self.logger_msg(*self.acc_info, msg=f'Waiting ETH to receive')
@@ -135,7 +143,10 @@ class Client(Logger):
             new_eth_balance = 0
             while t < timeout:
                 try:
-                    new_eth_balance = await client.w3.eth.get_balance(self.address)
+                    if chain_id != 9:
+                        old_balance = await client.w3.eth.get_balance(self.address)
+                    else:
+                        old_balance = await client.account.get_balance()
                 except:
                     pass
 

@@ -72,8 +72,10 @@ class StarknetClient(Logger):
         self.WALLET_TYPE = None
 
     async def initialize_account(self, check_balance:bool = False):
-        self.account, self.address, self.WALLET_TYPE = await self.get_wallet_auto(self.w3, self.key_pair,
-                                                                                  self.account_name, check_balance)
+        self.account, self.address, self.WALLET_TYPE = await self.get_wallet_auto(
+            self.w3, self.key_pair,
+            self.account_name, check_balance
+        )
         self.address = int(self.address)
         self.acc_info = self.account_name, self.address
         self.account.ESTIMATED_FEE_MULTIPLIER = GAS_MULTIPLIER
@@ -81,7 +83,8 @@ class StarknetClient(Logger):
     async def get_wallet_auto(self, w3, key_pair, account_name, check_balance:bool = False):
         last_data = await self.check_stark_data_file(account_name)
         if last_data:
-            address, wallet_type = last_data['address'], last_data['address']
+            address, wallet_type = last_data['address'], last_data['wallet_type']
+
             account = Account(client=w3, address=address, key_pair=key_pair, chain=StarknetChainId.MAINNET)
 
             return account, address, wallet_type
@@ -103,6 +106,7 @@ class StarknetClient(Logger):
                     return account, address, wallet_type
             except ClientError:
                 pass
+
         new_wallet = {
             0: ('ArgentX', self.get_argent_address(key_pair, 1), 0),
             1: ('Braavos', self.get_braavos_address(key_pair), 1)
@@ -144,7 +148,7 @@ class StarknetClient(Logger):
 
         data[account_name] = {
             'address': address,
-            'wallet_type': wallet_type
+            'wallet_type': wallet_type,
         }
 
         with open(bad_progress_file_path, 'w') as file:
@@ -208,7 +212,7 @@ class StarknetClient(Logger):
     async def get_smart_amount(self, settings:tuple, token_name:str = 'ETH'):
         if isinstance(settings[0], str):
             _, amount, _ = await self.get_token_balance(token_name)
-            percent = round(random.uniform(int(settings[0]), int(settings[1])), 6) / 100
+            percent = round(random.uniform(float(settings[0]), float(settings[1])), 6) / 100
             amount = round(amount * percent, 6)
         else:
             amount = self.round_amount(*settings)
@@ -244,11 +248,53 @@ class StarknetClient(Logger):
         amount, _ = await self.check_and_get_eth(deposit_info, bridge_mode=True, initial_chain_id=src_chain_id)
         return source_chain, destination_chain, amount, dst_chains
 
+    async def new_client(self, chain_id):
+        from functions import get_network_by_chain_id
+        from modules import Client
+        if chain_id != 9:
+            client = Client
+        else:
+            client = StarknetClient
+        new_client = client(self.account_name, self.private_key,
+                            get_network_by_chain_id(chain_id), self.proxy_init)
+        return new_client
+
     async def wait_for_receiving(self, chain_id:int, old_balance:int = 0, token_name:str = 'ETH', sleep_time:int = 30,
                                  timeout: int = 1200, check_balance_on_dst:bool = False):
-        duration = random.randint(550, 650)
-        self.logger_msg(*self.acc_info, msg=f'💤 Sleeping for {duration} seconds')
-        await asyncio.sleep(duration)
+        client = await self.new_client(chain_id)
+        try:
+            if check_balance_on_dst:
+                if chain_id != 9:
+                    old_balance = await client.w3.eth.get_balance(self.address)
+                else:
+                    old_balance = await client.account.get_balance()
+                return old_balance
+
+            self.logger_msg(*self.acc_info, msg=f'Waiting ETH to receive')
+
+            t = 0
+            new_eth_balance = 0
+            while t < timeout:
+                try:
+                    if chain_id != 9:
+                        old_balance = await client.w3.eth.get_balance(self.address)
+                    else:
+                        old_balance = await client.account.get_balance()
+                except:
+                    pass
+
+                if new_eth_balance > old_balance:
+                    amount = round((new_eth_balance - old_balance) / 10 ** 18, 6)
+                    self.logger_msg(*self.acc_info, msg=f'{amount} {token_name} was received', type_msg='success')
+                    return True
+                else:
+                    self.logger_msg(*self.acc_info, msg=f'Still waiting {token_name} to receive...', type_msg='warning')
+                    await asyncio.sleep(sleep_time)
+                    t += sleep_time
+        except Exception:
+            raise RuntimeError(f'{token_name} has not been received within {timeout} seconds')
+        finally:
+            await client.session.close()
 
     async def get_landing_data(self, class_name:str, deposit:bool = False):
         landing_token_contracts = NOSTRA_CONTRACTS if class_name == 'Nostra' else ZKLEND_CONTRACTS
@@ -390,7 +436,6 @@ class StarknetClient(Logger):
     async def send_transaction(self, *calls:list, check_hash:bool = False, hash_for_check:int = None):
         try:
             tx_hash = hash_for_check
-
             if not check_hash:
                 tx_hash = (await self.account.execute(
                     calls=calls,

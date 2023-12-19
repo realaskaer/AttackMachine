@@ -248,7 +248,7 @@ class OKX(CEX, Logger):
             self.logger_msg(None, None, f"Bad data in okx_wallet_list.json", 'error')
 
         try:
-            okx_wallet = self.client.w3.to_checksum_address(okx_withdraw_list[self.client.account_name])
+            okx_wallet = okx_withdraw_list[self.client.account_name]
         except Exception as error:
             raise RuntimeError(f'There is no wallet listed for deposit to OKX: {error}')
 
@@ -286,12 +286,12 @@ class OKX(CEX, Logger):
                     if ccy in ['USDT', 'USDC']:
                         token_contract = self.client.get_contract(TOKENS_PER_CHAIN2[self.client.network.name][ccy])
                         transaction = await token_contract.functions.transfer(
-                            okx_wallet,
+                            self.client.w3.to_checksum_address(okx_wallet),
                             amount_in_wei
                         ).build_transaction(await self.client.prepare_transaction())
                     else:
                         transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
-                            'to': okx_wallet,
+                            'to': self.client.w3.to_checksum_address(okx_wallet),
                             'data': '0x'
                         }
 
