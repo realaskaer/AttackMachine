@@ -93,12 +93,13 @@ def get_accounts_data():
 
         acc_name, priv_key_evm, priv_key, proxy, okx_wallet = [], [], [], [], []
         for k, v in accounts_data.items():
-            acc_name.append(v['account_number'])
+            acc_name.append(v['account_number'] if isinstance(v['account_number'], (int, str)) else None)
             priv_key_evm.append(v['private_key_evm'])
             priv_key.append(v['private_key'])
             proxy.append(v['proxy'] if isinstance(v['proxy'], str) else None)
             okx_wallet.append(v['okx_wallet'] if isinstance(v['okx_wallet'], str) else None)
 
+        acc_name = [item for item in acc_name if item is not None]
         proxy = [item for item in proxy if item is not None]
         okx_wallet = [item for item in okx_wallet if item is not None]
 
