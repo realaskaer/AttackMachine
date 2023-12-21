@@ -1,6 +1,7 @@
 import random
 
-from config import ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, STARGATE_POOLS_ID, LAYERZERO_NETWORKS_DATA
+from config import ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA, \
+    TOKENS_PER_CHAIN2
 from modules import Logger, Aggregator
 from settings import GLOBAL_NETWORK, OKX_BALANCE_WANTED, AMOUNT_PERCENT, STARGATE_CHAINS, STARGATE_TOKENS, \
     MEMCOIN_AMOUNT
@@ -161,7 +162,9 @@ class Custom(Logger, Aggregator):
         else:
             self.logger_msg(*self.client.acc_info, msg=f"{from_token_name} balance is too low (lower 1$)")
 
-    async def stargate_swap(self):
+    async def smart_swap_stargate(self):
+        from functions import swap_stargate
+
         chain1, chain2 = STARGATE_CHAINS
         token1, token2 = STARGATE_TOKENS
         rpc_by_id = LAYERZERO_WRAPED_NETWORKS
@@ -169,24 +172,37 @@ class Custom(Logger, Aggregator):
         client_chain1 = await self.client.new_client(rpc_by_id[chain1])
         client_chain2 = await self.client.new_client(rpc_by_id[chain2])
 
-        balance_chain1 = await client_chain1.get_token_balance(omnicheck=True, token_name=token1, check_symbol=False)
-        balance_chain2 = await client_chain2.get_token_balance(omnicheck=True, token_name=token2, check_symbol=False)
+        balance_chain1, _, _ = await client_chain1.get_token_balance(omnicheck=True, token_name=token1,
+                                                                     check_symbol=False)
+        balance_chain2, _, _ = await client_chain2.get_token_balance(omnicheck=True, token_name=token2,
+                                                                     check_symbol=False)
 
         if balance_chain2 == 0 and balance_chain1 == 0:
             raise RuntimeError('Insufficient balances on both networks!')
         elif balance_chain2 > balance_chain1:
-            amount_in_wei = balance_chain2
+            current_client = client_chain2
             from_token_name, to_token_name = token2, token1
-            dst_chain_id, src_chain_name = LAYERZERO_NETWORKS_DATA[chain2][1], client_chain2.network.name
+            amount_in_wei = balance_chain2 if from_token_name != 'ETH' else await client_chain2.client.get_smart_amount()
+            src_chain_name, dst_chain_name = client_chain2.network.name, client_chain1.network.name
+            dst_chain_id = LAYERZERO_NETWORKS_DATA[chain1][1]
+            contract = client_chain2.get_contract(TOKENS_PER_CHAIN2[client_chain2.network.name][from_token_name])
+            decimals = await contract.functions.decimals().call()
         else:
-            amount_in_wei = balance_chain1
+            current_client = client_chain1
             from_token_name, to_token_name = token1, token2
-            dst_chain_id, src_chain_name = LAYERZERO_NETWORKS_DATA[chain1][1], client_chain1.network.name
+            amount_in_wei = balance_chain1 if from_token_name != 'ETH' else await client_chain1.client.get_smart_amount()
+            src_chain_name, dst_chain_name = client_chain1.network.name, client_chain2.network.name
+            dst_chain_id = LAYERZERO_NETWORKS_DATA[chain2][1]
+            contract = client_chain1.get_contract(TOKENS_PER_CHAIN2[client_chain1.network.name][from_token_name])
+            decimals = await contract.functions.decimals().call()
 
-        amount = f"{amount_in_wei / 10 ** (18 if token1 == 'ETH' else 6):.5f}"
+        amount = f"{amount_in_wei / 10 ** decimals:.3f}"
 
-        return dst_chain_id, src_chain_name, from_token_name, to_token_name, amount, amount_in_wei
+        swapdata = dst_chain_id, dst_chain_name, src_chain_name, from_token_name, to_token_name, amount, amount_in_wei
 
+        return await swap_stargate(current_client, swapdata=swapdata)
+
+    @helper
     async def mint_token_avnu(self):
         from functions import swap_avnu
 
@@ -196,6 +212,7 @@ class Custom(Logger, Aggregator):
         return await swap_avnu(self.client.account_name, self.client.private_key,
                                self.client.network, self.client.proxy_init, swapdata=data)
 
+    @helper
     async def mint_token_jediswap(self):
         from functions import swap_jediswap
 
@@ -204,7 +221,4 @@ class Custom(Logger, Aggregator):
 
         return await swap_jediswap(self.client.account_name, self.client.private_key,
                                    self.client.network, self.client.proxy_init, swapdata=data)
-
-
-
 

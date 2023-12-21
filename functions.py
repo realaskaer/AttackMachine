@@ -650,8 +650,12 @@ async def mint_token_jediswap(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.mint_token_jediswap()
 
-# async def bridge_stargate(account_number, private_key, _, proxy):
-#     network = get_network_by_chain_id(random.choice())
-#
-#     worker = Stargate(get_client(account_number, private_key, network, proxy))
-#     return await worker.bridge()
+
+async def bridge_stargate(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.smart_swap_stargate()
+
+
+async def swap_stargate(client, **kwargs):
+    worker = Stargate(client)
+    return await worker.bridge(**kwargs)

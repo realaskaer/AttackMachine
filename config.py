@@ -1623,7 +1623,7 @@ OKX_NETWORKS_NAME = {
     26                      : 'USDT-Arbitrum One',
     27                      : 'USDC-ERC20',
     28                      : 'USDC-Optimism',
-    29                      : 'USDC-Avalanche',
+    29                      : 'USDC-Avalanche C-Chain',
     30                      : 'USDC-Arbitrum One',
     31                      : 'USDT-Polygon'
 }

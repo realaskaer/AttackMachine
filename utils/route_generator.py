@@ -45,6 +45,7 @@ AVAILABLE_MODULES_INFO = {
     enable_collateral_reactorfusion     : (enable_collateral_reactorfusion, 2, 'Enable ReactorFusion Collateral', 1, [11]),
     enable_collateral_zklend            : (enable_collateral_zklend, 2, 'Enable zkLend Collateral', 1, [9]),
     enable_collateral_layerbank         : (enable_collateral_layerbank, 2, 'Enable LayerBank Collateral', 1, [4, 8]),
+    bridge_stargate                     : (bridge_stargate, 2, 'Stargate Bridge', 1, [0]),
     swap_jediswap                       : (swap_jediswap, 2, 'JediSwap Swap', 1, [9]),
     swap_avnu                           : (swap_avnu, 2, 'AVNU Swap', 1, [9]),
     swap_10kswap                        : (swap_10kswap, 2, '10kSwap Swap', 1, [9]),

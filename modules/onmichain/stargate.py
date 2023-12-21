@@ -10,25 +10,28 @@ class Stargate(Logger):
 
     async def bridge(self, swapdata:dict):
 
+        dst_chain_id, dst_chain_name, src_chain_name, from_token_name, to_token_name, amount, amount_in_wei = swapdata
+
+        self.logger_msg(
+            *self.client.acc_info,
+            msg=f'Bridge {amount} {from_token_name} {src_chain_name} to {to_token_name} {dst_chain_name} on Stargate')
+
         contracts = STARGATE_CONTRACTS[self.network]
 
         router_contract = self.client.get_contract(contracts['router'], STARGATE_ABI['router'])
-        router_eth_contract = self.client.get_contract(contracts['router_eth'], STARGATE_ABI['router_eth'])
         # bridge_contract = self.client.get_contract(contracts['bridge'], STARGATE_ABI['bridge'])
         # factory_contract = self.client.get_contract(contracts['factory'], STARGATE_ABI['factory'])
 
-        dst_chain_id, src_chain_name, from_token_name, to_token_name, amount, amount_in_wei = swapdata
-
         scr_pool_id = STARGATE_POOLS_ID[self.network][from_token_name]
-        dst_pool_id = STARGATE_POOLS_ID[src_chain_name][to_token_name]
-        dst_gas_for_call, dst_native_amount, dst_native_addr = 0, 0, 0x0000000000000000000000000000000000000001
+        dst_pool_id = STARGATE_POOLS_ID[dst_chain_name][to_token_name]
+        dst_gas_for_call, dst_native_amount, dst_native_addr = 0, 0, '0x0000000000000000000000000000000000000001'
         function_type = 1
         min_amount_out = int(amount_in_wei * 0.995)
 
         estimate_fee = (await router_contract.functions.quoteLayerZeroFee(
             dst_chain_id,
             function_type,
-            STARGATE_CONTRACTS[self.network][to_token_name],
+            STARGATE_CONTRACTS[dst_chain_name][to_token_name],
             "0x",
             (
                 dst_gas_for_call,
@@ -36,8 +39,9 @@ class Stargate(Logger):
                 dst_native_addr
             )
         ).call())[0]
-        print(estimate_fee)
+
         if from_token_name == 'ETH':
+            router_eth_contract = self.client.get_contract(contracts['router_eth'], STARGATE_ABI['router_eth'])
             transaction = await router_eth_contract.functions.swapETH(
                 dst_chain_id,
                 self.client.address,
@@ -62,6 +66,4 @@ class Stargate(Logger):
                 '0x'
             ).build_transaction(await self.client.prepare_transaction(value=estimate_fee))
 
-        print(transaction)
-        return
         return await self.client.send_transaction(transaction)
