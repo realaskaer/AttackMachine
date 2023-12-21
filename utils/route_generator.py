@@ -487,7 +487,7 @@ class RouteGenerator(Logger):
         with open('./data/services/wallets_progress.json', 'w') as file:
             accounts_data = {}
             for account_name in ACCOUNT_NAMES:
-                if isinstance(account_name, str):
+                if isinstance(account_name, (str, int)):
                     classic_route = self.classic_generate_route()
                     account_data = {
                         "current_step": 0,
