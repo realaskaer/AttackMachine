@@ -89,6 +89,7 @@ AVAILABLE_MODULES_INFO = {
     mint_starkstars                     : (mint_starkstars, 2, 'StarkStars Mint', 0, [9]),
     mint_zkstars                        : (mint_zkstars, 2, 'zkStars Mint', 0, [3, 4, 8, 11, 12]),
     mint_mintfun                        : (mint_mintfun, 2, 'Mintfun Mint', 0, [3, 4, 8, 11]),
+    mint_inscription                    : (mint_inscription, 2, 'Mint EVM Inscription', 0, [0]),
     deploy_contract                     : (deploy_contract, 3, 'Contract Deploy', 0, [2, 3, 4, 8, 9, 11, 12]),
     bridge_zerius                       : (bridge_zerius, 3, 'Zerius Bridge NFT', 0, [2, 3, 4, 8, 11, 12]),
     refuel_bungee                       : (refuel_bungee, 3, 'Bungee Refuel', 0, [3, 11]),

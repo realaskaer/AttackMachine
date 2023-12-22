@@ -10,3 +10,4 @@ from .starkstars import StarkStars
 from .zkstars import ZkStars
 from .mintfun import MintFun
 from .cutsom_module import Custom
+from .inscription import Inscription

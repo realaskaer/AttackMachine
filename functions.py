@@ -665,3 +665,9 @@ async def swap_stargate(client, **kwargs):
 async def swap_bridged_usdc(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.swap_bridged_usdc()
+
+
+async def mint_inscription(account_number, private_key, network, proxy):
+
+    worker = Inscription(get_client(account_number, private_key, ZKFairRPC, proxy))
+    return await worker.mint_inscribe()
