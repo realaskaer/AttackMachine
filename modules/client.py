@@ -187,6 +187,7 @@ class Client(Logger):
         func = {
             3: [swap_odos, swap_oneinch, swap_openocean, swap_xyfinance],
             4: [swap_rango, swap_openocean, swap_xyfinance],
+            6: [swap_oneinch],
             8: [swap_openocean, swap_xyfinance],
             11: [swap_openocean, swap_xyfinance, swap_rango, swap_odos, swap_oneinch]
         }[GLOBAL_NETWORK]
