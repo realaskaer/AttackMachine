@@ -84,7 +84,10 @@ class Orbiter(Bridge, Logger):
 
             transaction = approve_call, bridge_call
         elif token_name != 'ETH':
-            contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][token_name])
+            if self.client.network.name == 'Polygon':
+                contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name]['USDC.e'])
+            else:
+                contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][token_name])
 
             transaction = [await contract.functions.transfer(
                 AsyncWeb3.to_checksum_address(bridge_data['maker']),
@@ -96,7 +99,10 @@ class Orbiter(Bridge, Logger):
             }]
 
         if min_price <= amount <= max_price:
-            balance_in_wei, _, _ = await self.client.get_token_balance(token_name)
+            if self.client.network.name == 'Polygon':
+                balance_in_wei, _, _ = await self.client.get_token_balance('USDC.e')
+            else:
+                balance_in_wei, _, _ = await self.client.get_token_balance(token_name)
 
             if balance_in_wei > full_amount:
 
