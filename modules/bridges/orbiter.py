@@ -43,8 +43,6 @@ class Orbiter(Bridge, Logger):
 
         from_chain, to_chain, amount, to_chain_id = await self.client.get_bridge_data(chain_from_id, 'Orbiter')
         token_name = ORBITER_TOKEN_NAME
-        if token_name == 'USDC' and self.client.network.name == 'Polygon':
-            token_name = 'USDC.e'
 
         bridge_info = f'{amount} {token_name} from {from_chain["name"]} to {to_chain["name"]}'
         self.logger_msg(*self.client.acc_info, msg=f'Bridge on Orbiter: {bridge_info}')
