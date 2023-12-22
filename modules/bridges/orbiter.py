@@ -2,9 +2,9 @@ import json
 import random
 
 from modules import Bridge, Logger
-from utils.tools import helper, gas_checker
+from utils.tools import helper
 from config import ORBITER_CONTRACTS, ORBITER_ABI, TOKENS_PER_CHAIN
-from settings import GLOBAL_NETWORK
+from settings import GLOBAL_NETWORK, ORBITER_TOKEN_NAME
 from web3 import AsyncWeb3
 
 
@@ -34,7 +34,6 @@ class Orbiter(Bridge, Logger):
         raise RuntimeError(f'That bridge is not active!')
 
     @helper
-    @gas_checker
     async def bridge(self, chain_from_id:int, private_keys:dict = None):
         if GLOBAL_NETWORK == 9 and chain_from_id == 9:
             await self.client.initialize_account()
@@ -43,14 +42,14 @@ class Orbiter(Bridge, Logger):
             self.client = await self.client.initialize_evm_client(private_keys['evm_key'], chain_from_id)
 
         from_chain, to_chain, amount, to_chain_id = await self.client.get_bridge_data(chain_from_id, 'Orbiter')
-        token_name = 'ETH'
+        token_name = ORBITER_TOKEN_NAME
 
         bridge_info = f'{amount} {token_name} from {from_chain["name"]} to {to_chain["name"]}'
         self.logger_msg(*self.client.acc_info, msg=f'Bridge on Orbiter: {bridge_info}')
 
         bridge_data = self.get_maker_data(from_chain['id'], to_chain['id'], token_name)
         destination_code = 9000 + to_chain['id']
-        decimals = 18 if token_name == 'ETH' else 6
+        decimals = await self.client.get_decimals(token_name)
         fee = int(float(bridge_data['fee']) * 10 ** decimals)
         min_price, max_price = bridge_data['min_amount'], bridge_data['max_amount']
         amount_in_wei = int(amount * 10 ** decimals)
@@ -84,6 +83,13 @@ class Orbiter(Bridge, Logger):
             )
 
             transaction = approve_call, bridge_call
+        elif token_name != 'ETH':
+            contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][token_name])
+
+            transaction = [await contract.functions.transfer(
+                AsyncWeb3.to_checksum_address(bridge_data['maker']),
+                full_amount
+            ).build_transaction(await self.client.prepare_transaction())]
         else:
             transaction = [(await self.client.prepare_transaction(value=full_amount)) | {
                 'to': self.client.w3.to_checksum_address(bridge_data['maker'])
@@ -94,17 +100,18 @@ class Orbiter(Bridge, Logger):
             balance_in_wei, _, _ = await self.client.get_token_balance(token_name)
             if balance_in_wei > full_amount:
 
-                if int(f"{transaction[0]['value']}"[-4:]) != destination_code:
+                if int(f"{full_amount}"[-4:]) != destination_code:
                     raise RuntimeError('Math problem in Python. Machine will save your money =)')
 
-                old_balance_on_dst = await self.client.wait_for_receiving(to_chain_id, check_balance_on_dst=True)
+                old_balance_on_dst = await self.client.wait_for_receiving(to_chain_id, token_name=token_name,
+                                                                          check_balance_on_dst=True)
 
                 result = await self.client.send_transaction(*transaction)
 
                 self.logger_msg(*self.client.acc_info,
                                 msg=f"Bridge complete. Note: wait a little for receiving funds", type_msg='success')
 
-                await self.client.wait_for_receiving(to_chain_id, old_balance_on_dst)
+                await self.client.wait_for_receiving(to_chain_id, old_balance_on_dst, token_name=token_name)
 
                 return result
 

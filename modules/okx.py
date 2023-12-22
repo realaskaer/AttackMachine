@@ -5,7 +5,7 @@ import asyncio
 from hashlib import sha256
 from modules import CEX, Logger
 from datetime import datetime, timezone
-from utils.tools import helper, sleep, gas_checker
+from utils.tools import helper, sleep
 from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, OKX_WRAPED_ID, TOKENS_PER_CHAIN2
 from settings import (
     OKX_WITHDRAW_NETWORK,
@@ -40,12 +40,12 @@ class OKX(CEX, Logger):
         except Exception as error:
             raise RuntimeError(f'Bad headers for OKX request: {error}')
 
-    async def get_currencies(self):
+    async def get_currencies(self, ccy: str = 'ETH'):
         url = 'https://www.okx.cab/api/v5/asset/currencies'
 
-        params = {'ccy': 'ETH'}
+        params = {'ccy': ccy}
 
-        headers = await self.get_headers(f'{url}?ccy=ETH')
+        headers = await self.get_headers(f'{url}?ccy={ccy}')
 
         return await self.make_request(url=url, headers=headers, params=params, module_name='Token info')
 
@@ -56,20 +56,21 @@ class OKX(CEX, Logger):
 
         url = 'https://www.okx.cab/api/v5/asset/withdrawal'
 
-        withdraw_data = await self.get_currencies()
+        ccy = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK].split('-')[0]
+        withdraw_data = await self.get_currencies(ccy)
 
         networks_data = {item['chain']: {'can_withdraw': item['canWd'], 'min_fee': item['minFee'],
                                          'min_wd': item['minWd'], 'max_wd': item['maxWd']} for item in withdraw_data}
 
         network_name = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK]
-        ccy = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK].split('-')[0]
         network_data = networks_data[network_name]
         if want_balance:
             amount = want_balance
         else:
             amount = await self.client.get_smart_amount(OKX_WITHDRAW_AMOUNT)
 
-        self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount} ETH to {network_name[4:]}")
+        self.logger_msg(
+            *self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name[4 if ccy == 'ETH' else 5:]}")
 
         if network_data['can_withdraw']:
             address = f"0x{hex(self.client.address)[2:]:0>64}" if OKX_WITHDRAW_NETWORK == 5 else self.client.address
@@ -89,18 +90,19 @@ class OKX(CEX, Logger):
                 headers = await self.get_headers(method="POST", request_path=url, body=str(body))
                 dst_chain_id = OKX_WRAPED_ID[OKX_WITHDRAW_NETWORK]
 
-                old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, check_balance_on_dst=True)
+                old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id,token_name=ccy,
+                                                                          check_balance_on_dst=True)
 
                 await self.make_request(method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
 
                 self.logger_msg(*self.client.acc_info,
                                 msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success')
 
-                await self.client.wait_for_receiving(dst_chain_id, old_balance_on_dst)
+                await self.client.wait_for_receiving(dst_chain_id, old_balance_on_dst, token_name=ccy)
 
                 return True
             else:
-                raise RuntimeError(f"Limit range for withdraw: {min_wd:.5f} ETH - {max_wd} ETH")
+                raise RuntimeError(f"Limit range for withdraw: {min_wd:.5f} {ccy} - {max_wd} {ccy}")
         else:
             raise RuntimeError(f"Withdraw from {network_name} is not available")
 
@@ -233,12 +235,12 @@ class OKX(CEX, Logger):
         raise RuntimeError(f'Deposit does not complete in {timeout} seconds')
 
     @helper
-    @gas_checker
     async def deposit(self):
         if GLOBAL_NETWORK == 9:
             await self.client.initialize_account()
 
-        amount, amount_in_wei = await self.client.check_and_get_eth(OKX_DEPOSIT_AMOUNT)
+        amount = await self.client.get_smart_amount(OKX_DEPOSIT_AMOUNT)
+        amount_in_wei = int(amount * 10 ** 18)
 
         try:
             with open('./data/services/okx_withdraw_list.json') as file:
@@ -254,16 +256,16 @@ class OKX(CEX, Logger):
 
         info = f"{okx_wallet[:10]}....{okx_wallet[-6:]}"
         network_name = self.client.network.name
+        ccy = OKX_NETWORKS_NAME[OKX_DEPOSIT_NETWORK].split('-')[0]
 
-        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} ETH from {network_name} to OKX wallet: {info}")
+        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to OKX wallet: {info}")
 
-        withdraw_data = await self.get_currencies()
+        withdraw_data = await self.get_currencies(ccy)
 
         networks_data = {item['chain']: {'can_dep': item['canDep'], 'min_dep': item['minDep']}
                          for item in withdraw_data}
 
         network_name = OKX_NETWORKS_NAME[OKX_DEPOSIT_NETWORK]
-        ccy = OKX_NETWORKS_NAME[OKX_DEPOSIT_NETWORK].split('-')[0]
         network_data = networks_data[network_name]
 
         if network_data['can_dep']:
@@ -303,7 +305,7 @@ class OKX(CEX, Logger):
 
                 return result
             else:
-                raise RuntimeError(f"Minimum to deposit: {min_dep} ETH")
+                raise RuntimeError(f"Minimum to deposit: {min_dep} {ccy}")
         else:
             raise RuntimeError(f"Deposit to {network_name} is not available")
 

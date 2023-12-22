@@ -129,39 +129,56 @@ class Client(Logger):
     async def wait_for_receiving(self, chain_id:int, old_balance:int = 0, token_name:str = 'ETH', sleep_time:int = 60,
                                  timeout: int = 1200, check_balance_on_dst:bool = False):
         client = await self.new_client(chain_id)
+
         try:
             if check_balance_on_dst:
-                if chain_id != 9:
-                    old_balance = await client.w3.eth.get_balance(self.address)
-                else:
-                    old_balance = await client.account.get_balance()
+                old_balance, _, _ = await client.get_token_balance(token_name)
                 return old_balance
 
-            self.logger_msg(*self.acc_info, msg=f'Waiting ETH to receive')
+            self.logger_msg(*self.acc_info, msg=f'Waiting {token_name} to receive')
 
             t = 0
             new_eth_balance = 0
             while t < timeout:
                 try:
-                    if chain_id != 9:
-                        old_balance = await client.w3.eth.get_balance(self.address)
-                    else:
-                        old_balance = await client.account.get_balance()
+                    new_eth_balance, _, _ = await client.get_token_balance(token_name)
                 except:
                     pass
 
                 if new_eth_balance > old_balance:
-                    amount = round((new_eth_balance - old_balance) / 10 ** 18, 6)
+                    dicimals = await client.get_decimals(token_name) if token_name != client.network.token else 18
+                    amount = round((new_eth_balance - old_balance) / 10 ** dicimals, 6)
                     self.logger_msg(*self.acc_info, msg=f'{amount} {token_name} was received', type_msg='success')
                     return True
                 else:
                     self.logger_msg(*self.acc_info, msg=f'Still waiting {token_name} to receive...', type_msg='warning')
                     await asyncio.sleep(sleep_time)
                     t += sleep_time
-        except Exception:
-            raise RuntimeError(f'{token_name} has not been received within {timeout} seconds')
+                if t > timeout:
+                    raise RuntimeError(f'{token_name} has not been received within {timeout} seconds')
+        except Exception as error:
+            raise RuntimeError(f'Error in <WAIT FOR RECEIVING> function. Error: {error}')
         finally:
             await client.session.close()
+
+    async def get_token_balance(self, token_name: str = 'ETH', check_symbol: bool = True,
+                                omnicheck:bool = False) -> [float, int, str]:
+        if token_name != self.network.token:
+            if omnicheck:
+                contract = self.get_contract(TOKENS_PER_CHAIN2[self.network.name][token_name])
+            else:
+                contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
+
+            amount_in_wei = await contract.functions.balanceOf(self.address).call()
+            decimals = await contract.functions.decimals().call()
+
+            if check_symbol:
+                symbol = await contract.functions.symbol().call()
+                return amount_in_wei, amount_in_wei / 10 ** decimals, symbol
+            return amount_in_wei, amount_in_wei / 10 ** decimals, ''
+
+        amount_in_wei = await self.w3.eth.get_balance(self.address)
+        return amount_in_wei, amount_in_wei / 10 ** 18, 'ETH'
 
     async def check_and_get_eth(self, settings:tuple = None, bridge_mode:bool = False,
                                 initial_chain_id:int = 0) -> [float, int]:
@@ -257,25 +274,6 @@ class Client(Logger):
 
         else:
             raise RuntimeError('Insufficient balance on account!')
-
-    async def get_token_balance(self, token_name: str = 'ETH', check_symbol: bool = True,
-                                omnicheck:bool = False) -> [float, int, str]:
-        if token_name != 'ETH':
-            if omnicheck:
-                contract = self.get_contract(TOKENS_PER_CHAIN2[self.network.name][token_name])
-            else:
-                contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
-
-            amount_in_wei = await contract.functions.balanceOf(self.address).call()
-            decimals = await contract.functions.decimals().call()
-
-            if check_symbol:
-                symbol = await contract.functions.symbol().call()
-                return amount_in_wei, amount_in_wei / 10 ** decimals, symbol
-            return amount_in_wei, amount_in_wei / 10 ** decimals, ''
-
-        amount_in_wei = await self.w3.eth.get_balance(self.address)
-        return amount_in_wei, amount_in_wei / 10 ** 18, 'ETH'
 
     def get_contract(self, contract_address: str, abi=ERC20_ABI):
         return self.w3.eth.contract(
