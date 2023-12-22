@@ -222,3 +222,14 @@ class Custom(Logger, Aggregator):
         return await swap_jediswap(self.client.account_name, self.client.private_key,
                                    self.client.network, self.client.proxy_init, swapdata=data)
 
+    @helper
+    async def swap_bridged_usdc(self):
+        from functions import swap_oneinch
+
+        amount_in_wei, amount, _ = await self.client.get_token_balance('USDC')
+        data = 'USDC', 'USDC.e', amount, amount_in_wei
+
+        return await swap_oneinch(self.client.account_name, self.client.private_key,
+                                  self.client.network, self.client.proxy_init, swapdata=data)
+
+

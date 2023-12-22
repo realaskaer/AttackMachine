@@ -95,7 +95,7 @@ PolygonRPC = Network(
         'https://polygon-rpc.com'
     ],
     chain_id=137,
-    eip1559_support=True,
+    eip1559_support=False,
     token='MATIC',
     explorer='https://polygonscan.com/',
 )
@@ -200,7 +200,7 @@ Polygon_ZKEVM_RPC = Network(
 )
 
 BSC_RPC = Network(
-    name='BNB chain',
+    name='BNB Chain',
     rpc=[
         'https://binance.llamarpc.com',
         'https://bsc-dataseed.bnbchain.org',

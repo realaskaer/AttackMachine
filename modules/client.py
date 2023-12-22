@@ -390,6 +390,7 @@ class Client(Logger):
         try:
 
             total_time = 0
+            timeout = timeout if self.network.name != 'Polygon' else 1200
             while True:
                 try:
                     receipts = await self.w3.eth.get_transaction_receipt(tx_hash)

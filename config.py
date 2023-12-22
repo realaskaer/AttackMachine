@@ -207,6 +207,8 @@ TOKENS_PER_CHAIN = {
     "Polygon":{
         'MATIC'             : "0x0000000000000000000000000000000000001010",
         'WETH'              : "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+        'USDC'              : "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+        'USDC.e'            : "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
     },
     "zkSync": {
         "ETH"               : "0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91",
@@ -1197,6 +1199,10 @@ MERKLY_CONTRACTS_PER_CHAINS = {
     4: {
         'refuel'                : '0xc9B753d73B17DDb5E87093ff04A9e31845a43af0',
         'endpoint'              : '0xDB3Bb6D5a8EeEAfc64C66C176900E6B82b23dd5f'
+    },
+    5: {
+        'refuel'                : '0xc62C04F7CD4B47729027c138FABD99aFA5db1222',
+        'endpoint'              : '0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7'
     },
     6: {
         'refuel'                : '0x0E1f20075C90Ab31FC2Dd91E536e6990262CF76d',

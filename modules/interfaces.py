@@ -14,6 +14,7 @@ CHAINS_NAME = {
     2: 'Arbitrum Nova',
     3: 'Base',
     4: 'Linea',
+    6: 'Polygon',
     8: 'Scroll',
     9: 'Starknet',
     11: 'zkSync',
