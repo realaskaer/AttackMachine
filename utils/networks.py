@@ -90,9 +90,6 @@ PolygonRPC = Network(
     name='Polygon',
     rpc=[
         'https://rpc.ankr.com/polygon',
-        'https://polygon.llamarpc.com',
-        'https://1rpc.io/matic',
-        'https://polygon-rpc.com'
     ],
     chain_id=137,
     eip1559_support=False,

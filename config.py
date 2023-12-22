@@ -461,6 +461,9 @@ WOOFI_CONTRACTS = {
     },
     'Base':{
         "router"                : '0x27425e9FB6A9A625E8484CFD9620851D1Fa322E5'
+    },
+    'Polygon':{
+        "router"                : '0x817Eb46D60762442Da3D931Ff51a30334CA39B74'
     }
 }
 

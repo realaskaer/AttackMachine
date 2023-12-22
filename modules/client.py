@@ -84,6 +84,7 @@ class Client(Logger):
         token_info = {
             'USDT': 'tether',
             'USDC': 'usd-coin',
+            'USDC.e': 'bridged-usdc-polygon-pos-bridge',
             'BUSD': 'binance-usd',
             'ETH': 'ethereum',
             'WETH': 'ethereum',

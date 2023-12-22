@@ -69,7 +69,7 @@ AVAILABLE_MODULES_INFO = {
     swap_zkswap                         : (swap_zkswap, 2, 'zkSwap Swap', 1, [11]),
     swap_uniswap                        : (swap_uniswap, 2, 'Uniswap Swap', 1, [3]),
     swap_sushiswap                      : (swap_sushiswap, 2, 'SushiSwap Swap', 1, [2, 3]),
-    swap_bridged_usdc                   : (swap_bridged_usdc, 2, '1inch Swap', 1, [0]),
+    swap_bridged_usdc                   : (swap_bridged_usdc, 2, 'Swap USDC to Bridged', 1, [0]),
     wrap_eth                            : (wrap_eth, 2, 'Wrap ETH', 0, [2, 3, 4, 8, 11, 12]),
     random_approve                      : (random_approve, 2, 'Random Approve', 0, [2, 3, 4, 8, 9, 11, 12]),
     disable_collateral_basilisk         : (disable_collateral_basilisk, 3, 'Disable Basilisk Collateral', 1, [11]),

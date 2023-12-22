@@ -83,9 +83,9 @@ def get_key_by_id_from(args, chain_from_id):
     return current_key
 
 
-async def swap_woofi(account_number, private_key, network, proxy):
+async def swap_woofi(account_number, private_key, network, proxy, **kwargs):
     worker = WooFi(get_client(account_number, private_key, network, proxy))
-    return await worker.swap()
+    return await worker.swap(**kwargs)
 
 
 async def swap_syncswap(account_number, private_key, network, proxy):

@@ -224,12 +224,15 @@ class Custom(Logger, Aggregator):
 
     @helper
     async def swap_bridged_usdc(self):
-        from functions import swap_oneinch
+        from functions import swap_woofi
 
         amount_in_wei, amount, _ = await self.client.get_token_balance('USDC')
         data = 'USDC', 'USDC.e', amount, amount_in_wei
 
-        return await swap_oneinch(self.client.account_name, self.client.private_key,
-                                  self.client.network, self.client.proxy_init, swapdata=data)
+        if amount_in_wei == 0:
+            raise RuntimeError("Insufficient USDC balances")
+
+        return await swap_woofi(self.client.account_name, self.client.private_key,
+                                self.client.network, self.client.proxy_init, swapdata=data)
 
 
