@@ -70,7 +70,8 @@ def get_network_by_chain_id(chain_id):
         41: ShimmerRPC,
         42: TenetRPC,
         43: XPLA_RPC,
-        44: LootChainRPC
+        44: LootChainRPC,
+        45: ZKFairRPC
     }[chain_id]
 
 

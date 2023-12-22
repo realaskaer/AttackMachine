@@ -612,6 +612,18 @@ LootChainRPC = Network(
     explorer='https://explorer.lootchain.com/'
 )
 
+ZKFairRPC = Network(
+    name='ZKFair',
+    rpc=[
+        'https://rpc.zkfair.io',
+        'https://zkfair.rpc.thirdweb.com',
+    ],
+    chain_id=42766,
+    eip1559_support=False,
+    token='USDC',
+    explorer='https://scan.zkfair.io/'
+)
+
 # zkSyncLite = Network(
 #     name='zksync_lite',
 #     rpc=[],

@@ -240,6 +240,10 @@ TOKENS_PER_CHAIN = {
         "WETH"              : "0x5300000000000000000000000000000000000004",
         "USDT"              : "0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df",
         "USDC"              : "0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4",
+    },
+    "BNB Chain":{
+        "USDT"              : "0x55d398326f99059fF775485246999027B3197955",
+        "USDC"              : "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
     }
 }
 
@@ -248,7 +252,7 @@ ACROSS_CONTRACT = {
     'Optimism'              : '0x269727F088F16E1Aea52Cf5a97B1CD41DAA3f02D',
     'Base'                  : '0x269727F088F16E1Aea52Cf5a97B1CD41DAA3f02D',
     'Etherium': '',
-    'Polygon': '',
+    'Polygon'               : '',
 }
 
 AVNU_CONTRACT = {
@@ -1404,6 +1408,7 @@ ORBITER_CHAINS_INFO = {
     26: {'name': 'Metis',          'chainId': 1088,         'id': 10},
     28: {'name': 'OpBNB',          'chainId': 204,          'id': 25},
     29: {'name': 'Mantle',         'chainId': 5000,         'id': 24},
+    45: {'name': 'ZKFair',         'chainId': 42766,        'id': 38}
 }
 
 TOKENS_PER_CHAIN2 = {
