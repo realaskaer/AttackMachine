@@ -1260,7 +1260,7 @@ MERKLY_CONTRACTS_PER_CHAINS = {
         'endpoint'              : '0x66A71Dcef29A0fFBDBE3c6a460a3B5BC225Cd675'
     },
     19: {
-        'refuel'                : '0xa513F61Bc23F0eB1FC0aC4d9dab376d79bC7F3cB',
+        'refuel'                : '0xC20A842e1Fc2681920C1A190552A2f13C46e7fCF',
         'endpoint'              : '0x3A73033C0b1407574C76BdBAc67f126f6b4a9AA9'
     },
     20: {
@@ -1617,7 +1617,7 @@ OKX_NETWORKS_NAME = {
     6                       : 'ETH-zkSync Era',
     7                       : 'ETH-Linea',
     8                       : 'ETH-Base',
-    9                       : 'CELO-Celo',
+    9                       : 'CELO-CELO',
     10                      : 'ONE-Harmony',
     11                      : 'GLMR-Moonbeam',
     12                      : 'MOVR-Moonriver',
