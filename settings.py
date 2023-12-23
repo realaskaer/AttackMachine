@@ -259,6 +259,10 @@ STARKSTARS_NFT_CONTRACTS = (1, 2, 3, 20)  # при (0) заминтит случ
 ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 20)  # при (0) заминтит случайную новую NFT
 NEW_WALLET_TYPE = 0
 
+
+INSCRIPTION_DATA = ''
+INSCRIPTION_NETWORK = 0
+
 MEMCOIN_AMOUNT = 0.01  # сумма в ETH
 
 MINTFUN_CONTRACTS = {
@@ -334,6 +338,9 @@ HELPERS_CONFIG = {
     
     mint_token_avnu
     mint_token_jediswap
+    mint_scroll_nft
+    mint_inscription
+    swap_stargate                    
     
 ----------------------------------------------------ZKSYNC--------------------------------------------------------------        
 
@@ -362,7 +369,7 @@ HELPERS_CONFIG = {
     swap_xyfinance                   
     swap_vesync                      
     swap_woofi                       
-    swap_zkswap                      
+    swap_zkswap                 
     wrap_eth                         # wrap/unwrap ETH через офф. контракт токена WETH. (кол-во из LIQUIDITY_AMOUNT)
     create_omnisea                   # создание новой NFT коллекции. Все параметры будут рандомными
     create_safe                      # создает сейф в сети GLOBAL_NETWORK

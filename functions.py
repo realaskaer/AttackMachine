@@ -4,7 +4,7 @@ from modules import *
 from utils.networks import *
 from config import OKX_WRAPED_ID, LAYERZERO_WRAPED_NETWORKS
 from settings import (ORBITER_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, RHINO_CHAIN_ID_FROM, ACROSS_CHAIN_ID_FROM,
-                      OKX_DEPOSIT_NETWORK, SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, GLOBAL_NETWORK)
+                      OKX_DEPOSIT_NETWORK, SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, GLOBAL_NETWORK, INSCRIPTION_NETWORK)
 
 
 def get_client(account_number, private_key, network, proxy, bridge_from_evm:bool = False) -> Client | StarknetClient:
@@ -667,7 +667,14 @@ async def swap_bridged_usdc(account_number, private_key, network, proxy):
     return await worker.swap_bridged_usdc()
 
 
-async def mint_inscription(account_number, private_key, network, proxy):
+async def mint_inscription(account_number, private_key, _, proxy):
+    network = get_network_by_chain_id(LAYERZERO_WRAPED_NETWORKS[INSCRIPTION_NETWORK])
 
-    worker = Inscription(get_client(account_number, private_key, ZKFairRPC, proxy))
+    worker = Inscription(get_client(account_number, private_key, network, proxy))
     return await worker.mint_inscribe()
+
+
+async def mint_scroll_nft(account_number, private_key, network, proxy):
+
+    worker = ScrollNFT(get_client(account_number, private_key, network, proxy))
+    return await worker.mint()

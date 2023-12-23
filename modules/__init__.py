@@ -49,6 +49,7 @@ from .others import ZkStars
 from .others import MintFun
 from .others import Custom
 from .others import Inscription
+from .others import ScrollNFT
 from .landings import EraLend
 from .landings import ZeroLend
 from .landings import ReactorFusion

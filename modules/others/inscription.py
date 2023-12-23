@@ -1,4 +1,5 @@
 from modules import Logger, Aggregator
+from settings import INSCRIPTION_DATA
 from utils.tools import helper
 
 
@@ -15,7 +16,7 @@ class Inscription(Logger, Aggregator):
     @helper
     async def mint_inscribe(self):
         tx_params = (await self.client.prepare_transaction()) | {
-            'data': 'data:,{"p":"frc-20","op":"mint","tick":"fair","amt":"1000000"}'.encode(),
+            'data': INSCRIPTION_DATA.encode(),
             'to': self.client.address
         }
 
