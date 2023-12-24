@@ -8,7 +8,7 @@ class ScrollNFT(Logger, Aggregator):
         Logger.__init__(self)
         Aggregator.__init__(self, client)
 
-        self.contract = self.client.get_contract(SCROLL_NFT_CONTRACT, SCROLL_NFT_ABI)
+        self.contract = self.client.get_contract(SCROLL_NFT_CONTRACT['core'], SCROLL_NFT_ABI)
 
     async def swap(self):
         pass
