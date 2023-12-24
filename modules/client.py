@@ -408,8 +408,12 @@ class Client(Logger):
                 except TransactionNotFound:
                     if total_time > timeout:
                         raise TimeExhausted(f"Transaction {tx_hash !r} is not in the chain after {timeout} seconds")
-
                     total_time += poll_latency
+                    await asyncio.sleep(poll_latency)
+
+                except Exception as error:
+                    self.logger_msg(*self.acc_info, msg=f'RPC got autims response. Error: {error}', type_msg='warning')
+
                     await asyncio.sleep(poll_latency)
 
         except Exception as error:
