@@ -209,14 +209,6 @@ class Blockchain(ABC):
     def __init__(self, client):
         self.client = client
 
-    @abstractmethod
-    async def deposit(self):
-        pass
-
-    @abstractmethod
-    async def withdraw(self):
-        pass
-
     async def make_request(self, method:str = 'GET', url:str = None, headers:dict = None, params: dict = None,
                            data:str = None, json:dict = None):
 

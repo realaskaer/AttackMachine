@@ -1809,6 +1809,16 @@ CHAIN_NAME = {
     31: 'Klaytn',
     32: 'Kava',
     33: 'Fantom',
+    34: 'Aurora',
+    35: 'Canto',
+    36: 'DFK',
+    37: 'Fuse',
+    38: 'Goerli',
+    39: 'Meter',
+    40: 'OKX-Chain',
+    41: 'Shimmer',
+    42: 'Tenet',
+    43: 'XPLA',
 }
 
 ACCOUNT_NAMES, PRIVATE_KEYS_EVM, PRIVATE_KEYS, PROXIES, OKX_WALLETS = get_accounts_data()

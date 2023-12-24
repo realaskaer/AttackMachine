@@ -18,8 +18,12 @@ class Merkly(Refuel, Logger):
 
     @helper
     @gas_checker
-    async def refuel(self, chain_from_id):
-        dst_data = random.choice(list(DST_CHAIN_MERKLY_REFUEL.items()))
+    async def refuel(self, chain_from_id, attack_mode:bool = False, attack_data:dict = False):
+        if not attack_mode:
+            dst_data = random.choice(list(DST_CHAIN_MERKLY_REFUEL.items()))
+        else:
+            dst_data = random.choice(list(attack_data.items()))
+
         dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
         dst_amount = self.client.round_amount(*dst_data[1])
 

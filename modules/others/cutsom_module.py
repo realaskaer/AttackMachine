@@ -4,7 +4,7 @@ from config import ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYER
     TOKENS_PER_CHAIN2
 from modules import Logger, Aggregator
 from settings import GLOBAL_NETWORK, OKX_BALANCE_WANTED, AMOUNT_PERCENT, STARGATE_CHAINS, STARGATE_TOKENS, \
-    MEMCOIN_AMOUNT
+    MEMCOIN_AMOUNT, MERKLY_ATTACK_DATA
 from utils.tools import helper, gas_checker
 
 
@@ -238,5 +238,23 @@ class Custom(Logger, Aggregator):
 
         return await swap_woofi(self.client.account_name, self.client.private_key,
                                 self.client.network, self.client.proxy_init, swapdata=data)
+
+    @helper
+    async def merkly_attack(self):
+        from functions import refuel_merkly_for_attack
+
+        for chain_id_from, chain_id_to, amount in MERKLY_ATTACK_DATA:
+            refuel_data = {
+                chain_id_to: (amount, round(amount * 1.1, 7))
+            }
+
+            chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
+
+            await refuel_merkly_for_attack(self.client.account_name, self.client.private_key,
+                                           self.client.network, self.client.proxy_init, chain_id_from,
+                                           attack_mode=True, attack_data=refuel_data)
+
+        return True
+
 
 

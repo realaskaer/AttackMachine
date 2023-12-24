@@ -380,6 +380,18 @@ async def refuel_merkly(account_number, private_key, _, proxy):
     return await worker.refuel(chain_from_id)
 
 
+async def refuel_merkly_for_attack(account_number, private_key, _, proxy, chain_from_id, **kwargs):
+    network = get_network_by_chain_id(chain_from_id)
+
+    worker = Merkly(get_client(account_number, private_key, network, proxy))
+    return await worker.refuel(chain_from_id, **kwargs)
+
+
+async def refuel_merkly_attack(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.merkly_attack()
+
+
 async def refuel_zerius(account_number, private_key, _, proxy):
     chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_MERKLY)]
     network = get_network_by_chain_id(chain_from_id)

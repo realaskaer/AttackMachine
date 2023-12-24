@@ -95,6 +95,7 @@ AVAILABLE_MODULES_INFO = {
     bridge_zerius                       : (bridge_zerius, 3, 'Zerius Bridge NFT', 0, [2, 3, 4, 8, 11, 12]),
     refuel_bungee                       : (refuel_bungee, 3, 'Bungee Refuel', 0, [3, 11]),
     refuel_merkly                       : (refuel_merkly, 3, 'Merkly Refuel', 0, [2, 3, 4, 8, 11, 12]),
+    refuel_merkly_attack                : (refuel_merkly_attack, 3, 'Merkly Attack Refuel', 0, [2, 3, 4, 8, 11, 12]),
     refuel_zerius                       : (refuel_zerius, 3, 'Zerius Refuel', 0, [2, 3, 4, 8, 11, 12]),
     send_message_dmail                  : (send_message_dmail, 2, 'Dmail Message', 1, [3, 4, 8, 9, 11]),
     send_message_l2telegraph            : (send_message_l2telegraph, 2, 'L2Telegraph Message', 0, [2, 3, 4, 8, 11, 12]),
