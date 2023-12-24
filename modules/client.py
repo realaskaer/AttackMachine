@@ -413,7 +413,7 @@ class Client(Logger):
 
                 except Exception as error:
                     self.logger_msg(*self.acc_info, msg=f'RPC got autims response. Error: {error}', type_msg='warning')
-
+                    total_time += poll_latency
                     await asyncio.sleep(poll_latency)
 
         except Exception as error:
