@@ -243,6 +243,8 @@ class Custom(Logger, Aggregator):
     async def merkly_attack(self):
         from functions import refuel_merkly_for_attack
 
+        random.shuffle(MERKLY_ATTACK_DATA)
+
         for chain_id_from, chain_id_to, amount in MERKLY_ATTACK_DATA:
             refuel_data = {
                 chain_id_to: (amount, round(amount * 1.1, 7))
@@ -255,6 +257,3 @@ class Custom(Logger, Aggregator):
                                            attack_mode=True, attack_data=refuel_data)
 
         return True
-
-
-
