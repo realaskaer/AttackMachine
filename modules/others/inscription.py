@@ -1,22 +1,18 @@
-from modules import Logger, Aggregator
+from modules import Logger
 from settings import INSCRIPTION_DATA
 from utils.tools import helper
 
 
-class Inscription(Logger, Aggregator):
+class Inscription(Logger):
     def __init__(self, client):
         Logger.__init__(self)
-        Aggregator.__init__(self, client)
-        self.stop_flag = False
-        self.signed_tx = None
-
-    async def swap(self):
-        pass
+        self.client = client
 
     @helper
     async def mint_inscribe(self):
         tx_params = (await self.client.prepare_transaction()) | {
-            'data': INSCRIPTION_DATA.encode(),
+            'data': (f"0x{INSCRIPTION_DATA.encode().hex()}"
+                     if isinstance(INSCRIPTION_DATA, str) else f"{INSCRIPTION_DATA}"),
             'to': self.client.address
         }
 

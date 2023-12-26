@@ -3,7 +3,8 @@ import random
 from config import ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA, \
     TOKENS_PER_CHAIN2
 from modules import Logger, Aggregator
-from settings import GLOBAL_NETWORK, OKX_BALANCE_WANTED, AMOUNT_PERCENT, STARGATE_CHAINS, STARGATE_TOKENS, \
+from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT
+from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
     MEMCOIN_AMOUNT, MERKLY_ATTACK_DATA
 from utils.tools import helper, gas_checker
 

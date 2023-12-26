@@ -1,7 +1,7 @@
 from modules import DEX, Logger
 from config import MYSWAP_CONTRACT, TOKENS_PER_CHAIN
 from utils.tools import helper, gas_checker
-from settings import SLIPPAGE
+from general_settings import SLIPPAGE
 
 
 class MySwap(DEX, Logger):

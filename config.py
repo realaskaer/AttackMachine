@@ -674,8 +674,29 @@ BUNGEE_CONTRACTS = {
     'zkSync':{
         'gas_refuel': '0x7Ee459D7fDe8b4a3C22b9c8C7aa52AbadDd9fFD5',
     },
+    'Ethereum':{
+        'gas_refuel': '0xb584D4bE1A5470CA1a8778E9B86c81e165204599'
+    },
     'Base':{
         'gas_refuel': '0xe8c5b8488feafb5df316be73ede3bdc26571a773'
+    },
+    'Gnosis':{
+        'gas_refuel': '0xBE51D38547992293c89CC589105784ab60b004A9'
+    },
+    'BSC':{
+        'gas_refuel': '0xBE51D38547992293c89CC589105784ab60b004A9'
+    },
+    'Polygon':{
+        'gas_refuel': '0xAC313d7491910516E06FBfC2A0b5BB49bb072D91'
+    },
+    'Polygon zkEVM':{
+        'gas_refuel': '0x555A64968E4803e27669D64e349Ef3d18FCa0895'
+    },
+    'Arbitrum':{
+        'gas_refuel': '0xc0E02AA55d10e38855e13B64A8E1387A04681A00'
+    },
+    'Avalanche':{
+        'gas_refuel': '0x040993fbF458b95871Cd2D73Ee2E09F4AF6d56bB'
     }
 }
 

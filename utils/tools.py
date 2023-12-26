@@ -15,7 +15,7 @@ from termcolor import cprint
 from datetime import datetime, timedelta
 from web3 import AsyncWeb3, AsyncHTTPProvider
 from msoffcrypto.exceptions import DecryptionError, InvalidKeyError
-from settings import (
+from general_settings import (
     SLEEP_TIME,
     GLOBAL_NETWORK,
     SLEEP_TIME_RETRY,

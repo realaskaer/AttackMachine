@@ -8,10 +8,10 @@ from eth_account import Account
 from modules import Blockchain, Logger, Bridge
 from utils.networks import StarknetRPC
 from utils.tools import gas_checker, helper
+from general_settings import TRANSFER_AMOUNT
 from settings import (
     NATIVE_WITHDRAW_AMOUNT,
     NATIVE_DEPOSIT_AMOUNT,
-    TRANSFER_AMOUNT
 )
 from config import (
     WETH_ABI,

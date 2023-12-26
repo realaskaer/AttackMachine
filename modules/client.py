@@ -11,13 +11,16 @@ from utils.networks import Network
 from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, CHAIN_IDS, TOKENS_PER_CHAIN2
 from web3 import AsyncHTTPProvider, AsyncWeb3
 from config import RHINO_CHAIN_INFO, ORBITER_CHAINS_INFO, LAYERSWAP_CHAIN_NAME
-from settings import (
+from general_settings import (
     GAS_MULTIPLIER,
     UNLIMITED_APPROVE,
     AMOUNT_PERCENT,
     MIN_BALANCE,
     LIQUIDITY_AMOUNT,
     PRICE_IMPACT,
+    GLOBAL_NETWORK,
+)
+from settings import (
     ORBITER_CHAIN_ID_TO,
     ORBITER_DEPOSIT_AMOUNT,
     LAYERSWAP_CHAIN_ID_TO,
@@ -26,7 +29,6 @@ from settings import (
     RHINO_DEPOSIT_AMOUNT,
     ACROSS_CHAIN_ID_TO,
     ACROSS_DEPOSIT_AMOUNT,
-    GLOBAL_NETWORK,
 )
 
 

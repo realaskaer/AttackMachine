@@ -2,7 +2,7 @@ import json
 
 from config import TOKENS_PER_CHAIN
 from modules import Bridge, Logger
-from settings import GLOBAL_NETWORK
+from general_settings import GLOBAL_NETWORK
 from utils.tools import gas_checker, helper
 
 

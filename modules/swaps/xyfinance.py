@@ -1,4 +1,4 @@
-from settings import SLIPPAGE
+from general_settings import SLIPPAGE
 from modules import Aggregator, Logger
 from utils.tools import gas_checker, helper
 from config import TOKENS_PER_CHAIN, ETH_MASK, HELP_SOFTWARE

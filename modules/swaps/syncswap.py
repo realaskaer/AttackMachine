@@ -2,7 +2,7 @@ from time import time
 from eth_abi import abi
 from modules import DEX, Logger
 from utils.tools import gas_checker, helper
-from settings import SLIPPAGE
+from general_settings import SLIPPAGE
 from config import (
     SYNCSWAP_CONTRACTS,
     SYNCSWAP_CLASSIC_POOL_FACTORY_ABI,

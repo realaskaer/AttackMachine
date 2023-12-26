@@ -1,23 +1,4 @@
 """
-----------------------------------------------AMOUNT CONTROL------------------------------------------------------------
-    Здесь вы определяете количество или % токенов для обменов, добавления ликвидности, депозитов и трансферов
-    Софт берет % только для ETH, остальные токены берутся на 100% от баланса
-
-    Можно указать минимальную/максимальную сумму или минимальный/максимальный % от баланса
-
-    Количество - (0.01, 0.02)
-    Процент    - ("55", "60") ⚠️ Значения в скобках
-
-    AMOUNT_PERCENT | Указывать только %, без кавычек. Можно указывать с точностью до 6 цифры (99.123456, 99.654321).
-                        ⚠️Остальные настройки сумм указывать в кавычках(если хотите работать в %)⚠️
-    MIN_BALANCE | Минимальный баланс для аккаунта. При меньшем балансе будет ошибка: (Insufficient balance on account!)
-"""
-AMOUNT_PERCENT = (55, 60)  # Применяется для обменов.
-LIQUIDITY_AMOUNT = (0.0005, 0.001)  # Применяется для добавления ликвидности, депозитов на лендинги и wrap ETH
-TRANSFER_AMOUNT = (0.00001, 0.00005)  # Применяется для трансферов
-MIN_BALANCE = 0.001  # Количество ETH на аккаунте
-
-"""
 --------------------------------------------------OKX CONTROL-----------------------------------------------------------
     Выберите сети/суммы для вывода и ввода с OKX. Не забудьте вставить API ключи снизу.
 
@@ -107,20 +88,22 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) E
         Fantom = 14                   Moonriver = 29                     zkSync = 43
         Fuse = 15          
                              
-    SOURCE_CHAIN_ZERIUS = [27, 29] | Одна из сетей будет выбрана (REFUEL/BRIDGE NFT)
-    SOURCE_CHAIN_MERKLY = [27, 29] | Одна из сетей будет выбрана (REFUEL)
-    DESTINATION_MERKLY_DATA = {
+    SRC_CHAIN_ZERIUS = [27, 29] | Одна из сетей будет выбрана (REFUEL/BRIDGE NFT)
+    SRC_CHAIN_MERKLY = [27, 29] | Одна из сетей будет выбрана (REFUEL)
+    DST_CHAIN_MERKLY_REFUEL = {
         1: (0.0016, 0.002), # Chain ID: (минимум, максимум) в нативном токене входящей сети**
         2: (0.0002, 0.0005) 
     } 
     
-    DESTINATION_ZERIUS_DATA | Аналогично DESTINATION_MERKLY_DATA
+    DST_CHAIN_ZERIUS_REFUEL | Аналогично DST_CHAIN_MERKLY_REFUEL
     
     STARGATE_CHAINS | Выберите два чейна, между которыми будут производиться бриджи
     STARGATE_TOKENS | Выберите две монеты, между которыми будут производиться свапы. Доступны: ETH, USDT, USDC. 
         Токены указывать в таком же порядке, как и чейны. Условно STARGATE_CHAINS = [5, 6] и
         STARGATE_TOKENS = ['USDC', 'USDT'] будет означать, что для 5 чейна будет USDC, а для 6 USDT
-
+    
+    MERKLY_ATTACK_DATA | Указываете в списках вариант refuel (исходящая сеть, входящая сеть, мин. сумму к refuel). 
+                        Софт будет перемешивать маршрут и делать refuel по всем указанным сетям.
     
     (B) - Поддерживаемые входящие сети в Bungee
     Сумму для Merkly и Zerius нужно подавать в нативном токене входящей сети. Указывайте на 10% меньше от лимита,
@@ -134,20 +117,20 @@ STARGATE_TOKENS = ['USDC', 'USDT']
 SRC_CHAIN_ZERIUS = [43]  # Исходящая сеть для Zerius
 DST_CHAIN_ZERIUS_NFT = [1, 4, 8]  # Входящая сеть для Zerius Mint NFT
 DST_CHAIN_ZERIUS_REFUEL = {
-    1: (0.0001, 0.0002),  # Chain ID: (минимум, максимум) в нативном токене входящей сети**
+    1: (0.0001, 0.0002),  # Chain ID: (минимум, максимум) в нативном токене входящей сети
     27: (0.0001, 0.0002)
 }
 
 
 SRC_CHAIN_MERKLY = [43]       # Исходящая сеть для Merkly
 DST_CHAIN_MERKLY_REFUEL = {
-    8: (0.00018, 0.00018),  # Chain ID: (минимум, максимум) в нативном токене входящей сети**
+    8: (0.00018, 0.00018),  # Chain ID: (минимум, максимум) в нативном токене входящей сети
     39: (0.001, 0.002)
 }
 
 DST_CHAIN_BUNGEE_REFUEL = {
-    3:  (0.001, 0.0015),  # Chain ID: (min amount, max amount) in ETH
-    22: (0.001, 0.0015)   # Chain ID: (min amount, max amount) in ETH
+    3:  (0.001, 0.0015),  # Chain ID: (минимум, максимум) в ETH
+    22: (0.001, 0.0015)
 }
 
 DST_CHAIN_L2TELEGRAPH = [22]  # Входящая сеть для L2Telegraph. Можно указать несколько ([1, 2]) и будет выбрана одна.
@@ -159,101 +142,6 @@ MERKLY_ATTACK_DATA = [
     [12, 8, 0.0001]
 ]
 
-
-"""
-------------------------------------------------GENERAL SETTINGS--------------------------------------------------------
-    GLOBAL_NETWORK | Блокчейн для основного взаимодействия ⚠️
-    
-    Arbitrum = 1            Optimism = 7
-    Arbitrum Nova = 2       Scroll = 8
-    Base = 3                Starknet = 9  
-    Linea = 4               Polygon ZKEVM = 10   
-    Manta = 5               zkSync Era = 11      
-    Polygon = 6             Zora = 12
-    
-    WALLETS_TO_WORK = 0 | Софт будет брать кошельки из таблице по правилам, описаным снизу
-    0       = все кошельки подряд
-    3       = только кошелек №3 
-    4, 20   = кошелек №4 и №20
-    [5, 25] = кошельки с №5 по №25
-    
-    ACCOUNTS_IN_STREAM      | Количество кошельков в потоке на выполнение. Если всего 100 кошельков, а указать 10,
-                                то софт сделает 10 подходов по 10 кошельков
-    CONTROL_TIMES_FOR_SLEEP | Количество проверок, после которого для всех аккаунтов будет включен рандомный сон в 
-                                моменте, когда газ опуститься до MAXIMUM_GWEI и аккаунты продолжат работать
-                                
-    EXCEL_PASSWORD          | Включает запрос пароля при входе в софт. Сначала установите пароль в таблице
-    EXCEL_PAGE_NAME         | Название листа в таблице. Пример: 'Starknet' 
-    GOOGLE_SHEET_URL        | Ссылка на вашу Google таблицу с прогрессом аккаунтов
-    GOOGLE_SHEET_PAGE_NAME  | Аналогично EXCEL_PAGE_NAME   
-"""
-GLOBAL_NETWORK = 11             # 07.12.2023 поддерживается zkSync, Starknet, Linea, Base, Scroll, Nova, Zora
-SOFTWARE_MODE = 0               # 0 - последовательный запуск / 1 - параллельный запуск
-ACCOUNTS_IN_STREAM = 1          # Только для SOFTWARE_MODE = 1 (параллельный запуск)
-WALLETS_TO_WORK = 0             # 0 / 3 / 3, 20 / [3, 20]
-SHUFFLE_WALLETS = False         # Перемешивает кошельки перед запуском
-SAVE_PROGRESS = False           # True или False | Включает сохранение прогресса аккаунта для Classic-routes
-TELEGRAM_NOTIFICATIONS = False  # True или False | Включает уведомления в Telegram
-
-
-'------------------------------------------------SLEEP CONTROL---------------------------------------------------------'
-SLEEP_MODE = False              # True или False | Включает сон после каждого модуля и аккаунта
-SLEEP_TIME = (5, 10)           # (минимум, максимум) секунд | Время сна между модулями.
-SLEEP_TIME_STREAM = (10, 20)    # (минимум, максимум) секунд | Время сна между аккаунтами.
-
-'-------------------------------------------------GAS CONTROL----------------------------------------------------------'
-GAS_CONTROL = False             # True или False | Включает контроль газа
-MAXIMUM_GWEI = 40               # Максимальный GWEI для работы софта, изменять во время работы софта в maximum_gwei.json
-SLEEP_TIME_GAS = 100            # Время очередной проверки газа
-CONTROL_TIMES_FOR_SLEEP = 5     # Количество проверок
-GAS_MULTIPLIER = 1.5            # Множитель газа для транзакций
-
-
-'------------------------------------------------RETRY CONTROL---------------------------------------------------------'
-MAXIMUM_RETRY = 5              # Количество повторений при ошибках
-SLEEP_TIME_RETRY = (5, 10)      # (минимум, максимум) секунд | Время сна после очередного повторения
-
-
-'------------------------------------------------PROXY CONTROL---------------------------------------------------------'
-USE_PROXY = False               # True или False | Включает использование прокси
-MOBILE_PROXY = False            # True или False | Включает использование мобильных прокси. USE_PROXY должен быть True
-MOBILE_PROXY_URL_CHANGER = ['',
-                            '',
-                            '']  # ['link1', 'link2'..] | Ссылки для смены IP
-
-
-'-----------------------------------------------SLIPPAGE CONTROL-------------------------------------------------------'
-SLIPPAGE = 2                # 0.54321 = 0.54321%, 1 = 1% | Slippage, на сколько % вы готовы получить меньше
-PRICE_IMPACT = 3            # 0.54321 = 0.54321%, 1 = 1% | Максимальное влияние на цену при обменах токенов
-
-
-'-----------------------------------------------APPROVE CONTROL--------------------------------------------------------'
-UNLIMITED_APPROVE = False       # True или False Включает безлимитный Approve для контракта
-
-
-'------------------------------------------------SECURE DATA-----------------------------------------------------------'
-# OKX API KEYS https://www.okx.com/ru/account/my-api
-OKX_API_KEY = ""
-OKX_API_SECRET = ""
-OKX_API_PASSPHRAS = ""
-
-# EXCEL AND GOOGLE INFO
-EXCEL_PASSWORD = False
-EXCEL_PAGE_NAME = ""
-GOOGLE_SHEET_URL = ""
-GOOGLE_SHEET_PAGE_NAME = ""
-
-# TELEGRAM DATA
-TG_TOKEN = ""  # https://t.me/BotFather
-TG_ID = ""  # https://t.me/getmyid_bot
-
-# INCH API KEY https://portal.1inch.dev/dashboard
-ONEINCH_API_KEY = ""
-
-# LAYERSWAP API KEY https://www.layerswap.io/dashboard
-LAYERSWAP_API_KEY = ""
-
-
 """
 --------------------------------------------------OTHER SETTINGS--------------------------------------------------------
 
@@ -261,6 +149,13 @@ LAYERSWAP_API_KEY = ""
     ZKSTARS_NFT_CONTRACTS | Укажите какие NFT ID будут участвовать в минте. Все что в скобках, будут использованы
     NEW_WALLET_TYPE | Определяет какой кошелек будет задеплоен, если вы решили создать новый. 0 - ArgentX | 1 - Braavos
     MINTFUN_CONTRACTS | Список контрактов для минта в выбранной сети (GLOBAL NETWORK)
+    
+    INSCRIPTION_DATA | Указывайте дату для минта. Обычно ее дают на сайтах. Поддерживаются форматы в виде json и hex.
+        В формате json - 'data....'
+        В формате hex - 0x123
+    INSCRIPTION_NETWORK | Сеть в которой планируется минтить инскрипшен. Поддерживаются все сети из OMNI-CHAIN CONTROL    
+    
+    MEMCOIN_AMOUNT | Сумма в ETH, на которую планируете покупать мемкоин.
 """
 
 STARKSTARS_NFT_CONTRACTS = (1, 2, 3, 20)  # при (0) заминтит случайную новую NFT
@@ -344,19 +239,19 @@ HELPERS_CONFIG = {
     
 ----------------------------------------------------CUSTOM--------------------------------------------------------------        
     
-    mint_token_avnu
-    mint_token_jediswap
-    mint_scroll_nft
-    mint_inscription
-    swap_stargate                    
-    refuel_merkly_attack
+    mint_token_avnu                  # обмен щитка на AVNU. Сумма в ETH - MEMCOIN_AMOUNT. Контракт менять в config.py
+    mint_token_jediswap              # обмен щитка на JediSwap. Контракт в config.py - TOKENS_PER_CHAIN (Starknet)   
+    mint_scroll_nft                  # минт Scroll NFT за деплой контрактов
+    mint_inscription                 # минт инскрипшена в сети INSCRIPTION_NETWORK(номера из L0) за деплой контрактов.
+    swap_stargate                    # свапы на Stargate. STARGATE_CHAINS, STARGATE_TOKENS. См. OMNI-CHAIN CONTROLE
+    refuel_merkly_attack             # Атака на Merkly. Делает много рефьелов в разные сети. См. OMNI-CHAIN CONTROLE
     
 ----------------------------------------------------ZKSYNC--------------------------------------------------------------        
 
     add_liquidity_maverick           # USDC/WETH LP
     add_liquidity_mute               # USDC/WETH LP
     add_liquidity_syncswap           # USDC/WETH LP
-    deposit_basilisk                 # делает депозит в лендинг на LIQUIDITY_AMOUNT.
+    deposit_basilisk                 # делает депозит в лендинг на LIQUIDITY_AMOUNT
     deposit_eralend                  
     deposit_reactorfusion            
     deposit_zerolend                 
@@ -413,11 +308,11 @@ HELPERS_CONFIG = {
                   
 ----------------------------------------------------STARKNET------------------------------------------------------------        
     
-    upgrade_stark_wallet
-    deploy_stark_wallet
-    deposit_nostra
-    deposit_zklend
-    swap_jediswap
+    upgrade_stark_wallet            
+    deploy_stark_wallet     
+    deposit_nostra                 
+    deposit_zklend                 
+    swap_jediswap                   
     swap_avnu
     swap_10kswap
     swap_sithswap

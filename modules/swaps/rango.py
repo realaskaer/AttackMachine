@@ -1,6 +1,6 @@
 from utils.tools import gas_checker, helper
 from config import TOKENS_PER_CHAIN, HELP_SOFTWARE
-from settings import SLIPPAGE, UNLIMITED_APPROVE
+from general_settings import SLIPPAGE, UNLIMITED_APPROVE
 from modules import Aggregator, Logger
 
 

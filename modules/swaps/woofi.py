@@ -1,6 +1,6 @@
 from modules import DEX, Logger
 from utils.tools import gas_checker, helper
-from settings import SLIPPAGE, USE_PROXY
+from general_settings import SLIPPAGE, USE_PROXY
 from config import WOOFI_ROUTER_ABI, TOKENS_PER_CHAIN, WOOFI_CONTRACTS, ETH_MASK
 
 

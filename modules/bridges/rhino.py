@@ -9,7 +9,7 @@ from config import TOKENS_PER_CHAIN, RHINO_CONTRACTS, RHINO_ABI
 from modules import Bridge, Logger
 from datetime import datetime, timezone
 
-from settings import GLOBAL_NETWORK
+from general_settings import GLOBAL_NETWORK
 from utils.tools import gas_checker, sleep, helper
 from eth_account.messages import encode_defunct
 from utils.stark_signature.stark_singature import sign, pedersen_hash, EC_ORDER, private_to_stark_key

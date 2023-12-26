@@ -12,9 +12,11 @@ from functions import get_network_by_chain_id
 from utils.tools import clean_progress_file, clean_google_progress_file, clean_gwei_file, check_google_progress_file
 from utils.route_generator import RouteGenerator, AVAILABLE_MODULES_INFO, get_func_by_name
 from config import ACCOUNT_NAMES, PRIVATE_KEYS_EVM, PRIVATE_KEYS, PROXIES, CHAIN_NAME
-from settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, HELP_NEW_MODULE, TG_ID, TG_TOKEN, MOBILE_PROXY,
-                      MOBILE_PROXY_URL_CHANGER, WALLETS_TO_WORK, TELEGRAM_NOTIFICATIONS, GLOBAL_NETWORK,
-                      SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM, EXCLUDED_MODULES, SHUFFLE_WALLETS)
+from settings import HELP_NEW_MODULE, EXCLUDED_MODULES
+from general_settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, TG_ID, TG_TOKEN, MOBILE_PROXY,
+                              MOBILE_PROXY_URL_CHANGER, WALLETS_TO_WORK, TELEGRAM_NOTIFICATIONS, GLOBAL_NETWORK,
+                              SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM, SHUFFLE_WALLETS, BREAK_ROUTE)
+
 
 BRIDGE_NAMES = ['bridge_rhino', 'bridge_layerswap', 'bridge_orbiter', 'bridge_across',
                 'bridge_native', 'withdraw_native_bridge']
@@ -302,7 +304,7 @@ class Runner(Logger):
                         route.append([module_for_help[0].__name__, 1])
                     elif smart_route_type and HELP_NEW_MODULE:
                         current_step += 1
-                    else:
+                    elif BREAK_ROUTE:
                         message_list.extend([f'❌   {module_name_tg}\n', f'💀   The route was stopped!\n'])
                         account_progress = (False, module_name, account_name)
                         result_list.append(account_progress)
@@ -314,6 +316,7 @@ class Runner(Logger):
                 message_list.append(f'{"✅" if result else "❌"}   {module_name_tg}\n')
                 account_progress = (result, module_name, account_name)
                 result_list.append(account_progress)
+
                 if not module_helper_type:
                     self.save_google_progress_offline(*account_progress)
                 await self.smart_sleep(account_name, account_number=1)
@@ -368,16 +371,14 @@ class Runner(Logger):
                         account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK),
                         self.get_proxy_for_account(account_name), smart_route, index)))
 
-            await asyncio.gather(*tasks)
+            await asyncio.gather(*tasks, return_exceptions=True)
 
             if smart_route:
                 await self.update_sheet_data(route_generator)
+                clean_progress_file()
 
             if MOBILE_PROXY:
                 await self.change_ip_proxy()
-
-            if smart_route:
-                clean_progress_file()
 
             self.logger_msg(None, None, f"Wallets in stream completed their tasks, launching next stream\n", 'success')
 
@@ -399,7 +400,8 @@ class Runner(Logger):
             if MOBILE_PROXY:
                 await self.change_ip_proxy()
 
-        clean_progress_file()
+        if smart_route_type:
+            clean_progress_file()
 
         self.logger_msg(None, None, f"All accounts completed their tasks!\n",
                         'success')
@@ -407,8 +409,8 @@ class Runner(Logger):
     async def run_accounts(self, smart_route: bool):
         route_generator = None
         clean_gwei_file()
-        clean_google_progress_file()
         if smart_route:
+            clean_google_progress_file()
             route_generator = RouteGenerator(silent=False)
 
         try:
@@ -421,5 +423,5 @@ class Runner(Logger):
                             'error')
             if smart_route and check_google_progress_file():
                 self.logger_msg(None, None, f"Machine cant die. Saving progress in Google...\n",
-                                'error')
+                                'warning')
                 await self.update_sheet_data(route_generator)

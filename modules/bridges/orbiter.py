@@ -4,7 +4,8 @@ import random
 from modules import Bridge, Logger
 from utils.tools import helper
 from config import ORBITER_CONTRACTS, ORBITER_ABI, TOKENS_PER_CHAIN
-from settings import GLOBAL_NETWORK, ORBITER_TOKEN_NAME
+from general_settings import GLOBAL_NETWORK
+from settings import ORBITER_TOKEN_NAME
 from web3 import AsyncWeb3
 
 

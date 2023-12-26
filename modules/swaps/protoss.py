@@ -3,7 +3,7 @@ import time
 from modules import DEX, Logger
 from config import PROTOSS_CONTRACT, TOKENS_PER_CHAIN
 from utils.tools import gas_checker, helper
-from settings import SLIPPAGE
+from general_settings import SLIPPAGE
 
 
 class Protoss(DEX, Logger):

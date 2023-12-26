@@ -1,7 +1,7 @@
 from modules import Bridge, Logger
 from utils.tools import helper, gas_checker
 from config import TOKENS_PER_CHAIN, ACROSS_ABI, CHAIN_NAME_FROM_ID, ACROSS_CONTRACT
-from settings import GLOBAL_NETWORK, GAS_MULTIPLIER
+from general_settings import GLOBAL_NETWORK, GAS_MULTIPLIER
 
 
 class Across(Bridge, Logger):

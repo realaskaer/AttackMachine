@@ -9,7 +9,8 @@ from config import ACCOUNT_NAMES
 from modules import Logger
 from gspread.utils import rowcol_to_a1
 from gspread import Client, Spreadsheet, Worksheet, service_account
-from settings import (GOOGLE_SHEET_URL, GOOGLE_SHEET_PAGE_NAME, MODULES_COUNT, ALL_MODULES_TO_RUN,
+from general_settings import GOOGLE_SHEET_URL, GOOGLE_SHEET_PAGE_NAME, GLOBAL_NETWORK
+from settings import (MODULES_COUNT, ALL_MODULES_TO_RUN,
                       TRANSFER_IN_ROUTES, TRANSFER_COUNT, EXCLUDED_MODULES,
                       DMAIL_IN_ROUTES, DMAIL_COUNT, COLLATERAL_IN_ROUTES, COLLATERAL_COUNT,
                       CLASSIC_ROUTES_MODULES_USING, WITHDRAW_LP, WITHDRAW_LANDING, HELPERS_CONFIG)

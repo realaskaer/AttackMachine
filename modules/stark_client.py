@@ -28,13 +28,17 @@ from config import (
     ARGENT_IMPLEMENTATION_CLASS_HASH, ZKLEND_CONTRACTS, NOSTRA_CONTRACTS, ETH_PRICE, CHAIN_IDS
 )
 
-from settings import (
+from general_settings import (
     USE_PROXY,
     GAS_MULTIPLIER,
     UNLIMITED_APPROVE,
     AMOUNT_PERCENT,
     MIN_BALANCE,
     LIQUIDITY_AMOUNT,
+    PRICE_IMPACT
+)
+
+from settings import (
     ORBITER_CHAIN_ID_TO,
     ORBITER_DEPOSIT_AMOUNT,
     LAYERSWAP_CHAIN_ID_TO,
@@ -43,7 +47,6 @@ from settings import (
     RHINO_DEPOSIT_AMOUNT,
     ACROSS_CHAIN_ID_TO,
     ACROSS_DEPOSIT_AMOUNT,
-    PRICE_IMPACT,
     NEW_WALLET_TYPE
 )
 

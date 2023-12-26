@@ -1,5 +1,3 @@
-import random
-
 from utils.tools import helper, gas_checker
 from modules import Minter, Logger
 from config import TOKENS_PER_CHAIN, STARKSTARS_COUNTACTS

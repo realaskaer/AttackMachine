@@ -4,7 +4,6 @@ from modules import Messenger, Logger
 from mnemonic import Mnemonic
 from random import choice, randint
 
-from settings import GLOBAL_NETWORK
 from utils.tools import gas_checker, helper
 from config import DMAIL_CONTRACT, DMAIL_ABI
 
@@ -28,7 +27,7 @@ class Dmail(Messenger, Logger):
     @helper
     @gas_checker
     async def send_message(self):
-        if GLOBAL_NETWORK == 9:
+        if self.client.network.name == 'Starknet':
             await self.client.initialize_account()
 
         self.logger_msg(*self.client.acc_info, msg=f'Send mail from Dmail')
@@ -40,7 +39,7 @@ class Dmail(Messenger, Logger):
         message = sha256(f"{text}".encode()).hexdigest()
 
         self.logger_msg(*self.client.acc_info, msg=f'Generated mail: {email} | Generated text: {text[:10]}...')
-        if GLOBAL_NETWORK == 9:
+        if self.client.network.name == 'Starknet':
             dmail_contract = await self.client.get_contract(DMAIL_CONTRACT[self.network]['core'])
 
             stark_order = 3618502788666131213697322783095070105623107215331596699973092056135872020481

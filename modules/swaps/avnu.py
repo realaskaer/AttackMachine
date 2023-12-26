@@ -1,6 +1,6 @@
 from config import AVNU_CONTRACT, TOKENS_PER_CHAIN, HELP_SOFTWARE
 from utils.tools import helper, gas_checker
-from settings import SLIPPAGE
+from general_settings import SLIPPAGE
 from modules import Aggregator, Logger
 
 

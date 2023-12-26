@@ -7,11 +7,11 @@ from modules import CEX, Logger
 from datetime import datetime, timezone
 from utils.tools import helper, sleep
 from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, OKX_WRAPED_ID, TOKENS_PER_CHAIN2
+from general_settings import GLOBAL_NETWORK
 from settings import (
     OKX_WITHDRAW_NETWORK,
     OKX_WITHDRAW_AMOUNT,
     OKX_DEPOSIT_NETWORK,
-    GLOBAL_NETWORK,
     OKX_DEPOSIT_AMOUNT
 )
 

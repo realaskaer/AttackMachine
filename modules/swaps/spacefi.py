@@ -1,7 +1,7 @@
 from time import time
 from modules import DEX, Logger
 from utils.tools import gas_checker, helper
-from settings import SLIPPAGE
+from general_settings import SLIPPAGE
 from config import (
     SPACEFI_CONTRACTS,
     SPACEFI_ROUTER_ABI,

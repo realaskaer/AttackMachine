@@ -2,7 +2,7 @@ import asyncio
 
 from modules import Aggregator, Logger
 from utils.tools import gas_checker, helper
-from settings import SLIPPAGE, ONEINCH_API_KEY
+from general_settings import SLIPPAGE, ONEINCH_API_KEY
 from config import TOKENS_PER_CHAIN, ETH_MASK, HELP_SOFTWARE
 
 

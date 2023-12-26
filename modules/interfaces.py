@@ -5,21 +5,11 @@ from datetime import datetime
 from web3 import AsyncWeb3
 from abc import ABC, abstractmethod
 from random import uniform
+from config import CHAIN_NAME
 
-from settings import (LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS,
+from general_settings import (LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS,
                       OKX_API_SECRET, GLOBAL_NETWORK)
 from utils.networks import StarknetRPC
-
-CHAINS_NAME = {
-    2: 'Arbitrum Nova',
-    3: 'Base',
-    4: 'Linea',
-    6: 'Polygon',
-    8: 'Scroll',
-    9: 'Starknet',
-    11: 'zkSync',
-    12: 'Zora'
-}
 
 
 def get_user_agent():
@@ -39,12 +29,12 @@ class Logger(ABC):
 
     def logger_msg(self, account_name, address, msg, type_msg: str = 'info'):
         if account_name is None and address is None:
-            info = f'[Attack machine] | {CHAINS_NAME[GLOBAL_NETWORK]} | {self.__class__.__name__} |'
+            info = f'[Attack machine] | {CHAIN_NAME[GLOBAL_NETWORK]} | {self.__class__.__name__} |'
         elif account_name is not None and address is None:
-            info = f'[{account_name}] | {CHAINS_NAME[GLOBAL_NETWORK]} | {self.__class__.__name__} |'
+            info = f'[{account_name}] | {CHAIN_NAME[GLOBAL_NETWORK]} | {self.__class__.__name__} |'
         else:
             address = hex(address) if GLOBAL_NETWORK == 9 else address
-            info = f'[{account_name}] | {address} | {CHAINS_NAME[GLOBAL_NETWORK]} | {self.__class__.__name__} |'
+            info = f'[{account_name}] | {address} | {CHAIN_NAME[GLOBAL_NETWORK]} | {self.__class__.__name__} |'
         if type_msg == 'info':
             self.logger.info(f"{info} {msg}")
         elif type_msg == 'error':
