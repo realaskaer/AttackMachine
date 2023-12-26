@@ -295,15 +295,11 @@ class Runner(Logger):
                         used_modules, module_for_help = self.get_help_module(account_name, used_modules)
                         if not module_for_help:
                             break_flag = True
-                            current_step += 1
                             continue
 
                         info = f"Adding new module in route. Module name: {module_for_help[2]}"
                         self.logger_msg(account_name, None, info, 'warning')
-                        current_step += 1
                         route.append([module_for_help[0].__name__, 1])
-                    elif smart_route_type and HELP_NEW_MODULE:
-                        current_step += 1
                     elif BREAK_ROUTE:
                         message_list.extend([f'❌   {module_name_tg}\n', f'💀   The route was stopped!\n'])
                         account_progress = (False, module_name, account_name)
@@ -313,6 +309,7 @@ class Runner(Logger):
                         self.collect_bad_wallets(account_name, module_name)
                         break
 
+                current_step += 1
                 message_list.append(f'{"✅" if result else "❌"}   {module_name_tg}\n')
                 account_progress = (result, module_name, account_name)
                 result_list.append(account_progress)
