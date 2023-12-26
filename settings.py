@@ -9,7 +9,7 @@
     5 - ETH-Starknet           13 - METIS-Metis         21 - BNB-BSC            29 - USDC-Avalanche
     6 - ETH-zkSync Era         14 - CORE-CORE           22 - USDT-ERC20         30 - USDC-Arbitrum One
     7 - ETH-Linea              15 - CFX-Conflux         23 - USDT-Polygon       31 - USDT-Polygon
-    8 - ETH-Base               16 - ZEN-Horizen         24 - USDT-Optimism      
+    8 - ETH-Base               16 - ZEN-Horizen         24 - USDT-Optimism      32 - USDC-Optimism (Bridged)
 
 ------------------------------------------------------------------------------------------------------------------------
 """
@@ -40,7 +40,8 @@ OKX_BALANCE_WANTED = 0.005               # Необходимый баланс �
        *Polygon = 6                     BNB Chain = 15
      (A)Optimism = 7                 (O)Metis = 26        
         Scroll = 8                     *OpBNB = 28
-        Starknet = 9                   *Mantle = 29   
+        Starknet = 9                   *Mantle = 29
+                                        ZKFair = 45   
     
     * - не поддерживается в Rhino.fi
     (A) - сети, поддерживаемые Across мостом
@@ -139,7 +140,7 @@ MERKLY_ATTACK_DATA = [
     [43, 3, 0.0001],
     [33, 5, 0.0001],
     [21, 6, 0.0001],
-    [12, 8, 0.0001]
+    [12, 8, 0.0001],
 ]
 
 """
@@ -224,18 +225,18 @@ HELPERS_CONFIG = {
 ---------------------------------------------------HELPERS--------------------------------------------------------------        
 
     
-    'okx_withdraw'                        : 0,  # смотри OKX CONTROL
-    'collector_eth'                       : 0,  # сбор всех токенов в ETH
-    'make_balance_to_average'             : 0,  # уравнивает ваши балансы на аккаунтах (см. инструкцию к софту) 
-    'upgrade_stark_wallet'                : 0,  # обновляет кошелек, во время маршрута
-    'deploy_stark_wallet'                 : 0,  # деплоит кошелек, после вывода с OKX
-    'bridge_across'                       : 0,  # смотри BRIDGE CONTROL
-    'bridge_rhino'                        : 0,  # смотри BRIDGE CONTROL
-    'bridge_layerswap'                    : 0,  # смотри BRIDGE CONTROL
-    'bridge_orbiter'                      : 0,  # смотри BRIDGE CONTROL
-    'bridge_native'                       : 0,  # смотри BRIDGE CONTROL. (кол-во из NATIVE_DEPOSIT_AMOUNT)
-    'okx_deposit'                         : 0,  # ввод средств на биржу
-    'okx_collect_from_sub'                : 0   # сбор средств на субАккаунтов на основной счет
+    okx_withdraw                     # смотри OKX CONTROL
+    collector_eth                    # сбор всех токенов в ETH
+    make_balance_to_average          # уравнивает ваши балансы на аккаунтах (см. инструкцию к софту) 
+    upgrade_stark_wallet             # обновляет кошелек, во время маршрута
+    deploy_stark_wallet              # деплоит кошелек, после вывода с OKX
+    bridge_across                    # смотри BRIDGE CONTROL
+    bridge_rhino                     # смотри BRIDGE CONTROL
+    bridge_layerswap                 # смотри BRIDGE CONTROL
+    bridge_orbiter                   # смотри BRIDGE CONTROL
+    bridge_native                    # смотри BRIDGE CONTROL. (кол-во из NATIVE_DEPOSIT_AMOUNT)
+    okx_deposit                      # ввод средств на биржу
+    okx_collect_from_sub             # сбор средств на субАккаунтов на основной счет
     
 ----------------------------------------------------CUSTOM--------------------------------------------------------------        
     

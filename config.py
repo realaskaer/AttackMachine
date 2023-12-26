@@ -1666,7 +1666,8 @@ OKX_NETWORKS_NAME = {
     28                      : 'USDC-Optimism',
     29                      : 'USDC-Avalanche C-Chain',
     30                      : 'USDC-Arbitrum One',
-    31                      : 'USDC-Polygon'
+    31                      : 'USDC-Polygon',
+    32                      : 'USDC-Optimism (Bridged)'
 }
 
 OKX_WRAPED_ID = {
