@@ -140,7 +140,7 @@ class L2Pass(Refuel, Logger):
             dst_chain_id,
             self.client.address,
             nft_id,
-            ZERO_ADDRESS,
+            self.client.address,
             ZERO_ADDRESS,
             adapter_params
         ).build_transaction(tx_params)
