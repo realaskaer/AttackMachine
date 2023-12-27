@@ -13,6 +13,7 @@
     MIN_BALANCE | Минимальный баланс для аккаунта. При меньшем балансе будет ошибка: (Insufficient balance on account!)
 """
 AMOUNT_PERCENT = (55, 60)  # Применяется для обменов.
+AMOUNT_PERCENT_WRAPS = (55, 60)  # Применяется для модуля wrap_abuser.
 LIQUIDITY_AMOUNT = (0.0005, 0.001)  # Применяется для добавления ликвидности, депозитов на лендинги и wrap ETH
 TRANSFER_AMOUNT = (0.00001, 0.00005)  # Применяется для трансферов
 MIN_BALANCE = 0.001  # Количество ETH на аккаунте
@@ -71,8 +72,8 @@ MAXIMUM_RETRY = 5               # Количество повторений пр
 SLEEP_TIME_RETRY = (5, 10)      # (минимум, максимум) секунд | Время сна после очередного повторения
 
 '------------------------------------------------PROXY CONTROL---------------------------------------------------------'
-USE_PROXY = False               # True или False | Включает использование прокси
-MOBILE_PROXY = False            # True или False | Включает использование мобильных прокси. USE_PROXY должен быть True
+USE_PROXY = False                # True или False | Включает использование прокси
+MOBILE_PROXY = False             # True или False | Включает использование мобильных прокси. USE_PROXY должен быть True
 MOBILE_PROXY_URL_CHANGER = ['',
                             '',
                             '']  # ['link1', 'link2'..] | Ссылки для смены IP

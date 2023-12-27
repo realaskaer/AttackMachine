@@ -36,6 +36,7 @@ from .onmichain import Merkly
 from .onmichain import Zerius
 from .onmichain import RocketSam
 from .onmichain import Stargate
+from .onmichain import L2Pass
 from .others import Dmail
 from .others import EraDomainService
 from .others import GnosisSafe

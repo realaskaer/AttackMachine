@@ -48,18 +48,25 @@ class Zerius(Minter, Logger):
         mint_price = await self.onft_contract.functions.mintFee().call()
 
         self.logger_msg(
-            *self.client.acc_info, msg=f"Mint Zerius NFT on {self.network}. Price: {(mint_price / 10 ** 18):.5f}")
+            *self.client.acc_info, msg=f"Mint Zerius NFT on {self.network}. "
+                                       f"Mint Price: {(mint_price / 10 ** 18):.5f} {self.client.network.token}")
 
         tx_params = await self.client.prepare_transaction(value=mint_price)
 
-        transaction = await self.onft_contract.functions.mint().build_transaction(tx_params)
+        transaction = await self.onft_contract.functions.mint(
+            '0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5'
+        ).build_transaction(tx_params)
 
         return await self.client.send_transaction(transaction)
 
     @helper
     @gas_checker
-    async def bridge(self):
-        dst_chain = random.choice(DST_CHAIN_ZERIUS_NFT)
+    async def bridge(self, attack_mode:bool = False, attack_data:dict = False):
+        if not attack_mode:
+            dst_chain = random.choice(DST_CHAIN_ZERIUS_NFT)
+        else:
+            dst_chain = attack_data
+
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
 
         nft_id = await self.get_nft_id()
@@ -70,7 +77,7 @@ class Zerius(Minter, Logger):
 
         self.logger_msg(
             *self.client.acc_info,
-            msg=f"Bridge Zerius NFT from {self.network} to {dst_chain_name.capitalize()}. ID: {nft_id}")
+            msg=f"Bridge Zerius NFT from {self.network} to {dst_chain_name}. ID: {nft_id}")
 
         await sleep(self, 5, 10)
 
@@ -100,8 +107,12 @@ class Zerius(Minter, Logger):
 
     @helper
     @gas_checker
-    async def refuel(self):
-        dst_data = random.choice(list(DST_CHAIN_ZERIUS_REFUEL.items()))
+    async def refuel(self, attack_mode:bool = False, attack_data:dict = False):
+        if not attack_mode:
+            dst_data = random.choice(list(DST_CHAIN_ZERIUS_REFUEL.items()))
+        else:
+            dst_data = random.choice(list(attack_data.items()))
+
         dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
         dst_amount = self.client.round_amount(*dst_data[1])
 

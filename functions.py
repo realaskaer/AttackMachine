@@ -5,7 +5,7 @@ from utils.networks import *
 from config import OKX_WRAPED_ID, LAYERZERO_WRAPED_NETWORKS
 from general_settings import GLOBAL_NETWORK
 from settings import (ORBITER_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, RHINO_CHAIN_ID_FROM, ACROSS_CHAIN_ID_FROM,
-                      OKX_DEPOSIT_NETWORK, SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, INSCRIPTION_NETWORK)
+                      OKX_DEPOSIT_NETWORK, SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, INSCRIPTION_NETWORK, SRC_CHAIN_L2PASS)
 
 
 def get_client(account_number, private_key, network, proxy, bridge_from_evm:bool = False) -> Client | StarknetClient:
@@ -381,20 +381,84 @@ async def refuel_merkly(account_number, private_key, _, proxy):
     return await worker.refuel(chain_from_id)
 
 
-async def refuel_merkly_for_attack(account_number, private_key, _, proxy, chain_from_id, **kwargs):
+async def mint_and_bridge_wormhole(account_number, private_key, _, proxy):
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_MERKLY)]
+    network = get_network_by_chain_id(chain_from_id)
+
+    worker = Merkly(get_client(account_number, private_key, network, proxy))
+    return await worker.mint_and_bridge_wormhole(chain_from_id)
+
+
+async def refuel_l2pass(account_number, private_key, _, proxy):
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_L2PASS)]
+    network = get_network_by_chain_id(chain_from_id)
+
+    worker = L2Pass(get_client(account_number, private_key, network, proxy))
+    return await worker.refuel(chain_from_id)
+
+
+async def l2pass_for_refuel_attack(account_number, private_key, _, proxy, chain_from_id, **kwargs):
+    network = get_network_by_chain_id(chain_from_id)
+
+    worker = L2Pass(get_client(account_number, private_key, network, proxy))
+    return await worker.refuel(chain_from_id, **kwargs)
+
+
+async def l2pass_for_nft_attack(account_number, private_key, _, proxy, chain_from_id, **kwargs):
+    network = get_network_by_chain_id(chain_from_id)
+
+    worker = L2Pass(get_client(account_number, private_key, network, proxy))
+    return await worker.bridge(chain_from_id, **kwargs)
+
+
+async def l2pass_nft_attack(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.l2pass_nft_attack()
+
+
+async def l2pass_refuel_attack(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.l2pass_attack()
+
+
+async def merkly_for_refuel_attack(account_number, private_key, _, proxy, chain_from_id, **kwargs):
     network = get_network_by_chain_id(chain_from_id)
 
     worker = Merkly(get_client(account_number, private_key, network, proxy))
     return await worker.refuel(chain_from_id, **kwargs)
 
 
-async def refuel_merkly_attack(account_number, private_key, network, proxy):
+async def merkly_refuel_attack(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.merkly_attack()
 
 
+async def zerius_for_refuel_attack(account_number, private_key, _, proxy, chain_from_id, **kwargs):
+    network = get_network_by_chain_id(chain_from_id)
+
+    worker = Zerius(get_client(account_number, private_key, network, proxy), chain_from_id)
+    return await worker.refuel(**kwargs)
+
+
+async def zerius_refuel_attack(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.zerius_attack()
+
+
+async def zerius_for_nft_attack(account_number, private_key, _, proxy, chain_from_id, **kwargs):
+    network = get_network_by_chain_id(chain_from_id)
+
+    worker = Zerius(get_client(account_number, private_key, network, proxy), chain_from_id)
+    return await worker.bridge(**kwargs)
+
+
+async def zerius_nft_attack(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.zerius_nft_attack()
+
+
 async def refuel_zerius(account_number, private_key, _, proxy):
-    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_MERKLY)]
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_ZERIUS)]
     network = get_network_by_chain_id(chain_from_id)
 
     worker = Zerius(get_client(account_number, private_key, network, proxy), chain_from_id)
@@ -409,12 +473,36 @@ async def mint_zerius(account_number, private_key, _, proxy):
     return await worker.mint()
 
 
+async def mint_merkly(account_number, private_key, _, proxy):
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_MERKLY)]
+    network = get_network_by_chain_id(chain_from_id)
+
+    worker = Merkly(get_client(account_number, private_key, network, proxy))
+    return await worker.mint(chain_from_id)
+
+
+async def mint_l2pass(account_number, private_key, _, proxy):
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_L2PASS)]
+    network = get_network_by_chain_id(chain_from_id)
+
+    worker = L2Pass(get_client(account_number, private_key, network, proxy))
+    return await worker.mint(chain_from_id)
+
+
 async def bridge_zerius(account_number, private_key, _, proxy):
     chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_ZERIUS)]
     network = get_network_by_chain_id(chain_from_id)
 
     worker = Zerius(get_client(account_number, private_key, network, proxy), chain_from_id)
     return await worker.bridge()
+
+
+async def bridge_l2pass(account_number, private_key, _, proxy):
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_L2PASS)]
+    network = get_network_by_chain_id(chain_from_id)
+
+    worker = L2Pass(get_client(account_number, private_key, network, proxy))
+    return await worker.bridge(chain_from_id)
 
 
 async def refuel_bungee(account_number, private_key, network, proxy):

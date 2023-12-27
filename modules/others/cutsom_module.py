@@ -3,9 +3,10 @@ import random
 from config import ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA, \
     TOKENS_PER_CHAIN2
 from modules import Logger, Aggregator
-from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT
+from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS
 from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
-    MEMCOIN_AMOUNT, MERKLY_ATTACK_DATA
+    MEMCOIN_AMOUNT, MERKLY_ATTACK_REFUEL, L2PASS_ATTACK_REFUEL, L2PASS_ATTACK_NFT, ZERIUS_ATTACK_REFUEL, \
+    ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK
 from utils.tools import helper, gas_checker
 
 
@@ -134,7 +135,7 @@ class Custom(Logger, Aggregator):
             valid_wallet_balance['WETH'] = valid_wallet_balance['WETH'] * eth_price
 
         max_token = max(valid_wallet_balance, key=lambda x: valid_wallet_balance[x])
-        percent = round(random.uniform(*AMOUNT_PERCENT), 9) / 100 if max_token == 'ETH' else 1
+        percent = round(random.uniform(*AMOUNT_PERCENT_WRAPS), 9) / 100 if max_token == 'ETH' else 1
         amount_in_wei = int(wallet_balance[max_token][0] * percent)
         amount = float(f"{amount_in_wei / 10 ** 18:.6f}")
 
@@ -242,19 +243,109 @@ class Custom(Logger, Aggregator):
 
     @helper
     async def merkly_attack(self):
-        from functions import refuel_merkly_for_attack
+        from functions import merkly_for_refuel_attack
 
-        random.shuffle(MERKLY_ATTACK_DATA)
+        if SHUFFLE_ATTACK:
+            random.shuffle(MERKLY_ATTACK_REFUEL)
 
-        for chain_id_from, chain_id_to, amount in MERKLY_ATTACK_DATA:
+        for chain_id_from, chain_id_to, amount in MERKLY_ATTACK_REFUEL:
             refuel_data = {
                 chain_id_to: (amount, round(amount * 1.1, 7))
             }
 
             chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
 
-            await refuel_merkly_for_attack(self.client.account_name, self.client.private_key,
+            await merkly_for_refuel_attack(self.client.account_name, self.client.private_key,
                                            self.client.network, self.client.proxy_init, chain_id_from,
                                            attack_mode=True, attack_data=refuel_data)
+
+        return True
+
+    @helper
+    async def merkly_nft_attack(self):
+        from functions import l2pass_for_nft_attack
+
+        if SHUFFLE_ATTACK:
+            random.shuffle(L2PASS_ATTACK_NFT)
+
+        for chain_id_from, chain_id_to in L2PASS_ATTACK_NFT:
+            chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
+
+            await l2pass_for_nft_attack(self.client.account_name, self.client.private_key,
+                                        self.client.network, self.client.proxy_init, chain_id_from,
+                                        attack_mode=True, attack_data=chain_id_to)
+
+        return True
+
+    @helper
+    async def l2pass_attack(self):
+        from functions import l2pass_for_refuel_attack
+
+        if SHUFFLE_ATTACK:
+            random.shuffle(L2PASS_ATTACK_REFUEL)
+
+        for chain_id_from, chain_id_to, amount in L2PASS_ATTACK_REFUEL:
+            refuel_data = {
+                chain_id_to: (amount, round(amount * 1.1, 7))
+            }
+
+            chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
+
+            await l2pass_for_refuel_attack(self.client.account_name, self.client.private_key,
+                                           self.client.network, self.client.proxy_init, chain_id_from,
+                                           attack_mode=True, attack_data=refuel_data)
+
+        return True
+
+    @helper
+    async def l2pass_nft_attack(self):
+        from functions import l2pass_for_nft_attack
+
+        if SHUFFLE_ATTACK:
+            random.shuffle(L2PASS_ATTACK_NFT)
+
+        for chain_id_from, chain_id_to in L2PASS_ATTACK_NFT:
+
+            chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
+
+            await l2pass_for_nft_attack(self.client.account_name, self.client.private_key,
+                                        self.client.network, self.client.proxy_init, chain_id_from,
+                                        attack_mode=True, attack_data=chain_id_to)
+
+        return True
+
+    @helper
+    async def zerius_attack(self):
+        from functions import zerius_for_refuel_attack
+
+        if SHUFFLE_ATTACK:
+            random.shuffle(ZERIUS_ATTACK_REFUEL)
+
+        for chain_id_from, chain_id_to, amount in ZERIUS_ATTACK_REFUEL:
+            refuel_data = {
+                chain_id_to: (amount, round(amount * 1.1, 7))
+            }
+
+            chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
+
+            await zerius_for_refuel_attack(self.client.account_name, self.client.private_key,
+                                           self.client.network, self.client.proxy_init, chain_id_from,
+                                           attack_mode=True, attack_data=refuel_data)
+
+        return True
+
+    @helper
+    async def zerius_nft_attack(self):
+        from functions import zerius_for_nft_attack
+
+        if SHUFFLE_ATTACK:
+            random.shuffle(ZERIUS_ATTACK_NFT)
+
+        for chain_id_from, chain_id_to in ZERIUS_ATTACK_NFT:
+            chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
+
+            await zerius_for_nft_attack(self.client.account_name, self.client.private_key,
+                                        self.client.network, self.client.proxy_init, chain_id_from,
+                                        attack_mode=True, attack_data=chain_id_to)
 
         return True

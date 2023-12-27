@@ -13,13 +13,13 @@
 
 ------------------------------------------------------------------------------------------------------------------------
 """
-OKX_WITHDRAW_NETWORK = 5                 # Сеть вывода из OKX
-OKX_WITHDRAW_AMOUNT = (0.0005, 0.0005)   # (минимальная, максимальная) сумма для вывода из OKX
+OKX_WITHDRAW_NETWORK = 2                # Сеть вывода из OKX
+OKX_WITHDRAW_AMOUNT = (0.001, 0.002)           # (минимальная, максимальная) сумма для вывода из OKX
 
 OKX_DEPOSIT_NETWORK = 5                  # Сеть из которой планируется пополнение OKX
 OKX_DEPOSIT_AMOUNT = (0.0001, 0.0001)    # (минимальная, максимальная) сумма для пополнения OKX
 
-OKX_BALANCE_WANTED = 0.005               # Необходимый баланс на аккаунтах для уравнителя (make_balance_to_average)
+OKX_BALANCE_WANTED = 0.01               # Необходимый баланс на аккаунтах для уравнителя (make_balance_to_average)
 
 """
 ------------------------------------------------BRIDGE CONTROL----------------------------------------------------------
@@ -52,9 +52,9 @@ OKX_BALANCE_WANTED = 0.005               # Необходимый баланс �
 NATIVE_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) ETH или %
 NATIVE_WITHDRAW_AMOUNT = (0.0001, 0.0002)   # (минимум, максимум) ETH или %
 
-ORBITER_CHAIN_ID_FROM = [6]                # Исходящая сеть
-ORBITER_CHAIN_ID_TO = [45]                  # Входящая сеть
-ORBITER_DEPOSIT_AMOUNT = (1, 1)    # (минимум, максимум) ETH или %
+ORBITER_CHAIN_ID_FROM = [4]                # Исходящая сеть
+ORBITER_CHAIN_ID_TO = [8]                  # Входящая сеть
+ORBITER_DEPOSIT_AMOUNT = (10, 15)    # (минимум, максимум) ETH или %
 ORBITER_TOKEN_NAME = 'USDC'
 
 LAYERSWAP_CHAIN_ID_FROM = [9]                # Исходящая сеть
@@ -88,23 +88,33 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) E
         Ethereum = 13                 Moonbeam = 28                      opBNB = 42
         Fantom = 14                   Moonriver = 29                     zkSync = 43
         Fuse = 15          
-                             
-    SRC_CHAIN_ZERIUS = [27, 29] | Одна из сетей будет выбрана (REFUEL/BRIDGE NFT)
-    SRC_CHAIN_MERKLY = [27, 29] | Одна из сетей будет выбрана (REFUEL)
-    DST_CHAIN_MERKLY_REFUEL = {
-        1: (0.0016, 0.002), # Chain ID: (минимум, максимум) в нативном токене входящей сети**
-        2: (0.0002, 0.0005) 
-    } 
-    
-    DST_CHAIN_ZERIUS_REFUEL | Аналогично DST_CHAIN_MERKLY_REFUEL
     
     STARGATE_CHAINS | Выберите два чейна, между которыми будут производиться бриджи
     STARGATE_TOKENS | Выберите две монеты, между которыми будут производиться свапы. Доступны: ETH, USDT, USDC. 
         Токены указывать в таком же порядке, как и чейны. Условно STARGATE_CHAINS = [5, 6] и
         STARGATE_TOKENS = ['USDC', 'USDT'] будет означать, что для 5 чейна будет USDC, а для 6 USDT
+                 
+    SRC_CHAIN_ZERIUS = [27, 29] 
+    SRC_CHAIN_MERKLY = [27, 29] 
+    SRC_CHAIN_L2PASS = [27, 29] | Одна из сетей будет выбрана (REFUEL/BRIDGE NFT(включая Wormhole на Merkly))
     
-    MERKLY_ATTACK_DATA | Указываете в списках вариант refuel (исходящая сеть, входящая сеть, мин. сумму к refuel). 
-                        Софт будет перемешивать маршрут и делать refuel по всем указанным сетям.
+    DST_CHAIN_MERKLY_REFUEL = {
+        1: (0.0016, 0.002), # Chain ID: (минимум, максимум) в нативном токене входящей сети**
+        2: (0.0002, 0.0005) 
+    } 
+    
+    DST_CHAIN_L2PASS_REFUEL 
+    DST_CHAIN_ZERIUS_REFUEL | Аналогично DST_CHAIN_MERKLY_REFUEL
+    
+    ZERIUS_ATTACK_REFUEL
+    MERKLY_ATTACK_REFUEL
+    L2PASS_ATTACK_REFUEL | Указываете в списках вариант refuel (исходящая сеть, входящая сеть, мин. сумму к refuel). 
+                           Софт будет перемешивать маршрут и делать refuel по всем указанным сетям.
+    
+    ZERIUS_ATTACK_NFT
+    L2PASS_ATTACK_NFT | Указываете в списках вариант бриджа NFT (исходящая сеть, входящая сеть). 
+                        Софт будет перемешивать маршрут и делать бридж по всем указанным сетям.
+                           
     
     (B) - Поддерживаемые входящие сети в Bungee
     Сумму для Merkly и Zerius нужно подавать в нативном токене входящей сети. Указывайте на 10% меньше от лимита,
@@ -115,32 +125,70 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) E
 STARGATE_CHAINS = [5, 6]
 STARGATE_TOKENS = ['USDC', 'USDT']
 
-SRC_CHAIN_ZERIUS = [43]  # Исходящая сеть для Zerius
-DST_CHAIN_ZERIUS_NFT = [1, 4, 8]  # Входящая сеть для Zerius Mint NFT
+SRC_CHAIN_ZERIUS = [6]          # Исходящая сеть для Zerius
+DST_CHAIN_ZERIUS_NFT = [28]     # Входящая сеть для Zerius Mint NFT
 DST_CHAIN_ZERIUS_REFUEL = {
-    1: (0.0001, 0.0002),  # Chain ID: (минимум, максимум) в нативном токене входящей сети
-    27: (0.0001, 0.0002)
+    1: (0.0001, 0.0002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети
+    27: (0.0001, 0.0002),
+    2: (0.001, 0.002)
 }
 
 
-SRC_CHAIN_MERKLY = [43]       # Исходящая сеть для Merkly
+SRC_CHAIN_MERKLY = [6]            # Исходящая сеть для Merkly
+DST_CHAIN_MERKLY_WORMHOLE = [9]   # Входящая сеть для Merkly Wormhole
 DST_CHAIN_MERKLY_REFUEL = {
-    8: (0.00018, 0.00018),  # Chain ID: (минимум, максимум) в нативном токене входящей сети
+    8: (0.00018, 0.00018),        # Chain ID: (минимум, максимум) в нативном токене входящей сети
     39: (0.001, 0.002)
 }
 
+SRC_CHAIN_L2PASS = [6]          # Исходящая сеть для L2PASS
+DST_CHAIN_L2PASS_NFT = [28]     # Входящая сеть для L2PASS Mint NFT
+DST_CHAIN_L2PASS_REFUEL = {
+    8: (0.00018, 0.00018),      # Chain ID: (минимум, максимум) в нативном токене входящей сети
+    28: (0.001, 0.002)
+}
+
 DST_CHAIN_BUNGEE_REFUEL = {
-    3:  (0.001, 0.0015),  # Chain ID: (минимум, максимум) в ETH
+    3:  (0.001, 0.0015),        # Chain ID: (минимум, максимум) в ETH
     22: (0.001, 0.0015)
 }
 
-DST_CHAIN_L2TELEGRAPH = [22]  # Входящая сеть для L2Telegraph. Можно указать несколько ([1, 2]) и будет выбрана одна.
+DST_CHAIN_L2TELEGRAPH = [22]    # Входящая сеть для L2Telegraph. Можно указать несколько ([1, 2]) и будет выбрана одна.
 
-MERKLY_ATTACK_DATA = [
+SHUFFLE_ATTACK = True  # Если True, то перемешает маршрут для атаки перед стартом
+
+ZERIUS_ATTACK_REFUEL = [
     [43, 3, 0.0001],
     [33, 5, 0.0001],
     [21, 6, 0.0001],
     [12, 8, 0.0001],
+]
+
+ZERIUS_ATTACK_NFT = [
+    [43, 3],
+    [33, 5],
+    [21, 6],
+    [12, 8],
+]
+
+MERKLY_ATTACK_REFUEL = [
+    [43, 3, 0.0001],
+    [33, 5, 0.0001],
+    [21, 6, 0.0001],
+    [12, 8, 0.0001],
+]
+
+
+L2PASS_ATTACK_REFUEL = [
+    [6, 28, 0.0001],
+    [6, 29, 0.0001]
+]
+
+L2PASS_ATTACK_NFT = [
+    [43, 3],
+    [33, 5],
+    [21, 6],
+    [12, 8],
 ]
 
 """
@@ -159,7 +207,7 @@ MERKLY_ATTACK_DATA = [
     MEMCOIN_AMOUNT | Сумма в ETH, на которую планируете покупать мемкоин.
 """
 
-STARKSTARS_NFT_CONTRACTS = (1, 2, 3, 20)  # при (0) заминтит случайную новую NFT
+STARKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при (0) заминтит случайную новую NFT
 ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 20)  # при (0) заминтит случайную новую NFT
 NEW_WALLET_TYPE = 0
 
@@ -243,9 +291,14 @@ HELPERS_CONFIG = {
     mint_token_avnu                  # обмен щитка на AVNU. Сумма в ETH - MEMCOIN_AMOUNT. Контракт менять в config.py
     mint_token_jediswap              # обмен щитка на JediSwap. Контракт в config.py - TOKENS_PER_CHAIN (Starknet)   
     mint_scroll_nft                  # минт Scroll NFT за деплой контрактов
-    mint_inscription                 # минт инскрипшена в сети INSCRIPTION_NETWORK(номера из L0) за деплой контрактов.
+    mint_inscription                 # минт инскрипшена в сети INSCRIPTION_NETWORK(номера из L0).
     swap_stargate                    # свапы на Stargate. STARGATE_CHAINS, STARGATE_TOKENS. См. OMNI-CHAIN CONTROLE
-    refuel_merkly_attack             # Атака на Merkly. Делает много рефьелов в разные сети. См. OMNI-CHAIN CONTROLE
+    zerius_refuel_attack             # Refuel атака на Zerius. Делает много рефьелов в разные сети. См. OMNI-CHAIN CONTROLE
+    merkly_refuel_attack             # Refuel атака на Merkly.      
+    l2pass_refuel_attack             # Refuel атака на L2Pass.
+    zerius_nft_attack                # NFT Bridge атака на Zerius.
+    l2pass_nft_attack                # NFT Bridge атака на L2Pass.
+    mint_and_bridge_wormhole         # Минт и бридж NFT на Merkly через Wormhole 
     
 ----------------------------------------------------ZKSYNC--------------------------------------------------------------        
 
@@ -281,14 +334,17 @@ HELPERS_CONFIG = {
     mint_and_bridge_l2telegraph      # mint и bridge nft через L2Telegraph в случайную сеть из DST_CHAIN_L2TELEGRAPH
     mint_domain_ens                  # 0.003 ETH domain
     mint_domain_zns                  # 0.003 ETH domain
-    mint_mailzero                    # mint бесплатной NFT на MainZero. Плата только за газ.
+    mint_mailzero                    # mint бесплатной NFT на MailZero. Плата только за газ.
     mint_tevaera                     # mint 2 NFT on Tevaera. Price: 0.0003 ETH
     mint_zerius                      # mint NFT on Zerius. Price: уточняйте по факту на сайте.
+    mint_l2pass                      # mint NFT on L2Pass. Price: уточняйте по факту на сайте.
     bridge_zerius                    # bridge последней NFT on Zerius
+    bridge_l2pass                    # bridge последней NFT on L2Pass
     deploy_contract                  # deploy вашего контракта. Контракт находится в data/services/contract_data.json
     refuel_bungee                    # смотри OMNI-CHAIN CONTROL. Исходящая сеть - GLOBAL_NETWORK
     refuel_merkly                    # смотри OMNI-CHAIN CONTROL
     refuel_zerius                    # смотри OMNI-CHAIN CONTROL
+    refuel_l2pass                    # смотри OMNI-CHAIN CONTROL
     random_approve                   # рандомный апрув случайного токена для свапалок 
     send_message_dmail               # отправка сообщения через Dmail на рандомный Web2 адрес (почтовый ящик)
     send_message_l2telegraph         # смотри OMNI-CHAIN CONTROL
@@ -356,6 +412,9 @@ HELPERS_CONFIG = {
     refuel_bungee
     refuel_merkly
     refuel_zerius
+    mint_l2pass
+    bridge_l2pass
+    refuel_l2pass
     random_approve
     transfer_eth                     
     transfer_eth_to_myself
@@ -385,6 +444,9 @@ HELPERS_CONFIG = {
     deploy_contract
     refuel_merkly
     refuel_zerius
+    mint_l2pass
+    bridge_l2pass
+    refuel_l2pass
     random_approve
     transfer_eth                     
     transfer_eth_to_myself
@@ -411,6 +473,9 @@ HELPERS_CONFIG = {
     deploy_contract
     refuel_merkly
     refuel_zerius
+    mint_l2pass
+    bridge_l2pass
+    refuel_l2pass
     random_approve
     transfer_eth                     
     transfer_eth_to_myself   
@@ -426,6 +491,9 @@ HELPERS_CONFIG = {
     deposit_rocketsam
     refuel_merkly
     refuel_zerius
+    mint_l2pass
+    bridge_l2pass
+    refuel_l2pass
     mint_zerius
     bridge_zerius
     mint_and_bridge_l2telegraph
@@ -441,6 +509,9 @@ HELPERS_CONFIG = {
     refuel_merkly
     refuel_zerius
     mint_zerius
+    mint_l2pass
+    bridge_l2pass
+    refuel_l2pass
     bridge_zerius
     mint_and_bridge_l2telegraph
     send_message_l2telegraph
@@ -456,13 +527,13 @@ HELPERS_CONFIG = {
     
     CLASSIC_ROUTES_MODULES_USING = [
         ['okx_withdraw'],
-        ['bridge_layerswap', 'bridge_native', None],
-        ['swap_mute', 'swap_izumi', 'mint_domain_ens'],
+        ['bridge_layerswap', 'bridge_native'],
+        ['swap_mute', 'swap_izumi', 'mint_domain_ens', None],
         ...
     ]
 """
 CLASSIC_ROUTES_MODULES_USING = [
     ['okx_withdraw'],
-    ['bridge_layerswap', 'bridge_native', None],
-    ['swap_mute', 'swap_izumi', 'mint_domain_ens'],
+    ['bridge_layerswap', 'bridge_native'],
+    ['swap_mute', 'swap_izumi', 'mint_domain_ens', None],
 ]
