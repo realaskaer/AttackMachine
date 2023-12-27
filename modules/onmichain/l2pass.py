@@ -129,7 +129,7 @@ class L2Pass(Refuel, Logger):
 
         adapter_params = self.client.w3.to_hex(adapter_params[30:])
 
-        send_price = await onft_contract.functions.sendPrice().call
+        send_price = await onft_contract.functions.sendPrice().call()
 
         estimate_send_fee = await self.get_estimate_send_fee(onft_contract, adapter_params, dst_chain_id, nft_id)
 
