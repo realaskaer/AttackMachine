@@ -30,9 +30,9 @@ class Zerius(Minter, Logger):
             return nft_ids[-1]
         return False
 
-    async def get_estimate_gas_bridge_fee(self, adapter_params, dst_chain_id, nft_id):
+    async def get_estimate_send_fee(self, adapter_params, dst_chain_id, nft_id):
 
-        estimate_gas_bridge_fee = (await self.onft_contract.functions.estimateGasBridgeFee(
+        estimate_send_fee = (await self.onft_contract.functions.estimateSendFee(
             dst_chain_id,
             self.client.address,
             nft_id,
@@ -40,7 +40,7 @@ class Zerius(Minter, Logger):
             adapter_params
         ).call())[0]
 
-        return estimate_gas_bridge_fee
+        return estimate_send_fee
 
     @helper
     @gas_checker
@@ -89,9 +89,9 @@ class Zerius(Minter, Logger):
         adapter_params = self.client.w3.to_hex(adapter_params[30:]) + self.client.address[2:].lower()
 
         base_bridge_fee = await self.onft_contract.functions.bridgeFee().call()
-        estimate_gas_bridge_fee = await self.get_estimate_gas_bridge_fee(adapter_params, dst_chain_id, nft_id)
+        estimate_send_fee = await self.get_estimate_send_fee(adapter_params, dst_chain_id, nft_id)
 
-        tx_params = await self.client.prepare_transaction(value=estimate_gas_bridge_fee + base_bridge_fee)
+        tx_params = await self.client.prepare_transaction(value=estimate_send_fee + base_bridge_fee)
 
         transaction = await self.onft_contract.functions.sendFrom(
             self.client.address,
