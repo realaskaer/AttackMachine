@@ -2,6 +2,7 @@ import random
 
 from modules import Refuel, Logger
 from eth_abi import abi
+from decimal import Decimal
 from settings import DST_CHAIN_MERKLY_REFUEL, DST_CHAIN_MERKLY_WORMHOLE, WORMHOLE_TOKENS_AMOUNT
 from utils.tools import gas_checker, helper, sleep
 from config import (
@@ -105,7 +106,7 @@ class Merkly(Refuel, Logger):
             200000
         ).call())[0]
 
-        mint_price_in_wei = int(mint_price * 10 ** 18)
+        mint_price_in_wei = int(Decimal(f"{mint_price}") * 10 ** 18)
 
         self.logger_msg(
             *self.client.acc_info,
@@ -156,7 +157,7 @@ class Merkly(Refuel, Logger):
             200000
         ).call())[0]
 
-        mint_price_in_wei = int(mint_price * 10 ** 18 * tokens_amount)
+        mint_price_in_wei = int((Decimal(f"{mint_price}") * 10 ** 18) * tokens_amount)
 
         self.logger_msg(
             *self.client.acc_info,
