@@ -288,7 +288,6 @@ class Runner(Logger):
 
                 if result:
                     self.update_step(account_name, current_step + 1)
-                    current_step += 1
                 else:
                     result = False
                     if smart_route_type and HELP_NEW_MODULE and not break_flag:
