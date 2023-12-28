@@ -60,7 +60,6 @@ ArbitrumRPC = Network(
     name='Arbitrum',
     rpc=[
         'https://rpc.ankr.com/arbitrum/',
-        'https://arbitrum.llamarpc.com',
         'https://1rpc.io/arb',
         'https://arb1.arbitrum.io/rpc'
     ],
@@ -75,7 +74,6 @@ OptimismRPC = Network(
     name='Optimism',
     rpc=[
         'https://rpc.ankr.com/optimism/',
-        'https://optimism.llamarpc.com',
         'https://optimism.drpc.org',
         'https://1rpc.io/op'
     ],
@@ -117,7 +115,6 @@ EthereumRPC = Network(
     name='Ethereum',
     rpc=[
         'https://rpc.ankr.com/eth',
-        'https://eth.llamarpc.com',
         'https://ethereum.publicnode.com',
         'https://rpc.mevblocker.io',
         'https://rpc.flashbots.net',
@@ -148,7 +145,6 @@ BaseRPC = Network(
     name='Base',
     rpc=[
         'https://mainnet.base.org',
-        'https://base.llamarpc.com',
         'https://1rpc.io/base',
         'https://base.meowrpc.com',
         'https://base.drpc.org',
