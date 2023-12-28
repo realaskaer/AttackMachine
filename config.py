@@ -1656,7 +1656,7 @@ MERKLY_CONTRACTS_PER_CHAINS = {
         'refuel'                : '0x79DB0f1A83f8e743550EeB5DD5B0B83334F2F083',
         'ONFT'                  : '0xD02FFAe68d902453b44a9e45Dc257AcA54fB88b2',
         'WNFT'                  : '0x9b316174D37d158148aB6F2A6AE0c61739cA785E',
-        'WOFT'                  : '0x9aa7ac03caa440c392b9c9d25a728b429e172a92',
+        'WOFT'                  : '0x9AA7AC03CAA440c392B9C9D25a728b429E172a92',
         'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
     },
     32: {
