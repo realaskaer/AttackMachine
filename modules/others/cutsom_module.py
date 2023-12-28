@@ -164,9 +164,10 @@ class Custom(Logger, Aggregator):
                 if result or counter == 3:
                     break
 
-            return result
         else:
             self.logger_msg(*self.client.acc_info, msg=f"{from_token_name} balance is too low (lower 1$)")
+
+        return True
 
     async def smart_swap_stargate(self):
         from functions import swap_stargate
