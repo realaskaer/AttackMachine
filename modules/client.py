@@ -432,3 +432,40 @@ class Client(Logger):
                 data = await response.json()
                 return float(data[token_name][vs_currency])
             raise RuntimeError(f'Bad request to CoinGecko API: {response.status}')
+
+    async def wait_for_l0_received(self, tx_hash):
+        url = f"https://api-mainnet.layerzero-scan.com/tx/{tx_hash.hex()}"
+
+        t = 0
+        sleep_time = 20
+        timeout = 600
+        flag = False
+        while t < timeout:
+            try:
+                async with self.session.get(url=url) as response:
+                    result = await response.json()
+
+                    if (len(result["messages"]) > 0 and "dstTxHash" in result["messages"][0]
+                            and "status" in result["messages"][0] and result["messages"][0]["status"] == "DELIVERED"):
+                        flag = True
+            except:
+                pass
+
+            if flag:
+                self.logger_msg(*self.acc_info, msg=f'Funds were received on destination chain', type_msg='success')
+                return True
+            else:
+                self.logger_msg(
+                    *self.acc_info, msg=f'Waiting for funds on destination chain...', type_msg='warning')
+                await asyncio.sleep(sleep_time)
+                t += sleep_time
+            if t > timeout:
+                raise RuntimeError(f'Funds have not been received on destination chain within {timeout} seconds')
+
+        async with self.session.get(url=url) as response:
+            result = await response.json()
+
+            if (len(result["messages"]) > 0 and "dstTxHash" in result["messages"][0]
+                    and 'status' in result["messages"][0] and result["messages"][0]['status'] == "DELIVERED"):
+                return True
+

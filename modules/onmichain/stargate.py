@@ -66,4 +66,6 @@ class Stargate(Logger):
                 '0x'
             ).build_transaction(await self.client.prepare_transaction(value=estimate_fee))
 
-        return await self.client.send_transaction(transaction)
+        tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+
+        return await self.client.wait_for_l0_received(tx_hash)
