@@ -7,7 +7,7 @@ from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS
 from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
     MEMCOIN_AMOUNT, MERKLY_ATTACK_REFUEL, L2PASS_ATTACK_REFUEL, L2PASS_ATTACK_NFT, ZERIUS_ATTACK_REFUEL, \
     ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK
-from utils.tools import helper, gas_checker
+from utils.tools import helper, gas_checker, sleep
 
 
 class Custom(Logger, Aggregator):
@@ -259,21 +259,7 @@ class Custom(Logger, Aggregator):
                                            self.client.network, self.client.proxy_init, chain_id_from,
                                            attack_mode=True, attack_data=refuel_data)
 
-        return True
-
-    @helper
-    async def merkly_nft_attack(self):
-        from functions import l2pass_for_nft_attack
-
-        if SHUFFLE_ATTACK:
-            random.shuffle(L2PASS_ATTACK_NFT)
-
-        for chain_id_from, chain_id_to in L2PASS_ATTACK_NFT:
-            chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
-
-            await l2pass_for_nft_attack(self.client.account_name, self.client.private_key,
-                                        self.client.network, self.client.proxy_init, chain_id_from,
-                                        attack_mode=True, attack_data=chain_id_to)
+            await sleep(self)
 
         return True
 
@@ -295,6 +281,8 @@ class Custom(Logger, Aggregator):
                                            self.client.network, self.client.proxy_init, chain_id_from,
                                            attack_mode=True, attack_data=refuel_data)
 
+            await sleep(self)
+
         return True
 
     @helper
@@ -311,6 +299,8 @@ class Custom(Logger, Aggregator):
             await l2pass_for_nft_attack(self.client.account_name, self.client.private_key,
                                         self.client.network, self.client.proxy_init, chain_id_from,
                                         attack_mode=True, attack_data=chain_id_to)
+
+            await sleep(self)
 
         return True
 
@@ -332,6 +322,8 @@ class Custom(Logger, Aggregator):
                                            self.client.network, self.client.proxy_init, chain_id_from,
                                            attack_mode=True, attack_data=refuel_data)
 
+            await sleep(self)
+
         return True
 
     @helper
@@ -347,5 +339,7 @@ class Custom(Logger, Aggregator):
             await zerius_for_nft_attack(self.client.account_name, self.client.private_key,
                                         self.client.network, self.client.proxy_init, chain_id_from,
                                         attack_mode=True, attack_data=chain_id_to)
+
+            await sleep(self)
 
         return True
