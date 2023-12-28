@@ -1529,7 +1529,7 @@ MERKLY_CONTRACTS_PER_CHAINS = {
         'refuel'                : '0xD7bA4057f43a7C4d4A34634b2A3151a60BF78f0d',
         'ONFT'                  : '0xa2C203d7EF78ed80810da8404090f926d67Cd892',
         'WNFT'                  : '0xE4c8D341570ed4e23798e238a92673EbaB787775',
-        'WOFT'                  : '0x660991a4e549b2032dcaf781b85a8fe1df176bb6',
+        'WOFT'                  : '0x660991a4e549B2032dCAF781b85a8FE1dF176BB6',
         'endpoint'              : '0xa2C203d7EF78ed80810da8404090f926d67Cd892'
     },
     8: {
@@ -1577,7 +1577,7 @@ MERKLY_CONTRACTS_PER_CHAINS = {
         'refuel'                : '0x671861008497782F7108D908D4dF18eBf9598b82',
         'ONFT'                  : '0x766b7aC73b0B33fc282BdE1929db023da1fe6458',
         'WNFT'                  : '0x8958311Ded31bf6Fd3993d52DD064f79e26a7336',
-        'WOFT'                  : '0x3cc4313f8e5e413a54095d48db1869f80f929056',
+        'WOFT'                  : '0x3cc4313f8e5E413a54095D48DB1869f80f929056',
         'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
     },
     17: {
