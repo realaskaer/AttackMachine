@@ -5,7 +5,8 @@ from utils.networks import *
 from config import OKX_WRAPED_ID, LAYERZERO_WRAPED_NETWORKS
 from general_settings import GLOBAL_NETWORK
 from settings import (ORBITER_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, RHINO_CHAIN_ID_FROM, ACROSS_CHAIN_ID_FROM,
-                      OKX_DEPOSIT_NETWORK, SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, INSCRIPTION_NETWORK, SRC_CHAIN_L2PASS)
+                      OKX_DEPOSIT_NETWORK, SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, INSCRIPTION_NETWORK, SRC_CHAIN_L2PASS,
+                      SRC_CHAIN_MERKLY_WORMHOLE)
 
 
 def get_client(account_number, private_key, network, proxy, bridge_from_evm:bool = False) -> Client | StarknetClient:
@@ -381,12 +382,20 @@ async def refuel_merkly(account_number, private_key, _, proxy):
     return await worker.refuel(chain_from_id)
 
 
-async def mint_and_bridge_wormhole(account_number, private_key, _, proxy):
-    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_MERKLY)]
+async def mint_and_bridge_wormhole_nft(account_number, private_key, _, proxy):
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_MERKLY_WORMHOLE)]
     network = get_network_by_chain_id(chain_from_id)
 
     worker = Merkly(get_client(account_number, private_key, network, proxy))
-    return await worker.mint_and_bridge_wormhole(chain_from_id)
+    return await worker.mint_and_bridge_wormhole_nft(chain_from_id)
+
+
+async def mint_and_bridge_wormhole_token(account_number, private_key, _, proxy):
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_MERKLY_WORMHOLE)]
+    network = get_network_by_chain_id(chain_from_id)
+
+    worker = Merkly(get_client(account_number, private_key, network, proxy))
+    return await worker.mint_and_bridge_wormhole_tokens(chain_from_id)
 
 
 async def refuel_l2pass(account_number, private_key, _, proxy):
@@ -505,7 +514,10 @@ async def bridge_l2pass(account_number, private_key, _, proxy):
     return await worker.bridge(chain_from_id)
 
 
-async def refuel_bungee(account_number, private_key, network, proxy):
+async def refuel_bungee(account_number, private_key, _, proxy):
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_L2PASS)]
+    network = get_network_by_chain_id(chain_from_id)
+
     worker = Bungee(get_client(account_number, private_key, network, proxy))
     return await worker.refuel()
 

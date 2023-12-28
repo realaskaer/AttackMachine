@@ -93,7 +93,8 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) E
     STARGATE_TOKENS | Выберите две монеты, между которыми будут производиться свапы. Доступны: ETH, USDT, USDC. 
         Токены указывать в таком же порядке, как и чейны. Условно STARGATE_CHAINS = [5, 6] и
         STARGATE_TOKENS = ['USDC', 'USDT'] будет означать, что для 5 чейна будет USDC, а для 6 USDT
-                 
+    
+    SRC_CHAIN_BUNGEE = [27, 29]        
     SRC_CHAIN_ZERIUS = [27, 29] 
     SRC_CHAIN_MERKLY = [27, 29] 
     SRC_CHAIN_L2PASS = [27, 29] | Одна из сетей будет выбрана (REFUEL/BRIDGE NFT(включая Wormhole на Merkly))
@@ -103,18 +104,20 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) E
         2: (0.0002, 0.0005) 
     } 
     
-    DST_CHAIN_L2PASS_REFUEL 
-    DST_CHAIN_ZERIUS_REFUEL | Аналогично DST_CHAIN_MERKLY_REFUEL
+    WORMHOLE_TOKENS_AMOUNT | Количество токенов для минта и бриджа через Wormhole
     
+    DST_CHAIN_L2PASS_REFUEL 
+    DST_CHAIN_BUNGEE_REFUEL
+    DST_CHAIN_ZERIUS_REFUEL | Аналогично DST_CHAIN_MERKLY_REFUEL
+        
     ZERIUS_ATTACK_REFUEL
     MERKLY_ATTACK_REFUEL
     L2PASS_ATTACK_REFUEL | Указываете в списках вариант refuel (исходящая сеть, входящая сеть, мин. сумму к refuel). 
-                           Софт будет перемешивать маршрут и делать refuel по всем указанным сетям.
     
     ZERIUS_ATTACK_NFT
     L2PASS_ATTACK_NFT | Указываете в списках вариант бриджа NFT (исходящая сеть, входящая сеть). 
-                        Софт будет перемешивать маршрут и делать бридж по всем указанным сетям.
                            
+    SHUFFLE_ATTACK | Если стоит True, со софт перемешает маршрут атаки 
     
     (B) - Поддерживаемые входящие сети в Bungee
     Сумму для Merkly и Zerius нужно подавать в нативном токене входящей сети. Указывайте на 10% меньше от лимита,
@@ -133,21 +136,24 @@ DST_CHAIN_ZERIUS_REFUEL = {
     2: (0.001, 0.002)
 }
 
+SRC_CHAIN_MERKLY_WORMHOLE = [6]   # Исходящая сеть для Merkly Wormhole
+DST_CHAIN_MERKLY_WORMHOLE = [9]   # Входящая сеть для Merkly Wormhole
+WORMHOLE_TOKENS_AMOUNT = 1        # Кол-во токенов для минта и бриджа на Merkly через Wormhole
 
 SRC_CHAIN_MERKLY = [6]            # Исходящая сеть для Merkly
-DST_CHAIN_MERKLY_WORMHOLE = [9]   # Входящая сеть для Merkly Wormhole
 DST_CHAIN_MERKLY_REFUEL = {
     8: (0.00018, 0.00018),        # Chain ID: (минимум, максимум) в нативном токене входящей сети
     39: (0.001, 0.002)
 }
 
-SRC_CHAIN_L2PASS = [6]          # Исходящая сеть для L2PASS
-DST_CHAIN_L2PASS_NFT = [28]     # Входящая сеть для L2PASS Mint NFT
+SRC_CHAIN_L2PASS = [6]          # Исходящая сеть для L2Pass
+DST_CHAIN_L2PASS_NFT = [28]     # Входящая сеть для L2Pass Mint NFT
 DST_CHAIN_L2PASS_REFUEL = {
     8: (0.00018, 0.00018),      # Chain ID: (минимум, максимум) в нативном токене входящей сети
     28: (0.001, 0.002)
 }
 
+SRC_CHAIN_BUNGEE = [6]          # Исходящая сеть для Bungee
 DST_CHAIN_BUNGEE_REFUEL = {
     3:  (0.001, 0.0015),        # Chain ID: (минимум, максимум) в ETH
     22: (0.001, 0.0015)
@@ -155,7 +161,9 @@ DST_CHAIN_BUNGEE_REFUEL = {
 
 DST_CHAIN_L2TELEGRAPH = [22]    # Входящая сеть для L2Telegraph. Можно указать несколько ([1, 2]) и будет выбрана одна.
 
-SHUFFLE_ATTACK = True  # Если True, то перемешает маршрут для атаки перед стартом
+'---------------------------------------------LAYERZERO ATTACKS--------------------------------------------------------'
+
+SHUFFLE_ATTACK = False  # Если True, то перемешает маршрут для атаки перед стартом
 
 ZERIUS_ATTACK_REFUEL = [
     [43, 3, 0.0001],
@@ -180,8 +188,10 @@ MERKLY_ATTACK_REFUEL = [
 
 
 L2PASS_ATTACK_REFUEL = [
-    [6, 28, 0.0001],
-    [6, 29, 0.0001]
+    [43, 3, 0.0001],
+    [33, 5, 0.0001],
+    [21, 6, 0.0001],
+    [12, 8, 0.0001],
 ]
 
 L2PASS_ATTACK_NFT = [
@@ -286,19 +296,39 @@ HELPERS_CONFIG = {
     okx_deposit                      # ввод средств на биржу
     okx_collect_from_sub             # сбор средств на субАккаунтов на основной счет
     
-----------------------------------------------------CUSTOM--------------------------------------------------------------        
+---------------------------------------------------CUSTOM---------------------------------------------------------------        
     
     mint_token_avnu                  # обмен щитка на AVNU. Сумма в ETH - MEMCOIN_AMOUNT. Контракт менять в config.py
     mint_token_jediswap              # обмен щитка на JediSwap. Контракт в config.py - TOKENS_PER_CHAIN (Starknet)   
     mint_scroll_nft                  # минт Scroll NFT за деплой контрактов
     mint_inscription                 # минт инскрипшена в сети INSCRIPTION_NETWORK(номера из L0).
-    swap_stargate                    # свапы на Stargate. STARGATE_CHAINS, STARGATE_TOKENS. См. OMNI-CHAIN CONTROLE
+    zksync_rhino_checker             # проверка на eligible для минта Rhino.fi Pro Hunter NFT 
+    zksync_rhino_mint                # минт Rhino.fi Hunter NFT
+    zksync_rhino_mint_pro            # проверка на eligible и минт Rhino.fi Pro Hunter NFT
+    
+--------------------------------------------------LAYERZERO-------------------------------------------------------------            
+    
+    mint_zerius                      # mint NFT on Zerius. Price: уточняйте по факту на сайте.
+    mint_l2pass                      # mint NFT on L2Pass. Price: уточняйте по факту на сайте.
+    bridge_zerius                    # bridge последней NFT on Zerius
+    bridge_l2pass                    # bridge последней NFT on L2Pass
+    refuel_merkly                    # смотри OMNI-CHAIN CONTROL
+    refuel_zerius                    # смотри OMNI-CHAIN CONTROL
+    refuel_l2pass                    # смотри OMNI-CHAIN CONTROL
+    refuel_bungee                    # смотри OMNI-CHAIN CONTROL
+    mint_and_bridge_l2telegraph      # mint и bridge nft через L2Telegraph в случайную сеть из DST_CHAIN_L2TELEGRAPH
+    send_message_l2telegraph         # смотри OMNI-CHAIN CONTROL
+    bridge_stargate                  # бриджи на Stargate. STARGATE_CHAINS, STARGATE_TOKENS. См. OMNI-CHAIN CONTROLE
     zerius_refuel_attack             # Refuel атака на Zerius. Делает много рефьелов в разные сети. См. OMNI-CHAIN CONTROLE
     merkly_refuel_attack             # Refuel атака на Merkly.      
     l2pass_refuel_attack             # Refuel атака на L2Pass.
     zerius_nft_attack                # NFT Bridge атака на Zerius.
-    l2pass_nft_attack                # NFT Bridge атака на L2Pass.
-    mint_and_bridge_wormhole         # Минт и бридж NFT на Merkly через Wormhole 
+    l2pass_nft_attack                # NFT Bridge атака на L2Pass.    
+    
+---------------------------------------------------WORMHOLE-------------------------------------------------------------            
+
+    mint_and_bridge_wormhole_nft     # минт и бридж NFT на Merkly через Wormhole 
+    mint_and_bridge_wormhole_token   # минт и бридж токенов на Merkly через Wormhole 
     
 ----------------------------------------------------ZKSYNC--------------------------------------------------------------        
 
@@ -331,23 +361,13 @@ HELPERS_CONFIG = {
     wrap_eth                         # wrap/unwrap ETH через офф. контракт токена WETH. (кол-во из LIQUIDITY_AMOUNT)
     create_omnisea                   # создание новой NFT коллекции. Все параметры будут рандомными
     create_safe                      # создает сейф в сети GLOBAL_NETWORK
-    mint_and_bridge_l2telegraph      # mint и bridge nft через L2Telegraph в случайную сеть из DST_CHAIN_L2TELEGRAPH
     mint_domain_ens                  # 0.003 ETH domain
     mint_domain_zns                  # 0.003 ETH domain
     mint_mailzero                    # mint бесплатной NFT на MailZero. Плата только за газ.
     mint_tevaera                     # mint 2 NFT on Tevaera. Price: 0.0003 ETH
-    mint_zerius                      # mint NFT on Zerius. Price: уточняйте по факту на сайте.
-    mint_l2pass                      # mint NFT on L2Pass. Price: уточняйте по факту на сайте.
-    bridge_zerius                    # bridge последней NFT on Zerius
-    bridge_l2pass                    # bridge последней NFT on L2Pass
     deploy_contract                  # deploy вашего контракта. Контракт находится в data/services/contract_data.json
-    refuel_bungee                    # смотри OMNI-CHAIN CONTROL. Исходящая сеть - GLOBAL_NETWORK
-    refuel_merkly                    # смотри OMNI-CHAIN CONTROL
-    refuel_zerius                    # смотри OMNI-CHAIN CONTROL
-    refuel_l2pass                    # смотри OMNI-CHAIN CONTROL
     random_approve                   # рандомный апрув случайного токена для свапалок 
     send_message_dmail               # отправка сообщения через Dmail на рандомный Web2 адрес (почтовый ящик)
-    send_message_l2telegraph         # смотри OMNI-CHAIN CONTROL
     transfer_eth                     # переводит (TRANSFER_AMOUNT) ETH на случайный адрес
     transfer_eth_to_myself           # переводит (TRANSFER_AMOUNT) ETH на ваш адрес
     wrap_abuser                      # свапы ETH-WETH через контракты агрегаторов. (кол-во из AMOUNT_PERCENT)     
@@ -359,9 +379,9 @@ HELPERS_CONFIG = {
     disable_collateral_basilisk      # выключение страховки депозита на лендинге
     disable_collateral_eralend       
     disable_collateral_reactorfusion 
-    zksync_rhino_checker             # проверка на eligible для минта Rhino.fi Pro Hunter NFT 
-    zksync_rhino_mint                # минт Rhino.fi Hunter NFT
-    zksync_rhino_mint_pro            # проверка на eligible и минт Rhino.fi Pro Hunter NFT
+    withdraw_liquidity_maverick      # выводит всю ликвидность из пула USDC/WETH
+    withdraw_liquidity_mute
+    withdraw_liquidity_syncswap
                   
 ----------------------------------------------------STARKNET------------------------------------------------------------        
     
@@ -405,22 +425,12 @@ HELPERS_CONFIG = {
     create_safe
     mint_mintfun
     mint_zkstars
-    mint_zerius
-    bridge_zerius
-    mint_and_bridge_l2telegraph
     deploy_contract
-    refuel_bungee
-    refuel_merkly
-    refuel_zerius
-    mint_l2pass
-    bridge_l2pass
-    refuel_l2pass
     random_approve
     transfer_eth                     
     transfer_eth_to_myself
     wrap_abuser                      
     send_message_dmail
-    send_message_l2telegraph
 
 ------------------------------------------------------LINEA-------------------------------------------------------------        
 
@@ -438,21 +448,12 @@ HELPERS_CONFIG = {
     withdraw_rocketsam
     create_omnisea
     mint_zkstars
-    mint_zerius
-    bridge_zerius
-    mint_and_bridge_l2telegrap,
     deploy_contract
-    refuel_merkly
-    refuel_zerius
-    mint_l2pass
-    bridge_l2pass
-    refuel_l2pass
     random_approve
     transfer_eth                     
     transfer_eth_to_myself
     wrap_abuser                     
     send_message_dmail
-    send_message_l2telegraph
 
 -------------------------------------------------------SCROLL-----------------------------------------------------------        
 
@@ -467,20 +468,11 @@ HELPERS_CONFIG = {
     withdraw_rocketsam
     create_omnisea
     mint_zkstars
-    mint_zerius
-    bridge_zerius
-    mint_and_bridge_l2telegraph
     deploy_contract
-    refuel_merkly
-    refuel_zerius
-    mint_l2pass
-    bridge_l2pass
-    refuel_l2pass
     random_approve
     transfer_eth                     
     transfer_eth_to_myself   
     send_message_dmail
-    send_message_l2telegraph
     wrap_abuser                     
     withdraw_native_bridge
     
@@ -489,15 +481,6 @@ HELPERS_CONFIG = {
     mint_mintfun
     mint_zkstars
     deposit_rocketsam
-    refuel_merkly
-    refuel_zerius
-    mint_l2pass
-    bridge_l2pass
-    refuel_l2pass
-    mint_zerius
-    bridge_zerius
-    mint_and_bridge_l2telegraph
-    send_message_l2telegraph
     wrap_abuser                           
     transfer_eth                     
     transfer_eth_to_myself
@@ -506,15 +489,6 @@ HELPERS_CONFIG = {
     
     swap_sushiswap
     deposit_rocketsam
-    refuel_merkly
-    refuel_zerius
-    mint_zerius
-    mint_l2pass
-    bridge_l2pass
-    refuel_l2pass
-    bridge_zerius
-    mint_and_bridge_l2telegraph
-    send_message_l2telegraph
     wrap_abuser                          
     transfer_eth                     
     transfer_eth_to_myself

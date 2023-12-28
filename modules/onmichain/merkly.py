@@ -2,12 +2,13 @@ import random
 
 from modules import Refuel, Logger
 from eth_abi import abi
-from settings import DST_CHAIN_MERKLY_REFUEL, DST_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_MERKLY
+from settings import DST_CHAIN_MERKLY_REFUEL, DST_CHAIN_MERKLY_WORMHOLE, WORMHOLE_TOKENS_AMOUNT
 from utils.tools import gas_checker, helper, sleep
 from config import (
     MERKLY_CONTRACTS_PER_CHAINS,
     MERKLY_ABI,
-    LAYERZERO_NETWORKS_DATA, CHAIN_NAME, MERKLY_WORMHOLE_INFO, LAYERZERO_WRAPED_NETWORKS, MERKLY_WRAPPED_NETWORK
+    LAYERZERO_NETWORKS_DATA, CHAIN_NAME, MERKLY_NFT_WORMHOLE_INFO, MERKLY_WRAPPED_NETWORK,
+    MERKLY_TOKENS_WORMHOLE_INFO
 )
 
 
@@ -87,14 +88,14 @@ class Merkly(Refuel, Logger):
 
     @helper
     @gas_checker
-    async def mint_and_bridge_wormhole(self, chain_id_from):
+    async def mint_and_bridge_wormhole_nft(self, chain_id_from):
 
         onft_contract = self.client.get_contract(
             MERKLY_CONTRACTS_PER_CHAINS[chain_id_from]['WNFT'], MERKLY_ABI['WNFT'])
 
         dst_chain = random.choice(DST_CHAIN_MERKLY_WORMHOLE)
-        _, _, mint_price, _ = MERKLY_WORMHOLE_INFO[chain_id_from]
-        dst_chain_name, wnft_contract, _, wormhole_id = MERKLY_WORMHOLE_INFO[MERKLY_WRAPPED_NETWORK[dst_chain]]
+        _, _, mint_price, _ = MERKLY_NFT_WORMHOLE_INFO[chain_id_from]
+        dst_chain_name, wnft_contract, _, wormhole_id = MERKLY_NFT_WORMHOLE_INFO[MERKLY_WRAPPED_NETWORK[dst_chain]]
 
         estimate_fee = (await onft_contract.functions.quoteBridge(
             wormhole_id,
@@ -127,6 +128,57 @@ class Merkly(Refuel, Logger):
             wormhole_id,
             wnft_contract,
             nft_id,
+            0,
+            200000,
+            wormhole_id,
+            self.client.address
+        ).build_transaction(await self.client.prepare_transaction(value=estimate_fee))
+
+        return await self.client.send_transaction(transaction)
+
+    @helper
+    @gas_checker
+    async def mint_and_bridge_wormhole_tokens(self, chain_id_from):
+        tokens_amount = WORMHOLE_TOKENS_AMOUNT
+
+        onft_contract = self.client.get_contract(
+            MERKLY_CONTRACTS_PER_CHAINS[chain_id_from]['WOFT'], MERKLY_ABI['WOFT'])
+
+        dst_chain = random.choice(DST_CHAIN_MERKLY_WORMHOLE)
+        _, _, mint_price, _ = MERKLY_TOKENS_WORMHOLE_INFO[chain_id_from]
+        dst_chain_name, woft_contract, _, wormhole_id = MERKLY_TOKENS_WORMHOLE_INFO[MERKLY_WRAPPED_NETWORK[dst_chain]]
+
+        estimate_fee = (await onft_contract.functions.quoteBridge(
+            wormhole_id,
+            0,
+            200000
+        ).call())[0]
+
+        mint_price_in_wei = int(mint_price * 10 ** 18 * tokens_amount)
+
+        self.logger_msg(
+            *self.client.acc_info,
+            msg=f"Mint {tokens_amount} WMEKL on Merkly Wormhole."
+                f" Price for mint: {mint_price * tokens_amount:.6f} {self.client.network.token}")
+
+        transaction = await onft_contract.functions.mint(
+            self.client.address,
+            tokens_amount
+        ).build_transaction(await self.client.prepare_transaction(value=mint_price_in_wei))
+
+        await self.client.send_transaction(transaction)
+
+        await sleep(self, 5, 8)
+
+        self.logger_msg(
+            *self.client.acc_info,
+            msg=f"Bridge tokens on Merkly Wormhole. Price for bridge: "
+                f"{(estimate_fee / 10 ** 18):.6f} {self.client.network.token}")
+
+        transaction = await onft_contract.functions.bridge(
+            wormhole_id,
+            woft_contract,
+            tokens_amount,
             0,
             200000,
             wormhole_id,
