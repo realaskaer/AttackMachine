@@ -145,9 +145,6 @@ BaseRPC = Network(
     name='Base',
     rpc=[
         'https://mainnet.base.org',
-        'https://1rpc.io/base',
-        'https://base.meowrpc.com',
-        'https://base.drpc.org',
     ],
     chain_id=8453,
     eip1559_support=True,
