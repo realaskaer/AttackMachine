@@ -119,7 +119,7 @@ class Custom(Logger, Aggregator):
             4: [swap_xyfinance],
             8: [swap_xyfinance],
             9: [swap_avnu],
-            11: [swap_odos, swap_oneinch, swap_xyfinance]
+            11: [swap_oneinch, swap_xyfinance]
         }[GLOBAL_NETWORK]
 
         current_tokens = list(TOKENS_PER_CHAIN[self.client.network.name].items())[:2]
