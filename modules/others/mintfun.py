@@ -13,7 +13,7 @@ class MintFun(Minter, Logger):
 
     @helper
     @gas_checker
-    async def mint(self, nft_contracts_data: dict):
+    async def mint(self):
 
         nft_contract, mint_price = random.choice(list(MINTFUN_CONTRACTS.items()))
 
