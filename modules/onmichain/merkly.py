@@ -28,8 +28,6 @@ class Merkly(Refuel, Logger):
     async def refuel(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None):
         if not attack_mode and attack_data is None:
             dst_data = random.choice(list(DST_CHAIN_MERKLY_REFUEL.items()))
-        elif attack_mode is False and attack_data:
-            dst_data = random.choice(list(attack_data.items()))
         else:
             dst_data = random.choice(list(attack_data.items()))
 

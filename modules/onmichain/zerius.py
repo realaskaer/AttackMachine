@@ -61,13 +61,11 @@ class Zerius(Minter, Logger):
 
     @helper
     @gas_checker
-    async def bridge(self, attack_mode:bool = False, attack_data:dict = False):
+    async def bridge(self, attack_mode:bool = False, attack_data:int = None):
         if not attack_mode and attack_data is None:
             dst_chain = random.choice(DST_CHAIN_ZERIUS_NFT)
-        elif attack_mode is False and attack_data:
-            dst_chain = random.choice(list(attack_data.items()))
         else:
-            dst_chain = random.choice(list(attack_data.items()))
+            dst_chain = attack_data
 
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
 
@@ -118,8 +116,6 @@ class Zerius(Minter, Logger):
     async def refuel(self, attack_mode: bool = False, attack_data: dict = None):
         if not attack_mode and attack_data is None:
             dst_data = random.choice(list(DST_CHAIN_ZERIUS_REFUEL.items()))
-        elif attack_mode is False and attack_data:
-            dst_data = random.choice(list(attack_data.items()))
         else:
             dst_data = random.choice(list(attack_data.items()))
 

@@ -42,8 +42,6 @@ class L2Pass(Refuel, Logger):
     async def refuel(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None):
         if not attack_mode and attack_data is None:
             dst_data = random.choice(list(DST_CHAIN_L2PASS_REFUEL.items()))
-        elif attack_mode is False and attack_data:
-            dst_data = random.choice(list(attack_data.items()))
         else:
             dst_data = random.choice(list(attack_data.items()))
 
@@ -109,13 +107,11 @@ class L2Pass(Refuel, Logger):
 
     @helper
     @gas_checker
-    async def bridge(self, chain_id_from, attack_mode:bool = False, attack_data:dict = False):
+    async def bridge(self, chain_id_from, attack_mode:bool = False, attack_data:int = None):
         if not attack_mode and attack_data is None:
             dst_chain = random.choice(DST_CHAIN_L2PASS_NFT)
-        elif attack_mode is False and attack_data:
-            dst_chain = random.choice(list(attack_data.items()))
         else:
-            dst_chain = random.choice(list(attack_data.items()))
+            dst_chain = attack_data
 
         onft_contract = self.client.get_contract(L2PASS_CONTRACTS_PER_CHAINS[chain_id_from]['ONFT'], L2PASS_ABI['ONFT'])
 
