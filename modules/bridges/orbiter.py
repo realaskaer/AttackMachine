@@ -11,8 +11,8 @@ from web3 import AsyncWeb3
 
 class Orbiter(Bridge, Logger):
     def __init__(self, client):
+        self.client = client
         Logger.__init__(self)
-        super().__init__(client)
 
     @staticmethod
     def get_maker_data(from_id:int, to_id:int, token_name: str):

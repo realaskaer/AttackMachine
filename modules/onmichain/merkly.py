@@ -9,14 +9,14 @@ from config import (
     MERKLY_CONTRACTS_PER_CHAINS,
     MERKLY_ABI,
     LAYERZERO_NETWORKS_DATA, CHAIN_NAME, MERKLY_NFT_WORMHOLE_INFO, MERKLY_WRAPPED_NETWORK,
-    MERKLY_TOKENS_WORMHOLE_INFO
+    MERKLY_TOKENS_WORMHOLE_INFO, LAYERZERO_WRAPED_NETWORKS
 )
 
 
 class Merkly(Refuel, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
     async def get_nft_id(self, tx_hash: bytes):
         tx_receipt = await self.client.w3.eth.get_transaction_receipt(tx_hash)
@@ -25,9 +25,11 @@ class Merkly(Refuel, Logger):
 
     @helper
     @gas_checker
-    async def refuel(self, chain_from_id, attack_mode:bool = False, attack_data:dict = False):
-        if not attack_mode:
+    async def refuel(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None):
+        if not attack_mode and attack_data is None:
             dst_data = random.choice(list(DST_CHAIN_MERKLY_REFUEL.items()))
+        elif attack_mode is False and attack_data:
+            dst_data = random.choice(list(attack_data.items()))
         else:
             dst_data = random.choice(list(attack_data.items()))
 
@@ -68,6 +70,10 @@ class Merkly(Refuel, Logger):
         ).build_transaction(tx_params)
 
         tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+
+        if attack_data and attack_mode is False:
+            await self.client.wait_for_l0_received(tx_hash)
+            return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
 
         return await self.client.wait_for_l0_received(tx_hash)
 

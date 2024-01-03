@@ -14,8 +14,8 @@ from config import (
 
 class Izumi(DEX, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
         self.network = self.client.network.name
         self.router_contract = self.client.get_contract(IZUMI_CONTRACTS[self.network]['router'], IZUMI_ROUTER_ABI)
         self.quoter_contract = self.client.get_contract(IZUMI_CONTRACTS[self.network]['quoter'], IZUMI_QUOTER_ABI)

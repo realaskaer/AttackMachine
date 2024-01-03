@@ -10,8 +10,8 @@ from config import DMAIL_CONTRACT, DMAIL_ABI
 
 class Dmail(Messenger, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
         self.network = self.client.network.name
 
     @staticmethod

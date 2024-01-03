@@ -12,6 +12,7 @@ from utils.tools import helper, gas_checker, sleep
 
 class Custom(Logger, Aggregator):
     def __init__(self, client):
+        self.client = client
         Logger.__init__(self)
         Aggregator.__init__(self, client)
 
@@ -169,6 +170,7 @@ class Custom(Logger, Aggregator):
 
         return True
 
+    @helper
     async def smart_swap_stargate(self):
         from functions import swap_stargate
 
@@ -179,35 +181,50 @@ class Custom(Logger, Aggregator):
         client_chain1 = await self.client.new_client(rpc_by_id[chain1])
         client_chain2 = await self.client.new_client(rpc_by_id[chain2])
 
-        balance_chain1, _, _ = await client_chain1.get_token_balance(omnicheck=True, token_name=token1,
-                                                                     check_symbol=False)
-        balance_chain2, _, _ = await client_chain2.get_token_balance(omnicheck=True, token_name=token2,
-                                                                     check_symbol=False)
+        try:
 
-        if balance_chain2 == 0 and balance_chain1 == 0:
-            raise RuntimeError('Insufficient balances on both networks!')
-        elif balance_chain2 > balance_chain1:
-            current_client = client_chain2
-            from_token_name, to_token_name = token2, token1
-            amount_in_wei = balance_chain2 if from_token_name != 'ETH' else await client_chain2.client.get_smart_amount()
-            src_chain_name, dst_chain_name = client_chain2.network.name, client_chain1.network.name
-            dst_chain_id = LAYERZERO_NETWORKS_DATA[chain1][1]
-            contract = client_chain2.get_contract(TOKENS_PER_CHAIN2[client_chain2.network.name][from_token_name])
-            decimals = await contract.functions.decimals().call()
-        else:
-            current_client = client_chain1
-            from_token_name, to_token_name = token1, token2
-            amount_in_wei = balance_chain1 if from_token_name != 'ETH' else await client_chain1.client.get_smart_amount()
-            src_chain_name, dst_chain_name = client_chain1.network.name, client_chain2.network.name
-            dst_chain_id = LAYERZERO_NETWORKS_DATA[chain2][1]
-            contract = client_chain1.get_contract(TOKENS_PER_CHAIN2[client_chain1.network.name][from_token_name])
-            decimals = await contract.functions.decimals().call()
+            balance_chain1_in_wei, balance_chain1, _ = await client_chain1.get_token_balance(
+                omnicheck=True, token_name=token1,check_symbol=False)
 
-        amount = f"{amount_in_wei / 10 ** decimals:.3f}"
+            balance_chain2_in_wei, balance_chain2, _ = await client_chain2.get_token_balance(
+                omnicheck=True, token_name=token2, check_symbol=False)
 
-        swapdata = dst_chain_id, dst_chain_name, src_chain_name, from_token_name, to_token_name, amount, amount_in_wei
+            if balance_chain2_in_wei == 0 and balance_chain1_in_wei == 0:
+                raise RuntimeError('Insufficient balances on both networks!')
+            elif balance_chain2_in_wei > balance_chain1_in_wei and float(balance_chain2 * ETH_PRICE) > 1:
+                current_client = client_chain2
+                from_token_name, to_token_name = token2, token1
+                amount_in_wei = balance_chain2_in_wei if from_token_name != 'ETH' else await client_chain2.get_smart_amount()
+                src_chain_name, dst_chain_name = client_chain2.network.name, client_chain1.network.name
+                dst_chain_id = LAYERZERO_NETWORKS_DATA[chain1][1]
+                if from_token_name != 'ETH':
+                    contract = client_chain2.get_contract(TOKENS_PER_CHAIN2[client_chain2.network.name][from_token_name])
+                    decimals = await contract.functions.decimals().call()
+                else:
+                    decimals = 18
+            elif balance_chain1_in_wei > balance_chain2_in_wei and float(balance_chain1 * ETH_PRICE) > 1:
+                current_client = client_chain1
+                from_token_name, to_token_name = token1, token2
+                amount_in_wei = balance_chain1_in_wei if from_token_name != 'ETH' else await client_chain1.get_smart_amount()
+                src_chain_name, dst_chain_name = client_chain1.network.name, client_chain2.network.name
+                dst_chain_id = LAYERZERO_NETWORKS_DATA[chain2][1]
+                if from_token_name != 'ETH':
+                    contract = client_chain1.get_contract(TOKENS_PER_CHAIN2[client_chain1.network.name][from_token_name])
+                    decimals = await contract.functions.decimals().call()
+                else:
+                    decimals = 18
+            else:
+                raise RuntimeError('Balance on source chain < 1$!')
 
-        return await swap_stargate(current_client, swapdata=swapdata)
+            amount = f"{amount_in_wei / 10 ** decimals:.3f}"
+
+            swapdata = (dst_chain_id, dst_chain_name, src_chain_name, from_token_name,
+                        to_token_name, amount, int(amount_in_wei))
+
+            return await swap_stargate(current_client, swapdata=swapdata)
+        finally:
+            await client_chain1.session.close()
+            await client_chain2.session.close()
 
     @helper
     async def mint_token_avnu(self):
@@ -246,10 +263,20 @@ class Custom(Logger, Aggregator):
     async def merkly_attack(self):
         from functions import merkly_for_refuel_attack
 
-        if SHUFFLE_ATTACK:
-            random.shuffle(MERKLY_ATTACK_REFUEL)
+        attack_refuel_without_none = []
 
-        for chain_id_from, chain_id_to, amount in MERKLY_ATTACK_REFUEL:
+        for path in MERKLY_ATTACK_REFUEL:
+            if isinstance(path, tuple):
+                module = random.choice(path)
+                if module:
+                    attack_refuel_without_none.append(module)
+                continue
+            attack_refuel_without_none.append(path)
+
+        if SHUFFLE_ATTACK:
+            random.shuffle(attack_refuel_without_none)
+
+        for chain_id_from, chain_id_to, amount in attack_refuel_without_none:
             refuel_data = {
                 chain_id_to: (amount, round(amount * 1.1, 7))
             }
@@ -268,10 +295,20 @@ class Custom(Logger, Aggregator):
     async def l2pass_attack(self):
         from functions import l2pass_for_refuel_attack
 
-        if SHUFFLE_ATTACK:
-            random.shuffle(L2PASS_ATTACK_REFUEL)
+        attack_refuel_without_none = []
 
-        for chain_id_from, chain_id_to, amount in L2PASS_ATTACK_REFUEL:
+        for path in L2PASS_ATTACK_REFUEL:
+            if isinstance(path, tuple):
+                module = random.choice(path)
+                if module:
+                    attack_refuel_without_none.append(module)
+                continue
+            attack_refuel_without_none.append(path)
+
+        if SHUFFLE_ATTACK:
+            random.shuffle(attack_refuel_without_none)
+
+        for chain_id_from, chain_id_to, amount in attack_refuel_without_none:
             refuel_data = {
                 chain_id_to: (amount, round(amount * 1.1, 7))
             }
@@ -290,10 +327,20 @@ class Custom(Logger, Aggregator):
     async def l2pass_nft_attack(self):
         from functions import l2pass_for_nft_attack
 
-        if SHUFFLE_ATTACK:
-            random.shuffle(L2PASS_ATTACK_NFT)
+        attack_bridge_without_none = []
 
-        for chain_id_from, chain_id_to in L2PASS_ATTACK_NFT:
+        for path in L2PASS_ATTACK_NFT:
+            if isinstance(path, tuple):
+                module = random.choice(path)
+                if module:
+                    attack_bridge_without_none.append(module)
+                continue
+            attack_bridge_without_none.append(path)
+
+        if SHUFFLE_ATTACK:
+            random.shuffle(attack_bridge_without_none)
+
+        for chain_id_from, chain_id_to in attack_bridge_without_none:
 
             chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
 
@@ -309,10 +356,20 @@ class Custom(Logger, Aggregator):
     async def zerius_attack(self):
         from functions import zerius_for_refuel_attack
 
-        if SHUFFLE_ATTACK:
-            random.shuffle(ZERIUS_ATTACK_REFUEL)
+        attack_refuel_without_none = []
 
-        for chain_id_from, chain_id_to, amount in ZERIUS_ATTACK_REFUEL:
+        for path in ZERIUS_ATTACK_REFUEL:
+            if isinstance(path, tuple):
+                module = random.choice(path)
+                if module:
+                    attack_refuel_without_none.append(module)
+                continue
+            attack_refuel_without_none.append(path)
+
+        if SHUFFLE_ATTACK:
+            random.shuffle(attack_refuel_without_none)
+
+        for chain_id_from, chain_id_to, amount in attack_refuel_without_none:
             refuel_data = {
                 chain_id_to: (amount, round(amount * 1.1, 7))
             }
@@ -331,10 +388,20 @@ class Custom(Logger, Aggregator):
     async def zerius_nft_attack(self):
         from functions import zerius_for_nft_attack
 
-        if SHUFFLE_ATTACK:
-            random.shuffle(ZERIUS_ATTACK_NFT)
+        attack_bridge_without_none = []
 
-        for chain_id_from, chain_id_to in ZERIUS_ATTACK_NFT:
+        for path in ZERIUS_ATTACK_NFT:
+            if isinstance(path, tuple):
+                module = random.choice(path)
+                if module:
+                    attack_bridge_without_none.append(module)
+                continue
+            attack_bridge_without_none.append(path)
+
+        if SHUFFLE_ATTACK:
+            random.shuffle(attack_bridge_without_none)
+
+        for chain_id_from, chain_id_to in attack_bridge_without_none:
             chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
 
             await zerius_for_nft_attack(self.client.account_name, self.client.private_key,

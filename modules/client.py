@@ -28,13 +28,13 @@ from settings import (
     RHINO_CHAIN_ID_TO,
     RHINO_DEPOSIT_AMOUNT,
     ACROSS_CHAIN_ID_TO,
-    ACROSS_DEPOSIT_AMOUNT,
+    ACROSS_DEPOSIT_AMOUNT, WAIT_FOR_RECEIPT,
 )
 
 
 class Client(Logger):
     def __init__(self, account_name: str, private_key: str, network: Network, proxy: None | str = None):
-        super().__init__()
+        Logger.__init__(self)
         self.network = network
         self.eip1559_support = network.eip1559_support
         self.token = network.token
@@ -44,7 +44,8 @@ class Client(Logger):
         self.proxy_init = proxy
         self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}") if proxy else None)
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
-        self.w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(network.rpc), request_kwargs=self.request_kwargs))
+        self.rpc = random.choice(network.rpc)
+        self.w3 = AsyncWeb3(AsyncHTTPProvider(self.rpc, request_kwargs=self.request_kwargs))
         self.account_name = account_name
         self.private_key = private_key
         self.address = AsyncWeb3.to_checksum_address(self.w3.eth.account.from_key(private_key).address)
@@ -434,6 +435,9 @@ class Client(Logger):
             raise RuntimeError(f'Bad request to CoinGecko API: {response.status}')
 
     async def wait_for_l0_received(self, tx_hash):
+        if not WAIT_FOR_RECEIPT:
+            return True
+
         url = f"https://api-mainnet.layerzero-scan.com/tx/{tx_hash.hex()}"
 
         t = 0
@@ -468,4 +472,3 @@ class Client(Logger):
             if (len(result["messages"]) > 0 and "dstTxHash" in result["messages"][0]
                     and 'status' in result["messages"][0] and result["messages"][0]['status'] == "DELIVERED"):
                 return True
-

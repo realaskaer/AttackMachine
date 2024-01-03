@@ -5,8 +5,8 @@ from config import NOSTRA_CONTRACTS
 
 class Nostra(Landing, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
     @helper
     @gas_checker

@@ -13,8 +13,8 @@ from config import (
 
 class Bungee(Refuel, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
         self.network = self.client.network.name
         self.refuel_contract = self.client.get_contract(BUNGEE_CONTRACTS[self.network]['gas_refuel'], BUNGEE_REFUEL_ABI)

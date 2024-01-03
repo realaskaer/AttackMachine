@@ -8,8 +8,8 @@ from utils.tools import gas_checker, helper
 
 class LayerSwap(Bridge, Logger):
     def __init__(self, client):
+        self.client = client
         Logger.__init__(self)
-        super().__init__(client)
 
     async def get_networks_data(self):
         url = "https://api.layerswap.io/api/available_networks"

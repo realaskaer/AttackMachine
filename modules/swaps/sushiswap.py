@@ -12,8 +12,8 @@ from config import (
 
 class SushiSwap(DEX, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
         self.network = self.client.network.name
         self.router_contract = self.client.get_contract(
             SUSHISWAP_CONTRACTS[self.network]['router'],

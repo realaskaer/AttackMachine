@@ -6,8 +6,8 @@ from config import SAFE_ABI, SAFE_CONTRACTS, ZERO_ADDRESS
 
 class GnosisSafe(Creator, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
         self.network = self.client.network.name
 
     @helper

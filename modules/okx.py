@@ -18,8 +18,9 @@ from settings import (
 
 class OKX(CEX, Logger):
     def __init__(self, client):
+        self.client = client
         Logger.__init__(self)
-        super().__init__(client)
+        CEX.__init__(self, client)
 
     async def get_headers(self, request_path: str, method: str = "GET", body: str = ""):
         try:

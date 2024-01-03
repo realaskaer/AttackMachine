@@ -1,7 +1,7 @@
 from time import time
 from modules import DEX, Logger
 from utils.tools import gas_checker, helper
-from general_settings import SLIPPAGE, USE_PROXY
+from general_settings import SLIPPAGE
 from config import (
     VESYNC_CONTRACTS,
     VESYNC_ROUTER_ABI,
@@ -11,8 +11,8 @@ from config import (
 
 class VeSync(DEX, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
         self.router_contract = self.client.get_contract(VESYNC_CONTRACTS['router'], VESYNC_ROUTER_ABI)
 

@@ -8,8 +8,8 @@ from config import (
 
 class Tevaera(Minter, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
         self.id_contract = self.client.get_contract(TEVAERA_CONTRACTS['citizen_id'], TEVAERA_ABI)
         self.nft_contract = self.client.get_contract(TEVAERA_CONTRACTS['nft_contract'], TEVAERA_ABI)

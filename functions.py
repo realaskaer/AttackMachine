@@ -6,7 +6,7 @@ from config import OKX_WRAPED_ID, LAYERZERO_WRAPED_NETWORKS
 from general_settings import GLOBAL_NETWORK
 from settings import (ORBITER_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, RHINO_CHAIN_ID_FROM, ACROSS_CHAIN_ID_FROM,
                       OKX_DEPOSIT_NETWORK, SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, INSCRIPTION_NETWORK, SRC_CHAIN_L2PASS,
-                      SRC_CHAIN_MERKLY_WORMHOLE)
+                      SRC_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_BUNGEE)
 
 
 def get_client(account_number, private_key, network, proxy, bridge_from_evm:bool = False) -> Client | StarknetClient:
@@ -29,6 +29,7 @@ def get_interface_by_chain_id(chain_id, deposit_module:bool = False):
 
 def get_network_by_chain_id(chain_id):
     return {
+        0: ArbitrumRPC,
         1: ArbitrumRPC,
         2: Arbitrum_novaRPC,
         3: BaseRPC,
@@ -425,6 +426,59 @@ async def l2pass_nft_attack(account_number, private_key, network, proxy):
     return await worker.l2pass_nft_attack()
 
 
+async def merkly_refuel_google(account_number, private_key, _, proxy, chain_from, chain_to):
+    attack_data = {
+        chain_to: (0.000001, 0.000002)
+    }
+    wrapped_chain_from = LAYERZERO_WRAPED_NETWORKS[chain_from]
+    network = get_network_by_chain_id(wrapped_chain_from)
+
+    worker = Merkly(get_client(account_number, private_key, network, proxy))
+    return await worker.refuel(chain_from_id=wrapped_chain_from, attack_data=attack_data)
+
+
+async def l2pass_refuel_google(account_number, private_key, _, proxy, chain_from, chain_to):
+    attack_data = {
+        chain_to: (0.000001, 0.000002)
+    }
+    wrapped_chain_from = LAYERZERO_WRAPED_NETWORKS[chain_from]
+    network = get_network_by_chain_id(wrapped_chain_from)
+
+    worker = L2Pass(get_client(account_number, private_key, network, proxy))
+    return await worker.refuel(chain_id_from=wrapped_chain_from, attack_data=attack_data)
+
+
+async def zerius_refuel_google(account_number, private_key, _, proxy, chain_from, chain_to):
+    attack_data = {
+        chain_to: (0.000001, 0.000002)
+    }
+    wrapped_chain_from = LAYERZERO_WRAPED_NETWORKS[chain_from]
+    network = get_network_by_chain_id(wrapped_chain_from)
+
+    worker = Zerius(get_client(account_number, private_key, network, proxy), wrapped_chain_from)
+    return await worker.refuel(attack_data=attack_data)
+
+
+async def l2pass_bridge_google(account_number, private_key, _, proxy, chain_from, chain_to):
+    attack_data = chain_to
+
+    wrapped_chain_from = LAYERZERO_WRAPED_NETWORKS[chain_from]
+    network = get_network_by_chain_id(wrapped_chain_from)
+
+    worker = L2Pass(get_client(account_number, private_key, network, proxy))
+    return await worker.bridge(chain_id_from=wrapped_chain_from, attack_data=attack_data)
+
+
+async def zerius_bridge_google(account_number, private_key, _, proxy, chain_from, chain_to):
+    attack_data = chain_to
+
+    wrapped_chain_from = LAYERZERO_WRAPED_NETWORKS[chain_from]
+    network = get_network_by_chain_id(wrapped_chain_from)
+
+    worker = Zerius(get_client(account_number, private_key, network, proxy), wrapped_chain_from)
+    return await worker.bridge(attack_data=attack_data)
+
+
 async def l2pass_refuel_attack(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.l2pass_attack()
@@ -515,7 +569,7 @@ async def bridge_l2pass(account_number, private_key, _, proxy):
 
 
 async def refuel_bungee(account_number, private_key, _, proxy):
-    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_L2PASS)]
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_BUNGEE)]
     network = get_network_by_chain_id(chain_from_id)
 
     worker = Bungee(get_client(account_number, private_key, network, proxy))

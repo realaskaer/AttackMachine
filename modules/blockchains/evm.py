@@ -23,8 +23,8 @@ from config import (
 
 class SimpleEVM(Logger):
     def __init__(self, client):
-        Logger.__init__(self)
         self.client = client
+        Logger.__init__(self)
 
         self.network = self.client.network.name
         self.deposit_contract = self.client.get_contract(
@@ -299,6 +299,7 @@ class ZkSync(Blockchain, SimpleEVM):
 
 class StarknetEVM(Blockchain, Logger, Bridge):
     def __init__(self, client):
+        self.client = client
         Logger.__init__(self)
         Bridge.__init__(self, client)
         Blockchain.__init__(self, client)

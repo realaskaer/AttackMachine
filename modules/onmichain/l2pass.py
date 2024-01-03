@@ -7,14 +7,14 @@ from utils.tools import gas_checker, helper, sleep
 from config import (
     L2PASS_CONTRACTS_PER_CHAINS,
     L2PASS_ABI,
-    LAYERZERO_NETWORKS_DATA, CHAIN_NAME, ZERO_ADDRESS
+    LAYERZERO_NETWORKS_DATA, CHAIN_NAME, ZERO_ADDRESS, LAYERZERO_WRAPED_NETWORKS
 )
 
 
 class L2Pass(Refuel, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
     async def get_nft_id(self, contract):
         balance_nft = await contract.functions.balanceOf(self.client.address).call()
@@ -39,9 +39,11 @@ class L2Pass(Refuel, Logger):
 
     @helper
     @gas_checker
-    async def refuel(self, chain_from_id, attack_mode:bool = False, attack_data:dict = False):
-        if not attack_mode:
+    async def refuel(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None):
+        if not attack_mode and attack_data is None:
             dst_data = random.choice(list(DST_CHAIN_L2PASS_REFUEL.items()))
+        elif attack_mode is False and attack_data:
+            dst_data = random.choice(list(attack_data.items()))
         else:
             dst_data = random.choice(list(attack_data.items()))
 
@@ -78,6 +80,10 @@ class L2Pass(Refuel, Logger):
 
         tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
+        if attack_data and attack_mode is False:
+            await self.client.wait_for_l0_received(tx_hash)
+            return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+
         return await self.client.wait_for_l0_received(tx_hash)
 
     @helper
@@ -104,10 +110,12 @@ class L2Pass(Refuel, Logger):
     @helper
     @gas_checker
     async def bridge(self, chain_id_from, attack_mode:bool = False, attack_data:dict = False):
-        if not attack_mode:
+        if not attack_mode and attack_data is None:
             dst_chain = random.choice(DST_CHAIN_L2PASS_NFT)
+        elif attack_mode is False and attack_data:
+            dst_chain = random.choice(list(attack_data.items()))
         else:
-            dst_chain = attack_data
+            dst_chain = random.choice(list(attack_data.items()))
 
         onft_contract = self.client.get_contract(L2PASS_CONTRACTS_PER_CHAINS[chain_id_from]['ONFT'], L2PASS_ABI['ONFT'])
 
@@ -147,4 +155,10 @@ class L2Pass(Refuel, Logger):
             adapter_params
         ).build_transaction(tx_params)
 
-        return await self.client.send_transaction(transaction)
+        tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+
+        if attack_data and attack_mode is False:
+            await self.client.wait_for_l0_received(tx_hash)
+            return LAYERZERO_WRAPED_NETWORKS[chain_id_from], dst_chain_id
+
+        return await self.client.wait_for_l0_received(tx_hash)

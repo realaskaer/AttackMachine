@@ -18,8 +18,8 @@ from config import (
 
 class L2Telegraph(Messenger, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
         self.network = self.client.network.name
         self.message_contract = self.client.get_contract(

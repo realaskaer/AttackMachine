@@ -8,8 +8,9 @@ from config import TOKENS_PER_CHAIN, ETH_MASK, HELP_SOFTWARE
 
 class OneInch(Aggregator, Logger):
     def __init__(self, client):
+        self.client = client
         Logger.__init__(self)
-        super().__init__(client)
+        Aggregator.__init__(self, client)
         self.network = self.client.network.name
 
     async def get_contract_address(self):

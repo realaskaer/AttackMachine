@@ -5,8 +5,8 @@ from modules import Landing, Logger
 
 class ReactorFusion(Landing, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
         self.landing_contract = self.client.get_contract(REACTORFUSION_CONTRACTS['landing'], REACTORFUSION_ABI)
         self.collateral_contract = self.client.get_contract(REACTORFUSION_CONTRACTS['collateral'], REACTORFUSION_ABI)

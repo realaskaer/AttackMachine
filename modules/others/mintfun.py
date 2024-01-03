@@ -8,8 +8,8 @@ from settings import MINTFUN_CONTRACTS
 
 class MintFun(Minter, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
     @helper
     @gas_checker

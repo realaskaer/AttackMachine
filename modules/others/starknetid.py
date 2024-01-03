@@ -6,8 +6,8 @@ from config import STARKNET_ID_CONTRACT
 
 class StarknetId(Minter, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
     @helper
     @gas_checker

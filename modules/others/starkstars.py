@@ -6,8 +6,8 @@ from settings import STARKSTARS_NFT_CONTRACTS
 
 class StarkStars(Minter, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
     async def get_new_nft_id(self):
         for contract_id, contract_address in list(STARKSTARS_COUNTACTS.items()):

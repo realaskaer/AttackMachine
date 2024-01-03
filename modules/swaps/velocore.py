@@ -11,8 +11,8 @@ from config import (
 
 class Velocore(DEX, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
         self.network = self.client.network.name
         self.router_contract = self.client.get_contract(VELOCORE_CONTRACTS[self.network]['router'], VELOCORE_ROUTER_ABI)
 

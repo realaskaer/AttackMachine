@@ -6,8 +6,9 @@ from modules import Aggregator, Logger
 
 class AVNU(Aggregator, Logger):
     def __init__(self, client):
+        self.client = client
         Logger.__init__(self)
-        super().__init__(client)
+        Aggregator.__init__(self, client)
 
     async def get_quotes(self, from_token_address: int, to_token_address: int, amount_in_wei: int):
         url = "https://starknet.api.avnu.fi/swap/v1/quotes"

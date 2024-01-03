@@ -53,7 +53,7 @@ from settings import (
 
 class StarknetClient(Logger):
     def __init__(self, account_name: str, private_key: str, network: Network, proxy: None | str = None):
-        super().__init__()
+        Logger.__init__(self)
         self.network = network
         self.token = network.token
         self.explorer = network.explorer

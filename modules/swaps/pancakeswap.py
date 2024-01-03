@@ -12,8 +12,8 @@ from config import (
 
 class PancakeSwap(DEX, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
         self.network = self.client.network.name
         self.router_contract = self.client.get_contract(PANCAKE_CONTRACTS[self.network]['router'], PANCAKE_ROUTER_ABI)
         self.quoter_contract = self.client.get_contract(PANCAKE_CONTRACTS[self.network]['quoter'], PANCAKE_QUOTER_ABI)

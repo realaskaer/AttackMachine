@@ -6,8 +6,9 @@ from modules import Aggregator, Logger
 
 class Rango(Aggregator, Logger):
     def __init__(self, client):
+        self.client = client
         Logger.__init__(self)
-        super().__init__(client)
+        Aggregator.__init__(self, client)
         self.network = self.client.network.name
 
     async def get_quote(self, from_token_address, to_token_address, from_token_name, to_token_name, amount):

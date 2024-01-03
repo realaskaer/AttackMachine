@@ -8,8 +8,8 @@ from general_settings import SLIPPAGE
 
 class SithSwap(DEX, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
     @staticmethod
     async def get_min_amount_out(contract, amount_in_wei: int, from_token_address: str, to_token_address: str):

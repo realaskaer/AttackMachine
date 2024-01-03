@@ -1,13 +1,13 @@
 from modules import DEX, Logger
 from utils.tools import gas_checker, helper
-from general_settings import SLIPPAGE, USE_PROXY
+from general_settings import SLIPPAGE
 from config import WOOFI_ROUTER_ABI, TOKENS_PER_CHAIN, WOOFI_CONTRACTS, ETH_MASK
 
 
 class WooFi(DEX, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
         self.network = self.client.network.name
         self.router_contract = self.client.get_contract(WOOFI_CONTRACTS[self.network]['router'], WOOFI_ROUTER_ABI)

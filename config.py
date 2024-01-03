@@ -1993,7 +1993,7 @@ OKX_NETWORKS_NAME = {
     19                      : 'AVAX-Avalanche C-Chain',
     20                      : 'ASTR-Astar',
     21                      : 'BNB-BSC',
-    22                      : 'USDT-ERC20',
+    22                      : 'MATIC-Polygon',
     23                      : 'USDT-Polygon',
     24                      : 'USDT-Optimism',
     25                      : 'USDT-Avalanche',
@@ -2003,7 +2003,8 @@ OKX_NETWORKS_NAME = {
     29                      : 'USDC-Avalanche C-Chain',
     30                      : 'USDC-Arbitrum One',
     31                      : 'USDC-Polygon',
-    32                      : 'USDC-Optimism (Bridged)'
+    32                      : 'USDC-Optimism (Bridged)',
+    33                      : 'USDT-ERC20',
 }
 
 OKX_WRAPED_ID = {
@@ -2134,6 +2135,7 @@ LAYERZERO_NETWORKS_DATA = {
 HELP_SOFTWARE = True  # True or False | True = You support me 1% amount of transactions on aggregator`s
 
 CHAIN_NAME = {
+    0: 'OMNI-CHAIN',
     1: 'Arbitrum',
     2: 'Arbitrum Nova',
     3: 'Base',

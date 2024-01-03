@@ -7,8 +7,8 @@ from utils.tools import gas_checker, helper
 
 class RocketSam(Landing, Logger):
     def __init__(self, client):
-        Logger.__init__(self)
         self.client = client
+        Logger.__init__(self)
         self.network = self.client.network.name
 
     async def get_pool(self, withdraw_mode:bool = False):

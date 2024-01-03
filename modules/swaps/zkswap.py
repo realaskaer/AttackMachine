@@ -11,8 +11,8 @@ from config import (
 
 class ZkSwap(DEX, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
         self.router_contract = self.client.get_contract(ZKSWAP_CONTRACTS['router'], ZKSWAP_ROUTER_ABI)
 

@@ -1,7 +1,8 @@
 import random
 
 from settings import DST_CHAIN_ZERIUS_NFT, DST_CHAIN_ZERIUS_REFUEL
-from config import ZERIUS_CONTRACT_PER_CHAINS, ZERIUS_ABI, ZERO_ADDRESS, LAYERZERO_NETWORKS_DATA
+from config import ZERIUS_CONTRACT_PER_CHAINS, ZERIUS_ABI, ZERO_ADDRESS, LAYERZERO_NETWORKS_DATA, \
+    LAYERZERO_WRAPED_NETWORKS
 from utils.tools import gas_checker, helper, sleep
 from eth_abi import encode
 from modules import Minter, Logger
@@ -9,9 +10,8 @@ from modules import Minter, Logger
 
 class Zerius(Minter, Logger):
     def __init__(self, client, chain_from_id):
-        Logger.__init__(self)
         self.client = client
-
+        Logger.__init__(self)
         self.chain_from_id = chain_from_id
         self.network = self.client.network.name
         self.onft_contract = self.client.get_contract(
@@ -62,10 +62,12 @@ class Zerius(Minter, Logger):
     @helper
     @gas_checker
     async def bridge(self, attack_mode:bool = False, attack_data:dict = False):
-        if not attack_mode:
+        if not attack_mode and attack_data is None:
             dst_chain = random.choice(DST_CHAIN_ZERIUS_NFT)
+        elif attack_mode is False and attack_data:
+            dst_chain = random.choice(list(attack_data.items()))
         else:
-            dst_chain = attack_data
+            dst_chain = random.choice(list(attack_data.items()))
 
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
 
@@ -103,13 +105,21 @@ class Zerius(Minter, Logger):
             adapter_params
         ).build_transaction(tx_params)
 
-        return await self.client.send_transaction(transaction)
+        tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+
+        if attack_data and attack_mode is False:
+            await self.client.wait_for_l0_received(tx_hash)
+            return LAYERZERO_WRAPED_NETWORKS[self.chain_from_id], dst_chain_id
+
+        return await self.client.wait_for_l0_received(tx_hash)
 
     @helper
     @gas_checker
-    async def refuel(self, attack_mode:bool = False, attack_data:dict = False):
-        if not attack_mode:
+    async def refuel(self, attack_mode: bool = False, attack_data: dict = None):
+        if not attack_mode and attack_data is None:
             dst_data = random.choice(list(DST_CHAIN_ZERIUS_REFUEL.items()))
+        elif attack_mode is False and attack_data:
+            dst_data = random.choice(list(attack_data.items()))
         else:
             dst_data = random.choice(list(attack_data.items()))
 
@@ -144,5 +154,9 @@ class Zerius(Minter, Logger):
         ).build_transaction(tx_params)
 
         tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+
+        if attack_data and attack_mode is False:
+            await self.client.wait_for_l0_received(tx_hash)
+            return LAYERZERO_WRAPED_NETWORKS[self.chain_from_id], dst_chain_id
 
         return await self.client.wait_for_l0_received(tx_hash)

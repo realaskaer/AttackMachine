@@ -8,8 +8,8 @@ from config import ENS_ABI, ENS_CONTRACT
 
 class EraDomainService(Minter, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
         self.domain_contract = self.client.get_contract(ENS_CONTRACT['era_name_service'], ENS_ABI)
 

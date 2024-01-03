@@ -4,20 +4,21 @@
 
     1 - ETH-ERC20              9  - CELO-Celo           17 - KLAY-Klaytn        25 - USDT-Avalanche
     2 - ETH-Arbitrum One       10 - ONE-Harmony         18 - FTM-Fantom         26 - USDT-Arbitrum One
-    3 - ETH-zkSync Lite        11 - GLMR-Moonbeam       19 - AVAX-Avalanche     27 - USDC-ERC20   
+    3 - ETH-zkSync Lite        11 - GLMR-Moonbeam       19 - AVAX-Avalanche     27 - USDC-ERC20
     4 - ETH-Optimism           12 - MOVR-Moonriver      20 - ASTR-Astar         28 - USDC-Optimism
     5 - ETH-Starknet           13 - METIS-Metis         21 - BNB-BSC            29 - USDC-Avalanche
-    6 - ETH-zkSync Era         14 - CORE-CORE           22 - USDT-ERC20         30 - USDC-Arbitrum One
+    6 - ETH-zkSync Era         14 - CORE-CORE           22 - MATIC-Polygon      30 - USDC-Arbitrum One
     7 - ETH-Linea              15 - CFX-Conflux         23 - USDT-Polygon       31 - USDT-Polygon
     8 - ETH-Base               16 - ZEN-Horizen         24 - USDT-Optimism      32 - USDC-Optimism (Bridged)
+                                                                                33 - USDT-ERC20
 
 ------------------------------------------------------------------------------------------------------------------------
 """
-OKX_WITHDRAW_NETWORK = 2                # Сеть вывода из OKX
-OKX_WITHDRAW_AMOUNT = (0.001, 0.002)           # (минимальная, максимальная) сумма для вывода из OKX
+OKX_WITHDRAW_NETWORK = 6                # Сеть вывода из OKX
+OKX_WITHDRAW_AMOUNT = (0.001, 0.002)   # (минимальная, максимальная) сумма для вывода из OKX
 
 OKX_DEPOSIT_NETWORK = 5                  # Сеть из которой планируется пополнение OKX
-OKX_DEPOSIT_AMOUNT = (0.0001, 0.0001)    # (минимальная, максимальная) сумма для пополнения OKX
+OKX_DEPOSIT_AMOUNT = (0.0001, 0.0002)    # (минимальная, максимальная) сумма для пополнения OKX
 
 OKX_BALANCE_WANTED = 0.01               # Необходимый баланс на аккаунтах для уравнителя (make_balance_to_average)
 
@@ -54,8 +55,8 @@ NATIVE_WITHDRAW_AMOUNT = (0.0001, 0.0002)   # (минимум, максимум)
 
 ORBITER_CHAIN_ID_FROM = [4]                # Исходящая сеть
 ORBITER_CHAIN_ID_TO = [8]                  # Входящая сеть
-ORBITER_DEPOSIT_AMOUNT = (10, 15)    # (минимум, максимум) ETH или %
-ORBITER_TOKEN_NAME = 'USDC'
+ORBITER_DEPOSIT_AMOUNT = (10, 15)          # (минимум, максимум) ETH или %
+ORBITER_TOKEN_NAME = 'USDT'
 
 LAYERSWAP_CHAIN_ID_FROM = [9]                # Исходящая сеть
 LAYERSWAP_CHAIN_ID_TO = [4]                  # Входящая сеть
@@ -117,7 +118,13 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) E
     ZERIUS_ATTACK_NFT
     L2PASS_ATTACK_NFT | Указываете в списках вариант бриджа NFT (исходящая сеть, входящая сеть). 
                            
-    SHUFFLE_ATTACK | Если стоит True, со софт перемешает маршрут атаки 
+    SHUFFLE_ATTACK | Если стоит True, то софт перемешает маршрут атаки 
+    WAIT_FOR_RECEIPT | Если стоит True, то софт будет ждать получения средств во входящей сети, перед запуском модуля
+                        следующего модуля
+    
+    MERKLY_ATTACK_REFUEL = [
+    ([43, 3, 0.0001], None),  # Пример использования рандомной атаки: (данные для атаки, None). Если будет выбран None,
+    ]                                 то модуль будет пропущен 
     
     (B) - Поддерживаемые входящие сети в Bungee
     Сумму для Merkly и Zerius нужно подавать в нативном токене входящей сети. Указывайте на 10% меньше от лимита,
@@ -125,32 +132,34 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) E
             1) Zerius - https://zerius.io/refuel
             2) Merkly - https://minter.merkly.com/gas  
 """
-STARGATE_CHAINS = [5, 6]
-STARGATE_TOKENS = ['USDC', 'USDT']
+STARGATE_CHAINS = [1, 7]
+STARGATE_TOKENS = ['ETH', 'ETH']
 
 SRC_CHAIN_ZERIUS = [6]          # Исходящая сеть для Zerius
 DST_CHAIN_ZERIUS_NFT = [28]     # Входящая сеть для Zerius Mint NFT
 DST_CHAIN_ZERIUS_REFUEL = {
     1: (0.0001, 0.0002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети
-    27: (0.0001, 0.0002),
-    2: (0.001, 0.002)
+    4: (0.0001, 0.0002)
 }
 
-SRC_CHAIN_MERKLY_WORMHOLE = [6]   # Исходящая сеть для Merkly Wormhole
-DST_CHAIN_MERKLY_WORMHOLE = [9]   # Входящая сеть для Merkly Wormhole
+SRC_CHAIN_MERKLY_WORMHOLE = [7]   # Исходящая сеть для Merkly Wormhole
+DST_CHAIN_MERKLY_WORMHOLE = [9, 14, 21, 28]   # Входящая сеть для Merkly Wormhole
 WORMHOLE_TOKENS_AMOUNT = 1        # Кол-во токенов для минта и бриджа на Merkly через Wormhole
 
-SRC_CHAIN_MERKLY = [6]            # Исходящая сеть для Merkly
+SRC_CHAIN_MERKLY = [43]            # Исходящая сеть для Merkly
 DST_CHAIN_MERKLY_REFUEL = {
-    8: (0.00018, 0.00018),        # Chain ID: (минимум, максимум) в нативном токене входящей сети
-    39: (0.001, 0.002)
+    3: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети
+    10: (0.000001, 0.00002),
+    20: (0.000001, 0.00002),
+    21: (0.000001, 0.00002),
 }
 
-SRC_CHAIN_L2PASS = [6]          # Исходящая сеть для L2Pass
-DST_CHAIN_L2PASS_NFT = [28]     # Входящая сеть для L2Pass Mint NFT
+SRC_CHAIN_L2PASS = [7]          # Исходящая сеть для L2PASS
+DST_CHAIN_L2PASS_NFT = [28]     # Входящая сеть для L2PASS Mint NFT
 DST_CHAIN_L2PASS_REFUEL = {
-    8: (0.00018, 0.00018),      # Chain ID: (минимум, максимум) в нативном токене входящей сети
-    28: (0.001, 0.002)
+    20: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети
+    28: (0.000001, 0.00002),
+    29: (0.000001, 0.00002),
 }
 
 SRC_CHAIN_BUNGEE = [6]          # Исходящая сеть для Bungee
@@ -163,7 +172,8 @@ DST_CHAIN_L2TELEGRAPH = [22]    # Входящая сеть для L2Telegraph. 
 
 '---------------------------------------------LAYERZERO ATTACKS--------------------------------------------------------'
 
-SHUFFLE_ATTACK = False  # Если True, то перемешает маршрут для атаки перед стартом
+WAIT_FOR_RECEIPT = True  # Если True, будет ждать получения средств во входящей сети перед запуском очередного модуля
+SHUFFLE_ATTACK = True     # Если True, то перемешает маршрут для атаки перед стартом
 
 ZERIUS_ATTACK_REFUEL = [
     [43, 3, 0.0001],
@@ -174,13 +184,13 @@ ZERIUS_ATTACK_REFUEL = [
 
 ZERIUS_ATTACK_NFT = [
     [43, 3],
-    [33, 5],
-    [21, 6],
-    [12, 8],
+    [3, 5],
+    [5, 6],
+    [6, 8],
 ]
 
 MERKLY_ATTACK_REFUEL = [
-    [43, 3, 0.0001],
+    ([43, 3, 0.0001], None),
     [33, 5, 0.0001],
     [21, 6, 0.0001],
     [12, 8, 0.0001],
@@ -188,16 +198,16 @@ MERKLY_ATTACK_REFUEL = [
 
 
 L2PASS_ATTACK_REFUEL = [
-    [43, 3, 0.0001],
-    [33, 5, 0.0001],
-    [21, 6, 0.0001],
-    [12, 8, 0.0001],
+    [7, 35, 0.0005],
+    [7, 35, 0.0005],
+    [7, 35, 0.0005],
+    [7, 35, 0.0005],
 ]
 
 L2PASS_ATTACK_NFT = [
-    [43, 3],
-    [33, 5],
-    [21, 6],
+    [43, 6],
+    [6, 7],
+    [7, 6],
     [12, 8],
 ]
 
@@ -218,9 +228,8 @@ L2PASS_ATTACK_NFT = [
 """
 
 STARKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при (0) заминтит случайную новую NFT
-ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 20)  # при (0) заминтит случайную новую NFT
+ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при (0) заминтит случайную новую NFT
 NEW_WALLET_TYPE = 0
-
 
 INSCRIPTION_DATA = ''
 INSCRIPTION_NETWORK = 0
@@ -247,20 +256,20 @@ MINTFUN_CONTRACTS = {
     
 """
 
-DMAIL_IN_ROUTES = False       # True или False | Включает Dmail в маршрут
-TRANSFER_IN_ROUTES = False    # True или False | Включает трансферы в маршрут
-COLLATERAL_IN_ROUTES = False  # True или False | Включает случайное вкл/выкл страховки в маршрут
+DMAIL_IN_ROUTES = False        # True или False | Включает Dmail в маршрут
+TRANSFER_IN_ROUTES = False     # True или False | Включает трансферы в маршрут
+COLLATERAL_IN_ROUTES = False   # True или False | Включает случайное вкл/выкл страховки в маршрут
 
 DMAIL_COUNT = (1, 1)          # (минимум, максимум) дополнительных транзакций для Dmail
 TRANSFER_COUNT = (1, 2)       # (минимум, максимум) дополнительных транзакций для трансферов
 COLLATERAL_COUNT = (1, 2)     # (минимум, максимум) дополнительных транзакций для вкл/выкл страхования
 
-MODULES_COUNT = (2, 3)        # (минимум, максимум) неотработанных модулей из Google таблицы
-ALL_MODULES_TO_RUN = False    # True или False | Включает все неотработанные модули в маршрут
-WITHDRAW_LP = False           # True или False | Включает в маршрут все модули для вывода ликвидности из DEX
+MODULES_COUNT = (1, 2)        # (минимум, максимум) неотработанных модулей из Google таблицы
+ALL_MODULES_TO_RUN = False     # True или False | Включает все неотработанные модули в маршрут
+WITHDRAW_LP = False            # True или False | Включает в маршрут все модули для вывода ликвидности из DEX
 WITHDRAW_LANDING = False      # True или False | Включает в маршрут все модули для вывода ликвидности из лендингов
-HELP_NEW_MODULE = False       # True или False | Добавляет случайный модуль при неудачном выполнении модуля из маршрута
-EXCLUDED_MODULES = ['swap_openocean']  # Исключает выбранные модули из маршрута. Список в Classic-Routes.
+HELP_NEW_MODULE = False        # True или False | Добавляет случайный модуль при неудачном выполнении модуля из маршрута
+EXCLUDED_MODULES = ['swap_openocean']  # Исключает выбранные модули из маршрута. Список в Classic-Routes
 
 HELPERS_CONFIG = {
     'okx_withdraw'                        : 0,  # смотри OKX CONTROL
@@ -282,7 +291,6 @@ HELPERS_CONFIG = {
 
 ---------------------------------------------------HELPERS--------------------------------------------------------------        
 
-    
     okx_withdraw                     # смотри OKX CONTROL
     collector_eth                    # сбор всех токенов в ETH
     make_balance_to_average          # уравнивает ваши балансы на аккаунтах (см. инструкцию к софту) 
@@ -334,7 +342,7 @@ HELPERS_CONFIG = {
 
     add_liquidity_maverick           # USDC/WETH LP
     add_liquidity_mute               # USDC/WETH LP
-    add_liquidity_syncswap           # USDC/WETH LP
+    add_liquidity_syncswap           # USDC/WETH LP на LIQUIDITY_AMOUNT
     deposit_basilisk                 # делает депозит в лендинг на LIQUIDITY_AMOUNT
     deposit_eralend                  
     deposit_reactorfusion            
@@ -343,10 +351,9 @@ HELPERS_CONFIG = {
     enable_collateral_eralend        
     enable_collateral_reactorfusion  
     swap_izumi                       # делает случайный свап токенов на AMOUNT_PERCENT для ETH и на 100% для других.
-    swap_maverick                      пары выбираются случайно, с учетом баланса на кошельке. Свапы работаю по   
-    swap_jediswap                      следующим направлениям: ETH -> Token, Token -> ETH. Token -> Token не будет, во
-    swap_mute                          избежания проблем с платой за газ.
-    swap_odos                        
+    swap_maverick                      пары выбираются случайно, с учетом баланса на кошельке. Свапы работаю по
+    swap_mute                          следующим направлениям: ETH -> Token, Token -> ETH. Token -> Token не будет, во
+    swap_odos                          избежания проблем с платой за газ.
     swap_oneinch                     
     swap_openocean                   
     swap_pancake                     
@@ -370,7 +377,7 @@ HELPERS_CONFIG = {
     send_message_dmail               # отправка сообщения через Dmail на рандомный Web2 адрес (почтовый ящик)
     transfer_eth                     # переводит (TRANSFER_AMOUNT) ETH на случайный адрес
     transfer_eth_to_myself           # переводит (TRANSFER_AMOUNT) ETH на ваш адрес
-    wrap_abuser                      # свапы ETH-WETH через контракты агрегаторов. (кол-во из AMOUNT_PERCENT)     
+    wrap_abuser                      # свапы ETH-WETH через контракты агрегаторов. (кол-во из AMOUNT_PERCENT_WRAPS)     
     withdraw_native_bridge           # вывод ETH через официальный мост. (кол-во из NATIVE_WITHDRAW_AMOUNT)
     withdraw_basilisk                # вывод ликвидности из лендинга
     withdraw_eralend                 
@@ -509,5 +516,5 @@ HELPERS_CONFIG = {
 CLASSIC_ROUTES_MODULES_USING = [
     ['okx_withdraw'],
     ['bridge_layerswap', 'bridge_native'],
-    ['swap_mute', 'swap_izumi', 'mint_domain_ens', None],
+    ['swap_mute', 'swap_izumi', 'mint_domain_ens', None]
 ]

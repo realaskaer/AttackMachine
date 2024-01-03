@@ -6,8 +6,9 @@ from config import TOKENS_PER_CHAIN, ETH_MASK, HELP_SOFTWARE
 
 class XYfinance(Aggregator, Logger):
     def __init__(self, client):
+        self.client = client
         Logger.__init__(self)
-        super().__init__(client)
+        Aggregator.__init__(self, client)
         self.network = self.client.network.name
 
     async def get_quote(self, from_token_address: str, to_token_address: str, amount_in_wei: int):

@@ -7,8 +7,8 @@ from config import ZKLEND_CONTRACTS, TOKENS_PER_CHAIN
 
 class ZkLend(Landing, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
     @helper
     @gas_checker

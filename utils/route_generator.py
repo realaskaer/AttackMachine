@@ -18,6 +18,7 @@ from settings import (MODULES_COUNT, ALL_MODULES_TO_RUN,
 GSHEET_CONFIG = "./data/services/service_account.json"
 os.environ["GSPREAD_SILENCE_WARNINGS"] = "1"
 
+
 AVAILABLE_MODULES_INFO = {
     # module_name                       : (module name, priority, tg info, can be help module, supported network)
     okx_withdraw                        : (okx_withdraw, -3, 'OKX Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
@@ -105,6 +106,11 @@ AVAILABLE_MODULES_INFO = {
     zerius_refuel_attack                : (zerius_refuel_attack, 3, 'Zerius Refuel Attack', 0, [2, 3, 4, 8, 11, 12]),
     merkly_refuel_attack                : (merkly_refuel_attack, 3, 'Merkly Refuel Attack', 0, [2, 3, 4, 8, 11, 12]),
     l2pass_refuel_attack                : (l2pass_refuel_attack, 3, 'L2Pass Refuel Attack', 0, [2, 3, 4, 8, 11, 12]),
+    zerius_refuel_google                : (zerius_refuel_google, 3, 'Zerius Smart Refuel', 0, [2, 3, 4, 8, 11, 12]),
+    merkly_refuel_google                : (merkly_refuel_google, 3, 'Merkly Smart Refuel', 0, [2, 3, 4, 8, 11, 12]),
+    l2pass_refuel_google                : (l2pass_refuel_google, 3, 'L2Pass Smart Refuel', 0, [2, 3, 4, 8, 11, 12]),
+    zerius_bridge_google                : (zerius_bridge_google, 3, 'Zerius Smart Bridge', 0, [2, 3, 4, 8, 11, 12]),
+    l2pass_bridge_google                : (l2pass_bridge_google, 3, 'L2Pass Smart Bridge', 0, [2, 3, 4, 8, 11, 12]),
     zerius_nft_attack                   : (zerius_nft_attack, 3, 'Zerius NFT Attack', 0, [2, 3, 4, 8, 11, 12]),
     l2pass_nft_attack                   : (l2pass_nft_attack, 3, 'L2Pass NFT Attack', 0, [2, 3, 4, 8, 11, 12]),
     refuel_zerius                       : (refuel_zerius, 3, 'Zerius Refuel', 0, [2, 3, 4, 8, 11, 12]),
@@ -134,7 +140,6 @@ AVAILABLE_MODULES_INFO = {
     okx_collect_from_sub                : (okx_collect_from_sub, 5, 'OKX Collect money', 0, [2, 3, 4, 8, 9, 11, 12])
 }
 
-
 def get_func_by_name(module_name, help_message:bool = False):
     for k, v in AVAILABLE_MODULES_INFO.items():
         if k.__name__ == module_name:
@@ -145,7 +150,7 @@ def get_func_by_name(module_name, help_message:bool = False):
 
 class RouteGenerator(Logger):
     def __init__(self, silent:bool = True):
-        super().__init__()
+        Logger.__init__(self)
         if GOOGLE_SHEET_URL != '' and not silent:
             self.gc: Client = service_account(filename=GSHEET_CONFIG)
             self.sh: Spreadsheet = self.gc.open_by_url(GOOGLE_SHEET_URL)
@@ -297,6 +302,33 @@ class RouteGenerator(Logger):
                 'L2Telegraph Bridge NFT': mint_and_bridge_l2telegraph,
                 'L2Telegraph Message': send_message_l2telegraph,
             }
+        elif GLOBAL_NETWORK == 0:
+            map_data = {}
+            modules_names = (self.ws.row_values(1))[2:]
+            for module_name in modules_names:
+                module_func = None
+                module_name_symbol, module_path, module_type = module_name.split()
+
+                if module_type == 'R':
+                    if module_name_symbol == 'L':
+                        module_func = l2pass_refuel_google
+                    elif module_name_symbol == 'M':
+                        module_func = merkly_refuel_google
+                    elif module_name_symbol == 'Z':
+                        module_func = zerius_refuel_google
+                elif module_type == 'B':
+                    if module_name_symbol == 'L':
+                        module_func = l2pass_bridge_google
+                    elif module_name_symbol == 'Z':
+                        module_func = zerius_bridge_google
+
+                if module_func:
+                    map_data[module_name] = module_func
+                else:
+                    self.logger_msg(None, None,
+                                    msg=f"That setting is wrong in Google SpreadSheets", type_msg='error')
+                    raise RuntimeError()
+
         else:
             self.logger_msg(None, None,
                             msg=f"This network does not support in Google SpreadSheets", type_msg='error')
@@ -421,19 +453,31 @@ class RouteGenerator(Logger):
         elif GLOBAL_NETWORK in [4, 8]:
             collaterals_modules = [enable_collateral_layerbank, disable_collateral_layerbank]
 
-        for i in range(len(wallet_modules_statuses)):
-            if wallet_modules_statuses[i] in ["Not Started", "Error"]:
-                modules_to_work.append(modules_list[i])
+        if GLOBAL_NETWORK != 0:
+            for i in range(len(wallet_modules_statuses)):
+                if wallet_modules_statuses[i] in ["Not Started", "Error"]:
+                    modules_to_work.append(modules_list[i])
+        else:
+            for i in range(len(wallet_modules_statuses)):
+                if wallet_modules_statuses[i] in ["Not Started", "Error"]:
+                    path = list(self.function_mappings.keys())[i]
+                    modules_to_work.append([modules_list[i], path])
 
         excluded_modules = [get_func_by_name(module) for module in EXCLUDED_MODULES
                             if get_func_by_name(module) in list(self.function_mappings.values())]
 
-        possible_modules = [module for module in modules_to_work if module not in excluded_modules]
+        if GLOBAL_NETWORK != 0:
+            possible_modules = [module for module in modules_to_work if module not in excluded_modules]
+        else:
+            possible_modules = [module for module in modules_to_work if module not in excluded_modules]
 
         want_count = len(modules_to_work) if ALL_MODULES_TO_RUN else random.choice(MODULES_COUNT)
         possible_count = min(want_count, len(possible_modules))
 
-        possible_modules_data = [AVAILABLE_MODULES_INFO[module] for module in possible_modules]
+        if GLOBAL_NETWORK != 0:
+            possible_modules_data = [AVAILABLE_MODULES_INFO[module] for module in possible_modules]
+        else:
+            possible_modules_data = [(AVAILABLE_MODULES_INFO[module[0]], module[1]) for module in possible_modules]
 
         smart_route: list = random.sample(possible_modules_data, possible_count)
 
@@ -494,7 +538,8 @@ class RouteGenerator(Logger):
 
         random.shuffle(smart_route)
 
-        smart_route_with_priority = [i[0].__name__ for i in sorted(list(filter(None, smart_route)), key=lambda x: x[1])]
+        smart_route_with_priority = [(i[0][0].__name__, i[1]) if GLOBAL_NETWORK == 0 else i[0].__name__
+                                     for i in sorted(list(filter(None, smart_route)), key=lambda x: x[1])]
 
         self.smart_routes_json_save(account_name, smart_route_with_priority)
 
@@ -526,7 +571,7 @@ class RouteGenerator(Logger):
 
         data[account_name] = {
             "current_step": 0,
-            "route": route
+            "route": [" ".join(item) for item in route] if isinstance(route[0], tuple) else route
         }
 
         with open(progress_file_path, 'w') as file:

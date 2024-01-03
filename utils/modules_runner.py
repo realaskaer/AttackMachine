@@ -139,7 +139,10 @@ class Runner(Logger):
             try:
                 result_list = list(self.get_google_progress_data().values())
                 wallets_list = route_generator.get_account_name_list()
-                modules_list = [i.__name__ for i in route_generator.get_modules_list()]
+                if GLOBAL_NETWORK != 0:
+                    modules_list = [i.__name__ for i in route_generator.get_modules_list()]
+                else:
+                    modules_list = list(route_generator.function_mappings.keys())
                 total_result_to_send = []
                 successes = 0
                 errors = 0
@@ -246,13 +249,16 @@ class Runner(Logger):
     async def run_account_modules(self, account_name, private_key, network, proxy, smart_route_type, index):
         message_list, result_list, used_modules, break_flag = [], [], [], False
         try:
-            route = self.load_routes().get(str(account_name), {}).get('route')
-            if not route:
+            route_data = self.load_routes().get(str(account_name), {}).get('route')
+            if not route_data:
                 raise RuntimeError(f"No route available")
 
-            route = [[i, 0] for i in route]
+            if GLOBAL_NETWORK == 0:
+                route_paths = [i.split()[2].split('-') for i in route_data]
+            route_modules = [[i.split()[0], 0] for i in route_data]
+
             current_step = 0
-            used_modules.extend(route + EXCLUDED_MODULES)
+            used_modules.extend(route_modules + EXCLUDED_MODULES)
 
             if SAVE_PROGRESS:
                 current_step = self.load_routes()[str(account_name)]["current_step"]
@@ -261,23 +267,25 @@ class Runner(Logger):
             info = CHAIN_NAME[GLOBAL_NETWORK]
 
             message_list.append(
-                f'⚔️ {info} | Account name: "{account_name}"\n \n{len(route)} module(s) in route\n')
+                f'⚔️ {info} | Account name: "{account_name}"\n \n{len(route_modules)} module(s) in route\n')
 
             await self.smart_sleep(account_name, index, accounts_delay=True)
 
-            while current_step < len(route):
-                module_name = route[current_step][0]
-                module_helper_type = route[current_step][1]
+            while current_step < len(route_modules):
+                module_name = route_modules[current_step][0]
+                module_helper_type = route_modules[current_step][1]
                 module_func = get_func_by_name(module_name)
                 module_name_tg = AVAILABLE_MODULES_INFO[module_func][2]
                 self.logger_msg(account_name, None, f"🚀 Launch module: {module_info[module_func][2]}")
 
                 module_input_data = [account_name, private_key, network, proxy]
-                if route[current_step][0] in BRIDGE_NAMES:
+                if route_modules[current_step][0] in BRIDGE_NAMES:
                     module_input_data.append({"stark_key": private_key,
                                               "evm_key": PRIVATE_KEYS_EVM[PRIVATE_KEYS.index(private_key)]
                                               if GLOBAL_NETWORK == 9 else private_key})
 
+                if GLOBAL_NETWORK == 0:
+                    module_input_data.extend([int(i) for i in route_paths[current_step]])
                 try:
                     result = await module_func(*module_input_data)
                 except Exception as error:
@@ -289,6 +297,7 @@ class Runner(Logger):
                 if result:
                     self.update_step(account_name, current_step + 1)
                 else:
+
                     result = False
                     if smart_route_type and HELP_NEW_MODULE and not break_flag:
                         used_modules, module_for_help = self.get_help_module(account_name, used_modules)
@@ -298,9 +307,11 @@ class Runner(Logger):
 
                         info = f"Adding new module in route. Module name: {module_for_help[2]}"
                         self.logger_msg(account_name, None, info, 'warning')
-                        route.append([module_for_help[0].__name__, 1])
+                        route_modules.append([module_for_help[0].__name__, 1])
                     elif BREAK_ROUTE:
                         message_list.extend([f'❌   {module_name_tg}\n', f'💀   The route was stopped!\n'])
+                        if GLOBAL_NETWORK == 0:
+                            module_name = route_data[current_step][1]
                         account_progress = (False, module_name, account_name)
                         result_list.append(account_progress)
                         if not module_helper_type:
@@ -310,6 +321,8 @@ class Runner(Logger):
 
                 current_step += 1
                 message_list.append(f'{"✅" if result else "❌"}   {module_name_tg}\n')
+                if GLOBAL_NETWORK == 0:
+                    module_name = " ".join(route_data[current_step - 1].split()[1:])
                 account_progress = (result, module_name, account_name)
                 result_list.append(account_progress)
 

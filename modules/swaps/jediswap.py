@@ -8,8 +8,8 @@ from utils.tools import gas_checker, helper
 
 class JediSwap(DEX, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
     async def get_min_amount_out(self, contract_address:int, amount_in_wei: int, path: list):
         min_amount_out = (await self.client.account.client.call_contract(self.client.prepare_call(

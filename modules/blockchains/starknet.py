@@ -16,6 +16,7 @@ from config import (NATIVE_CONTRACTS_PER_CHAIN, SPACESHARD_CONTRACT, TOKENS_PER_
 
 class Starknet(Blockchain, Logger, Bridge):
     def __init__(self, client):
+        self.client = client
         Logger.__init__(self)
         Bridge.__init__(self, client)
         Blockchain.__init__(self, client)

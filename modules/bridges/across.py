@@ -6,8 +6,8 @@ from general_settings import GLOBAL_NETWORK, GAS_MULTIPLIER
 
 class Across(Bridge, Logger):
     def __init__(self, client):
+        self.client = client
         Logger.__init__(self)
-        super().__init__(client)
         self.network = self.client.network.name
 
     async def get_bridge_fee(self, chain_id, amount_in_wei):

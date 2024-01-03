@@ -5,8 +5,8 @@ from utils.tools import helper
 
 class Inscription(Logger):
     def __init__(self, client):
-        Logger.__init__(self)
         self.client = client
+        Logger.__init__(self)
 
     @helper
     async def mint_inscribe(self):

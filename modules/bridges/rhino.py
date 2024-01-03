@@ -40,8 +40,8 @@ REGISTER_DATA = {
 
 class Rhino(Bridge, Logger):
     def __init__(self, client):
+        self.client = client
         Logger.__init__(self)
-        super().__init__(client)
 
         self.nonce, self.signature = None, None
         self.evm_client = None

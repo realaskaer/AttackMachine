@@ -6,8 +6,8 @@ from settings import ZKSTARS_NFT_CONTRACTS
 
 class ZkStars(Minter, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
         self.network = self.client.network.name
 
     async def get_new_nft_id(self):

@@ -6,8 +6,8 @@ from general_settings import SLIPPAGE
 
 class MySwap(DEX, Logger):
     def __init__(self, client):
-        super().__init__()
         self.client = client
+        Logger.__init__(self)
 
     @staticmethod
     async def get_pool_id(from_token_name: str, to_token_name: str):
