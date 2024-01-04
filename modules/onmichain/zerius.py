@@ -81,7 +81,7 @@ class Zerius(Minter, Logger):
             *self.client.acc_info,
             msg=f"Bridge Zerius NFT from {self.network} to {dst_chain_name}. ID: {nft_id}")
 
-        version, gas_limit = 1, await self.onft_contract.functions.minDstGasLookup(dst_chain_id, 1).call()
+        version, gas_limit = 1, int((await self.onft_contract.functions.minDstGasLookup(dst_chain_id, 1).call()) * 1.2)
 
         adapter_params = encode(["uint16", "uint256"],
                                 [version, gas_limit])
