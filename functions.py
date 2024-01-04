@@ -829,6 +829,17 @@ async def swap_stargate(client, **kwargs):
     return await worker.bridge(**kwargs)
 
 
+async def bridge_coredao(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.smart_swap_coredao()
+
+
+async def swap_coredao(client, **kwargs):
+    worker = CoreDAO(client)
+    return await worker.bridge(**kwargs)
+
+
+
 async def swap_bridged_usdc(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.swap_bridged_usdc()

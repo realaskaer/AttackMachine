@@ -37,6 +37,7 @@ from .onmichain import Zerius
 from .onmichain import RocketSam
 from .onmichain import Stargate
 from .onmichain import L2Pass
+from .onmichain import CoreDAO
 from .others import Dmail
 from .others import EraDomainService
 from .others import GnosisSafe

@@ -6,7 +6,7 @@ from modules import Logger, Aggregator
 from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS
 from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
     MEMCOIN_AMOUNT, MERKLY_ATTACK_REFUEL, L2PASS_ATTACK_REFUEL, L2PASS_ATTACK_NFT, ZERIUS_ATTACK_REFUEL, \
-    ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK
+    ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS
 from utils.tools import helper, gas_checker, sleep
 
 
@@ -204,13 +204,59 @@ class Custom(Logger, Aggregator):
         else:
             decimals = 18
 
-        amount = f"{amount_in_wei / 10 ** decimals:.3f}"
+        amount = f"{amount_in_wei / 10 ** decimals:.4f}"
 
         swapdata = (dst_chain_id, dst_chain_name, src_chain_name, from_token_name,
                     to_token_name, amount, int(amount_in_wei))
 
         try:
             return await swap_stargate(current_client, swapdata=swapdata)
+        finally:
+            for client in clients:
+                await client.session.close()
+
+    @helper
+    async def smart_swap_coredao(self):
+        from functions import swap_coredao
+
+        rpc_by_id = LAYERZERO_WRAPED_NETWORKS
+
+        clients = [await self.client.new_client(rpc_by_id[chain])
+                   for chain in COREDAO_CHAINS]
+
+        balances = [await client.get_token_balance(omnicheck=True, token_name=token, check_symbol=False)
+                    for client, token in zip(clients, COREDAO_TOKENS)]
+
+        if all(balance_in_wei == 0 for balance_in_wei, _, _ in balances):
+            raise RuntimeError('Insufficient balances on both networks!')
+
+        index = 0 if balances[0][1] * ETH_PRICE > balances[1][1] * ETH_PRICE else 1
+        current_client = clients[index]
+        from_token_name, to_token_name = COREDAO_TOKENS[index], COREDAO_TOKENS[1 - index]
+        balance_in_wei, balance, _ = balances[index]
+
+        if balance * ETH_PRICE <= 1:
+            raise RuntimeError('Balance on source chain < 1$!')
+
+        amount_in_wei = balance_in_wei if from_token_name != 'ETH' else int(
+            (await current_client.get_smart_amount(need_percent=True)) * 10 ** 18)
+
+        src_chain_name, dst_chain_name = current_client.network.name, clients[1 - index].network.name
+        dst_chain_id = LAYERZERO_NETWORKS_DATA[COREDAO_CHAINS[1 - index]][1]
+
+        if from_token_name != 'ETH':
+            contract = current_client.get_contract(TOKENS_PER_CHAIN2[current_client.network.name][from_token_name])
+            decimals = await contract.functions.decimals().call()
+        else:
+            decimals = 18
+
+        amount = f"{amount_in_wei / 10 ** decimals:.4f}"
+
+        swapdata = (src_chain_name, dst_chain_name, dst_chain_id, from_token_name,
+                    to_token_name, amount, int(amount_in_wei))
+
+        try:
+            return await swap_coredao(current_client, swapdata=swapdata)
         finally:
             for client in clients:
                 await client.session.close()

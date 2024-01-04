@@ -14,8 +14,8 @@
 
 ------------------------------------------------------------------------------------------------------------------------
 """
-OKX_WITHDRAW_NETWORK = 6                # Сеть вывода из OKX
-OKX_WITHDRAW_AMOUNT = (0.001, 0.002)   # (минимальная, максимальная) сумма для вывода из OKX
+OKX_WITHDRAW_NETWORK = 8                # Сеть вывода из OKX
+OKX_WITHDRAW_AMOUNT = (0.005, 0.00512)   # (минимальная, максимальная) сумма для вывода из OKX
 
 OKX_DEPOSIT_NETWORK = 5                  # Сеть из которой планируется пополнение OKX
 OKX_DEPOSIT_AMOUNT = (0.0001, 0.0002)    # (минимальная, максимальная) сумма для пополнения OKX
@@ -95,6 +95,9 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) E
         Токены указывать в таком же порядке, как и чейны. Условно STARGATE_CHAINS = [5, 6] и
         STARGATE_TOKENS = ['USDC', 'USDT'] будет означать, что для 5 чейна будет USDC, а для 6 USDT
     
+    COREDAO_CHAINS | Аналогично STARGATE_CHAINS
+    COREDAO_TOKENS | Аналогично STARGATE_TOKENS
+    
     SRC_CHAIN_BUNGEE = [27, 29]        
     SRC_CHAIN_ZERIUS = [27, 29] 
     SRC_CHAIN_MERKLY = [27, 29] 
@@ -135,8 +138,11 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) E
 STARGATE_CHAINS = [1, 7]
 STARGATE_TOKENS = ['ETH', 'ETH']
 
-SRC_CHAIN_ZERIUS = [6]          # Исходящая сеть для Zerius
-DST_CHAIN_ZERIUS_NFT = [28]     # Входящая сеть для Zerius Mint NFT
+COREDAO_CHAINS = [6, 11]
+COREDAO_TOKENS = ['USDT', 'USDT']
+
+SRC_CHAIN_ZERIUS = [1]          # Исходящая сеть для Zerius
+DST_CHAIN_ZERIUS_NFT = [4]     # Входящая сеть для Zerius Mint NFT
 DST_CHAIN_ZERIUS_REFUEL = {
     1: (0.0001, 0.0002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети
     4: (0.0001, 0.0002)
@@ -154,8 +160,8 @@ DST_CHAIN_MERKLY_REFUEL = {
     21: (0.000001, 0.00002),
 }
 
-SRC_CHAIN_L2PASS = [7]          # Исходящая сеть для L2PASS
-DST_CHAIN_L2PASS_NFT = [28]     # Входящая сеть для L2PASS Mint NFT
+SRC_CHAIN_L2PASS = [1]          # Исходящая сеть для L2PASS
+DST_CHAIN_L2PASS_NFT = [6]     # Входящая сеть для L2PASS Mint NFT
 DST_CHAIN_L2PASS_REFUEL = {
     20: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети
     28: (0.000001, 0.00002),
