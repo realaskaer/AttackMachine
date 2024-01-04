@@ -247,7 +247,7 @@ class Runner(Logger):
                 return None, False
 
     async def run_account_modules(self, account_name, private_key, network, proxy, smart_route_type, index):
-        message_list, result_list, used_modules, break_flag = [], [], [], False
+        message_list, result_list, used_modules, break_flag, route_paths = [], [], [], [], False
         try:
             route_data = self.load_routes().get(str(account_name), {}).get('route')
             if not route_data:
@@ -297,10 +297,11 @@ class Runner(Logger):
                 if result:
                     self.update_step(account_name, current_step + 1)
                 else:
-
+                    self.collect_bad_wallets(account_name, module_name)
                     result = False
                     if smart_route_type and HELP_NEW_MODULE and not break_flag:
                         used_modules, module_for_help = self.get_help_module(account_name, used_modules)
+
                         if not module_for_help:
                             break_flag = True
                             continue
@@ -316,7 +317,6 @@ class Runner(Logger):
                         result_list.append(account_progress)
                         if not module_helper_type:
                             self.save_google_progress_offline(*account_progress)
-                        self.collect_bad_wallets(account_name, module_name)
                         break
 
                 current_step += 1
