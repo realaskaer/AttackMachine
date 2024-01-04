@@ -120,7 +120,8 @@ class L2Pass(Refuel, Logger):
         nft_id = await self.get_nft_id(onft_contract)
 
         if not nft_id:
-            await self.mint(chain_id_from)
+            new_client = await self.client.new_client(chain_id_from)
+            await L2Pass(new_client).mint(chain_id_from)
             nft_id = await self.get_nft_id(onft_contract)
             await sleep(self, 5, 10)
 
