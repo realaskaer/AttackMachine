@@ -174,57 +174,46 @@ class Custom(Logger, Aggregator):
     async def smart_swap_stargate(self):
         from functions import swap_stargate
 
-        chain1, chain2 = STARGATE_CHAINS
-        token1, token2 = STARGATE_TOKENS
         rpc_by_id = LAYERZERO_WRAPED_NETWORKS
 
-        client_chain1 = await self.client.new_client(rpc_by_id[chain1])
-        client_chain2 = await self.client.new_client(rpc_by_id[chain2])
+        clients = [await self.client.new_client(rpc_by_id[chain])
+                   for chain in STARGATE_CHAINS]
+        balances = [await client.get_token_balance(omnicheck=True, token_name=token, check_symbol=False)
+                    for client, token in zip(clients, STARGATE_TOKENS)]
+
+        if all(balance_in_wei == 0 for balance_in_wei, _, _ in balances):
+            raise RuntimeError('Insufficient balances on both networks!')
+
+        index = 0 if balances[0][1] * ETH_PRICE > balances[1][1] * ETH_PRICE else 1
+        current_client = clients[index]
+        from_token_name, to_token_name = STARGATE_TOKENS[index], STARGATE_TOKENS[1 - index]
+        balance_in_wei, balance, _ = balances[index]
+
+        if balance * ETH_PRICE <= 1:
+            raise RuntimeError('Balance on source chain < 1$!')
+
+        amount_in_wei = balance_in_wei if from_token_name != 'ETH' else int(
+            (await current_client.get_smart_amount(need_percent=True)) * 10 ** 18)
+
+        src_chain_name, dst_chain_name = current_client.network.name, clients[1 - index].network.name
+        dst_chain_id = LAYERZERO_NETWORKS_DATA[STARGATE_CHAINS[1 - index]][1]
+
+        if from_token_name != 'ETH':
+            contract = current_client.get_contract(TOKENS_PER_CHAIN2[current_client.network.name][from_token_name])
+            decimals = await contract.functions.decimals().call()
+        else:
+            decimals = 18
+
+        amount = f"{amount_in_wei / 10 ** decimals:.3f}"
+
+        swapdata = (dst_chain_id, dst_chain_name, src_chain_name, from_token_name,
+                    to_token_name, amount, int(amount_in_wei))
 
         try:
-
-            balance_chain1_in_wei, balance_chain1, _ = await client_chain1.get_token_balance(
-                omnicheck=True, token_name=token1,check_symbol=False)
-
-            balance_chain2_in_wei, balance_chain2, _ = await client_chain2.get_token_balance(
-                omnicheck=True, token_name=token2, check_symbol=False)
-
-            if balance_chain2_in_wei == 0 and balance_chain1_in_wei == 0:
-                raise RuntimeError('Insufficient balances on both networks!')
-            elif balance_chain2_in_wei > balance_chain1_in_wei and float(balance_chain2 * ETH_PRICE) > 1:
-                current_client = client_chain2
-                from_token_name, to_token_name = token2, token1
-                amount_in_wei = balance_chain2_in_wei if from_token_name != 'ETH' else await client_chain2.get_smart_amount()
-                src_chain_name, dst_chain_name = client_chain2.network.name, client_chain1.network.name
-                dst_chain_id = LAYERZERO_NETWORKS_DATA[chain1][1]
-                if from_token_name != 'ETH':
-                    contract = client_chain2.get_contract(TOKENS_PER_CHAIN2[client_chain2.network.name][from_token_name])
-                    decimals = await contract.functions.decimals().call()
-                else:
-                    decimals = 18
-            elif balance_chain1_in_wei > balance_chain2_in_wei and float(balance_chain1 * ETH_PRICE) > 1:
-                current_client = client_chain1
-                from_token_name, to_token_name = token1, token2
-                amount_in_wei = balance_chain1_in_wei if from_token_name != 'ETH' else await client_chain1.get_smart_amount()
-                src_chain_name, dst_chain_name = client_chain1.network.name, client_chain2.network.name
-                dst_chain_id = LAYERZERO_NETWORKS_DATA[chain2][1]
-                if from_token_name != 'ETH':
-                    contract = client_chain1.get_contract(TOKENS_PER_CHAIN2[client_chain1.network.name][from_token_name])
-                    decimals = await contract.functions.decimals().call()
-                else:
-                    decimals = 18
-            else:
-                raise RuntimeError('Balance on source chain < 1$!')
-
-            amount = f"{amount_in_wei / 10 ** decimals:.3f}"
-
-            swapdata = (dst_chain_id, dst_chain_name, src_chain_name, from_token_name,
-                        to_token_name, amount, int(amount_in_wei))
-
             return await swap_stargate(current_client, swapdata=swapdata)
         finally:
-            await client_chain1.session.close()
-            await client_chain2.session.close()
+            for client in clients:
+                await client.session.close()
 
     @helper
     async def mint_token_avnu(self):
