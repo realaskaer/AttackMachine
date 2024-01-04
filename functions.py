@@ -445,7 +445,7 @@ async def l2pass_refuel_google(account_number, private_key, _, proxy, chain_from
     network = get_network_by_chain_id(wrapped_chain_from)
 
     worker = L2Pass(get_client(account_number, private_key, network, proxy))
-    return await worker.refuel(chain_id_from=wrapped_chain_from, attack_data=attack_data)
+    return await worker.refuel(chain_from_id=wrapped_chain_from, attack_data=attack_data)
 
 
 async def zerius_refuel_google(account_number, private_key, _, proxy, chain_from, chain_to):
