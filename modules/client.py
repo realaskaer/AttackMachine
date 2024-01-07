@@ -188,28 +188,31 @@ class Client(Logger):
                                 initial_chain_id:int = 0) -> [float, int]:
         from functions import swap_odos, swap_oneinch, swap_openocean, swap_xyfinance, swap_rango
 
-        func = {
-            3: [swap_odos, swap_oneinch, swap_openocean, swap_xyfinance],
-            4: [swap_rango, swap_openocean, swap_xyfinance],
-            6: [swap_oneinch],
-            8: [swap_openocean, swap_xyfinance],
-            11: [swap_openocean, swap_xyfinance, swap_rango, swap_odos, swap_oneinch]
-        }[GLOBAL_NETWORK]
+        try:
+            func = {
+                3: [swap_odos, swap_oneinch, swap_openocean, swap_xyfinance],
+                4: [swap_rango, swap_openocean, swap_xyfinance],
+                6: [swap_oneinch],
+                8: [swap_openocean, swap_xyfinance],
+                11: [swap_openocean, swap_xyfinance, swap_rango, swap_odos, swap_oneinch]
+            }[GLOBAL_NETWORK]
 
-        module_func = random.choice(func)
+            module_func = random.choice(func)
 
-        data = True
-        if bridge_mode and initial_chain_id in [2, 3, 4, 8, 9, 11, 12]:
-            data = await self.get_auto_amount(token_name_search='ETH')
-        elif not bridge_mode:
-            data = await self.get_auto_amount(token_name_search='ETH')
+            data = True
+            if bridge_mode and initial_chain_id in [2, 3, 4, 8, 9, 11, 12]:
+                data = await self.get_auto_amount(token_name_search='ETH')
+            elif not bridge_mode:
+                data = await self.get_auto_amount(token_name_search='ETH')
+
+            if data is False:
+                self.logger_msg(*self.acc_info, msg=f'Not enough ETH! Launching swap module', type_msg='warning')
+                await module_func(self.account_name, self.private_key, self.network, self.proxy_init, help_deposit=True)
+        except:
+            pass
 
         amount = await self.get_smart_amount(settings if settings else LIQUIDITY_AMOUNT)
         amount_in_wei = int(amount * 10 ** 18)
-
-        if data is False:
-            self.logger_msg(*self.acc_info, msg=f'Not enough ETH! Launching swap module', type_msg='warning')
-            await module_func(self.account_name, self.private_key, self.network, self.proxy_init, help_deposit=True)
 
         return amount, amount_in_wei
 
