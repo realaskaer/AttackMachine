@@ -160,7 +160,7 @@ def create_okx_withdrawal_list():
     if ACCOUNT_NAMES and OKX_WALLETS:
         with open('./data/services/okx_withdraw_list.json', 'w') as file:
             for account_name, okx_wallet in zip(ACCOUNT_NAMES, OKX_WALLETS):
-                okx_data[account_name] = okx_wallet
+                okx_data[str(account_name)] = okx_wallet
             json.dump(okx_data, file, indent=4)
         cprint('✅ Successfully added and saved OKX wallets data', 'light_blue')
         cprint('⚠️ Check all OKX deposit wallets by yourself to avoid problems', 'light_yellow', attrs=["blink"])

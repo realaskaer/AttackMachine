@@ -33,7 +33,7 @@ from settings import (
 
 
 class Client(Logger):
-    def __init__(self, account_name: str, private_key: str, network: Network, proxy: None | str = None):
+    def __init__(self, account_name: str | int, private_key: str, network: Network, proxy: None | str = None):
         Logger.__init__(self)
         self.network = network
         self.eip1559_support = network.eip1559_support
@@ -46,7 +46,7 @@ class Client(Logger):
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
         self.rpc = random.choice(network.rpc)
         self.w3 = AsyncWeb3(AsyncHTTPProvider(self.rpc, request_kwargs=self.request_kwargs))
-        self.account_name = account_name
+        self.account_name = str(account_name)
         self.private_key = private_key
         self.address = AsyncWeb3.to_checksum_address(self.w3.eth.account.from_key(private_key).address)
         self.acc_info = account_name, self.address
