@@ -171,6 +171,7 @@ class Custom(Logger, Aggregator):
         return True
 
     @helper
+    @gas_checker
     async def smart_swap_stargate(self):
         from functions import swap_stargate
 
@@ -216,6 +217,7 @@ class Custom(Logger, Aggregator):
                 await client.session.close()
 
     @helper
+    @gas_checker
     async def smart_swap_coredao(self):
         from functions import swap_coredao
 
