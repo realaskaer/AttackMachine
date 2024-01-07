@@ -27,14 +27,17 @@ class SimpleEVM(Logger):
         Logger.__init__(self)
 
         self.network = self.client.network.name
-        self.deposit_contract = self.client.get_contract(
-            NATIVE_CONTRACTS_PER_CHAIN[self.network]['deposit'],
-            NATIVE_ABI[self.network]['deposit'])
-        self.withdraw_contract = self.client.get_contract(
-            NATIVE_CONTRACTS_PER_CHAIN[self.network]['withdraw'],
-            NATIVE_ABI[self.network]['withdraw'])
         self.token_contract = self.client.get_contract(
             TOKENS_PER_CHAIN[self.client.network.name]['WETH'], WETH_ABI)
+        if self.network in ['zkSync']:
+            self.deposit_contract = self.client.get_contract(
+                NATIVE_CONTRACTS_PER_CHAIN[self.network]['deposit'],
+                NATIVE_ABI[self.network]['deposit'])
+            self.withdraw_contract = self.client.get_contract(
+                NATIVE_CONTRACTS_PER_CHAIN[self.network]['withdraw'],
+                NATIVE_ABI[self.network]['withdraw'])
+        else:
+            pass
 
     @helper
     @gas_checker
@@ -135,6 +138,7 @@ class SimpleEVM(Logger):
         from config import (IZUMI_CONTRACTS, MAVERICK_CONTRACTS, MUTE_CONTRACTS, ODOS_CONTRACT, ONEINCH_CONTRACT,
                             OPENOCEAN_CONTRACTS, PANCAKE_CONTRACTS, SPACEFI_CONTRACTS, SUSHISWAP_CONTRACTS,
                             UNISWAP_CONTRACTS, VELOCORE_CONTRACTS, WOOFI_CONTRACTS, XYSWAP_CONTRACT, TOKENS_PER_CHAIN)
+
         all_contracts = {
             "iZumi":IZUMI_CONTRACTS,
             "Maverick":MAVERICK_CONTRACTS,

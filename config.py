@@ -168,6 +168,14 @@ NATIVE_ABI = {
     'Linea':{
         'deposit':[],
         'withdraw':[]
+    },
+    'Arbitrum Nova':{
+        'deposit':[],
+        'withdraw':[]
+    },
+    'Zora':{
+        'deposit':[],
+        'withdraw':[]
     }
 }
 
@@ -197,11 +205,19 @@ NATIVE_CONTRACTS_PER_CHAIN = {
     },
     'Base':{
         "deposit"            : "0x49048044D57e1C92A77f79988d21Fa8fAF74E97e",
-        "withdraw"           : ""
+        "withdraw"           : "0x"
     },
     'Linea':{
-        "deposit"            : "",
-        "withdraw"           : ""
+        "deposit"            : "0x",
+        "withdraw"           : "0x"
+    },
+    'Arbitrum Nova':{
+        "deposit"            : "0x",
+        "withdraw"           : "0x"
+    },
+    'Zora':{
+        "deposit"            : "0x",
+        "withdraw"           : "0x"
     }
 }
 

@@ -42,6 +42,7 @@ class Rhino(Bridge, Logger):
     def __init__(self, client):
         self.client = client
         Logger.__init__(self)
+        Bridge.__init__(self, client)
 
         self.nonce, self.signature = None, None
         self.evm_client = None
@@ -116,7 +117,7 @@ class Rhino(Bridge, Logger):
                 data = await self.make_request(method='POST', url=url, headers=self.headers, json=data)
                 return data
             except:
-                self.evm_client.logger.warning(f"{self.evm_client.info} Rhino | Get bad API data")
+                self.logger_msg(*self.client.acc_info, msg=f"Get bad API data", type_msg='warning')
                 await asyncio.sleep(5)
 
     async def get_vault_id(self):
