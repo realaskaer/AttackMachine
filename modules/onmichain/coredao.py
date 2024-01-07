@@ -19,6 +19,8 @@ class CoreDAO(Logger):
         token_address = COREDAO_TOKENS_CONTRACS[self.network][from_token_name]
         refund_address, zro_payment_address = self.client.address, ZERO_ADDRESS
 
+        await self.client.check_for_approved(token_address, COREDAO_CONTRACS[self.network], amount_in_wei)
+
         if src_chain_name != 'CoreDAO':
             router_contract = self.client.get_contract(COREDAO_CONTRACS[self.network], COREDAO_ABI['router'])
             estimate_fee = (await router_contract.functions.estimateBridgeFee(
@@ -38,8 +40,6 @@ class CoreDAO(Logger):
             ).build_transaction(await self.client.prepare_transaction(value=estimate_fee))
         else:
             router_contract = self.client.get_contract(COREDAO_CONTRACS[self.network], COREDAO_ABI['core_router'])
-
-            await self.client.check_for_approved(token_address, COREDAO_CONTRACS[self.network], amount_in_wei)
 
             estimate_fee = (await router_contract.functions.estimateBridgeFee(
                 dst_chain_id,
