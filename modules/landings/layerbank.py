@@ -22,7 +22,7 @@ class LayerBank(Landing, Logger):
         tx_params = await self.client.prepare_transaction(value=amount_in_wei)
 
         transaction = await self.landing_contract.functions.supply(
-            LAYERBANK_CONTRACTS['pool'],
+            LAYERBANK_CONTRACTS[self.network]['pool'],
             amount_in_wei
         ).build_transaction(tx_params)
 
@@ -42,7 +42,7 @@ class LayerBank(Landing, Logger):
             tx_params = await self.client.prepare_transaction()
 
             transaction = await self.landing_contract.functions.redeemUnderlying(
-                LAYERBANK_CONTRACTS['pool'],
+                LAYERBANK_CONTRACTS[self.network]['pool'],
                 liquidity_balance_in_wei,
             ).build_transaction(tx_params)
 
@@ -58,7 +58,7 @@ class LayerBank(Landing, Logger):
         tx_params = await self.client.prepare_transaction()
 
         transaction = await self.landing_contract.functions.enterMarkets(
-            [LAYERBANK_CONTRACTS['pool']]
+            [LAYERBANK_CONTRACTS[self.network]['pool']]
         ).build_transaction(tx_params)
 
         return await self.client.send_transaction(transaction)
@@ -71,7 +71,7 @@ class LayerBank(Landing, Logger):
         tx_params = await self.client.prepare_transaction()
 
         transaction = await self.landing_contract.functions.exitMarket(
-            LAYERBANK_CONTRACTS['pool']
+            LAYERBANK_CONTRACTS[self.network]['pool']
         ).build_transaction(tx_params)
 
         return await self.client.send_transaction(transaction)
