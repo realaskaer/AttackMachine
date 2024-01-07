@@ -135,6 +135,8 @@ AVAILABLE_MODULES_INFO = {
     zksync_rhino_checker                : (zksync_rhino_checker, 3, 'Rhino Checker', 0, [11]),
     zksync_rhino_mint                   : (zksync_rhino_mint, 3, 'Rhino Mint zkSync Hunter NFT', 0, [11]),
     zksync_rhino_mint_pro               : (zksync_rhino_mint_pro, 3, 'Rhino Mint zkSync Pro Hunter NFT', 0, [11]),
+    claim_refund_zkfair                 : (claim_refund_zkfair, 3, 'Claim Refund on ZKFair', 0, [11]),
+    claim_drop_zkfair                   : (claim_drop_zkfair, 3, 'Claim Drop on ZKFair', 0, [11]),
     mint_token_avnu                     : (mint_token_avnu, 3, 'Looooot a new one shit coin =)', 0, [0]),
     mint_token_jediswap                 : (mint_token_jediswap, 3, 'Looooot a new one shit coin =)', 0, [0]),
     okx_deposit                         : (okx_deposit, 4, 'OKX Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),

@@ -856,3 +856,14 @@ async def mint_scroll_nft(account_number, private_key, network, proxy):
 
     worker = ScrollNFT(get_client(account_number, private_key, network, proxy))
     return await worker.mint()
+
+
+async def claim_refund_zkfair(account_number, private_key, _, proxy):
+
+    worker = ZKFair(get_client(account_number, private_key, ZKFairRPC, proxy))
+    return await worker.claim_refund()
+
+
+async def claim_drop_zkfair(account_number, private_key, _, proxy):
+    worker = ZKFair(get_client(account_number, private_key, ZKFairRPC, proxy))
+    return await worker.claim_drop()

@@ -242,6 +242,8 @@ INSCRIPTION_NETWORK = 0
 
 MEMCOIN_AMOUNT = 0.01  # сумма в ETH
 
+ZKFAIR_CLAIM_REFUND_PHASES = [1, 2, 3, 4]  # фазы для клейма рефаунда
+
 MINTFUN_CONTRACTS = {
     '0x123': 0,
     '0x1234': 0.0001,
@@ -319,6 +321,8 @@ HELPERS_CONFIG = {
     zksync_rhino_checker             # проверка на eligible для минта Rhino.fi Pro Hunter NFT 
     zksync_rhino_mint                # минт Rhino.fi Hunter NFT
     zksync_rhino_mint_pro            # проверка на eligible и минт Rhino.fi Pro Hunter NFT
+    claim_refund_zkfair              # клейм рефанда за участие в раздаче ZKFair. см. ZKFAIR_CLAIM_REFUND_PHASES
+    claim_drop_zkfair                # клейм дропа за участие в раздаче ZKFair
     
 --------------------------------------------------LAYERZERO-------------------------------------------------------------            
     
@@ -333,6 +337,7 @@ HELPERS_CONFIG = {
     mint_and_bridge_l2telegraph      # mint и bridge nft через L2Telegraph в случайную сеть из DST_CHAIN_L2TELEGRAPH
     send_message_l2telegraph         # смотри OMNI-CHAIN CONTROL
     bridge_stargate                  # бриджи на Stargate. STARGATE_CHAINS, STARGATE_TOKENS. См. OMNI-CHAIN CONTROLE
+    bridge_coredao                   # бриджи на CoreDAO. COREDAO_CHAINS, COREDAO_TOKENS. См. OMNI-CHAIN CONTROLE
     zerius_refuel_attack             # Refuel атака на Zerius. Делает много рефьелов в разные сети. См. OMNI-CHAIN CONTROLE
     merkly_refuel_attack             # Refuel атака на Merkly.      
     l2pass_refuel_attack             # Refuel атака на L2Pass.
