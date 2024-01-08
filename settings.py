@@ -306,6 +306,7 @@ HELPERS_CONFIG = {
 ---------------------------------------------------HELPERS--------------------------------------------------------------        
 
     okx_withdraw                     # смотри OKX CONTROL
+    okx_multi_withdraw               # вывод в несколько сетей. Смотри OKX CONTROL (OKX_MULTI_WITHDRAW)
     collector_eth                    # сбор всех токенов в ETH
     make_balance_to_average          # уравнивает ваши балансы на аккаунтах (см. инструкцию к софту) 
     upgrade_stark_wallet             # обновляет кошелек, во время маршрута
