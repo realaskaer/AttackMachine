@@ -15,10 +15,16 @@
 ------------------------------------------------------------------------------------------------------------------------
 """
 OKX_WITHDRAW_NETWORK = 8                # Сеть вывода из OKX
-OKX_WITHDRAW_AMOUNT = (0.005, 0.00512)   # (минимальная, максимальная) сумма для вывода из OKX
+OKX_WITHDRAW_AMOUNT = (0.005, 0.00512)   # (минимальная, максимальная) сумма для вывода из OKX (кол-во)
+
+OKX_MULTI_WITHDRAW = {  # Сеть вывода: (минимум, максимум) в токене для вывода (кол-во)
+    9: (1, 1),
+    11: (0.95, 0.95),
+    12: (0.018, 0.018)
+}
 
 OKX_DEPOSIT_NETWORK = 5                  # Сеть из которой планируется пополнение OKX
-OKX_DEPOSIT_AMOUNT = (0.0001, 0.0002)    # (минимальная, максимальная) сумма для пополнения OKX
+OKX_DEPOSIT_AMOUNT = (0.0001, 0.0002)    # (минимальная, максимальная) сумма для пополнения OKX (% или кол-во)
 
 OKX_BALANCE_WANTED = 0.01               # Необходимый баланс на аккаунтах для уравнителя (make_balance_to_average)
 
@@ -50,25 +56,25 @@ OKX_BALANCE_WANTED = 0.01               # Необходимый баланс н
     ORBITER_CHAIN_ID_FROM(TO) = [2, 4, 16] | Одна из сетей будет выбрана
     NATIVE_WITHDRAW_AMOUNT | Настройка для вывода из нативного моста (withdraw_native_bridge)
 """
-NATIVE_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) ETH или %
-NATIVE_WITHDRAW_AMOUNT = (0.0001, 0.0002)   # (минимум, максимум) ETH или %
+NATIVE_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (% или кол-во)
+NATIVE_WITHDRAW_AMOUNT = (0.0001, 0.0002)   # (минимум, максимум) (% или кол-во)
 
 ORBITER_CHAIN_ID_FROM = [4]                # Исходящая сеть
 ORBITER_CHAIN_ID_TO = [8]                  # Входящая сеть
-ORBITER_DEPOSIT_AMOUNT = (10, 15)          # (минимум, максимум) ETH или %
+ORBITER_DEPOSIT_AMOUNT = (10, 15)          # (минимум, максимум) (% или кол-во)
 ORBITER_TOKEN_NAME = 'USDT'
 
 LAYERSWAP_CHAIN_ID_FROM = [9]                # Исходящая сеть
 LAYERSWAP_CHAIN_ID_TO = [4]                  # Входящая сеть
-LAYERSWAP_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) ETH или %
+LAYERSWAP_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (% или кол-во)
 
 RHINO_CHAIN_ID_FROM = [7]                # Исходящая сеть
 RHINO_CHAIN_ID_TO = [11]                  # Входящая сеть
-RHINO_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) ETH или %
+RHINO_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (% или кол-во)
 
 ACROSS_CHAIN_ID_FROM = [9]                # Исходящая сеть
 ACROSS_CHAIN_ID_TO = [4]                  # Входящая сеть
-ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) ETH или %
+ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (% или кол-во)
 
 """
 ---------------------------------------------OMNI-CHAIN CONTROL---------------------------------------------------------
@@ -144,7 +150,7 @@ COREDAO_TOKENS = ['USDT', 'USDT']
 SRC_CHAIN_ZERIUS = [1]          # Исходящая сеть для Zerius
 DST_CHAIN_ZERIUS_NFT = [4]     # Входящая сеть для Zerius Mint NFT
 DST_CHAIN_ZERIUS_REFUEL = {
-    1: (0.0001, 0.0002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети
+    1: (0.0001, 0.0002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
     4: (0.0001, 0.0002)
 }
 
@@ -154,7 +160,7 @@ WORMHOLE_TOKENS_AMOUNT = 1        # Кол-во токенов для минта
 
 SRC_CHAIN_MERKLY = [43]            # Исходящая сеть для Merkly
 DST_CHAIN_MERKLY_REFUEL = {
-    3: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети
+    3: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
     10: (0.000001, 0.00002),
     20: (0.000001, 0.00002),
     21: (0.000001, 0.00002),
@@ -163,14 +169,14 @@ DST_CHAIN_MERKLY_REFUEL = {
 SRC_CHAIN_L2PASS = [1]          # Исходящая сеть для L2PASS
 DST_CHAIN_L2PASS_NFT = [6]     # Входящая сеть для L2PASS Mint NFT
 DST_CHAIN_L2PASS_REFUEL = {
-    20: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети
+    20: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
     28: (0.000001, 0.00002),
     29: (0.000001, 0.00002),
 }
 
 SRC_CHAIN_BUNGEE = [6]          # Исходящая сеть для Bungee
 DST_CHAIN_BUNGEE_REFUEL = {
-    3:  (0.001, 0.0015),        # Chain ID: (минимум, максимум) в ETH
+    3:  (0.001, 0.0015),        # Chain ID: (минимум, максимум) в ETH (кол-во)
     22: (0.001, 0.0015)
 }
 
@@ -527,5 +533,5 @@ HELPERS_CONFIG = {
 CLASSIC_ROUTES_MODULES_USING = [
     ['okx_withdraw'],
     ['bridge_layerswap', 'bridge_native'],
-    ['swap_mute', 'swap_izumi', 'mint_domain_ens', None]
+    ['swap_mute', 'swap_izumi', 'mint_domain_ens', None],
 ]

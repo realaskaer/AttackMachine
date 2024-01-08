@@ -6,7 +6,7 @@ from modules import Logger, Aggregator
 from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS
 from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
     MEMCOIN_AMOUNT, MERKLY_ATTACK_REFUEL, L2PASS_ATTACK_REFUEL, L2PASS_ATTACK_NFT, ZERIUS_ATTACK_REFUEL, \
-    ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS
+    ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW
 from utils.tools import helper, gas_checker, sleep
 
 
@@ -62,6 +62,8 @@ class Custom(Logger, Aggregator):
                                 self.logger_msg(*self.client.acc_info, msg=f'Launching swap module', type_msg='warning')
                                 result = await module_func(self.client.account_name, self.client.private_key,
                                                            self.client.network, self.client.proxy_init, swapdata=data)
+                                if not result:
+                                    counter += 1
                             except:
                                 counter += 1
                                 pass
@@ -444,6 +446,29 @@ class Custom(Logger, Aggregator):
             await zerius_for_nft_attack(self.client.account_name, self.client.private_key,
                                         self.client.network, self.client.proxy_init, chain_id_from,
                                         attack_mode=True, attack_data=chain_id_to)
+
+            await sleep(self)
+
+        return True
+
+    @helper
+    async def okx_multi_withdraw(self):
+        from functions import okx_withdraw
+
+        shuffle_withdraw = list(OKX_MULTI_WITHDRAW.items())
+        random.shuffle(shuffle_withdraw)
+        multi_withdraw_data = {}
+
+        for network, amount in shuffle_withdraw:
+            multi_withdraw_data['network'] = network
+            multi_withdraw_data['amount'] = amount
+
+            try:
+                await okx_withdraw(self.client.account_name, self.client.private_key,
+                                   self.client.network, self.client.proxy_init, multi_withdraw_data=multi_withdraw_data)
+            except Exception as error:
+                self.logger_msg(
+                    *self.client.acc_info, msg=f"Withdraw from OKX failed. Error: {error}", type_msg='error')
 
             await sleep(self)
 

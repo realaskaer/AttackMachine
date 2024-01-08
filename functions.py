@@ -611,6 +611,11 @@ async def okx_withdraw(account_number, private_key, network, proxy, *args, **kwa
     return await worker.withdraw(*args, **kwargs)
 
 
+async def okx_multi_withdraw(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.okx_multi_withdraw()
+
+
 async def okx_deposit(account_number, private_key, _, proxy):
     network = get_network_by_chain_id(OKX_WRAPED_ID[OKX_DEPOSIT_NETWORK])
 
@@ -867,3 +872,4 @@ async def claim_refund_zkfair(account_number, private_key, _, proxy):
 async def claim_drop_zkfair(account_number, private_key, _, proxy):
     worker = ZKFair(get_client(account_number, private_key, ZKFairRPC, proxy))
     return await worker.claim_drop()
+

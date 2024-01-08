@@ -51,24 +51,37 @@ class OKX(CEX, Logger):
         return await self.make_request(url=url, headers=headers, params=params, module_name='Token info')
 
     @helper
-    async def withdraw(self, want_balance:float = 0):
+    async def withdraw(self, want_balance:float = 0, multi_withdraw_data:dict = None):
         if GLOBAL_NETWORK == 9:
             await self.client.initialize_account(check_balance=True)
 
         url = 'https://www.okx.cab/api/v5/asset/withdrawal'
+        if not multi_withdraw_data:
+            ccy = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK].split('-')[0]
+            withdraw_data = await self.get_currencies(ccy)
+            dst_chain_id = OKX_WRAPED_ID[OKX_WITHDRAW_NETWORK]
 
-        ccy = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK].split('-')[0]
-        withdraw_data = await self.get_currencies(ccy)
+            networks_data = {item['chain']: {'can_withdraw': item['canWd'], 'min_fee': item['minFee'],
+                                             'min_wd': item['minWd'], 'max_wd': item['maxWd']} for item in withdraw_data}
 
-        networks_data = {item['chain']: {'can_withdraw': item['canWd'], 'min_fee': item['minFee'],
-                                         'min_wd': item['minWd'], 'max_wd': item['maxWd']} for item in withdraw_data}
-
-        network_name = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK]
-        network_data = networks_data[network_name]
-        if want_balance:
-            amount = want_balance
+            network_name = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK]
+            network_data = networks_data[network_name]
+            if want_balance:
+                amount = want_balance
+            else:
+                amount = await self.client.get_smart_amount(OKX_WITHDRAW_AMOUNT)
         else:
-            amount = await self.client.get_smart_amount(OKX_WITHDRAW_AMOUNT)
+
+            ccy = OKX_NETWORKS_NAME[multi_withdraw_data['network']].split('-')[0]
+            dst_chain_id = OKX_WRAPED_ID[multi_withdraw_data['network']]
+            withdraw_data = await self.get_currencies(ccy)
+            networks_data = {item['chain']: {'can_withdraw': item['canWd'], 'min_fee': item['minFee'],
+                                             'min_wd': item['minWd'], 'max_wd': item['maxWd']} for item in
+                             withdraw_data}
+
+            network_name = OKX_NETWORKS_NAME[multi_withdraw_data['network']]
+            network_data = networks_data[network_name]
+            amount = await self.client.get_smart_amount(multi_withdraw_data['amount'])
 
         self.logger_msg(
             *self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name[4 if ccy == 'ETH' else 5:]}")
@@ -89,7 +102,6 @@ class OKX(CEX, Logger):
                 }
 
                 headers = await self.get_headers(method="POST", request_path=url, body=str(body))
-                dst_chain_id = OKX_WRAPED_ID[OKX_WITHDRAW_NETWORK]
 
                 old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id,token_name=ccy,
                                                                           check_balance_on_dst=True)
