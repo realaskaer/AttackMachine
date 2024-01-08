@@ -10,6 +10,9 @@ class ZKFair(Logger, Aggregator):
     def __init__(self, client):
         Logger.__init__(self)
         Aggregator.__init__(self, client)
+    
+    async def swap(self):
+        pass
 
     async def claim_refund(self):
         timestamp, api_signature = self.get_authentication_data()
