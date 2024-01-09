@@ -6,7 +6,7 @@ from hashlib import sha256
 from modules import CEX, Logger
 from datetime import datetime, timezone
 from utils.tools import helper, sleep
-from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, OKX_WRAPED_ID, TOKENS_PER_CHAIN2
+from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, OKX_WRAPED_ID
 from general_settings import GLOBAL_NETWORK
 from settings import (
     OKX_WITHDRAW_NETWORK,
@@ -123,7 +123,7 @@ class OKX(CEX, Logger):
             raise RuntimeError(f"Withdraw from {network_name} is not available")
 
     @helper
-    async def transfer_from_subaccounts(self):
+    async def transfer_from_subaccounts(self, ccy:str = 'ETH'):
 
         self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
 
@@ -137,20 +137,23 @@ class OKX(CEX, Logger):
         for sub_data in sub_list:
             sub_name = sub_data['subAcct']
 
-            url_sub_balance = f"https://www.okx.cab/api/v5/asset/subaccount/balances?subAcct={sub_name}&ccy=ETH"
+            url_sub_balance = f"https://www.okx.cab/api/v5/asset/subaccount/balances?subAcct={sub_name}&ccy={ccy}"
             headers = await self.get_headers(request_path=url_sub_balance)
 
             sub_balance = (await self.make_request(url=url_sub_balance, headers=headers,
-                                                   module_name='Get subAccount balance'))[0]['availBal']
+                                                   module_name='Get subAccount balance'))
+
+            if sub_balance:
+                sub_balance = float(sub_balance[0]['availBal'])
 
             await asyncio.sleep(1)
 
-            if float(sub_balance) != 0.0:
+            if sub_balance != 0.0:
                 flag = False
-                self.logger_msg(*self.client.acc_info, msg=f'{sub_name} | subAccount balance : {sub_balance} ETH')
+                self.logger_msg(*self.client.acc_info, msg=f'{sub_name} | subAccount balance : {sub_balance} {ccy}')
 
                 body = {
-                    "ccy": "ETH",
+                    "ccy": ccy,
                     "type": "2",
                     "amt": f"{sub_balance}",
                     "from": "6",
@@ -164,28 +167,29 @@ class OKX(CEX, Logger):
                                         module_name='SubAccount transfer')
 
                 self.logger_msg(*self.client.acc_info,
-                                msg=f"Transfer {sub_balance} ETH to main account complete",
+                                msg=f"Transfer {sub_balance} {ccy} to main account complete",
                                 type_msg='success')
         if flag:
-            self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 ETH', type_msg='warning')
+            self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
         return True
 
     @helper
-    async def transfer_from_spot_to_funding(self):
+    async def transfer_from_spot_to_funding(self, ccy:str = 'ETH'):
 
-        url_balance = "https://www.okx.cab/api/v5/account/balance?ccy=ETH"
+        url_balance = f"https://www.okx.cab/api/v5/account/balance?ccy={ccy}"
         headers = await self.get_headers(request_path=url_balance)
         balance = (await self.make_request(url=url_balance, headers=headers,
                                            module_name='Trading account'))[0]["details"]
 
-        for ccy in balance:
-            if ccy['ccy'] == 'ETH' and ccy['availBal'] != '0':
+        for ccy_item in balance:
+            if ccy_item['ccy'] == ccy and ccy_item['availBal'] != '0':
 
-                self.logger_msg(*self.client.acc_info, msg=f"Main trading account balance: {ccy['availBal']} ETH")
+                self.logger_msg(
+                    *self.client.acc_info, msg=f"Main trading account balance: {ccy_item['availBal']} {ccy}")
 
                 body = {
-                    "ccy": 'ETH',
-                    "amt": ccy['availBal'],
+                    "ccy": ccy,
+                    "amt": ccy_item['availBal'],
                     "from": "18",
                     "to": "6"
                 }
@@ -195,11 +199,11 @@ class OKX(CEX, Logger):
                 await self.make_request(url=url_transfer, data=str(body), method="POST", headers=headers,
                                         module_name='Trading account')
                 self.logger_msg(*self.client.acc_info,
-                                msg=f"Transfer {float(ccy['availBal']):.6f} ETH to funding account complete",
+                                msg=f"Transfer {float(ccy_item['availBal']):.6f} {ccy} to funding account complete",
                                 type_msg='success')
                 break
             else:
-                self.logger_msg(*self.client.acc_info, msg=f"Main trading account balance: 0 ETH", type_msg='warning')
+                self.logger_msg(*self.client.acc_info, msg=f"Main trading account balance: 0 {ccy}", type_msg='warning')
                 break
 
         return True
@@ -213,6 +217,9 @@ class OKX(CEX, Logger):
         headers = await self.get_headers(request_path=url_sub_list)
         sub_list = await self.make_request(url=url_sub_list, headers=headers, module_name='Get subAccounts list')
 
+        if ccy == 'USDC.e':
+            ccy = 'USDC'
+
         for sub_data in sub_list:
             sub_name = sub_data['subAcct']
 
@@ -220,11 +227,11 @@ class OKX(CEX, Logger):
             headers = await self.get_headers(request_path=url_sub_balance)
 
             sub_balance = (await self.make_request(url=url_sub_balance, headers=headers,
-                                                   module_name='Get subAccount balance'))[0]['availBal']
-
+                                                   module_name='Get subAccount balance'))
             await asyncio.sleep(3)
 
-            sub_balances[sub_name] = float(sub_balance)
+            if sub_balance:
+                sub_balances[sub_name] = float(sub_balance[0]['availBal'])
 
         return sub_balances
 
@@ -256,7 +263,6 @@ class OKX(CEX, Logger):
             await self.client.initialize_account()
 
         amount = await self.client.get_smart_amount(OKX_DEPOSIT_AMOUNT)
-        amount_in_wei = int(amount * 10 ** 18)
 
         try:
             with open('./data/services/okx_withdraw_list.json') as file:
@@ -283,6 +289,7 @@ class OKX(CEX, Logger):
 
         network_name = OKX_NETWORKS_NAME[OKX_DEPOSIT_NETWORK]
         network_data = networks_data[network_name]
+        ccy = f"{ccy}.e" if OKX_DEPOSIT_NETWORK in [32, 33] else ccy
 
         if network_data['can_dep']:
 
@@ -292,6 +299,7 @@ class OKX(CEX, Logger):
 
                 if self.client.network.name == 'Starknet':
                     await self.client.initialize_account()
+                    amount_in_wei = int(amount * 10 ** 18)
                     transaction = self.client.prepare_call(
                         contract_address=TOKENS_PER_CHAIN['Starknet'][ccy],
                         selector_name="transfer",
@@ -301,23 +309,27 @@ class OKX(CEX, Logger):
                         ]
                     )
                 else:
-                    if ccy in ['USDT', 'USDC']:
-                        token_contract = self.client.get_contract(TOKENS_PER_CHAIN2[self.client.network.name][ccy])
+                    if ccy in ['USDT', 'USDC', 'USDC.e']:
+                        token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
+                        decimals = await self.client.get_decimals(ccy)
+                        amount_in_wei = int(amount * 10 ** decimals)
+
                         transaction = await token_contract.functions.transfer(
                             self.client.w3.to_checksum_address(okx_wallet),
                             amount_in_wei
                         ).build_transaction(await self.client.prepare_transaction())
                     else:
+                        amount_in_wei = int(amount * 10 ** 18)
                         transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
                             'to': self.client.w3.to_checksum_address(okx_wallet),
                             'data': '0x'
                         }
 
-                sub_balances = await self.get_sub_balances()
+                sub_balances = await self.get_sub_balances(ccy=ccy)
 
                 result = await self.client.send_transaction(transaction)
 
-                await self.wait_deposit_confirmation(amount, sub_balances)
+                await self.wait_deposit_confirmation(amount, sub_balances, ccy=ccy)
 
                 return result
             else:
@@ -328,10 +340,12 @@ class OKX(CEX, Logger):
     @helper
     async def collect_from_sub(self):
 
-        await self.transfer_from_subaccounts()
+        ccy = OKX_NETWORKS_NAME[OKX_DEPOSIT_NETWORK].split('-')[0]
+
+        await self.transfer_from_subaccounts(ccy=ccy)
 
         await sleep(self, 5, 10)
 
-        await self.transfer_from_spot_to_funding()
+        await self.transfer_from_spot_to_funding(ccy=ccy)
 
         return True
