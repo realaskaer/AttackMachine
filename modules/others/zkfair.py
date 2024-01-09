@@ -14,6 +14,7 @@ class ZKFair(Logger, Aggregator):
     async def swap(self):
         pass
 
+    @helper
     async def claim_refund(self):
         timestamp, api_signature = self.get_authentication_data()
 
