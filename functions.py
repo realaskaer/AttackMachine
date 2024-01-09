@@ -6,7 +6,7 @@ from config import OKX_WRAPED_ID, LAYERZERO_WRAPED_NETWORKS
 from general_settings import GLOBAL_NETWORK
 from settings import (ORBITER_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, RHINO_CHAIN_ID_FROM, ACROSS_CHAIN_ID_FROM,
                       OKX_DEPOSIT_NETWORK, SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, INSCRIPTION_NETWORK, SRC_CHAIN_L2PASS,
-                      SRC_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_BUNGEE)
+                      SRC_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_BUNGEE, SRC_CHAIN_L2TELEGRAPH)
 
 
 def get_client(account_number, private_key, network, proxy, bridge_from_evm:bool = False) -> Client | StarknetClient:
@@ -581,12 +581,18 @@ async def mint_mailzero(account_number, private_key, network, proxy):
     return await worker.mint()
 
 
-async def send_message_l2telegraph(account_number, private_key, network, proxy):
+async def send_message_l2telegraph(account_number, private_key, _, proxy):
+    chain_id_from = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_L2TELEGRAPH)]
+    network = get_network_by_chain_id(chain_id_from)
+
     worker = L2Telegraph(get_client(account_number, private_key, network, proxy))
     return await worker.send_message()
 
 
-async def mint_and_bridge_l2telegraph(account_number, private_key, network, proxy):
+async def mint_and_bridge_l2telegraph(account_number, private_key, _, proxy):
+    chain_id_from = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_L2TELEGRAPH)]
+    network = get_network_by_chain_id(chain_id_from)
+
     worker = L2Telegraph(get_client(account_number, private_key, network, proxy))
     return await worker.mint_and_bridge()
 

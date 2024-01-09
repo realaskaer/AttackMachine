@@ -2,15 +2,15 @@
 --------------------------------------------------OKX CONTROL-----------------------------------------------------------
     Выберите сети/суммы для вывода и ввода с OKX. Не забудьте вставить API ключи снизу.
 
-    1 - ETH-ERC20              9  - CELO-Celo           17 - KLAY-Klaytn        25 - USDT-Avalanche
-    2 - ETH-Arbitrum One       10 - ONE-Harmony         18 - FTM-Fantom         26 - USDT-Arbitrum One
-    3 - ETH-zkSync Lite        11 - GLMR-Moonbeam       19 - AVAX-Avalanche     27 - USDC-ERC20
-    4 - ETH-Optimism           12 - MOVR-Moonriver      20 - ASTR-Astar         28 - USDC-Optimism
-    5 - ETH-Starknet           13 - METIS-Metis         21 - BNB-BSC            29 - USDC-Avalanche
-    6 - ETH-zkSync Era         14 - CORE-CORE           22 - MATIC-Polygon      30 - USDC-Arbitrum One
-    7 - ETH-Linea              15 - CFX-Conflux         23 - USDT-Polygon       31 - USDT-Polygon
+    1 - ETH-ERC20              9  - CELO-Celo           17 - KLAY-Klaytn        26 - USDT-Arbitrum One
+    2 - ETH-Arbitrum One       10 - ONE-Harmony         18 - FTM-Fantom         27 - USDC-ERC20
+    3 - ETH-zkSync Lite        11 - GLMR-Moonbeam       19 - AVAX-Avalanche     28 - USDC-Optimism
+    4 - ETH-Optimism           12 - MOVR-Moonriver      20 - ASTR-Astar         29 - USDC-Avalanche
+    5 - ETH-Starknet           13 - METIS-Metis         21 - BNB-BSC            30 - USDC-Arbitrum One
+    6 - ETH-zkSync Era         14 - CORE-CORE           22 - MATIC-Polygon      31 - USDC-Polygon
+    7 - ETH-Linea              15 - CFX-Conflux         23 - USDT-Polygon       32 - USDC-Polygon (Bridged)
     8 - ETH-Base               16 - ZEN-Horizen         24 - USDT-Optimism      32 - USDC-Optimism (Bridged)
-                                                                                33 - USDT-ERC20
+                                                        25 - USDT-Avalanche     33 - USDT-ERC20
 
 ------------------------------------------------------------------------------------------------------------------------
 """
@@ -180,7 +180,8 @@ DST_CHAIN_BUNGEE_REFUEL = {
     22: (0.001, 0.0015)
 }
 
-DST_CHAIN_L2TELEGRAPH = [22]    # Входящая сеть для L2Telegraph. Можно указать несколько ([1, 2]) и будет выбрана одна.
+SRC_CHAIN_L2TELEGRAPH = [43]    # Исходящая сеть для L2Telegraph.
+DST_CHAIN_L2TELEGRAPH = [2]    # Входящая сеть для L2Telegraph.
 
 '---------------------------------------------LAYERZERO ATTACKS--------------------------------------------------------'
 

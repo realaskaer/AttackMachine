@@ -10,7 +10,7 @@ class ZKFair(Logger, Aggregator):
     def __init__(self, client):
         Logger.__init__(self)
         Aggregator.__init__(self, client)
-    
+
     async def swap(self):
         pass
 

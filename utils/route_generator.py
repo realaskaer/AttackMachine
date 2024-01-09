@@ -9,7 +9,7 @@ from config import ACCOUNT_NAMES
 from modules import Logger
 from gspread.utils import rowcol_to_a1
 from gspread import Client, Spreadsheet, Worksheet, service_account
-from general_settings import GOOGLE_SHEET_URL, GOOGLE_SHEET_PAGE_NAME, GLOBAL_NETWORK
+from general_settings import GOOGLE_SHEET_URL, GOOGLE_SHEET_PAGE_NAME, GLOBAL_NETWORK, SHUFFLE_ROUTE
 from settings import (MODULES_COUNT, ALL_MODULES_TO_RUN,
                       TRANSFER_IN_ROUTES, TRANSFER_COUNT, EXCLUDED_MODULES,
                       DMAIL_IN_ROUTES, DMAIL_COUNT, COLLATERAL_IN_ROUTES, COLLATERAL_COUNT,
@@ -554,6 +554,8 @@ class RouteGenerator(Logger):
             for account_name in ACCOUNT_NAMES:
                 if isinstance(account_name, (str, int)):
                     classic_route = self.classic_generate_route()
+                    if SHUFFLE_ROUTE:
+                        random.shuffle(classic_route)
                     account_data = {
                         "current_step": 0,
                         "route": classic_route
