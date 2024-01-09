@@ -119,7 +119,10 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (
     DST_CHAIN_L2PASS_REFUEL 
     DST_CHAIN_BUNGEE_REFUEL
     DST_CHAIN_ZERIUS_REFUEL | Аналогично DST_CHAIN_MERKLY_REFUEL
-        
+    
+    SRC_CHAIN_L2TELEGRAPH | Исходящая сеть для L2Telegraph
+    DST_CHAIN_L2TELEGRAPH | Входящая сеть для L2Telegraph 
+    
     ZERIUS_ATTACK_REFUEL
     MERKLY_ATTACK_REFUEL
     L2PASS_ATTACK_REFUEL | Указываете в списках вариант refuel (исходящая сеть, входящая сеть, мин. сумму к refuel). 
@@ -342,7 +345,7 @@ HELPERS_CONFIG = {
     refuel_zerius                    # смотри OMNI-CHAIN CONTROL
     refuel_l2pass                    # смотри OMNI-CHAIN CONTROL
     refuel_bungee                    # смотри OMNI-CHAIN CONTROL
-    mint_and_bridge_l2telegraph      # mint и bridge nft через L2Telegraph в случайную сеть из DST_CHAIN_L2TELEGRAPH
+    mint_and_bridge_l2telegraph      # mint и bridge NFT через L2Telegraph. См. OMNI-CHAIN CONTROLE
     send_message_l2telegraph         # смотри OMNI-CHAIN CONTROL
     bridge_stargate                  # бриджи на Stargate. STARGATE_CHAINS, STARGATE_TOKENS. См. OMNI-CHAIN CONTROLE
     bridge_coredao                   # бриджи на CoreDAO. COREDAO_CHAINS, COREDAO_TOKENS. См. OMNI-CHAIN CONTROLE
