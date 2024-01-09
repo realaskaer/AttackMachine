@@ -83,8 +83,9 @@ class OKX(CEX, Logger):
             network_data = networks_data[network_name]
             amount = await self.client.get_smart_amount(multi_withdraw_data['amount'])
 
+        network_name_log = " ".join(network_name.split('-')[1:])
         self.logger_msg(
-            *self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name[4 if ccy == 'ETH' else 5:]}")
+            *self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name_log}")
 
         if network_data['can_withdraw']:
             address = f"0x{hex(self.client.address)[2:]:0>64}" if OKX_WITHDRAW_NETWORK == 5 else self.client.address
@@ -102,6 +103,8 @@ class OKX(CEX, Logger):
                 }
 
                 headers = await self.get_headers(method="POST", request_path=url, body=str(body))
+
+                ccy = f"{ccy}.e" if network_name_log.split()[-1] == '(Bridged)' else ccy
 
                 old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id,token_name=ccy,
                                                                           check_balance_on_dst=True)

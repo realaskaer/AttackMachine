@@ -85,7 +85,7 @@ class Orbiter(Bridge, Logger):
 
             transaction = approve_call, bridge_call
         elif token_name != 'ETH':
-            if self.client.network.name == 'Polygon':
+            if self.client.network.name in ['Polygon', 'Optimism']:
                 contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name]['USDC.e'])
             else:
                 contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][token_name])
@@ -100,7 +100,7 @@ class Orbiter(Bridge, Logger):
             }]
 
         if min_price <= amount <= max_price:
-            if self.client.network.name == 'Polygon':
+            if self.client.network.name in ['Polygon', 'Optimism']:
                 balance_in_wei, _, _ = await self.client.get_token_balance('USDC.e')
             else:
                 balance_in_wei, _, _ = await self.client.get_token_balance(token_name)

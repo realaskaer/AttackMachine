@@ -237,7 +237,9 @@ TOKENS_PER_CHAIN = {
     },
     "Optimism":{
         "ETH"               : "0x4200000000000000000000000000000000000006",
-        "WETH"              : "0x4200000000000000000000000000000000000006"
+        "WETH"              : "0x4200000000000000000000000000000000000006",
+        "USDC"              : "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+        "USDC.e"            : "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
     },
     "Polygon":{
         'MATIC'             : "0x0000000000000000000000000000000000001010",
@@ -1761,9 +1763,9 @@ LAYERSWAP_CHAIN_NAME = {
 }
 
 COREDAO_CONTRACS = {
-    "Ethereum"              : "0x52e75d318cfb31f9a2edfa2dfee26b161255b233",
-    "BNB Chain"             : "0x52e75d318cfb31f9a2edfa2dfee26b161255b233",
-    "Polygon"               : "0x52e75d318cfb31f9a2edfa2dfee26b161255b233",
+    "Ethereum"              : "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233",
+    "BNB Chain"             : "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233",
+    "Polygon"               : "0x52e75D318cFB31f9A2EdFa2DFee26B161255B233",
     "Arbitrum"              : "0x29d096cD18C0dA7500295f082da73316d704031A",
     "Optimism"              : "0x29d096cD18C0dA7500295f082da73316d704031A",
     "Avalanche"             : "0x29d096cD18C0dA7500295f082da73316d704031A",
