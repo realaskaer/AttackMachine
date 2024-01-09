@@ -262,8 +262,6 @@ class OKX(CEX, Logger):
         if GLOBAL_NETWORK == 9:
             await self.client.initialize_account()
 
-        amount = await self.client.get_smart_amount(OKX_DEPOSIT_AMOUNT)
-
         try:
             with open('./data/services/okx_withdraw_list.json') as file:
                 from json import load
@@ -277,10 +275,7 @@ class OKX(CEX, Logger):
             raise RuntimeError(f'There is no wallet listed for deposit to OKX: {error}')
 
         info = f"{okx_wallet[:10]}....{okx_wallet[-6:]}"
-        network_name = self.client.network.name
         ccy = OKX_NETWORKS_NAME[OKX_DEPOSIT_NETWORK].split('-')[0]
-
-        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to OKX wallet: {info}")
 
         withdraw_data = await self.get_currencies(ccy)
 
@@ -289,7 +284,12 @@ class OKX(CEX, Logger):
 
         network_name = OKX_NETWORKS_NAME[OKX_DEPOSIT_NETWORK]
         network_data = networks_data[network_name]
+
         ccy = f"{ccy}.e" if OKX_DEPOSIT_NETWORK in [32, 33] else ccy
+
+        amount = await self.client.get_smart_amount(OKX_DEPOSIT_AMOUNT, token_name=ccy)
+
+        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to OKX wallet: {info}")
 
         if network_data['can_dep']:
 

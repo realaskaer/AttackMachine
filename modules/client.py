@@ -70,9 +70,10 @@ class Client(Logger):
         decimals = await self.get_decimals(token_name)
         return float(amount_in_wei / 10 ** decimals)
 
-    async def get_smart_amount(self, settings:tuple = AMOUNT_PERCENT, need_percent:bool = False):
+    async def get_smart_amount(self, settings:tuple = AMOUNT_PERCENT, need_percent:bool = False,
+                               token_name:str = 'ETH'):
         if isinstance(settings[0], str) or need_percent:
-            _, amount, _ = await self.get_token_balance()
+            _, amount, _ = await self.get_token_balance(token_name)
             percent = round(random.uniform(float(settings[0]), float(settings[1])), 6) / 100
             amount = round(amount * percent, 6)
         else:
