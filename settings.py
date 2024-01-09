@@ -9,8 +9,8 @@
     5 - ETH-Starknet           13 - METIS-Metis         21 - BNB-BSC            30 - USDC-Arbitrum One
     6 - ETH-zkSync Era         14 - CORE-CORE           22 - MATIC-Polygon      31 - USDC-Polygon
     7 - ETH-Linea              15 - CFX-Conflux         23 - USDT-Polygon       32 - USDC-Polygon (Bridged)
-    8 - ETH-Base               16 - ZEN-Horizen         24 - USDT-Optimism      32 - USDC-Optimism (Bridged)
-                                                        25 - USDT-Avalanche     33 - USDT-ERC20
+    8 - ETH-Base               16 - ZEN-Horizen         24 - USDT-Optimism      33 - USDC-Optimism (Bridged)
+                                                        25 - USDT-Avalanche     34 - USDT-ERC20
 
 ------------------------------------------------------------------------------------------------------------------------
 """
