@@ -117,7 +117,7 @@ class Client(Logger):
         dst_chains = random.choice(bridge_info[1])
         destination_chain = bridge_info[0][dst_chains]
 
-        amount, _ = await self.check_and_get_eth(deposit_info, bridge_mode=True, initial_chain_id=src_chain_id)
+        amount = await self.get_smart_amount(deposit_info)
         return source_chain, destination_chain, amount, dst_chains
 
     async def new_client(self, chain_id):
