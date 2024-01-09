@@ -22,7 +22,7 @@ class Custom(Logger, Aggregator):
     async def collect_eth_util(self):
         from functions import swap_odos, swap_oneinch, swap_openocean, swap_xyfinance, swap_rango, swap_avnu
 
-        self.logger_msg(*self.client.acc_info, msg=f"Stark collecting tokens to ETH")
+        self.logger_msg(*self.client.acc_info, msg=f"Start collecting tokens in ETH")
 
         func = {
             3: [swap_odos, swap_oneinch, swap_openocean, swap_xyfinance],

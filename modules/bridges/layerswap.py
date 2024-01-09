@@ -10,6 +10,7 @@ class LayerSwap(Bridge, Logger):
     def __init__(self, client):
         self.client = client
         Logger.__init__(self)
+        Bridge.__init__(self, client)
 
     async def get_networks_data(self):
         url = "https://api.layerswap.io/api/available_networks"
