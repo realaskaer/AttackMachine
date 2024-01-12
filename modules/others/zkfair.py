@@ -127,7 +127,9 @@ class ZKFair(Logger, Aggregator):
 
     @helper
     async def stake_tokens(self):
-        staking_amount = ZKFAIR_STAKE_AMOUNT
+        zkf_contract = self.client.get_contract(ZKFAIR_CONTRACTS['zkf_token'])
+        zkf_balance = await zkf_contract.functions.balanceOf(self.client.address).call()
+        staking_amount = int(ZKFAIR_STAKE_AMOUNT * zkf_balance)
 
         self.logger_msg(
             *self.client.acc_info, msg=f'Staking {staking_amount / 10 ** 18:.3f} ZKF for {ZKFAIR_STAKE_PERIOD} days')

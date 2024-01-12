@@ -338,7 +338,7 @@ HELPERS_CONFIG = {
     zksync_rhino_mint                # минт Rhino.fi Hunter NFT
     zksync_rhino_mint_pro            # проверка на eligible и минт Rhino.fi Pro Hunter NFT
     claim_refund_zkfair              # клейм рефанда за участие в раздаче ZKFair. см. ZKFAIR_CLAIM_REFUND_PHASES
-    claim_drop_zkfair                # клейм дропа за участие в раздаче ZKFair
+    stake_zkfair                     # стейкинг токена ZKF в сети ZKFair. см. ZKFAIR_STAKE_PERIOD, ZKFAIR_STAKE_AMOUNT
     
 --------------------------------------------------LAYERZERO-------------------------------------------------------------            
     

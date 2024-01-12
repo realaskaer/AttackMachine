@@ -879,6 +879,11 @@ async def claim_drop_zkfair(account_number, private_key, _, proxy):
     return await worker.claim_drop()
 
 
+async def stake_zkfair(account_number, private_key, _, proxy):
+    worker = ZKFair(get_client(account_number, private_key, ZKFairRPC, proxy))
+    return await worker.stake_tokens()
+
+
 async def grapedraw_bid(account_number, private_key, network, proxy):
     worker = GrapeDraw(get_client(account_number, private_key, network, proxy))
     return await worker.bid_place()
