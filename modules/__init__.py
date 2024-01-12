@@ -53,6 +53,7 @@ from .others import Custom
 from .others import Inscription
 from .others import ScrollNFT
 from .others import ZKFair
+from .others import GrapeDraw
 from .landings import EraLend
 from .landings import ZeroLend
 from .landings import ReactorFusion

@@ -99,6 +99,7 @@ AVAILABLE_MODULES_INFO = {
     mint_mintfun                        : (mint_mintfun, 2, 'Mintfun Mint', 0, [3, 4, 8, 11]),
     mint_inscription                    : (mint_inscription, 2, 'Mint EVM Inscription', 0, [0]),
     mint_scroll_nft                     : (mint_scroll_nft, 2, 'Mint Scroll Origins NFT', 0, [0]),
+    grapedraw_bid                       : (grapedraw_bid, 2, 'Bid Place on GrapeDraw', 0, [0]),
     deploy_contract                     : (deploy_contract, 3, 'Contract Deploy', 0, [2, 3, 4, 8, 9, 11, 12]),
     bridge_zerius                       : (bridge_zerius, 3, 'Zerius Bridge NFT', 0, [2, 3, 4, 8, 11, 12]),
     bridge_l2pass                       : (bridge_l2pass, 3, 'L2Pass Bridge NFT', 0, [2, 3, 4, 8, 11, 12]),

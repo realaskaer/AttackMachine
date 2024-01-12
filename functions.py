@@ -850,7 +850,6 @@ async def swap_coredao(client, **kwargs):
     return await worker.bridge(**kwargs)
 
 
-
 async def swap_bridged_usdc(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.swap_bridged_usdc()
@@ -879,3 +878,7 @@ async def claim_drop_zkfair(account_number, private_key, _, proxy):
     worker = ZKFair(get_client(account_number, private_key, ZKFairRPC, proxy))
     return await worker.claim_drop()
 
+
+async def grapedraw_bid(account_number, private_key, network, proxy):
+    worker = GrapeDraw(get_client(account_number, private_key, network, proxy))
+    return await worker.bid_place()

@@ -1,8 +1,8 @@
 from datetime import datetime
 from eth_account.messages import encode_defunct
-from config import ZKFAIR_ABI
+from config import ZKFAIR_ABI, ZKFAIR_CONTRACTS
 from modules import Logger, Aggregator
-from settings import ZKFAIR_CLAIM_REFUND_PHASES
+from settings import ZKFAIR_CLAIM_REFUND_PHASES, ZKFAIR_STAKE_AMOUNT, ZKFAIR_STAKE_PERIOD
 from utils.tools import helper
 
 
@@ -51,7 +51,7 @@ class ZKFair(Logger, Aggregator):
                 *self.client.acc_info,
                 msg=f'Available to refund in phase {phase}: {refund_in_wei / 10 ** 18:.3f} USDC', type_msg='success')
 
-            refund_contract = self.client.get_contract(refund_contract_address, ZKFAIR_ABI)
+            refund_contract = self.client.get_contract(refund_contract_address, ZKFAIR_ABI['airdrop'])
 
             transaction = await refund_contract.functions.claim(
                 refund_index,
@@ -108,7 +108,7 @@ class ZKFair(Logger, Aggregator):
                 *self.client.acc_info,
                 msg=f'Available to claim: {airdrop_in_wei / 10 ** 18:.3f} ZKF', type_msg='success')
 
-            airdrop_contract = self.client.get_contract(airdrop_contract_address, ZKFAIR_ABI)
+            airdrop_contract = self.client.get_contract(airdrop_contract_address, ZKFAIR_ABI['airdrop'])
 
             transaction = await airdrop_contract.functions.claim(
                 int(airdrop_index),
@@ -124,3 +124,25 @@ class ZKFair(Logger, Aggregator):
                 msg=f'Not available to claim', type_msg='warning')
 
         return True
+
+    @helper
+    async def stake_tokens(self):
+        staking_amount = ZKFAIR_STAKE_AMOUNT
+
+        self.logger_msg(
+            *self.client.acc_info, msg=f'Staking {staking_amount / 10 ** 18:.3f} ZKF for {ZKFAIR_STAKE_PERIOD} days')
+
+        contract_address = ZKFAIR_CONTRACTS['stake']
+        zkf_token_address = ZKFAIR_CONTRACTS['zkf_token']
+        approve_amount = 100000000000000000000000000
+
+        await self.client.check_for_approved(zkf_token_address, contract_address, approve_amount)
+
+        staking_contract = self.client.get_contract(contract_address, ZKFAIR_ABI['stake'])
+
+        transaction = await staking_contract.functions.deposit(
+            ZKFAIR_STAKE_PERIOD,
+            staking_amount
+        ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transaction)
