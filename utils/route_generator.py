@@ -530,6 +530,7 @@ class RouteGenerator(Logger):
             smart_route.append(random.choice(bridge_to_add))
 
         smart_route.append(AVAILABLE_MODULES_INFO[okx_withdraw] if HELPERS_CONFIG['okx_withdraw'] else None)
+        smart_route.append(AVAILABLE_MODULES_INFO[okx_multi_withdraw] if HELPERS_CONFIG['okx_multi_withdraw'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[okx_deposit] if HELPERS_CONFIG['okx_deposit'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[collector_eth] if HELPERS_CONFIG['collector_eth'] else None)
         smart_route.append(

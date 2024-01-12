@@ -248,7 +248,7 @@ STARKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при (0) заминтит случ�
 ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при (0) заминтит случайную новую NFT
 NEW_WALLET_TYPE = 0
 
-GRAPEGRAW_TICKETS_AMOUNT = 1
+GRAPEDRAW_TICKETS_AMOUNT = 1
 
 INSCRIPTION_DATA = ''
 INSCRIPTION_NETWORK = 0
@@ -296,6 +296,7 @@ EXCLUDED_MODULES = ['swap_openocean']  # Исключает выбранные �
 
 HELPERS_CONFIG = {
     'okx_withdraw'                        : 0,  # смотри OKX CONTROL
+    'okx_multi_withdraw'                  : 0,  # вывод в несколько сетей. Смотри OKX CONTROL (OKX_MULTI_WITHDRAW)
     'collector_eth'                       : 0,  # сбор всех токенов в ETH внутри сети GLOBAL_NETWORK
     'make_balance_to_average'             : 0,  # уравнивает ваши балансы на аккаунтах (см. инструкцию к софту)
     'upgrade_stark_wallet'                : 0,  # обновляет кошелек, во время маршрута
@@ -393,7 +394,7 @@ HELPERS_CONFIG = {
     swap_woofi                       
     swap_zkswap                 
     wrap_eth                         # wrap/unwrap ETH через офф. контракт токена WETH. (кол-во из LIQUIDITY_AMOUNT)
-    grapedraw_bid                    # создание ставки на GrapeGraw. см. GRAPEGRAW_TICKETS_AMOUNT
+    grapedraw_bid                    # создание ставки на GrapeDraw. см. GRAPEDRAW_TICKETS_AMOUNT
     create_omnisea                   # создание новой NFT коллекции. Все параметры будут рандомными
     create_safe                      # создает сейф в сети GLOBAL_NETWORK
     mint_domain_ens                  # 0.003 ETH domain
