@@ -2,7 +2,7 @@ import random
 
 from settings import DST_CHAIN_ZERIUS_NFT, DST_CHAIN_ZERIUS_REFUEL
 from config import ZERIUS_CONTRACT_PER_CHAINS, ZERIUS_ABI, ZERO_ADDRESS, LAYERZERO_NETWORKS_DATA, \
-    LAYERZERO_WRAPED_NETWORKS
+    LAYERZERO_WRAPED_NETWORKS, CHAIN_NAME
 from utils.tools import gas_checker, helper, sleep
 from eth_abi import encode
 from modules import Minter, Logger
@@ -122,7 +122,7 @@ class Zerius(Minter, Logger):
         dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
         dst_amount = self.client.round_amount(*dst_data[1])
 
-        refuel_info = f'{dst_amount} {dst_native_name} to {dst_chain_name}'
+        refuel_info = f'{dst_amount} {dst_native_name} from {CHAIN_NAME[self.chain_from_id]} to {dst_chain_name}'
         self.logger_msg(*self.client.acc_info, msg=f'Refuel on Zerius: {refuel_info}')
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
