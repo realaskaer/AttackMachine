@@ -5,7 +5,7 @@ from eth_abi import abi
 from config import ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA, \
     TOKENS_PER_CHAIN2, MERKLY_ABI, MERKLY_CONTRACTS_PER_CHAINS, CHAIN_NAME
 from modules import Logger, Aggregator
-from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS
+from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS, AMOUNT_PERCENT
 from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
     MEMCOIN_AMOUNT, MERKLY_ATTACK_REFUEL, L2PASS_ATTACK_REFUEL, L2PASS_ATTACK_NFT, ZERIUS_ATTACK_REFUEL, \
     ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW
@@ -435,9 +435,13 @@ class Custom(Logger, Aggregator):
 
         dep_chain = chains[index]
         dep_token = tokens[index]
-
+        chain_balance = (await clients[index].get_token_balance(dep_token))[1]
+        percent = round(random.uniform(*AMOUNT_PERCENT), 9) / 100
+        amount_in_wei = float(f"{chain_balance * percent:.6f}")
+        deposit_data = OKX_DEPOSIT_L0_DATA[dep_chain][dep_token], amount_in_wei
+        
         await okx_deposit(self.client.account_name, self.client.private_key, self.client.network,
-                          self.client.proxy_init, dep_network=OKX_DEPOSIT_L0_DATA[dep_chain][dep_token])
+                          self.client.proxy_init, dep_network=deposit_data)
 
         return True
 
