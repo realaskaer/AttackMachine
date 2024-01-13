@@ -13,7 +13,7 @@ from starknet_py.hash.selector import get_selector_from_name
 from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.net.client_models import Call
 
-from aiohttp import ClientSession
+from aiohttp import ClientSession, TCPConnector
 from aiohttp_socks import ProxyConnector
 from modules import Logger
 from modules.interfaces import get_user_agent
@@ -125,8 +125,8 @@ class StarknetClient(Logger):
     @staticmethod
     def get_proxy_for_account(proxy):
         if USE_PROXY and proxy != "":
-            return ClientSession(connector=ProxyConnector.from_url(f"{proxy}"))
-        return ClientSession()
+            return ClientSession(connector=ProxyConnector.from_url(f"{proxy}", verify_ssl=False))
+        return ClientSession(connector=TCPConnector(verify_ssl=False))
 
     @staticmethod
     async def check_stark_data_file(account_name):

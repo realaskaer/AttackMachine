@@ -2,7 +2,7 @@ import asyncio
 import random
 
 from asyncio import sleep
-from aiohttp import ClientSession
+from aiohttp import ClientSession, TCPConnector
 from aiohttp_socks import ProxyConnector
 from web3.exceptions import TransactionNotFound, TimeExhausted
 
@@ -42,7 +42,8 @@ class Client(Logger):
         self.chain_id = network.chain_id
 
         self.proxy_init = proxy
-        self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}") if proxy else None)
+        self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}",verify_ssl=False)
+                                     if proxy else TCPConnector(verify_ssl=False))
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
         self.rpc = random.choice(network.rpc)
         self.w3 = AsyncWeb3(AsyncHTTPProvider(self.rpc, request_kwargs=self.request_kwargs))

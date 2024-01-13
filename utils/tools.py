@@ -8,7 +8,7 @@ import msoffcrypto
 import pandas as pd
 from getpass import getpass
 
-from aiohttp import ClientSession
+from aiohttp import ClientSession, TCPConnector
 
 from utils.networks import *
 from termcolor import cprint
@@ -264,7 +264,7 @@ async def get_eth_price():
         'vs_currencies': 'usd'
     }
 
-    async with ClientSession() as session:
+    async with ClientSession(connector=TCPConnector(verify_ssl=False)) as session:
         async with session.get(url=url, params=params) as response:
             data = await response.json()
             if response.status == 200:
