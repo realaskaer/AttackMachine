@@ -167,23 +167,24 @@ class Client(Logger):
             await client.session.close()
 
     async def get_token_balance(self, token_name: str = 'ETH', check_symbol: bool = True,
-                                omnicheck:bool = False) -> [float, int, str]:
-        if token_name != self.network.token:
-            if omnicheck:
-                contract = self.get_contract(TOKENS_PER_CHAIN2[self.network.name][token_name])
-            else:
-                contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
+                                omnicheck:bool = False, check_native:bool = False) -> [float, int, str]:
+        if not check_native:
+            if token_name != self.network.token:
+                if omnicheck:
+                    contract = self.get_contract(TOKENS_PER_CHAIN2[self.network.name][token_name])
+                else:
+                    contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
 
-            amount_in_wei = await contract.functions.balanceOf(self.address).call()
-            decimals = await contract.functions.decimals().call()
+                amount_in_wei = await contract.functions.balanceOf(self.address).call()
+                decimals = await contract.functions.decimals().call()
 
-            if check_symbol:
-                symbol = await contract.functions.symbol().call()
-                return amount_in_wei, amount_in_wei / 10 ** decimals, symbol
-            return amount_in_wei, amount_in_wei / 10 ** decimals, ''
+                if check_symbol:
+                    symbol = await contract.functions.symbol().call()
+                    return amount_in_wei, amount_in_wei / 10 ** decimals, symbol
+                return amount_in_wei, amount_in_wei / 10 ** decimals, ''
 
         amount_in_wei = await self.w3.eth.get_balance(self.address)
-        return amount_in_wei, amount_in_wei / 10 ** 18, 'ETH'
+        return amount_in_wei, amount_in_wei / 10 ** 18, self.network.token
 
     async def check_and_get_eth(self, settings:tuple = None, bridge_mode:bool = False,
                                 initial_chain_id:int = 0) -> [float, int]:

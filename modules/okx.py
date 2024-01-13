@@ -258,7 +258,7 @@ class OKX(CEX, Logger):
         raise RuntimeError(f'Deposit does not complete in {timeout} seconds')
 
     @helper
-    async def deposit(self):
+    async def deposit(self, deposit_data:list = None):
         if GLOBAL_NETWORK == 9:
             await self.client.initialize_account()
 
@@ -275,19 +275,21 @@ class OKX(CEX, Logger):
             raise RuntimeError(f'There is no wallet listed for deposit to OKX: {error}')
 
         info = f"{okx_wallet[:10]}....{okx_wallet[-6:]}"
-        ccy = OKX_NETWORKS_NAME[OKX_DEPOSIT_NETWORK].split('-')[0]
 
+        if not deposit_data:
+            deposit_network, deposit_amount = deposit_data
+        else:
+            deposit_network = OKX_DEPOSIT_NETWORK
+            deposit_amount = OKX_DEPOSIT_AMOUNT
+
+        ccy = OKX_NETWORKS_NAME[deposit_network].split('-')[0]
         withdraw_data = await self.get_currencies(ccy)
-
         networks_data = {item['chain']: {'can_dep': item['canDep'], 'min_dep': item['minDep']}
                          for item in withdraw_data}
-
-        network_name = OKX_NETWORKS_NAME[OKX_DEPOSIT_NETWORK]
+        network_name = OKX_NETWORKS_NAME[deposit_network]
         network_data = networks_data[network_name]
-
-        ccy = f"{ccy}.e" if OKX_DEPOSIT_NETWORK in [32, 33] else ccy
-
-        amount = await self.client.get_smart_amount(OKX_DEPOSIT_AMOUNT, token_name=ccy)
+        ccy = f"{ccy}.e" if deposit_network in [32, 33] else ccy
+        amount = await self.client.get_smart_amount(deposit_amount, token_name=ccy)
 
         self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to OKX wallet: {info}")
 

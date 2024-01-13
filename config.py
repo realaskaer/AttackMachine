@@ -1247,6 +1247,37 @@ STARGATE_CONTRACTS = {
     }
 }
 
+OKX_DEPOSIT_L0_DATA = {
+    13: {
+        'ETH': 1,
+        'USDC': 27,
+        'USDT': 34,
+    },
+    5: {
+        'USDC': 29,
+        'USDT': 25,
+    },
+    33: {
+        'USDC': 32,
+        'USDT': 23,
+    },
+    1: {
+        'ETH': 2,
+        'USDC': 30,
+        'USDT': 26,
+    },
+    31: {
+        'ETH': 4,
+        'USDC': 33,
+    },
+    7: {
+        'ETH': 8,
+    },
+    22: {
+        'ETH': 7,
+    }
+}
+
 L2PASS_CONTRACTS_PER_CHAINS = {
     1: {
         'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',

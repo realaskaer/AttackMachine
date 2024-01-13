@@ -1,7 +1,9 @@
 import random
 
+from eth_abi import abi
+
 from config import ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA, \
-    TOKENS_PER_CHAIN2
+    TOKENS_PER_CHAIN2, MERKLY_ABI, MERKLY_CONTRACTS_PER_CHAINS, CHAIN_NAME
 from modules import Logger, Aggregator
 from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS
 from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
@@ -174,32 +176,39 @@ class Custom(Logger, Aggregator):
 
     @helper
     @gas_checker
-    async def smart_swap_stargate(self):
-        from functions import swap_stargate
+    async def smart_bridge_l0(self, dapp_id:int = None):
+        from functions import swap_stargate, swap_coredao
 
-        rpc_by_id = LAYERZERO_WRAPED_NETWORKS
+        dapp_config = {
+            1: (swap_stargate, STARGATE_TOKENS, STARGATE_CHAINS),
+            2: (swap_coredao, COREDAO_TOKENS, COREDAO_CHAINS)
+        }[dapp_id]
 
-        clients = [await self.client.new_client(rpc_by_id[chain])
-                   for chain in STARGATE_CHAINS]
-        balances = [await client.get_token_balance(omnicheck=True, token_name=token, check_symbol=False)
-                    for client, token in zip(clients, STARGATE_TOKENS)]
+        func, tokens, chains = dapp_config
+
+        clients = [await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[chain])
+                   for chain in chains]
+        balances = [await client.get_token_balance(omnicheck=True, token_name=token, check_symbol=True)
+                    for client, token in zip(clients, tokens)]
 
         if all(balance_in_wei == 0 for balance_in_wei, _, _ in balances):
-            raise RuntimeError('Insufficient balances on both networks!')
+            raise RuntimeError('Insufficient balances in all networks!')
 
-        index = 0 if balances[0][1] * ETH_PRICE > balances[1][1] * ETH_PRICE else 1
+        index = balances.index(max(balances, key=lambda x: x[1] * (ETH_PRICE if x[2] == 'ETH' else 1)))
         current_client = clients[index]
-        from_token_name, to_token_name = STARGATE_TOKENS[index], STARGATE_TOKENS[1 - index]
+        from_token_name = tokens[index]
         balance_in_wei, balance, _ = balances[index]
 
-        if balance * ETH_PRICE <= 1:
+        if (balance * ETH_PRICE < 1 and from_token_name == 'ETH') or (balance < 1 and from_token_name != 'ETH'):
             raise RuntimeError('Balance on source chain < 1$!')
 
         amount_in_wei = balance_in_wei if from_token_name != 'ETH' else int(
             (await current_client.get_smart_amount(need_percent=True)) * 10 ** 18)
 
-        src_chain_name, dst_chain_name = current_client.network.name, clients[1 - index].network.name
-        dst_chain_id = LAYERZERO_NETWORKS_DATA[STARGATE_CHAINS[1 - index]][1]
+        dst_chain = random.choice([chain for i, chain in enumerate(STARGATE_CHAINS) if i != index])
+        src_chain_name = current_client.network.name
+        dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
+        to_token_name = tokens[chains.index(dst_chain)]
 
         if from_token_name != 'ETH':
             contract = current_client.get_contract(TOKENS_PER_CHAIN2[current_client.network.name][from_token_name])
@@ -209,58 +218,11 @@ class Custom(Logger, Aggregator):
 
         amount = f"{amount_in_wei / 10 ** decimals:.4f}"
 
-        swapdata = (dst_chain_id, dst_chain_name, src_chain_name, from_token_name,
+        swapdata = (src_chain_name, dst_chain_id, dst_chain_name, from_token_name,
                     to_token_name, amount, int(amount_in_wei))
 
         try:
-            return await swap_stargate(current_client, swapdata=swapdata)
-        finally:
-            for client in clients:
-                await client.session.close()
-
-    @helper
-    @gas_checker
-    async def smart_swap_coredao(self):
-        from functions import swap_coredao
-
-        rpc_by_id = LAYERZERO_WRAPED_NETWORKS
-
-        clients = [await self.client.new_client(rpc_by_id[chain])
-                   for chain in COREDAO_CHAINS]
-
-        balances = [await client.get_token_balance(omnicheck=True, token_name=token, check_symbol=False)
-                    for client, token in zip(clients, COREDAO_TOKENS)]
-
-        if all(balance_in_wei == 0 for balance_in_wei, _, _ in balances):
-            raise RuntimeError('Insufficient balances on both networks!')
-
-        index = 0 if balances[0][1] * ETH_PRICE > balances[1][1] * ETH_PRICE else 1
-        current_client = clients[index]
-        from_token_name, to_token_name = COREDAO_TOKENS[index], COREDAO_TOKENS[1 - index]
-        balance_in_wei, balance, _ = balances[index]
-
-        if balance * ETH_PRICE <= 1:
-            raise RuntimeError('Balance on source chain < 1$!')
-
-        amount_in_wei = balance_in_wei if from_token_name != 'ETH' else int(
-            (await current_client.get_smart_amount(need_percent=True)) * 10 ** 18)
-
-        src_chain_name, dst_chain_name = current_client.network.name, clients[1 - index].network.name
-        dst_chain_id = LAYERZERO_NETWORKS_DATA[COREDAO_CHAINS[1 - index]][1]
-
-        if from_token_name != 'ETH':
-            contract = current_client.get_contract(TOKENS_PER_CHAIN2[current_client.network.name][from_token_name])
-            decimals = await contract.functions.decimals().call()
-        else:
-            decimals = 18
-
-        amount = f"{amount_in_wei / 10 ** decimals:.4f}"
-
-        swapdata = (src_chain_name, dst_chain_name, dst_chain_id, from_token_name,
-                    to_token_name, amount, int(amount_in_wei))
-
-        try:
-            return await swap_coredao(current_client, swapdata=swapdata)
+            return await func(current_client, swapdata=swapdata)
         finally:
             for client in clients:
                 await client.session.close()
@@ -299,12 +261,21 @@ class Custom(Logger, Aggregator):
                                 self.client.network, self.client.proxy_init, swapdata=data)
 
     @helper
-    async def merkly_attack(self):
-        from functions import merkly_for_refuel_attack
+    async def refuel_attack(self, dapp_id:int = None):
+        from functions import merkly_for_refuel_attack, l2pass_for_refuel_attack, zerius_for_refuel_attack
+        from settings import MERKLY_ATTACK_REFUEL, ZERIUS_ATTACK_REFUEL, L2PASS_ATTACK_REFUEL
+
+        dapp_config = {
+            1: (merkly_for_refuel_attack, MERKLY_ATTACK_REFUEL),
+            2: (l2pass_for_refuel_attack, L2PASS_ATTACK_REFUEL),
+            3: (zerius_for_refuel_attack, ZERIUS_ATTACK_REFUEL)
+        }[dapp_id]
 
         attack_refuel_without_none = []
 
-        for path in MERKLY_ATTACK_REFUEL:
+        func, attack_data = dapp_config
+
+        for path in attack_data:
             if isinstance(path, tuple):
                 module = random.choice(path)
                 if module:
@@ -322,53 +293,27 @@ class Custom(Logger, Aggregator):
 
             chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
 
-            await merkly_for_refuel_attack(self.client.account_name, self.client.private_key,
-                                           self.client.network, self.client.proxy_init, chain_id_from,
-                                           attack_mode=True, attack_data=refuel_data)
+            await func(self.client.account_name, self.client.private_key, self.client.network,
+                       self.client.proxy_init, chain_id_from, attack_mode=True, attack_data=refuel_data)
 
             await sleep(self)
 
         return True
 
     @helper
-    async def l2pass_attack(self):
-        from functions import l2pass_for_refuel_attack
+    async def nft_attack(self, dapp_id:int = None):
+        from functions import l2pass_for_nft_attack, zerius_for_nft_attack
 
-        attack_refuel_without_none = []
+        dapp_config = {
+            1: (l2pass_for_nft_attack, L2PASS_ATTACK_NFT),
+            2: (zerius_for_nft_attack, ZERIUS_ATTACK_NFT)
+        }[dapp_id]
 
-        for path in L2PASS_ATTACK_REFUEL:
-            if isinstance(path, tuple):
-                module = random.choice(path)
-                if module:
-                    attack_refuel_without_none.append(module)
-                continue
-            attack_refuel_without_none.append(path)
-
-        if SHUFFLE_ATTACK:
-            random.shuffle(attack_refuel_without_none)
-
-        for chain_id_from, chain_id_to, amount in attack_refuel_without_none:
-            refuel_data = {
-                chain_id_to: (amount, round(amount * 1.1, 7))
-            }
-
-            chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
-
-            await l2pass_for_refuel_attack(self.client.account_name, self.client.private_key,
-                                           self.client.network, self.client.proxy_init, chain_id_from,
-                                           attack_mode=True, attack_data=refuel_data)
-
-            await sleep(self)
-
-        return True
-
-    @helper
-    async def l2pass_nft_attack(self):
-        from functions import l2pass_for_nft_attack
+        func, attack_data = dapp_config
 
         attack_bridge_without_none = []
 
-        for path in L2PASS_ATTACK_NFT:
+        for path in attack_data:
             if isinstance(path, tuple):
                 module = random.choice(path)
                 if module:
@@ -383,80 +328,24 @@ class Custom(Logger, Aggregator):
 
             chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
 
-            await l2pass_for_nft_attack(self.client.account_name, self.client.private_key,
-                                        self.client.network, self.client.proxy_init, chain_id_from,
-                                        attack_mode=True, attack_data=chain_id_to)
+            await func(self.client.account_name, self.client.private_key, self.client.network,
+                       self.client.proxy_init, chain_id_from, attack_mode=True, attack_data=chain_id_to)
 
             await sleep(self)
 
         return True
 
     @helper
-    async def zerius_attack(self):
-        from functions import zerius_for_refuel_attack
-
-        attack_refuel_without_none = []
-
-        for path in ZERIUS_ATTACK_REFUEL:
-            if isinstance(path, tuple):
-                module = random.choice(path)
-                if module:
-                    attack_refuel_without_none.append(module)
-                continue
-            attack_refuel_without_none.append(path)
-
-        if SHUFFLE_ATTACK:
-            random.shuffle(attack_refuel_without_none)
-
-        for chain_id_from, chain_id_to, amount in attack_refuel_without_none:
-            refuel_data = {
-                chain_id_to: (amount, round(amount * 1.1, 7))
-            }
-
-            chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
-
-            await zerius_for_refuel_attack(self.client.account_name, self.client.private_key,
-                                           self.client.network, self.client.proxy_init, chain_id_from,
-                                           attack_mode=True, attack_data=refuel_data)
-
-            await sleep(self)
-
-        return True
-
-    @helper
-    async def zerius_nft_attack(self):
-        from functions import zerius_for_nft_attack
-
-        attack_bridge_without_none = []
-
-        for path in ZERIUS_ATTACK_NFT:
-            if isinstance(path, tuple):
-                module = random.choice(path)
-                if module:
-                    attack_bridge_without_none.append(module)
-                continue
-            attack_bridge_without_none.append(path)
-
-        if SHUFFLE_ATTACK:
-            random.shuffle(attack_bridge_without_none)
-
-        for chain_id_from, chain_id_to in attack_bridge_without_none:
-            chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
-
-            await zerius_for_nft_attack(self.client.account_name, self.client.private_key,
-                                        self.client.network, self.client.proxy_init, chain_id_from,
-                                        attack_mode=True, attack_data=chain_id_to)
-
-            await sleep(self)
-
-        return True
-
-    @helper
-    async def okx_multi_withdraw(self):
+    async def okx_multi_withdraw(self, random_network:bool = False):
         from functions import okx_withdraw
 
-        shuffle_withdraw = list(OKX_MULTI_WITHDRAW.items())
-        random.shuffle(shuffle_withdraw)
+        if random_network:
+            shuffle_withdraw = list(OKX_MULTI_WITHDRAW.items())
+            shuffle_withdraw = random.choice(shuffle_withdraw)
+        else:
+            shuffle_withdraw = list(OKX_MULTI_WITHDRAW.items())
+            random.shuffle(shuffle_withdraw)
+
         multi_withdraw_data = {}
 
         for network, amount in shuffle_withdraw:
@@ -471,5 +360,89 @@ class Custom(Logger, Aggregator):
                     *self.client.acc_info, msg=f"Withdraw from OKX failed. Error: {error}", type_msg='error')
 
             await sleep(self)
+
+        return True
+
+    @helper
+    async def smart_refuel(self, dapp_id:int = None):
+        from functions import merkly_for_refuel_attack, l2pass_for_refuel_attack, zerius_for_refuel_attack
+        from settings import (SRC_CHAIN_MERKLY, SRC_CHAIN_L2PASS, SRC_CHAIN_ZERIUS,
+                              DST_CHAIN_MERKLY_REFUEL, DST_CHAIN_L2PASS_REFUEL, DST_CHAIN_ZERIUS_REFUEL)
+
+        dapp_config = {
+            1: (merkly_for_refuel_attack, SRC_CHAIN_MERKLY, DST_CHAIN_MERKLY_REFUEL),
+            2: (l2pass_for_refuel_attack, SRC_CHAIN_L2PASS, DST_CHAIN_L2PASS_REFUEL),
+            3: (zerius_for_refuel_attack, SRC_CHAIN_ZERIUS, DST_CHAIN_ZERIUS_REFUEL)
+        }[dapp_id]
+
+        func, src_chains, dst_data = dapp_config
+
+        dst_datas = list(dst_data.items())
+
+        random.shuffle(src_chains)
+        random.shuffle(dst_datas)
+        refuel_flag = False
+        for src_chain in src_chains:
+            for dst_data in dst_datas:
+                refuel_data = {
+                    dst_data[0]: dst_data[1]
+                }
+
+                chain_id_from = LAYERZERO_WRAPED_NETWORKS[src_chain]
+                refuel_flag = await merkly_for_refuel_attack(
+                    self.client.account_name, self.client.private_key, self.client.network, self.client.proxy_init,
+                    chain_id_from, attack_mode=True, attack_data=refuel_data, need_check=True)
+
+                if refuel_flag:
+                    self.logger_msg(
+                        *self.client.acc_info, msg=f"Detected funds on {CHAIN_NAME[chain_id_from]}", type_msg='success')
+
+                    await func(self.client.account_name, self.client.private_key, self.client.network,
+                               self.client.proxy_init, chain_id_from, attack_mode=True, attack_data=refuel_data)
+
+                    await sleep(self)
+
+        if refuel_flag is False:
+            self.logger_msg(
+                *self.client.acc_info, msg=f"Can`t detect funds in all networks!", type_msg='warning')
+
+        return True
+
+    @helper
+    async def l0_volume_abuse(self, dapp_id:int = None):
+        from functions import okx_deposit
+        from config import OKX_DEPOSIT_L0_DATA
+        from settings import STARGATE_SWAPS_AMOUNT
+
+        dapp_config = {
+            1: (STARGATE_TOKENS, STARGATE_CHAINS),
+            2: (COREDAO_TOKENS, COREDAO_CHAINS)
+        }[dapp_id]
+
+        tokens, chains = dapp_config
+
+        await self.okx_multi_withdraw(random_network=True)
+
+        for _ in range(STARGATE_SWAPS_AMOUNT):
+            await self.smart_bridge_l0(dapp_id=dapp_id)
+
+        clients = [await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[chain])
+                   for chain in chains]
+        balances = [await client.get_token_balance(omnicheck=True, token_name=token, check_symbol=False)
+                    for client, token in zip(clients, tokens)]
+
+        index = balances.index(max(balances, key=lambda x: x[1] * (ETH_PRICE if x[2] == 'ETH' else 1)))
+
+        dep_chain = chains[index]
+        dep_token = tokens[index]
+
+        await okx_deposit(self.client.account_name, self.client.private_key, self.client.network,
+                          self.client.proxy_init, dep_network=OKX_DEPOSIT_L0_DATA[dep_chain][dep_token])
+
+        return True
+
+    @helper
+    async def random_okx_withdraw(self):
+        await self.okx_multi_withdraw(random_network=True)
 
         return True

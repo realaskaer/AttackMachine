@@ -39,7 +39,7 @@ class L2Pass(Refuel, Logger):
 
     @helper
     @gas_checker
-    async def refuel(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None):
+    async def refuel(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False):
         if not attack_mode and attack_data is None:
             dst_data = random.choice(list(DST_CHAIN_L2PASS_REFUEL.items()))
         else:
@@ -52,37 +52,38 @@ class L2Pass(Refuel, Logger):
 
         refuel_contract = self.client.get_contract(l2pass_contracts['refuel'], L2PASS_ABI['refuel'])
 
-        refuel_info = f'{dst_amount} {dst_native_name} from {CHAIN_NAME[chain_from_id]} to {dst_chain_name}'
-        self.logger_msg(*self.client.acc_info, msg=f'Refuel on L2Pass: {refuel_info}')
+        if not need_check:
+            refuel_info = f'{dst_amount} {dst_native_name} from {CHAIN_NAME[chain_from_id]} to {dst_chain_name}'
+            self.logger_msg(*self.client.acc_info, msg=f'Refuel on L2Pass: {refuel_info}')
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
-        dst_contract_address = l2pass_contracts['refuel']
+        dst_contract_address = L2PASS_CONTRACTS_PER_CHAINS[LAYERZERO_WRAPED_NETWORKS[dst_data[0]]]['refuel']
 
-        estimate_send_fee = (await refuel_contract.functions.estimateGasRefuelFee(
-            dst_chain_id,
-            dst_native_gas_amount,
-            dst_contract_address,
-            False
-        ).call())[0]
+        try:
+            estimate_send_fee = (await refuel_contract.functions.estimateGasRefuelFee(
+                dst_chain_id,
+                dst_native_gas_amount,
+                dst_contract_address,
+                False
+            ).call())[0]
 
-        value = estimate_send_fee
+            transaction = await refuel_contract.functions.gasRefuel(
+                dst_chain_id,
+                ZERO_ADDRESS,
+                dst_native_gas_amount,
+                self.client.address
+            ).build_transaction(await self.client.prepare_transaction(value=estimate_send_fee))
+            return
+            tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
-        tx_params = await self.client.prepare_transaction(value=value)
+            if attack_data and attack_mode is False:
+                await self.client.wait_for_l0_received(tx_hash)
+                return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
 
-        transaction = await refuel_contract.functions.gasRefuel(
-            dst_chain_id,
-            ZERO_ADDRESS,
-            dst_native_gas_amount,
-            self.client.address
-        ).build_transaction(tx_params)
-
-        tx_hash = await self.client.send_transaction(transaction, need_hash=True)
-
-        if attack_data and attack_mode is False:
-            await self.client.wait_for_l0_received(tx_hash)
-            return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
-
-        return await self.client.wait_for_l0_received(tx_hash)
+            return await self.client.wait_for_l0_received(tx_hash)
+        except Exception as error:
+            if not need_check:
+                raise RuntimeError(f'This refuel path is not active!. Error: {error}')
 
     @helper
     @gas_checker

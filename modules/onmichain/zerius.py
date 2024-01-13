@@ -113,7 +113,7 @@ class Zerius(Minter, Logger):
 
     @helper
     @gas_checker
-    async def refuel(self, attack_mode: bool = False, attack_data: dict = None):
+    async def refuel(self, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False):
         if not attack_mode and attack_data is None:
             dst_data = random.choice(list(DST_CHAIN_ZERIUS_REFUEL.items()))
         else:
@@ -122,37 +122,45 @@ class Zerius(Minter, Logger):
         dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
         dst_amount = self.client.round_amount(*dst_data[1])
 
-        refuel_info = f'{dst_amount} {dst_native_name} from {CHAIN_NAME[self.chain_from_id]} to {dst_chain_name}'
-        self.logger_msg(*self.client.acc_info, msg=f'Refuel on Zerius: {refuel_info}')
+        if not need_check:
+            refuel_info = f'{dst_amount} {dst_native_name} from {CHAIN_NAME[self.chain_from_id]} to {dst_chain_name}'
+            self.logger_msg(*self.client.acc_info, msg=f'Refuel on Zerius: {refuel_info}')
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
-        dst_contract_address = ZERIUS_CONTRACT_PER_CHAINS[self.chain_from_id]['refuel']
+        dst_contract_address = ZERIUS_CONTRACT_PER_CHAINS[LAYERZERO_WRAPED_NETWORKS[dst_data[0]]]['refuel']
 
         gas_limit = await self.refuel_contract.functions.minDstGasLookup(dst_chain_id, 0).call()
+
+        if gas_limit == 0 and not need_check:
+            raise RuntimeError('This refuel path is not active!')
 
         adapter_params = encode(["uint16", "uint64", "uint256"],
                                 [2, gas_limit, dst_native_gas_amount])
 
         adapter_params = self.client.w3.to_hex(adapter_params[30:]) + self.client.address[2:].lower()
 
-        estimate_send_fee = (await self.refuel_contract.functions.estimateSendFee(
-            dst_chain_id,
-            dst_contract_address,
-            adapter_params
-        ).call())[0]
+        try:
+            estimate_send_fee = (await self.refuel_contract.functions.estimateSendFee(
+                dst_chain_id,
+                dst_contract_address,
+                adapter_params
+            ).call())[0]
 
-        tx_params = await self.client.prepare_transaction(value=estimate_send_fee)
+            tx_params = await self.client.prepare_transaction(value=estimate_send_fee)
 
-        transaction = await self.refuel_contract.functions.refuel(
-            dst_chain_id,
-            dst_contract_address,
-            adapter_params
-        ).build_transaction(tx_params)
+            transaction = await self.refuel_contract.functions.refuel(
+                dst_chain_id,
+                dst_contract_address,
+                adapter_params
+            ).build_transaction(tx_params)
 
-        tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+            tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
-        if attack_data and attack_mode is False:
-            await self.client.wait_for_l0_received(tx_hash)
-            return LAYERZERO_WRAPED_NETWORKS[self.chain_from_id], dst_chain_id
+            if attack_data and attack_mode is False:
+                await self.client.wait_for_l0_received(tx_hash)
+                return LAYERZERO_WRAPED_NETWORKS[self.chain_from_id], dst_chain_id
 
-        return await self.client.wait_for_l0_received(tx_hash)
+            return await self.client.wait_for_l0_received(tx_hash)
+        except Exception as error:
+            if not need_check:
+                raise RuntimeError(f'This refuel path is not active!. Error: {error}')

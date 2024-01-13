@@ -423,7 +423,7 @@ async def l2pass_for_nft_attack(account_number, private_key, _, proxy, chain_fro
 
 async def l2pass_nft_attack(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
-    return await worker.l2pass_nft_attack()
+    return await worker.nft_attack(dapp_id=1)
 
 
 async def merkly_refuel_google(account_number, private_key, _, proxy, chain_from, chain_to):
@@ -481,7 +481,7 @@ async def zerius_bridge_google(account_number, private_key, _, proxy, chain_from
 
 async def l2pass_refuel_attack(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
-    return await worker.l2pass_attack()
+    return await worker.refuel_attack(dapp_id=2)
 
 
 async def merkly_for_refuel_attack(account_number, private_key, _, proxy, chain_from_id, **kwargs):
@@ -493,7 +493,7 @@ async def merkly_for_refuel_attack(account_number, private_key, _, proxy, chain_
 
 async def merkly_refuel_attack(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
-    return await worker.merkly_attack()
+    return await worker.refuel_attack(dapp_id=1)
 
 
 async def zerius_for_refuel_attack(account_number, private_key, _, proxy, chain_from_id, **kwargs):
@@ -505,7 +505,7 @@ async def zerius_for_refuel_attack(account_number, private_key, _, proxy, chain_
 
 async def zerius_refuel_attack(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
-    return await worker.zerius_attack()
+    return await worker.refuel_attack(dapp_id=3)
 
 
 async def zerius_for_nft_attack(account_number, private_key, _, proxy, chain_from_id, **kwargs):
@@ -517,7 +517,7 @@ async def zerius_for_nft_attack(account_number, private_key, _, proxy, chain_fro
 
 async def zerius_nft_attack(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
-    return await worker.zerius_nft_attack()
+    return await worker.nft_attack(dapp_id=1)
 
 
 async def refuel_zerius(account_number, private_key, _, proxy):
@@ -622,11 +622,16 @@ async def okx_multi_withdraw(account_number, private_key, network, proxy):
     return await worker.okx_multi_withdraw()
 
 
-async def okx_deposit(account_number, private_key, _, proxy):
-    network = get_network_by_chain_id(OKX_WRAPED_ID[OKX_DEPOSIT_NETWORK])
+async def random_okx_withdraw(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.random_okx_withdraw()
+
+
+async def okx_deposit(account_number, private_key, _, proxy, dep_network=OKX_DEPOSIT_NETWORK, **kwargs):
+    network = get_network_by_chain_id(OKX_WRAPED_ID[dep_network])
 
     worker = OKX(get_client(account_number, private_key, network, proxy))
-    return await worker.deposit()
+    return await worker.deposit(**kwargs)
 
 
 async def okx_collect_from_sub(account_number, private_key, network, proxy):
@@ -832,7 +837,7 @@ async def mint_token_jediswap(account_number, private_key, network, proxy):
 
 async def bridge_stargate(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
-    return await worker.smart_swap_stargate()
+    return await worker.smart_bridge_l0(dapp_id=1)
 
 
 async def swap_stargate(client, **kwargs):
@@ -842,7 +847,7 @@ async def swap_stargate(client, **kwargs):
 
 async def bridge_coredao(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
-    return await worker.smart_swap_coredao()
+    return await worker.smart_bridge_l0(dapp_id=2)
 
 
 async def swap_coredao(client, **kwargs):
@@ -887,3 +892,23 @@ async def stake_zkfair(account_number, private_key, _, proxy):
 async def grapedraw_bid(account_number, private_key, network, proxy):
     worker = GrapeDraw(get_client(account_number, private_key, network, proxy))
     return await worker.bid_place()
+
+
+async def smart_merkly(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.smart_refuel(dapp_id=1)
+
+
+async def smart_l2pass(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.smart_refuel(dapp_id=2)
+
+
+async def smart_zerius(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.smart_refuel(dapp_id=3)
+
+
+async def stargate_volume(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.l0_volume_abuse(dapp_id=1)

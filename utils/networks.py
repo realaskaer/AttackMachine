@@ -243,9 +243,6 @@ OpBNB_RPC = Network(
 MoonbeamRPC = Network(
     name='Moonbeam',
     rpc=[
-        'https://moonbeam.publicnode.com',
-        'https://1rpc.io/glmr',
-        'https://endpoints.omniatech.io/v1/moonbeam/mainnet/public',
         'https://moonbeam.public.blastapi.io',
     ],
     chain_id=1284,
@@ -260,7 +257,6 @@ MoonriverRPC = Network(
         'https://moonriver.publicnode.com',
         'https://moonriver-rpc.dwellir.com',
         'https://moonriver.public.blastapi.io',
-        'https://moonriver.api.onfinality.io/public',
     ],
     chain_id=1285,
     eip1559_support=False,

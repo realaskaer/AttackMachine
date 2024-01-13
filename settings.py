@@ -95,10 +95,12 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (
         Fantom = 14                   Moonriver = 29                     zkSync = 43
         Fuse = 15          
     
-    STARGATE_CHAINS | Выберите два чейна, между которыми будут производиться бриджи
-    STARGATE_TOKENS | Выберите две монеты, между которыми будут производиться свапы. Доступны: ETH, USDT, USDC. 
+    STARGATE_CHAINS | Выберите чейны, между которыми будут производиться бриджи
+    STARGATE_TOKENS | Выберите монеты, между которыми будут производиться свапы. Доступны: ETH, USDT, USDC. 
         Токены указывать в таком же порядке, как и чейны. Условно STARGATE_CHAINS = [5, 6] и
         STARGATE_TOKENS = ['USDC', 'USDT'] будет означать, что для 5 чейна будет USDC, а для 6 USDT
+    
+    STARGATE_SWAPS_AMOUNT | Количество бриджей внутри модуля stargate_volume
     
     COREDAO_CHAINS | Аналогично STARGATE_CHAINS
     COREDAO_TOKENS | Аналогично STARGATE_TOKENS
@@ -145,6 +147,7 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (
 """
 STARGATE_CHAINS = [1, 7]
 STARGATE_TOKENS = ['ETH', 'ETH']
+STARGATE_SWAPS_AMOUNT = 4       # применяется для stargate_volume
 
 COREDAO_CHAINS = [6, 11]
 COREDAO_TOKENS = ['USDT', 'USDT']
@@ -160,7 +163,7 @@ SRC_CHAIN_MERKLY_WORMHOLE = [7]   # Исходящая сеть для Merkly Wo
 DST_CHAIN_MERKLY_WORMHOLE = [9, 14, 21, 28]   # Входящая сеть для Merkly Wormhole
 WORMHOLE_TOKENS_AMOUNT = 1        # Кол-во токенов для минта и бриджа на Merkly через Wormhole
 
-SRC_CHAIN_MERKLY = [28]            # Исходящая сеть для Merkly
+SRC_CHAIN_MERKLY = [1, 28, 27, 2]            # Исходящая сеть для Merkly
 DST_CHAIN_MERKLY_REFUEL = {
      3: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
     17: (0.000001, 0.00002),
@@ -317,6 +320,7 @@ HELPERS_CONFIG = {
 
     okx_withdraw                     # смотри OKX CONTROL
     okx_multi_withdraw               # вывод в несколько сетей. Смотри OKX CONTROL (OKX_MULTI_WITHDRAW)
+    random_okx_withdraw              # вывод в рандомную сеть из OKX_MULTI_WITHDRAW
     collector_eth                    # сбор всех токенов в ETH
     make_balance_to_average          # уравнивает ваши балансы на аккаунтах (см. инструкцию к софту) 
     upgrade_stark_wallet             # обновляет кошелек, во время маршрута
@@ -351,8 +355,12 @@ HELPERS_CONFIG = {
     refuel_zerius                    # смотри OMNI-CHAIN CONTROL
     refuel_l2pass                    # смотри OMNI-CHAIN CONTROL
     refuel_bungee                    # смотри OMNI-CHAIN CONTROL
+    smart_merkly                     # автоматический поиск доступного пути для refuel. настройки из refuel_merkly
+    smart_l2pass                     # автоматический поиск доступного пути для refuel. настройки из refuel_l2pass
+    smart_zerius                     # автоматический поиск доступного пути для refuel. настройки из refuel_zerius
     mint_and_bridge_l2telegraph      # mint и bridge NFT через L2Telegraph. См. OMNI-CHAIN CONTROLE
     send_message_l2telegraph         # смотри OMNI-CHAIN CONTROL
+    stargate_volume                  # выводит из рандомной сети OKX_MULTI_WITHDRAW -> бриджи на Stargate -> деп на OKX
     bridge_stargate                  # бриджи на Stargate. STARGATE_CHAINS, STARGATE_TOKENS. См. OMNI-CHAIN CONTROLE
     bridge_coredao                   # бриджи на CoreDAO. COREDAO_CHAINS, COREDAO_TOKENS. См. OMNI-CHAIN CONTROLE
     zerius_refuel_attack             # Refuel атака на Zerius. Делает много рефьелов в разные сети. См. OMNI-CHAIN CONTROLE
@@ -545,5 +553,5 @@ HELPERS_CONFIG = {
 CLASSIC_ROUTES_MODULES_USING = [
     ['okx_withdraw'],
     ['bridge_layerswap', 'bridge_native'],
-    ['swap_mute', 'swap_izumi', 'mint_domain_ens', None]
+    ['swap_mute', 'swap_izumi', 'mint_domain_ens', None],
 ]
