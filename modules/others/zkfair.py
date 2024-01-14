@@ -22,44 +22,49 @@ class ZKFair(Logger, Aggregator):
         url_refund = 'https://airdrop.zkfair.io/api/refundable'
 
         for phase in ZKFAIR_CLAIM_REFUND_PHASES:
-            params_proof = {
-                'address': self.client.address,
-                'phase': phase,
-                'API-SIGNATURE': api_signature,
-                'TIMESTAMP': timestamp
-            }
-
-            params_refund = {
-                'address': self.client.address,
-                'API-SIGNATURE': api_signature,
-                'TIMESTAMP': timestamp
-            }
-
             try:
-                proof = (await self.make_request(url=url_proof, params=params_proof))['data']['proof']
-                refund_data = (await self.make_request(url=url_refund, params=params_refund))['data'][f"phase{phase}"]
-                refund_index = int(refund_data['refund_index'])
-                refund_in_wei = int(refund_data['account_refund'])
-                refund_contract_address = refund_data['refund_contract_address']
-            except:
+                params_proof = {
+                    'address': self.client.address,
+                    'phase': phase,
+                    'API-SIGNATURE': api_signature,
+                    'TIMESTAMP': timestamp
+                }
+
+                params_refund = {
+                    'address': self.client.address,
+                    'API-SIGNATURE': api_signature,
+                    'TIMESTAMP': timestamp
+                }
+
+                try:
+                    proof = (await self.make_request(url=url_proof, params=params_proof))['data']['proof']
+                    refund_data = (await self.make_request(url=url_refund, params=params_refund))['data'][f"phase{phase}"]
+                    refund_index = int(refund_data['refund_index'])
+                    refund_in_wei = int(refund_data['account_refund'])
+                    refund_contract_address = refund_data['refund_contract_address']
+                except:
+                    self.logger_msg(
+                        *self.client.acc_info,
+                        msg=f'Available to refund in phase {phase}: 0 USDC', type_msg='warning')
+                    continue
+
                 self.logger_msg(
                     *self.client.acc_info,
-                    msg=f'Available to refund in phase {phase}: 0 USDC', type_msg='warning')
-                continue
+                    msg=f'Available to refund in phase {phase}: {refund_in_wei / 10 ** 18:.3f} USDC', type_msg='success')
 
-            self.logger_msg(
-                *self.client.acc_info,
-                msg=f'Available to refund in phase {phase}: {refund_in_wei / 10 ** 18:.3f} USDC', type_msg='success')
+                refund_contract = self.client.get_contract(refund_contract_address, ZKFAIR_ABI['airdrop'])
 
-            refund_contract = self.client.get_contract(refund_contract_address, ZKFAIR_ABI['airdrop'])
+                transaction = await refund_contract.functions.claim(
+                    refund_index,
+                    refund_in_wei,
+                    proof
+                ).build_transaction(await self.client.prepare_transaction())
 
-            transaction = await refund_contract.functions.claim(
-                refund_index,
-                refund_in_wei,
-                proof
-            ).build_transaction(await self.client.prepare_transaction())
-
-            await self.client.send_transaction(transaction)
+                await self.client.send_transaction(transaction)
+            except Exception as error:
+                self.logger_msg(
+                    *self.client.acc_info,
+                    msg=f'Drop already claimed or some error. Error: {error}', type_msg='warning')
 
         return True
 
