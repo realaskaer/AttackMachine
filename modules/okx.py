@@ -276,7 +276,7 @@ class OKX(CEX, Logger):
 
         info = f"{okx_wallet[:10]}....{okx_wallet[-6:]}"
 
-        if not deposit_data:
+        if deposit_data:
             deposit_network, deposit_amount = deposit_data
         else:
             deposit_network = OKX_DEPOSIT_NETWORK
