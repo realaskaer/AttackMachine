@@ -413,7 +413,9 @@ class Client(Logger):
                     elif status is None:
                         await asyncio.sleep(poll_latency)
                     else:
-                        raise RuntimeError(f'Transaction failed: {self.explorer}tx/{tx_hash}')
+                        self.logger_msg(*self.acc_info, msg=f'Transaction failed: {self.explorer}tx/{tx_hash.hex()}',
+                                        type_msg='error')
+                        return False
                 except TransactionNotFound:
                     if total_time > timeout:
                         raise TimeExhausted(f"Transaction {tx_hash !r} is not in the chain after {timeout} seconds")
