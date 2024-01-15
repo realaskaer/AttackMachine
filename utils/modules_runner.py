@@ -269,14 +269,14 @@ class Runner(Logger):
             message_list.append(
                 f'⚔️ {info} | Account name: "{account_name}"\n \n{len(route_modules)} module(s) in route\n')
 
-            await self.smart_sleep(account_name, index, accounts_delay=True)
-
             if current_step >= len(route_modules):
                 self.logger_msg(
                     account_name, None, f"All modules in the route were completed", type_msg='warning')
 
                 await asyncio.sleep(5)
                 return
+
+            await self.smart_sleep(account_name, index, accounts_delay=True)
 
             while current_step < len(route_modules):
                 module_name = route_modules[current_step][0]
