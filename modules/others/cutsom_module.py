@@ -400,13 +400,13 @@ class Custom(Logger, Aggregator):
                     await func(self.client.account_name, self.client.private_key, self.client.network,
                                self.client.proxy_init, chain_id_from, attack_mode=True, attack_data=refuel_data)
 
-                    await sleep(self)
+                    return True
 
         if refuel_flag is False:
             self.logger_msg(
                 *self.client.acc_info, msg=f"Can`t detect funds in all networks!", type_msg='warning')
 
-        return True
+        return False
 
     @helper
     async def l0_volume_abuse(self, dapp_id:int = None):
@@ -439,7 +439,7 @@ class Custom(Logger, Aggregator):
         percent = round(random.uniform(*AMOUNT_PERCENT), 9) / 100
         amount_in_wei = float(f"{chain_balance * percent:.6f}")
         deposit_data = OKX_DEPOSIT_L0_DATA[dep_chain][dep_token], amount_in_wei
-        
+
         await okx_deposit(self.client.account_name, self.client.private_key, self.client.network,
                           self.client.proxy_init, dep_network=deposit_data)
 
