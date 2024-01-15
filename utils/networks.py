@@ -349,12 +349,11 @@ ConfluxRPC = Network(
     name='Conflux',
     rpc=[
         'https://evm.confluxrpc.com',
-        'https://conflux-espace-public.unifra.io',
     ],
     chain_id=1030,
     eip1559_support=False,
     token='CFX',
-    explorer='https://opbnbscan.com/'
+    explorer='https://www.confluxscan.net/'
 )
 
 OrderlyRPC = Network(
@@ -600,6 +599,17 @@ ZKFairRPC = Network(
     eip1559_support=False,
     token='USDC',
     explorer='https://scan.zkfair.io/'
+)
+
+BeamRPC = Network(
+    name='Beam',
+    rpc=[
+        'https://subnets.avax.network/beam/mainnet/rpc'
+    ],
+    chain_id=4337,
+    eip1559_support=False,
+    token='Beam',
+    explorer='https://4337.snowtrace.io/'
 )
 
 # zkSyncLite = Network(

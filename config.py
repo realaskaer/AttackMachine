@@ -2148,7 +2148,7 @@ OKX_NETWORKS_NAME = {
     12                      : 'MOVR-Moonriver',
     13                      : 'METIS-Metis',
     14                      : 'CORE-CORE',
-    15                      : 'CFX-Conflux',
+    15                      : 'CFX-CFX_EVM',
     16                      : 'ZEN-Horizen',
     17                      : 'KLAY-Klaytn',
     18                      : 'FTM-Fantom',
@@ -2249,7 +2249,8 @@ LAYERZERO_WRAPED_NETWORKS = {
     40                      : 43,
     41                      : 12,
     42                      : 28,
-    43                      : 11
+    43                      : 11,
+    44                      : 46
 }
 
 LAYERZERO_NETWORKS_DATA = {
@@ -2290,12 +2291,13 @@ LAYERZERO_NETWORKS_DATA = {
     35                      : ('Scroll', 214, 'ETH', 'ethereum'),
     36                      : ('ShimmerEVM', 230, 'SMR', 'shimmer'),
     37                      : ('Telos', 199, 'TLOS', 'telos'),
-    38                      : ('TomoChain', 199, 'TOMOE', 'tomoe'),
+    38                      : ('TomoChain', 196, 'TOMOE', 'tomoe'),
     39                      : ('Tenet', 173, 'TENET', 'tenet-1b000f7b-59cb-4e06-89ce-d62b32d362b9'),
     40                      : ('XPLA', 216, 'XPLA', 'xpla'),
     41                      : ('Zora', 195, 'ETH', 'ethereum'),
     42                      : ('opBNB', 202, 'BNB', 'binancecoin'),
     43                      : ('zkSync', 165, 'ETH', 'ethereum'),
+    44                      : ('Beam', 198, 'BEAM', 'beam-2'),
 }
 
 HELP_SOFTWARE = True  # True or False | True = You support me 1% amount of transactions on aggregator`s
@@ -2345,6 +2347,9 @@ CHAIN_NAME = {
     41: 'Shimmer',
     42: 'Tenet',
     43: 'XPLA',
+    44: 'LootChain',
+    45: 'ZKFair',
+    46: 'Beam',
 }
 
 ACCOUNT_NAMES, PRIVATE_KEYS_EVM, PRIVATE_KEYS, PROXIES, OKX_WALLETS = get_accounts_data()

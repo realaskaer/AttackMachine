@@ -303,6 +303,7 @@ class Runner(Logger):
 
                 if result:
                     self.update_step(account_name, current_step + 1)
+                    await self.smart_sleep(account_name, account_number=1)
                 else:
                     self.collect_bad_wallets(account_name, module_name)
                     result = False
@@ -335,7 +336,6 @@ class Runner(Logger):
 
                 if not module_helper_type:
                     self.save_google_progress_offline(*account_progress)
-                await self.smart_sleep(account_name, account_number=1)
 
             success_count = len([1 for i in result_list if i[0]])
             errors_count = len(result_list) - success_count

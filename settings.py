@@ -17,9 +17,9 @@
 OKX_WITHDRAW_NETWORK = 22      # Сеть вывода из OKX
 OKX_WITHDRAW_AMOUNT = (1, 1)   # (минимальная, максимальная) сумма для вывода из OKX (кол-во)
 
-OKX_MULTI_WITHDRAW = {         # Сеть вывода: (минимум, максимум) в токене для вывода (кол-во)
-    4: (0.0002, 0.0003),
-    33: (2.4, 2.411)
+OKX_MULTI_WITHDRAW = {  # Сеть вывода: (минимум, максимум) в токене для вывода (кол-во)
+    12: (0.01, 0.0111),
+    22: (1.7, 1.711)
 }
 
 OKX_DEPOSIT_NETWORK = 32                  # Сеть из которой планируется пополнение OKX
@@ -93,8 +93,9 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (
         DFK = 12                      Metis = 27                         Zora = 41  
         Ethereum = 13                 Moonbeam = 28                      opBNB = 42
         Fantom = 14                   Moonriver = 29                     zkSync = 43
-        Fuse = 15          
-    
+        Fuse = 15                                                        Beam = 44
+
+
     STARGATE_CHAINS | Выберите чейны, между которыми будут производиться бриджи
     STARGATE_TOKENS | Выберите монеты, между которыми будут производиться свапы. Доступны: ETH, USDT, USDC. 
         Токены указывать в таком же порядке, как и чейны. Условно STARGATE_CHAINS = [5, 6] и
@@ -163,7 +164,7 @@ SRC_CHAIN_MERKLY_WORMHOLE = [7]   # Исходящая сеть для Merkly Wo
 DST_CHAIN_MERKLY_WORMHOLE = [9, 14, 21, 28]   # Входящая сеть для Merkly Wormhole
 WORMHOLE_TOKENS_AMOUNT = 1        # Кол-во токенов для минта и бриджа на Merkly через Wormhole
 
-SRC_CHAIN_MERKLY = [1, 28, 27, 2]            # Исходящая сеть для Merkly
+SRC_CHAIN_MERKLY = [43]            # Исходящая сеть для Merkly
 DST_CHAIN_MERKLY_REFUEL = {
      3: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
     17: (0.000001, 0.00002),
@@ -216,10 +217,9 @@ MERKLY_ATTACK_REFUEL = [
 
 
 L2PASS_ATTACK_REFUEL = [
-    [7, 35, 0.0005],
-    [7, 35, 0.0005],
-    [7, 35, 0.0005],
-    [7, 35, 0.0005],
+    [33, 5, 0.0001],
+    [21, 6, 0.0001],
+    [12, 8, 0.0001],
 ]
 
 L2PASS_ATTACK_NFT = [
@@ -249,7 +249,7 @@ L2PASS_ATTACK_NFT = [
 
 STARKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при (0) заминтит случайную новую NFT
 ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при (0) заминтит случайную новую NFT
-NEW_WALLET_TYPE = 0
+NEW_WALLET_TYPE = 1
 
 GRAPEDRAW_TICKETS_AMOUNT = 1
 
