@@ -73,7 +73,7 @@ class L2Pass(Refuel, Logger):
                 dst_native_gas_amount,
                 self.client.address
             ).build_transaction(await self.client.prepare_transaction(value=estimate_send_fee))
-            return
+
             tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
             if attack_data and attack_mode is False:
