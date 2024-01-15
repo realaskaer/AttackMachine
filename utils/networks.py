@@ -300,7 +300,6 @@ CeloRPC = Network(
         'https://forno.celo.org',
         'https://rpc.ankr.com/celo',
         'https://1rpc.io/celo',
-        'https://celo.api.onfinality.io/public',
     ],
     chain_id=42220,
     eip1559_support=False,
