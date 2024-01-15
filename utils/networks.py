@@ -254,8 +254,6 @@ MoonbeamRPC = Network(
 MoonriverRPC = Network(
     name='Moonriver',
     rpc=[
-        'https://moonriver.publicnode.com',
-        'https://moonriver-rpc.dwellir.com',
         'https://moonriver.public.blastapi.io',
     ],
     chain_id=1285,
@@ -310,7 +308,6 @@ CeloRPC = Network(
 GnosisRPC = Network(
     name='Gnosis',
     rpc=[
-        'https://gnosis-pokt.nodies.app',
         'https://gnosis.drpc.org',
         'https://gnosis.publicnode.com',
         'https://1rpc.io/gnosis',
@@ -444,7 +441,6 @@ FantomRPC = Network(
         'https://rpcapi.fantom.network',
         'https://endpoints.omniatech.io/v1/fantom/mainnet/public',
         'https://rpc.ankr.com/fantom',
-        'https://rpc.ftm.tools'
     ],
     chain_id=250,
     eip1559_support=False,
