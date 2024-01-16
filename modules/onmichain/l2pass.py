@@ -53,7 +53,7 @@ class L2Pass(Refuel, Logger):
         refuel_contract = self.client.get_contract(l2pass_contracts['refuel'], L2PASS_ABI['refuel'])
 
         if not need_check:
-            refuel_info = f'{dst_amount} {dst_native_name} from {CHAIN_NAME[chain_from_id]} to {dst_chain_name}'
+            refuel_info = f'{dst_amount} {dst_native_name} from {self.client.network.name} to {dst_chain_name}'
             self.logger_msg(*self.client.acc_info, msg=f'Refuel on L2Pass: {refuel_info}')
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
