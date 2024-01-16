@@ -2338,7 +2338,7 @@ CHAIN_NAME = {
     27: 'Astar',
     28: 'OpBNB',
     29: 'Mantle',
-    30: 'Moonrive',
+    30: 'Moonriver',
     31: 'Klaytn',
     32: 'Kava',
     33: 'Fantom',

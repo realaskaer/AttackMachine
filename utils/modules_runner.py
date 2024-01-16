@@ -247,7 +247,7 @@ class Runner(Logger):
                 return None, False
 
     async def run_account_modules(self, account_name, private_key, network, proxy, smart_route_type, index):
-        message_list, result_list, used_modules, break_flag, route_paths = [], [], [], [], False
+        message_list, result_list, used_modules, route_paths, break_flag = [], [], [], [], False
         try:
             route_data = self.load_routes().get(str(account_name), {}).get('route')
             if not route_data:
