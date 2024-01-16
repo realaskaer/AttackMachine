@@ -121,7 +121,8 @@ class Merkly(Refuel, Logger):
 
         self.logger_msg(
             *self.client.acc_info,
-            msg=f"Mint NFT on Merkly Wormhole. Price for mint: {mint_price} {self.client.network.token}")
+            msg=f"Mint NFT on Merkly Wormhole. Network: {self.client.network.name}."
+                f" Price for mint: {mint_price} {self.client.network.token}")
 
         transaction = await onft_contract.functions.mint(
             1
@@ -135,7 +136,8 @@ class Merkly(Refuel, Logger):
 
         self.logger_msg(
             *self.client.acc_info,
-            msg=f"Bridge NFT on Merkly Wormhole. Price for bridge: "
+            msg=f"Bridge NFT on Merkly Wormhole from {self.client.network.name} -> {dst_chain_name}."
+                f" Price for bridge: "
                 f"{(estimate_fee / 10 ** 18):.6f} {self.client.network.token}")
 
         transaction = await onft_contract.functions.transferNFT(

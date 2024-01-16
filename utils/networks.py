@@ -309,7 +309,6 @@ GnosisRPC = Network(
     name='Gnosis',
     rpc=[
         'https://gnosis.drpc.org',
-        'https://gnosis.publicnode.com',
         'https://1rpc.io/gnosis',
     ],
     chain_id=100,

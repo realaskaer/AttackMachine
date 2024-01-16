@@ -43,7 +43,9 @@ class L2Telegraph(Messenger, Logger):
     @helper
     @gas_checker
     async def send_message(self):
-        self.logger_msg(*self.client.acc_info, msg=f'Send message on L2Telegraph to {self.dst_chain_name}')
+        self.logger_msg(
+            *self.client.acc_info,
+            msg=f'Send message on L2Telegraph from {self.client.network.name} to {self.dst_chain_name}')
 
         adapter_params = encode(["uint16", "uint"],
                                 [2, 250000])
@@ -79,7 +81,9 @@ class L2Telegraph(Messenger, Logger):
     @helper
     @gas_checker
     async def mint_and_bridge(self):
-        self.logger_msg(*self.client.acc_info, msg=f"Mint and bridge NFT on L2telegraph. Price for mint: 0.0005 ETH")
+        self.logger_msg(
+            *self.client.acc_info,
+            msg=f"Mint and bridge NFT L2Telegraph on {self.client.network.name}. Price for mint: 0.0005 ETH")
 
         mint_price = 500000000000000
 
@@ -118,7 +122,8 @@ class L2Telegraph(Messenger, Logger):
             await sleep(self, 5, 8)
 
             self.logger_msg(
-                *self.client.acc_info, msg=f'Bridge NFT on L2telegraph to {self.dst_chain_name}')
+                *self.client.acc_info,
+                msg=f'Bridge NFT on L2telegraph from {self.client.network.name} to {self.dst_chain_name}')
 
             tx_params = await self.client.prepare_transaction(value=value)
             salt = (L2TELEGRAPH_DST_CHAIN_BRIDGE_CONTRACTS[self.dst_chain_name] +

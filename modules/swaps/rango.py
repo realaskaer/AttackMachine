@@ -47,7 +47,7 @@ class Rango(Aggregator, Logger):
 
         return await self.make_request(method='POST', url=url, headers=headers, json=quote_payload)
 
-    async def get_swap_data(self, request_id):
+    async def get_swap_data(self, request_id, step_len):
 
         api_key = 'ffde5b24-ee86-4f47-a1c8-b22d8f639a38'
         url = f'https://api.rango.exchange/tx/create?apiKey={api_key}'
@@ -68,7 +68,7 @@ class Rango(Aggregator, Logger):
                 "approve": False
             },
             "requestId": request_id,
-            "step": 1
+            "step": step_len
         }
 
         return await self.make_request(method='POST', url=url, headers=headers, json=swap_payload)
@@ -95,7 +95,7 @@ class Rango(Aggregator, Logger):
         data = from_token_address, to_token_address, from_token_name, to_token_name, amount
 
         quote_data = await self.get_quote(*data)
-        swap_data = await self.get_swap_data(quote_data['requestId'])
+        swap_data = await self.get_swap_data(quote_data['requestId'], len(quote_data['result']['swaps']))
 
         contract_address = self.client.w3.to_checksum_address(swap_data['transaction']['to'])
 
