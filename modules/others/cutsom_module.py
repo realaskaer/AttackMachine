@@ -338,7 +338,7 @@ class Custom(Logger, Aggregator):
 
         if random_network:
             shuffle_withdraw = list(OKX_MULTI_WITHDRAW.items())
-            shuffle_withdraw = random.choice(shuffle_withdraw)
+            shuffle_withdraw = [random.choice(shuffle_withdraw)]
         else:
             shuffle_withdraw = list(OKX_MULTI_WITHDRAW.items())
             random.shuffle(shuffle_withdraw)
@@ -346,6 +346,7 @@ class Custom(Logger, Aggregator):
         multi_withdraw_data = {}
 
         for network, amount in shuffle_withdraw:
+
             multi_withdraw_data['network'] = network
             multi_withdraw_data['amount'] = amount
 
@@ -432,13 +433,13 @@ class Custom(Logger, Aggregator):
 
         dep_chain = chains[index]
         dep_token = tokens[index]
-        chain_balance = (await clients[index].get_token_balance(dep_token))[1]
+        chain_balance = (await clients[index].get_token_balance(dep_token, omnicheck=True))[1]
         percent = round(random.uniform(*AMOUNT_PERCENT), 9) / 100
         amount_in_wei = float(f"{chain_balance * percent:.6f}")
         deposit_data = OKX_DEPOSIT_L0_DATA[dep_chain][dep_token], amount_in_wei
 
         await okx_deposit(self.client.account_name, self.client.private_key, self.client.network,
-                          self.client.proxy_init, dep_network=deposit_data)
+                          self.client.proxy_init, dep_network=deposit_data[0], deposit_data=deposit_data)
 
         return True
 

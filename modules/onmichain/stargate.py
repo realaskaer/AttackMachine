@@ -1,4 +1,4 @@
-from config import STARGATE_ABI, STARGATE_CONTRACTS, STARGATE_POOLS_ID
+from config import STARGATE_ABI, STARGATE_CONTRACTS, STARGATE_POOLS_ID, TOKENS_PER_CHAIN2
 from modules import Logger
 
 
@@ -24,6 +24,7 @@ class Stargate(Logger):
 
         scr_pool_id = STARGATE_POOLS_ID[self.network][from_token_name]
         dst_pool_id = STARGATE_POOLS_ID[dst_chain_name][to_token_name]
+        token_address = TOKENS_PER_CHAIN2[self.network][from_token_name]
         dst_gas_for_call, dst_native_amount, dst_native_addr = 0, 0, '0x0000000000000000000000000000000000000001'
         function_type = 1
         min_amount_out = int(amount_in_wei * 0.995)
@@ -50,6 +51,8 @@ class Stargate(Logger):
                 min_amount_out
             ).build_transaction(await self.client.prepare_transaction(value=estimate_fee + amount_in_wei))
         else:
+            await self.client.check_for_approved(token_address, contracts['router'], amount_in_wei)
+
             transaction = await router_contract.functions.swap(
                 dst_chain_id,
                 scr_pool_id,
