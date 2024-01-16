@@ -1,13 +1,11 @@
 import random
 
-from eth_abi import abi
-
 from config import ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA, \
-    TOKENS_PER_CHAIN2, MERKLY_ABI, MERKLY_CONTRACTS_PER_CHAINS, CHAIN_NAME
+    TOKENS_PER_CHAIN2, CHAIN_NAME
 from modules import Logger, Aggregator
 from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS, AMOUNT_PERCENT
 from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
-    MEMCOIN_AMOUNT, MERKLY_ATTACK_REFUEL, L2PASS_ATTACK_REFUEL, L2PASS_ATTACK_NFT, ZERIUS_ATTACK_REFUEL, \
+    MEMCOIN_AMOUNT, L2PASS_ATTACK_NFT, \
     ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW
 from utils.tools import helper, gas_checker, sleep
 
@@ -205,7 +203,7 @@ class Custom(Logger, Aggregator):
         amount_in_wei = balance_in_wei if from_token_name != 'ETH' else int(
             (await current_client.get_smart_amount(need_percent=True)) * 10 ** 18)
 
-        dst_chain = random.choice([chain for i, chain in enumerate(STARGATE_CHAINS) if i != index])
+        dst_chain = random.choice([chain for i, chain in enumerate(chains) if i != index])
         src_chain_name = current_client.network.name
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
         to_token_name = tokens[chains.index(dst_chain)]
@@ -218,8 +216,7 @@ class Custom(Logger, Aggregator):
 
         amount = f"{amount_in_wei / 10 ** decimals:.4f}"
 
-        swapdata = (src_chain_name, dst_chain_id, dst_chain_name, from_token_name,
-                    to_token_name, amount, int(amount_in_wei))
+        swapdata = (src_chain_name, dst_chain_name, dst_chain_id, from_token_name, to_token_name, amount, amount_in_wei)
 
         try:
             return await func(current_client, swapdata=swapdata)

@@ -10,7 +10,7 @@ class Stargate(Logger):
 
     async def bridge(self, swapdata:dict):
 
-        src_chain_name, dst_chain_id, dst_chain_name, from_token_name, to_token_name, amount, amount_in_wei = swapdata
+        src_chain_name, dst_chain_name, dst_chain_id, from_token_name, to_token_name, amount, amount_in_wei = swapdata
 
         self.logger_msg(
             *self.client.acc_info,
@@ -65,7 +65,7 @@ class Stargate(Logger):
                 self.client.address,
                 '0x'
             ).build_transaction(await self.client.prepare_transaction(value=estimate_fee))
-        
+
         tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
         return await self.client.wait_for_l0_received(tx_hash)
