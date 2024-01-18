@@ -62,3 +62,5 @@ class Tevaera(Minter, Logger):
         await sleep(self, 5, 10)
 
         await self.mint_nft()
+
+        return True
