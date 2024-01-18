@@ -55,7 +55,7 @@ class Client(Logger):
     @staticmethod
     def round_amount(min_amount: float, max_amount:float) -> float:
         decimals = max(len(str(min_amount)) - 1, len(str(max_amount)) - 1)
-        return round(random.uniform(min_amount, max_amount), decimals)
+        return round(random.uniform(min_amount, max_amount), decimals + 2)
 
     @staticmethod
     def get_normalize_error(error):
@@ -450,7 +450,7 @@ class Client(Logger):
 
         t = 0
         sleep_time = 20
-        timeout = 600
+        timeout = 600 if self.network.name != 'Polygon' else 3600
         flag = False
         while t < timeout:
             try:
