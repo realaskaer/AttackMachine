@@ -18,8 +18,8 @@ OKX_WITHDRAW_NETWORK = 22      # Сеть вывода из OKX
 OKX_WITHDRAW_AMOUNT = (1, 1)   # (минимальная, максимальная) сумма для вывода из OKX (кол-во)
 
 OKX_MULTI_WITHDRAW = {  # Сеть вывода: (минимум, максимум) в токене для вывода (кол-во)
-    12: (0.01, 0.0111),
-    22: (1.7, 1.711)
+    9: (1, 1.011),
+    4: (0.0001, 0.000111),
 }
 
 OKX_DEPOSIT_NETWORK = 32                  # Сеть из которой планируется пополнение OKX
@@ -95,7 +95,6 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (
         Fantom = 14                   Moonriver = 29                     zkSync = 43
         Fuse = 15                                                        Beam = 44
 
-
     STARGATE_CHAINS | Выберите чейны, между которыми будут производиться бриджи
     STARGATE_TOKENS | Выберите монеты, между которыми будут производиться свапы. Доступны: ETH, USDT, USDC. 
         Токены указывать в таком же порядке, как и чейны. Условно STARGATE_CHAINS = [5, 6] и
@@ -146,12 +145,12 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (
             1) Zerius - https://zerius.io/refuel
             2) Merkly - https://minter.merkly.com/gas  
 """
-STARGATE_CHAINS = [1, 7]
-STARGATE_TOKENS = ['ETH', 'ETH']
+STARGATE_CHAINS = [1, 7, 22, 31]
+STARGATE_TOKENS = ['ETH', 'ETH', 'ETH', 'ETH']
 STARGATE_SWAPS_AMOUNT = 4       # применяется для stargate_volume
 
-COREDAO_CHAINS = [6, 11]
-COREDAO_TOKENS = ['USDT', 'USDT']
+COREDAO_CHAINS = [33, 11]
+COREDAO_TOKENS = ['USDC', 'USDT']
 
 SRC_CHAIN_ZERIUS = [1]          # Исходящая сеть для Zerius
 DST_CHAIN_ZERIUS_NFT = [4]     # Входящая сеть для Zerius Mint NFT
@@ -180,10 +179,9 @@ DST_CHAIN_L2PASS_REFUEL = {
     29: (0.000001, 0.00002),
 }
 
-SRC_CHAIN_BUNGEE = [6]          # Исходящая сеть для Bungee
+SRC_CHAIN_BUNGEE = [43]          # Исходящая сеть для Bungee
 DST_CHAIN_BUNGEE_REFUEL = {
-    3:  (0.001, 0.0015),        # Chain ID: (минимум, максимум) в ETH (кол-во)
-    22: (0.001, 0.0015)
+    17:  (0.00005, 0.000006),        # Chain ID: (минимум, максимум) в ETH (кол-во)
 }
 
 SRC_CHAIN_L2TELEGRAPH = [43]    # Исходящая сеть для L2Telegraph.
@@ -217,16 +215,14 @@ MERKLY_ATTACK_REFUEL = [
 
 
 L2PASS_ATTACK_REFUEL = [
-    [33, 5, 0.0001],
-    [21, 6, 0.0001],
-    [12, 8, 0.0001],
+    [33, 18, 4],
 ]
 
 L2PASS_ATTACK_NFT = [
-    [43, 6],
-    [6, 7],
-    [7, 6],
-    [12, 8],
+    [17, 18],
+    [3, 5],
+    [5, 6],
+    [6, 8],
 ]
 
 """
