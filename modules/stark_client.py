@@ -387,6 +387,7 @@ class StarknetClient(Logger):
             token_names_list = list(filter(lambda token_name: token_name != biggest_token_balance_name,
                                            TOKENS_PER_CHAIN[self.network.name].keys()))
 
+            token_names_list.remove('MEMCOIN')
             random_to_token_name = random.choice(token_names_list)
 
             percent = 1
