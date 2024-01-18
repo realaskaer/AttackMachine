@@ -178,11 +178,11 @@ class Runner(Logger):
         account_name, private_key = None, None
         try:
             if SOFTWARE_MODE:
-                accounts_name = [i[0] for i in accounts_data]
+                accounts_name = [str(i[0]) for i in accounts_data]
                 await route_generator.get_smart_routes_for_batch(accounts_name)
             else:
                 account_name, private_key = accounts_data
-                await route_generator.get_smart_route(account_name)
+                await route_generator.get_smart_route(str(account_name))
         except Exception as error:
             self.logger_msg(account_name, None, f"Can`t generate smart route. Error: {error}", 'error')
             raise RuntimeError
@@ -435,8 +435,7 @@ class Runner(Logger):
             else:
                 await self.run_consistently(smart_route, route_generator)
         except Exception as error:
-            self.logger_msg(None, None, f"Total error: {error}\n",
-                            'error')
+            self.logger_msg(None, None, f"Total error: {error}\n", 'error')
             if smart_route and check_google_progress_file():
                 self.logger_msg(None, None, f"Machine cant die. Saving progress in Google...\n",
                                 'warning')
