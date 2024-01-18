@@ -35,7 +35,7 @@ class Bungee(Refuel, Logger):
         dst_chain_name, _, dst_native_name, _ = LAYERZERO_NETWORKS_DATA[dst_data[0]]
         dst_amount = self.client.round_amount(*dst_data[1])
 
-        refuel_info = f'{dst_amount} {dst_native_name} to {dst_chain_name.capitalize()}'
+        refuel_info = f'{dst_amount} {self.client.network.token} from {self.client.network.name} to {dst_chain_name}'
         self.logger_msg(*self.client.acc_info, msg=f'Refuel on Bungee: {refuel_info}')
 
         refuel_limits_data = await self.get_limits_data()

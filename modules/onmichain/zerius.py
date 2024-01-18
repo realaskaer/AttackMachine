@@ -123,7 +123,7 @@ class Zerius(Minter, Logger):
         dst_amount = self.client.round_amount(*dst_data[1])
 
         if not need_check:
-            refuel_info = f'{dst_amount} {dst_native_name} from {CHAIN_NAME[self.chain_from_id]} to {dst_chain_name}'
+            refuel_info = f'{dst_amount} {dst_native_name} to {dst_chain_name} from {self.client.network.name}'
             self.logger_msg(*self.client.acc_info, msg=f'Refuel on Zerius: {refuel_info}')
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
@@ -163,4 +163,4 @@ class Zerius(Minter, Logger):
             return await self.client.wait_for_l0_received(tx_hash)
         except Exception as error:
             if not need_check:
-                raise RuntimeError(f'This refuel path is not active!. Error: {error}')
+                raise RuntimeError(f'Error during the refuel!. Error: {error}')
