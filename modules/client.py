@@ -42,8 +42,8 @@ class Client(Logger):
         self.chain_id = network.chain_id
 
         self.proxy_init = proxy
-        self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}",verify_ssl=False)
-                                     if proxy else TCPConnector(verify_ssl=False))
+        self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}", verify_ssl=False)
+        if proxy else TCPConnector(verify_ssl=False))
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
         self.rpc = random.choice(network.rpc)
         self.w3 = AsyncWeb3(AsyncHTTPProvider(self.rpc, request_kwargs=self.request_kwargs))
@@ -53,17 +53,19 @@ class Client(Logger):
         self.acc_info = account_name, self.address
 
     @staticmethod
-    def round_amount(min_amount: float, max_amount:float) -> float:
+    def round_amount(min_amount: float, max_amount: float) -> float:
         decimals = max(len(str(min_amount)) - 1, len(str(max_amount)) - 1)
         return round(random.uniform(min_amount, max_amount), decimals + 2)
 
     @staticmethod
     def get_normalize_error(error):
-        if 'message' in error.args[0]:
-            error = error.args[0]['message']
-        return error
+        try:
+            if 'message' in error.args[0]:
+                error = error.args[0]['message']
+        except:
+            return error
 
-    async def get_decimals(self, token_name:str):
+    async def get_decimals(self, token_name: str):
         contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
         return await contract.functions.decimals().call()
 
@@ -71,8 +73,8 @@ class Client(Logger):
         decimals = await self.get_decimals(token_name)
         return float(amount_in_wei / 10 ** decimals)
 
-    async def get_smart_amount(self, settings:tuple = AMOUNT_PERCENT, need_percent:bool = False,
-                               token_name:str = 'ETH'):
+    async def get_smart_amount(self, settings: tuple = AMOUNT_PERCENT, need_percent: bool = False,
+                               token_name: str = 'ETH'):
         if isinstance(settings[0], str) or need_percent:
             _, amount, _ = await self.get_token_balance(token_name)
             percent = round(random.uniform(float(settings[0]), float(settings[1])), 6) / 100
@@ -104,7 +106,7 @@ class Client(Logger):
             raise RuntimeError(
                 f'DEX price impact > your wanted impact | DEX impact: {price_impact:.3}% > Your impact {PRICE_IMPACT}%')
 
-    async def get_bridge_data(self, chain_from_id:int, module_name:str):
+    async def get_bridge_data(self, chain_from_id: int, module_name: str):
         bridge_info = {
             'Rhino': (RHINO_CHAIN_INFO, RHINO_CHAIN_ID_TO, RHINO_DEPOSIT_AMOUNT),
             'LayerSwap': (LAYERSWAP_CHAIN_NAME, LAYERSWAP_CHAIN_ID_TO, LAYERSWAP_DEPOSIT_AMOUNT),
@@ -132,8 +134,9 @@ class Client(Logger):
                             get_network_by_chain_id(chain_id), self.proxy_init)
         return new_client
 
-    async def wait_for_receiving(self, chain_id:int, old_balance:int = 0, token_name:str = 'ETH', sleep_time:int = 60,
-                                 timeout: int = 1200, check_balance_on_dst:bool = False):
+    async def wait_for_receiving(self, chain_id: int, old_balance: int = 0, token_name: str = 'ETH',
+                                 sleep_time: int = 60,
+                                 timeout: int = 1200, check_balance_on_dst: bool = False):
         client = await self.new_client(chain_id)
 
         try:
@@ -168,7 +171,7 @@ class Client(Logger):
             await client.session.close()
 
     async def get_token_balance(self, token_name: str = 'ETH', check_symbol: bool = True,
-                                omnicheck:bool = False, check_native:bool = False) -> [float, int, str]:
+                                omnicheck: bool = False, check_native: bool = False) -> [float, int, str]:
         if not check_native:
             if token_name != self.network.token:
                 if omnicheck:
@@ -187,8 +190,8 @@ class Client(Logger):
         amount_in_wei = await self.w3.eth.get_balance(self.address)
         return amount_in_wei, amount_in_wei / 10 ** 18, self.network.token
 
-    async def check_and_get_eth(self, settings:tuple = None, bridge_mode:bool = False,
-                                initial_chain_id:int = 0) -> [float, int]:
+    async def check_and_get_eth(self, settings: tuple = None, bridge_mode: bool = False,
+                                initial_chain_id: int = 0) -> [float, int]:
         from functions import swap_odos, swap_oneinch, swap_openocean, swap_xyfinance, swap_rango
 
         try:
@@ -219,7 +222,7 @@ class Client(Logger):
 
         return amount, amount_in_wei
 
-    async def get_auto_amount(self, token_name_search:str = None, class_name:str = None) -> [str, float, int]:
+    async def get_auto_amount(self, token_name_search: str = None, class_name: str = None) -> [str, float, int]:
 
         wallet_balance = {k: await self.get_token_balance(k, False)
                           for k, v in TOKENS_PER_CHAIN[self.network.name].items()}
@@ -345,7 +348,7 @@ class Client(Logger):
         return await self.send_transaction(transaction)
 
     async def check_for_approved(self, token_address: str, spender_address: str,
-                                 amount_in_wei: int, without_bal_check:bool = False) -> bool:
+                                 amount_in_wei: int, without_bal_check: bool = False) -> bool:
         try:
             contract = self.get_contract(token_address)
 
@@ -378,8 +381,8 @@ class Client(Logger):
         except Exception as error:
             raise RuntimeError(f'Check for approve | {self.get_normalize_error(error)}')
 
-    async def send_transaction(self, transaction, need_hash:bool = False, without_gas:bool = False,
-                               poll_latency:int = 10, timeout:int = 360):
+    async def send_transaction(self, transaction, need_hash: bool = False, without_gas: bool = False,
+                               poll_latency: int = 10, timeout: int = 360):
         try:
             if not without_gas:
                 transaction['gas'] = int((await self.w3.eth.estimate_gas(transaction)) * GAS_MULTIPLIER)
@@ -430,7 +433,7 @@ class Client(Logger):
         except Exception as error:
             raise RuntimeError(f'Verify transaction | {self.get_normalize_error(error)}')
 
-    async def get_token_price(self, token_name: str, vs_currency:str = 'usd') -> float:
+    async def get_token_price(self, token_name: str, vs_currency: str = 'usd') -> float:
 
         url = 'https://api.coingecko.com/api/v3/simple/price'
 

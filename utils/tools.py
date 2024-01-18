@@ -175,9 +175,7 @@ def helper(func):
         try:
             while True:
                 try:
-                #     if GLOBAL_NETWORK != 9 and not await self.client.get_auto_amount(token_name_search='ETH'):
-                #         await self.client.check_and_get_eth()
-                     return await func(self, *args, **kwargs)
+                    return await func(self, *args, **kwargs)
                 except Exception as error:
                     await asyncio.sleep(1)
                     self.logger_msg(

@@ -193,9 +193,11 @@ class StarknetClient(Logger):
 
     @staticmethod
     def get_normalize_error(error):
-        if 'message' in error.args[0]:
-            error = error.args[0]['message']
-        return error
+        try:
+            if 'message' in error.args[0]:
+                error = error.args[0]['message']
+        except:
+            return error
 
     async def initialize_evm_client(self, private_key, chain_id):
         from modules import Client
