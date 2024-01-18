@@ -6,7 +6,7 @@ from modules import Logger, Aggregator
 from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS, AMOUNT_PERCENT
 from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
     MEMCOIN_AMOUNT, L2PASS_ATTACK_NFT, \
-    ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW
+    ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW, OKX_DEPOSIT_AMOUNT
 from utils.tools import helper, gas_checker, sleep
 
 
@@ -433,9 +433,7 @@ class Custom(Logger, Aggregator):
 
         dep_chain = chains[index]
         dep_token = tokens[index]
-        chain_balance = (await clients[index].get_token_balance(dep_token, omnicheck=True))[1]
-        percent = round(random.uniform(*AMOUNT_PERCENT), 9) / 100
-        amount = float(f"{chain_balance * percent:.6f}")
+        amount = await clients[index].get_smart_amount(OKX_DEPOSIT_AMOUNT, token_name=dep_token)
         deposit_data = OKX_DEPOSIT_L0_DATA[dep_chain][dep_token], (amount, amount)
 
         await okx_deposit(self.client.account_name, self.client.private_key, self.client.network,
