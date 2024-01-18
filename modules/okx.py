@@ -75,6 +75,7 @@ class OKX(CEX, Logger):
             ccy = OKX_NETWORKS_NAME[multi_withdraw_data['network']].split('-')[0]
             dst_chain_id = OKX_WRAPED_ID[multi_withdraw_data['network']]
             withdraw_data = await self.get_currencies(ccy)
+
             networks_data = {item['chain']: {'can_withdraw': item['canWd'], 'min_fee': item['minFee'],
                                              'min_wd': item['minWd'], 'max_wd': item['maxWd']} for item in
                              withdraw_data}
@@ -106,7 +107,7 @@ class OKX(CEX, Logger):
 
                 ccy = f"{ccy}.e" if network_name_log.split()[-1] == '(Bridged)' else ccy
 
-                old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id,token_name=ccy,
+                old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
                                                                           check_balance_on_dst=True)
 
                 await self.make_request(method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
@@ -259,6 +260,7 @@ class OKX(CEX, Logger):
 
     @helper
     async def deposit(self, deposit_data:list = None):
+
         if GLOBAL_NETWORK == 9:
             await self.client.initialize_account()
 
@@ -284,6 +286,7 @@ class OKX(CEX, Logger):
 
         ccy = OKX_NETWORKS_NAME[deposit_network].split('-')[0]
         withdraw_data = await self.get_currencies(ccy)
+
         networks_data = {item['chain']: {'can_dep': item['canDep'], 'min_dep': item['minDep']}
                          for item in withdraw_data}
         network_name = OKX_NETWORKS_NAME[deposit_network]
@@ -340,9 +343,10 @@ class OKX(CEX, Logger):
             raise RuntimeError(f"Deposit to {network_name} is not available")
 
     @helper
-    async def collect_from_sub(self):
+    async def collect_from_sub(self, ccy):
 
-        ccy = OKX_NETWORKS_NAME[OKX_DEPOSIT_NETWORK].split('-')[0]
+        if not ccy:
+            ccy = OKX_NETWORKS_NAME[OKX_DEPOSIT_NETWORK].split('-')[0]
 
         await self.transfer_from_subaccounts(ccy=ccy)
 

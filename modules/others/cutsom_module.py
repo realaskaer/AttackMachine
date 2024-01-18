@@ -408,7 +408,7 @@ class Custom(Logger, Aggregator):
 
     @helper
     async def l0_volume_abuse(self, dapp_id:int = None):
-        from functions import okx_deposit
+        from functions import okx_deposit, okx_collect_from_sub
         from config import OKX_DEPOSIT_L0_DATA
         from settings import STARGATE_SWAPS_AMOUNT
 
@@ -438,6 +438,9 @@ class Custom(Logger, Aggregator):
 
         await okx_deposit(self.client.account_name, self.client.private_key, self.client.network,
                           self.client.proxy_init, dep_network=deposit_data[0], deposit_data=deposit_data)
+
+        await okx_collect_from_sub(self.client.account_name, self.client.private_key, self.client.network,
+                                   self.client.proxy_init, ccy=dep_token)
 
         return True
 
