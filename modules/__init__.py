@@ -1,5 +1,5 @@
 from .interfaces import DEX, Aggregator, Bridge, Refuel, Messenger, Landing, Minter, Blockchain, Creator, CEX, Logger
-from .okx import OKX
+from modules.cexs.okx import OKX
 from .client import Client
 from .stark_client import StarknetClient
 from .blockchains import ZkSync, Starknet, StarknetEVM, Base, Scroll, Linea, ArbitrumNova, Zora
@@ -61,3 +61,5 @@ from .landings import Basilisk
 from .landings import Nostra
 from .landings import ZkLend
 from .landings import LayerBank
+from .cexs import OKX
+from .cexs import BingX

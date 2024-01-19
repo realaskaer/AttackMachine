@@ -8,7 +8,7 @@ from random import uniform
 from config import CHAIN_NAME
 
 from general_settings import (LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS,
-                      OKX_API_SECRET, GLOBAL_NETWORK)
+                              OKX_API_SECRET, GLOBAL_NETWORK, BINGX_API_KEY, BINGX_API_SECRET)
 from utils.networks import StarknetRPC
 
 
@@ -52,12 +52,18 @@ class DEX(ABC):
 
 
 class CEX(ABC):
-    def __init__(self, client):
+    def __init__(self, client, class_name):
         self.client = client
-
-        self.api_key = OKX_API_KEY
-        self.api_secret = OKX_API_SECRET
-        self.passphras = OKX_API_PASSPHRAS
+        self.class_name = class_name
+        if class_name == 'OKX':
+            self.api_key = OKX_API_KEY
+            self.api_secret = OKX_API_SECRET
+            self.passphras = OKX_API_PASSPHRAS
+        elif class_name == 'BingX':
+            self.api_key = BINGX_API_KEY
+            self.api_secret = BINGX_API_SECRET
+        else:
+            raise RuntimeError('CEX don`t available now')
 
     @abstractmethod
     async def deposit(self):
@@ -67,18 +73,18 @@ class CEX(ABC):
     async def withdraw(self):
         pass
 
-    @staticmethod
-    async def make_request(method:str = 'GET', url:str = None, data:str = None, params:dict = None,
+    async def make_request(self, method:str = 'GET', url:str = None, data:str = None, params:dict = None,
                            headers:dict = None, json:dict = None, module_name:str = 'Request'):
 
         async with ClientSession() as session:
             async with session.request(method=method, url=url, headers=headers, data=data, json=json,
                                        params=params) as response:
 
-                data = await response.json()
-                if data['code'] != 0 and data['msg'] != '':
-                    error = f"Error code: {data['code']} Msg: {data['msg']}"
-                    raise RuntimeError(f"Bad request to OKX({module_name}): {error}")
+                data: dict = await response.json()
+                if data['code'] != 0:
+                    message = data.get('msg') or data.get('desc') or ''
+                    error = f"Error code: {data['code']} Msg: {message}"
+                    raise RuntimeError(f"Bad request to {self.class_name}({module_name}): {error}")
                 else:
                     # self.logger.success(f"{self.info} {module_name}")
                     return data['data']

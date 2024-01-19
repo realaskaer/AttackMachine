@@ -608,6 +608,17 @@ BeamRPC = Network(
     explorer='https://4337.snowtrace.io/'
 )
 
+InEVM_RPC = Network(
+    name='inEVM',
+    rpc=[
+        #'https://subnets.avax.network/beam/mainnet/rpc'
+    ],
+    chain_id=123321,
+    eip1559_support=False,
+    token='INJ',
+    explorer='https://4337.snowtrace.io/'
+)
+
 # zkSyncLite = Network(
 #     name='zksync_lite',
 #     rpc=[],

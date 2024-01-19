@@ -22,6 +22,7 @@ os.environ["GSPREAD_SILENCE_WARNINGS"] = "1"
 AVAILABLE_MODULES_INFO = {
     # module_name                       : (module name, priority, tg info, can be help module, supported network)
     okx_withdraw                        : (okx_withdraw, -3, 'OKX Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
+    bingx_withdraw                      : (bingx_withdraw, -3, 'BingX Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
     okx_multi_withdraw                  : (okx_multi_withdraw, 0, 'OKX Multi Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
     random_okx_withdraw                 : (random_okx_withdraw, 0, 'OKX Random Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
     make_balance_to_average             : (make_balance_to_average, -2, 'Check and make wanted balance', 0, [0]),
@@ -147,7 +148,8 @@ AVAILABLE_MODULES_INFO = {
     mint_token_avnu                     : (mint_token_avnu, 3, 'Looooot a new one shit coin =)', 0, [0]),
     mint_token_jediswap                 : (mint_token_jediswap, 3, 'Looooot a new one shit coin =)', 0, [0]),
     okx_deposit                         : (okx_deposit, 4, 'OKX Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
-    okx_collect_from_sub                : (okx_collect_from_sub, 5, 'OKX Collect money', 0, [2, 3, 4, 8, 9, 11, 12])
+    okx_collect_from_sub                : (okx_collect_from_sub, 5, 'OKX Collect money', 0, [2, 3, 4, 8, 9, 11, 12]),
+    #mint_berachain_tokens               : (mint_berachain_tokens, 5, 'Mint BeraChain Tokens', 0, [2, 3, 4, 8, 9, 11, 12])
 }
 
 def get_func_by_name(module_name, help_message:bool = False):

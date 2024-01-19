@@ -2,28 +2,33 @@
 --------------------------------------------------OKX CONTROL-----------------------------------------------------------
     Выберите сети/суммы для вывода и ввода с OKX. Не забудьте вставить API ключи снизу.
 
-    1 - ETH-ERC20              9  - CELO-Celo           17 - KLAY-Klaytn        26 - USDT-Arbitrum One
-    2 - ETH-Arbitrum One       10 - ONE-Harmony         18 - FTM-Fantom         27 - USDC-ERC20
-    3 - ETH-zkSync Lite        11 - GLMR-Moonbeam       19 - AVAX-Avalanche     28 - USDC-Optimism
-    4 - ETH-Optimism           12 - MOVR-Moonriver      20 - ASTR-Astar         29 - USDC-Avalanche
-    5 - ETH-Starknet           13 - METIS-Metis         21 - BNB-BSC            30 - USDC-Arbitrum One
-    6 - ETH-zkSync Era         14 - CORE-CORE           22 - MATIC-Polygon      31 - USDC-Polygon
-    7 - ETH-Linea              15 - CFX-Conflux         23 - USDT-Polygon       32 - USDC-Polygon (Bridged)
-    8 - ETH-Base               16 - ZEN-Horizen         24 - USDT-Optimism      33 - USDC-Optimism (Bridged)
-                                                        25 - USDT-Avalanche     34 - USDT-ERC20
+    1 - ETH-ERC20             10 - GLMR-Moonbeam *OKX      19 - ASTR-Astar           28 - USDC-Avalanche *OKX
+    2 - ETH-Arbitrum One      11 - MOVR-Moonriver *OKX     20 - BNB-BSC              29 - USDC-Arbitrum One
+    3 - ETH-Optimism          12 - METIS-Metis             21 - MATIC-Polygon        30 - USDC-Polygon
+    4 - ETH-Starknet          13 - CORE-CORE *OKX          22 - USDT-Polygon         31 - USDC-Polygon (Bridged)
+    5 - ETH-zkSync Era        14 - CFX-Conflux             23 - USDT-Optimism        32 - USDC-Optimism (Bridged)
+    6 - ETH-Linea             15 - ZEN-Horizen *OKX        24 - USDT-Avalanche       33 - USDT-ERC20
+    7 - ETH-Base              16 - KLAY-Klaytn             25 - USDT-Arbitrum One    34 - USDT-BEP20 *BingX
+    8 - CELO-Celo             17 - FTM-Fantom              26 - USDC-ERC20           35 - USDC-BEP20 *BingX
+    9 - ONE-Harmony           19 - AVAX-Avalanche          27 - USDC-Optimism
+
+    *OKX   - поддерживается только на OKX
+    *BingX - поддерживается только на BingX
 
 ------------------------------------------------------------------------------------------------------------------------
 """
-OKX_WITHDRAW_NETWORK = 22      # Сеть вывода из OKX
-OKX_WITHDRAW_AMOUNT = (1, 1)   # (минимальная, максимальная) сумма для вывода из OKX (кол-во)
-
-OKX_MULTI_WITHDRAW = {  # Сеть вывода: (минимум, максимум) в токене для вывода (кол-во)
+OKX_WITHDRAW_NETWORK = 22       # Сеть вывода из OKX
+OKX_WITHDRAW_AMOUNT = (1, 1)    # (минимальная, максимальная) сумма для вывода из OKX (кол-во)
+OKX_MULTI_WITHDRAW = {          # Сеть вывода: (минимум, максимум) в токене для вывода (кол-во)
     9: (1, 1.011),
     4: (0.0001, 0.000111),
 }
 
-OKX_DEPOSIT_NETWORK = 32                  # Сеть из которой планируется пополнение OKX
-OKX_DEPOSIT_AMOUNT = ('100', '100')    # (минимальная, максимальная) сумма для пополнения OKX (% или кол-во)
+OKX_DEPOSIT_NETWORK = 32                # Сеть из которой планируется пополнение OKX
+OKX_DEPOSIT_AMOUNT = ('100', '100')     # (минимальная, максимальная) сумма для пополнения OKX (% или кол-во)
+
+BINGX_WITHDRAW_NETWORK = 25             # Сеть вывода из BINGX
+BINGX_WITHDRAW_AMOUNT = (1, 1)          # (минимальная, максимальная) сумма для вывода из BINGX (кол-во)
 
 OKX_BALANCE_WANTED = 0.01               # Необходимый баланс на аккаунтах для уравнителя (make_balance_to_average)
 
@@ -94,6 +99,7 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (
         Ethereum = 13                 Moonbeam = 28                      opBNB = 42
         Fantom = 14                   Moonriver = 29                     zkSync = 43
         Fuse = 15                                                        Beam = 44
+                                                                         inEVM = 45
 
     STARGATE_CHAINS | Выберите чейны, между которыми будут производиться бриджи
     STARGATE_TOKENS | Выберите монеты, между которыми будут производиться свапы. Доступны: ETH, USDT, USDC. 
@@ -166,7 +172,6 @@ WORMHOLE_TOKENS_AMOUNT = 1        # Кол-во токенов для минта
 SRC_CHAIN_MERKLY = [43]            # Исходящая сеть для Merkly
 DST_CHAIN_MERKLY_REFUEL = {
      3: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
-    17: (0.000001, 0.00002),
     20: (0.000001, 0.00002),
     21: (0.000001, 0.00002),
 }
@@ -181,7 +186,9 @@ DST_CHAIN_L2PASS_REFUEL = {
 
 SRC_CHAIN_BUNGEE = [43]          # Исходящая сеть для Bungee
 DST_CHAIN_BUNGEE_REFUEL = {
-    17:  (0.00005, 0.000006),        # Chain ID: (минимум, максимум) в ETH (кол-во)
+    20: (0.000001, 0.00002),  # Chain ID: (минимум, максимум) в нативном токене исходящей сети (кол-во)
+    28: (0.000001, 0.00002),
+    29: (0.000001, 0.00002),
 }
 
 SRC_CHAIN_L2TELEGRAPH = [43]    # Исходящая сеть для L2Telegraph.

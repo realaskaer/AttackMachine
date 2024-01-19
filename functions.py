@@ -2,7 +2,7 @@ import random
 
 from modules import *
 from utils.networks import *
-from config import OKX_WRAPED_ID, LAYERZERO_WRAPED_NETWORKS
+from config import CEX_WRAPED_ID, LAYERZERO_WRAPED_NETWORKS
 from general_settings import GLOBAL_NETWORK
 from settings import (ORBITER_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, RHINO_CHAIN_ID_FROM, ACROSS_CHAIN_ID_FROM,
                       OKX_DEPOSIT_NETWORK, SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, INSCRIPTION_NETWORK, SRC_CHAIN_L2PASS,
@@ -629,15 +629,15 @@ async def random_okx_withdraw(account_number, private_key, network, proxy):
 
 
 async def okx_deposit(account_number, private_key, _, proxy, dep_network=OKX_DEPOSIT_NETWORK, **kwargs):
-    network = get_network_by_chain_id(OKX_WRAPED_ID[dep_network])
+    network = get_network_by_chain_id(CEX_WRAPED_ID[dep_network])
 
     worker = OKX(get_client(account_number, private_key, network, proxy))
     return await worker.deposit(**kwargs)
 
 
-async def okx_collect_from_sub(account_number, private_key, network, proxy):
+async def okx_collect_from_sub(account_number, private_key, network, proxy, ccy=None):
     worker = OKX(get_client(account_number, private_key, network, proxy))
-    return await worker.collect_from_sub()
+    return await worker.collect_from_sub(ccy)
 
 
 async def swap_jediswap(account_number, private_key, network, proxy, *args, **kwargs):
@@ -913,3 +913,14 @@ async def smart_zerius(account_number, private_key, network, proxy):
 async def stargate_volume(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.l0_volume_abuse(dapp_id=1)
+
+
+# async def mint_berachain_tokens(account_number, private_key, network, proxy):
+#     worker = Faucet(get_client(account_number, private_key, network, proxy))
+#     return await worker.mint_berachain_tokens()
+
+
+async def bingx_withdraw(account_number, private_key, network, proxy):
+    worker = BingX(get_client(account_number, private_key, network, proxy))
+    return await worker.withdraw()
+

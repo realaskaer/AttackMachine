@@ -6,7 +6,7 @@ from hashlib import sha256
 from modules import CEX, Logger
 from datetime import datetime, timezone
 from utils.tools import helper, sleep
-from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, OKX_WRAPED_ID
+from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPED_ID
 from general_settings import GLOBAL_NETWORK
 from settings import (
     OKX_WITHDRAW_NETWORK,
@@ -20,7 +20,7 @@ class OKX(CEX, Logger):
     def __init__(self, client):
         self.client = client
         Logger.__init__(self)
-        CEX.__init__(self, client)
+        CEX.__init__(self, client, "OKX")
 
     async def get_headers(self, request_path: str, method: str = "GET", body: str = ""):
         try:
@@ -59,7 +59,7 @@ class OKX(CEX, Logger):
         if not multi_withdraw_data:
             ccy = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK].split('-')[0]
             withdraw_data = await self.get_currencies(ccy)
-            dst_chain_id = OKX_WRAPED_ID[OKX_WITHDRAW_NETWORK]
+            dst_chain_id = CEX_WRAPED_ID[OKX_WITHDRAW_NETWORK]
 
             networks_data = {item['chain']: {'can_withdraw': item['canWd'], 'min_fee': item['minFee'],
                                              'min_wd': item['minWd'], 'max_wd': item['maxWd']} for item in withdraw_data}
@@ -73,7 +73,7 @@ class OKX(CEX, Logger):
         else:
 
             ccy = OKX_NETWORKS_NAME[multi_withdraw_data['network']].split('-')[0]
-            dst_chain_id = OKX_WRAPED_ID[multi_withdraw_data['network']]
+            dst_chain_id = CEX_WRAPED_ID[multi_withdraw_data['network']]
             withdraw_data = await self.get_currencies(ccy)
 
             networks_data = {item['chain']: {'can_withdraw': item['canWd'], 'min_fee': item['minFee'],
@@ -89,7 +89,7 @@ class OKX(CEX, Logger):
             *self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name_log}")
 
         if network_data['can_withdraw']:
-            address = f"0x{hex(self.client.address)[2:]:0>64}" if OKX_WITHDRAW_NETWORK == 5 else self.client.address
+            address = f"0x{hex(self.client.address)[2:]:0>64}" if OKX_WITHDRAW_NETWORK == 4 else self.client.address
             min_wd, max_wd = float(network_data['min_wd']), float(network_data['max_wd'])
 
             if min_wd <= amount <= max_wd:
@@ -256,7 +256,7 @@ class OKX(CEX, Logger):
                 self.logger_msg(*self.client.acc_info, msg=f"Deposit still in progress...", type_msg='warning')
                 await asyncio.sleep(check_time)
 
-        raise RuntimeError(f'Deposit does not complete in {timeout} seconds')
+        self.logger_msg(*self.client.acc_info, msg=f"Deposit does not complete in {timeout} seconds", type_msg='error')
 
     @helper
     async def deposit(self, deposit_data:list = None):
