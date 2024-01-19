@@ -475,9 +475,9 @@ class StarknetClient(Logger):
             'Content-Type': 'application/json; charset=utf-8'
         }
 
-        data = (await self.make_request(url=url, headers=headers, module_name='Gas Price'))['gas_price']
+        data = (await self.make_request(url=url, headers=headers, module_name='Gas Price'))['strk_l1_gas_price']
 
-        return int(data, 16) / 10 ** 9
+        return int(data, 16) / 10 ** 7
 
     async def get_token_price(self, token_name: str, vs_currency:str = 'usd') -> float:
         token_info = {
