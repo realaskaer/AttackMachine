@@ -47,36 +47,38 @@ class Custom(Logger, Aggregator):
             return True
 
         if len(valid_wallet_balance.values()) > 1:
-
-            for token_name, token_balance in valid_wallet_balance.items():
-                if token_name != 'ETH':
-                    amount_in_wei = wallet_balance[token_name][0]
-                    amount = float(f"{(amount_in_wei / 10 ** await self.client.get_decimals(token_name)):.6f}")
-                    amount_in_usd = valid_wallet_balance[token_name]
-                    if amount_in_usd > 1:
-                        from_token_name, to_token_name = token_name, 'ETH'
-                        data = from_token_name, to_token_name, amount, amount_in_wei
-                        counter = 0
-                        while True:
-                            result = False
-                            module_func = random.choice(func)
-                            try:
-                                self.logger_msg(*self.client.acc_info, msg=f'Launching swap module', type_msg='warning')
-                                result = await module_func(self.client.account_name, self.client.private_key,
-                                                           self.client.network, self.client.proxy_init, swapdata=data)
-                                if not result:
+            try:
+                for token_name, token_balance in valid_wallet_balance.items():
+                    if token_name != 'ETH':
+                        amount_in_wei = wallet_balance[token_name][0]
+                        amount = float(f"{(amount_in_wei / 10 ** await self.client.get_decimals(token_name)):.6f}")
+                        amount_in_usd = valid_wallet_balance[token_name]
+                        if amount_in_usd > 1:
+                            from_token_name, to_token_name = token_name, 'ETH'
+                            data = from_token_name, to_token_name, amount, amount_in_wei
+                            counter = 0
+                            while True:
+                                result = False
+                                module_func = random.choice(func)
+                                try:
+                                    self.logger_msg(*self.client.acc_info, msg=f'Launching swap module', type_msg='warning')
+                                    result = await module_func(self.client.account_name, self.client.private_key,
+                                                               self.client.network, self.client.proxy_init, swapdata=data)
+                                    if not result:
+                                        counter += 1
+                                except:
                                     counter += 1
-                            except:
-                                counter += 1
-                                pass
-                            if result or counter == 3:
-                                break
-                    else:
-                        self.logger_msg(*self.client.acc_info, msg=f"{token_name} balance < 1$")
-
-            return True
+                                    pass
+                                if result or counter == 3:
+                                    break
+                        else:
+                            self.logger_msg(*self.client.acc_info, msg=f"{token_name} balance < 1$")
+            except Exception as error:
+                self.logger_msg(*self.client.acc_info, msg=f"Error in collector route. Error: {error}")
         else:
-            raise RuntimeError('Account balance already in ETH!')
+            self.logger_msg(*self.client.acc_info, msg=f"Account balance already in ETH!", type_msg='warning')
+
+        return True
 
     @helper
     @gas_checker
