@@ -423,9 +423,7 @@ KlaytnRPC = Network(
     name='Klaytn',
     rpc=[
         'https://rpc.ankr.com/klaytn',
-        'https://klaytn.blockpi.network/v1/rpc/public',
         'https://1rpc.io/klay',
-        'https://klaytn-pokt.nodies.app'
     ],
     chain_id=8217,
     eip1559_support=False,
@@ -437,7 +435,6 @@ FantomRPC = Network(
     name='Fantom',
     rpc=[
         'https://rpcapi.fantom.network',
-        'https://endpoints.omniatech.io/v1/fantom/mainnet/public',
         'https://rpc.ankr.com/fantom',
     ],
     chain_id=250,
