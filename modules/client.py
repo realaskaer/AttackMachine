@@ -59,10 +59,13 @@ class Client(Logger):
 
     @staticmethod
     def get_normalize_error(error):
-        if isinstance(error.args[0], dict):
-            return error.args[0].get('message', error)
-        return error
-
+        try:
+            if isinstance(error.args[0], dict):
+                error = error.args[0].get('message', error)
+            return error
+        except:
+            return error
+        
     async def get_decimals(self, token_name: str):
         contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
         return await contract.functions.decimals().call()
