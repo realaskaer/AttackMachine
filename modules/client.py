@@ -61,7 +61,7 @@ class Client(Logger):
     def get_normalize_error(error):
         try:
             if 'message' in error.args[0]:
-                error = error.args[0]['message']
+                return error.args[0]['message']
         except:
             return error
 
