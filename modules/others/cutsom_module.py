@@ -39,8 +39,9 @@ class Custom(Logger, Aggregator):
         valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
         eth_price = ETH_PRICE
 
-        if 'ETH' in valid_wallet_balance:
-            valid_wallet_balance['ETH'] = valid_wallet_balance['ETH'] * eth_price
+        for token in ['ETH', 'WETH']:
+            if token in valid_wallet_balance:
+                valid_wallet_balance[token] *= eth_price
 
         if valid_wallet_balance['ETH'] < 0.5:
             self.logger_msg(*self.client.acc_info, msg=f'Account has not enough ETH for swap', type_msg='warning')
