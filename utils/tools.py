@@ -182,7 +182,8 @@ def helper(func):
                     self.logger_msg(
                         self.client.account_name,
                         None, msg=f"{error} | Try[{attempts + 1}/{MAXIMUM_RETRY + 1}]", type_msg='error')
-                    traceback.print_exc()
+                    if 'message' not in error:
+                        traceback.print_exc()
 
                     attempts += 1
                     if attempts > MAXIMUM_RETRY:
