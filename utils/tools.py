@@ -101,7 +101,7 @@ def get_accounts_data():
             proxy.append(v['proxy'] if isinstance(v['proxy'], str) else None)
             okx_wallet.append(v['okx_wallet'] if isinstance(v['okx_wallet'], str) else None)
 
-        acc_name = [item for item in acc_name if item is not None]
+        acc_name = [str(item) for item in acc_name if item is not None]
         proxy = [item for item in proxy if item is not None]
         okx_wallet = [item for item in okx_wallet if item is not None]
 
