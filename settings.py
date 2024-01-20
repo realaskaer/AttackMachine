@@ -554,7 +554,7 @@ HELPERS_CONFIG = {
     ]
 """
 
-CLASSIC_WITHDRAW_DEPENDENCIES = True  # при True после каждого модуля на добавление ликвы в лендинг, будет ее выводить
+CLASSIC_WITHDRAW_DEPENDENCIES = False  # при True после каждого модуля на добавление ликвы в лендинг, будет ее выводить
 
 CLASSIC_ROUTES_MODULES_USING = [
     ['okx_withdraw'],
