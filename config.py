@@ -1341,7 +1341,7 @@ L2PASS_CONTRACTS_PER_CHAINS = {
         'endpoint'              : '0x9b896c0e23220469C7AE69cb4BbAE391eAa4C8da'
     },
     12: {
-        'refuel'                : '',
+        'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',
         'ONFT'                  : '0x0000049F63Ef0D60aBE49fdD8BEbfa5a68822222',
         'endpoint'              : '0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7'
     },
@@ -1396,8 +1396,8 @@ L2PASS_CONTRACTS_PER_CHAINS = {
         'endpoint'              : ''
     },
     23: {
-        'refuel'                : '',
-        'ONFT'                  : '',
+        'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',
+        'ONFT'                  : '0x0000049F63Ef0D60aBE49fdD8BEbfa5a68822222',
         'endpoint'              : '0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7'
     },
     24: {
@@ -1411,8 +1411,8 @@ L2PASS_CONTRACTS_PER_CHAINS = {
         'endpoint'              : '0xb6319cC6c8c27A8F5dAF0dD3DF91EA35C4720dd7'
     },
     26: {
-        'refuel'                : '',
-        'ONFT'                  : '',
+        'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',
+        'ONFT'                  : '0x0000049F63Ef0D60aBE49fdD8BEbfa5a68822222',
         'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
     },
     27: {
