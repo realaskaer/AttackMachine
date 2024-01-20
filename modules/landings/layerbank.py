@@ -10,6 +10,7 @@ class LayerBank(Landing, Logger):
 
         self.network = self.client.network.name
         self.landing_contract = self.client.get_contract(LAYERBANK_CONTRACTS[self.network]['landing'], LAYERBANK_ABI)
+        self.pool_contract = self.client.get_contract(LAYERBANK_CONTRACTS[self.network]['pool'])
 
     @helper
     @gas_checker
@@ -31,7 +32,7 @@ class LayerBank(Landing, Logger):
     @helper
     @gas_checker
     async def withdraw(self):
-        liquidity_balance_in_wei = await self.landing_contract.functions.balanceOf(self.client.address).call()
+        liquidity_balance_in_wei = await self.pool_contract.functions.balanceOf(self.client.address).call()
 
         liquidity_balance = f"{liquidity_balance_in_wei / 10 ** 18:.4f}"
 
