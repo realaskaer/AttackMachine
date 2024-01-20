@@ -227,7 +227,7 @@ class Runner(Logger):
             try:
                 account_number = ACCOUNT_NAMES.index(account_name) + 1
                 num_proxies = len(PROXIES)
-                return PROXIES[account_number % num_proxies]
+                return PROXIES[account_number % (num_proxies - 1)]
             except Exception as error:
                 self.logger_msg(account_name, None, f"Bad data in proxy, but you want proxy! Error: {error}", 'error')
                 raise RuntimeError("Proxy error")
