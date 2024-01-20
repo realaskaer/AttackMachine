@@ -81,7 +81,7 @@ class CEX(ABC):
                                        params=params) as response:
 
                 data: dict = await response.json()
-                if data['code'] != 0:
+                if int(data['code']) != 0:
                     message = data.get('msg') or data.get('desc') or ''
                     error = f"Error code: {data['code']} Msg: {message}"
                     raise RuntimeError(f"Bad request to {self.class_name}({module_name}): {error}")
