@@ -43,7 +43,7 @@ class Client(Logger):
 
         self.proxy_init = proxy
         self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}", verify_ssl=False)
-        if proxy else TCPConnector(verify_ssl=False))
+                                     if proxy else TCPConnector(verify_ssl=False))
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
         self.rpc = random.choice(network.rpc)
         self.w3 = AsyncWeb3(AsyncHTTPProvider(self.rpc, request_kwargs=self.request_kwargs))
@@ -417,6 +417,7 @@ class Client(Logger):
                         return False
                 except TransactionNotFound:
                     if total_time > timeout:
+                        self.logger_msg(*self.acc_info, msg=f'Maybe problem with node: {self.rpc}', type_msg='warning')
                         raise TimeExhausted(f"Transaction {tx_hash !r} is not in the chain after {timeout} seconds")
                     total_time += poll_latency
                     await asyncio.sleep(poll_latency)
@@ -425,7 +426,6 @@ class Client(Logger):
                     self.logger_msg(*self.acc_info, msg=f'RPC got autims response. Error: {error}', type_msg='warning')
                     total_time += poll_latency
                     await asyncio.sleep(poll_latency)
-
         except Exception as error:
             raise RuntimeError(f'Verify transaction | {self.get_normalize_error(error)}')
 
