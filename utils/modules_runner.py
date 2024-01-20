@@ -1,6 +1,8 @@
 import json
 import random
 import asyncio
+import traceback
+
 import telebot
 import re
 from aiohttp import ClientSession
@@ -299,6 +301,7 @@ class Runner(Logger):
                     info = f"Module name: {module_info[module_func][2]} | Error {error}"
                     self.logger_msg(
                         account_name, None, f"Module crashed during the route: {info}", type_msg='error')
+                    traceback.print_exc()
                     result = False
 
                 if result:
@@ -360,6 +363,7 @@ class Runner(Logger):
             self.logger_msg(account_name, None, f"Error during the route! Error: {error}\n", 'error')
             if smart_route_type:
                 self.logger_msg(None, None, f"Saving progress in Google...\n", 'success')
+            traceback.print_exc()
 
     async def run_parallel(self, smart_route, route_generator):
         selected_wallets = list(self.get_wallets())
@@ -440,3 +444,4 @@ class Runner(Logger):
                 self.logger_msg(None, None, f"Machine cant die. Saving progress in Google...\n",
                                 'warning')
                 await self.update_sheet_data(route_generator)
+            traceback.print_exc()

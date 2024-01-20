@@ -4,6 +4,8 @@ import os
 import random
 import asyncio
 import functools
+import traceback
+
 import msoffcrypto
 import pandas as pd
 from getpass import getpass
@@ -177,11 +179,10 @@ def helper(func):
                 try:
                     return await func(self, *args, **kwargs)
                 except Exception as error:
-                    await asyncio.sleep(1)
                     self.logger_msg(
                         self.client.account_name,
                         None, msg=f"{error} | Try[{attempts + 1}/{MAXIMUM_RETRY + 1}]", type_msg='error')
-                    await asyncio.sleep(1)
+                    traceback.print_exc()
 
                     attempts += 1
                     if attempts > MAXIMUM_RETRY:
