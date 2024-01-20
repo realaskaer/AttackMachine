@@ -189,7 +189,7 @@ class Scroll(Blockchain, SimpleEVM):
         amount = await self.client.get_smart_amount(NATIVE_DEPOSIT_AMOUNT)
         amount_in_wei = int(amount * 10 ** 18)
 
-        self.client.logger.info(f'{self.client.info} Bridge {amount} ETH ERC20 -> Scroll')
+        self.logger_msg(*self.client.acc_info, msg=f'Bridge {amount} ETH ERC20 -> Scroll')
 
         if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
@@ -209,12 +209,11 @@ class Scroll(Blockchain, SimpleEVM):
 
     @helper
     @gas_checker
-    async def withdraw(self):
+    async def withdraw(self, *args, **kwargs):
 
         amount, amount_in_wei = await self.client.check_and_get_eth(NATIVE_WITHDRAW_AMOUNT)
 
-        self.client.logger.info(
-            f'{self.client.info} Scroll | Withdraw {amount} ETH Scroll -> ERC20')
+        self.logger_msg(*self.client.acc_info, msg=f'Withdraw {amount} ETH Scroll -> ERC20')
 
         if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
@@ -281,7 +280,7 @@ class ZkSync(Blockchain, SimpleEVM):
 
     @helper
     @gas_checker
-    async def withdraw(self):
+    async def withdraw(self, *args, **kwargs):
 
         amount, amount_in_wei = await self.client.check_and_get_eth(NATIVE_WITHDRAW_AMOUNT)
 
