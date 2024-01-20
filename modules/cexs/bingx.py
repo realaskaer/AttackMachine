@@ -95,7 +95,6 @@ class BingX(CEX, Logger):
                     "amount": amount,
                     "coin": ccy,
                     "network": network_name,
-                    "timestamp": str(int(time.time() * 1000)),
                     "walletType": "1",
                 }
 

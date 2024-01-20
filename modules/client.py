@@ -65,7 +65,7 @@ class Client(Logger):
             return error
         except:
             return error
-        
+
     async def get_decimals(self, token_name: str):
         contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
         return await contract.functions.decimals().call()

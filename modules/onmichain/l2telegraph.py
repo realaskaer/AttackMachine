@@ -88,10 +88,10 @@ class L2Telegraph(Messenger, Logger):
         mint_price = 500000000000000
 
         adapter_params = encode(["uint16", "uint"],
-                                    [2, 400000])
+                                [2, 400000])
 
         payload = encode(["uint8", "string"],
-                             [2, "0x36a358b3Ba1FB368E35b71ea40c7f4Ab89bFd8e1"])
+                         [2, "0x36a358b3Ba1FB368E35b71ea40c7f4Ab89bFd8e1"])
 
         adapter_params, payload = self.client.w3.to_hex(adapter_params[30:]), self.client.w3.to_hex(payload[30:])
 

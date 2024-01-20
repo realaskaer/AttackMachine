@@ -1,5 +1,5 @@
 """
---------------------------------------------------OKX CONTROL-----------------------------------------------------------
+--------------------------------------------------CEX CONTROL-----------------------------------------------------------
     Выберите сети/суммы для вывода и ввода с OKX. Не забудьте вставить API ключи снизу.
 
     1 - ETH-ERC20             10 - GLMR-Moonbeam *OKX      19 - ASTR-Astar           28 - USDC-Avalanche *OKX
@@ -301,8 +301,8 @@ HELP_NEW_MODULE = False        # True или False | Добавляет случ
 EXCLUDED_MODULES = ['swap_openocean']  # Исключает выбранные модули из маршрута. Список в Classic-Routes
 
 HELPERS_CONFIG = {
-    'okx_withdraw'                        : 0,  # смотри OKX CONTROL
-    'okx_multi_withdraw'                  : 0,  # вывод в несколько сетей. Смотри OKX CONTROL (OKX_MULTI_WITHDRAW)
+    'okx_withdraw'                        : 0,  # смотри CEX CONTROL
+    'okx_multi_withdraw'                  : 0,  # вывод в несколько сетей. Смотри CEX CONTROL (OKX_MULTI_WITHDRAW)
     'collector_eth'                       : 0,  # сбор всех токенов в ETH внутри сети GLOBAL_NETWORK
     'make_balance_to_average'             : 0,  # уравнивает ваши балансы на аккаунтах (см. инструкцию к софту)
     'upgrade_stark_wallet'                : 0,  # обновляет кошелек, во время маршрута
@@ -321,8 +321,9 @@ HELPERS_CONFIG = {
 
 ---------------------------------------------------HELPERS--------------------------------------------------------------        
 
-    okx_withdraw                     # смотри OKX CONTROL
-    okx_multi_withdraw               # вывод в несколько сетей. Смотри OKX CONTROL (OKX_MULTI_WITHDRAW)
+    okx_withdraw                     # смотри CEX CONTROL
+    binx_withdraw                    # смотри CEX CONTROL
+    okx_multi_withdraw               # вывод в несколько сетей. Смотри CEX CONTROL (OKX_MULTI_WITHDRAW)
     random_okx_withdraw              # вывод в рандомную сеть из OKX_MULTI_WITHDRAW
     collector_eth                    # сбор всех токенов в ETH
     make_balance_to_average          # уравнивает ваши балансы на аккаунтах (см. инструкцию к софту) 
