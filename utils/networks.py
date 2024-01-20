@@ -611,12 +611,12 @@ BeamRPC = Network(
 InEVM_RPC = Network(
     name='inEVM',
     rpc=[
-        #'https://subnets.avax.network/beam/mainnet/rpc'
+        'https://inevm.calderachain.xyz/http'
     ],
-    chain_id=123321,
+    chain_id=2525,
     eip1559_support=False,
     token='INJ',
-    explorer='https://4337.snowtrace.io/'
+    explorer='https://inevm.calderaexplorer.xyz/'
 )
 
 # zkSyncLite = Network(

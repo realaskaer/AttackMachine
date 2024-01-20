@@ -1792,7 +1792,12 @@ MERKLY_CONTRACTS_PER_CHAINS = {
         'refuel'                : '0x6E55472109E6aBE4054a8E8b8d9EdFfCb31032C5',
         'ONFT'                  : '0xc072c3EbAf165955C5aAd2DbB4293f771de6dbd3',
         'endpoint'              : ''
-    }
+    },
+    47: {
+        'refuel'                : '0x7dFb5E7808B5eb4fB8b9e7169537575f6fF1a218',
+        'ONFT'                  : '0x6f6aE8851a460406bBB3c929a415d2Df9305AcD5',
+        'endpoint'              : ''
+    },
 }
 
 BRAAVOS_PROXY_CLASS_HASH = 0x03131fa018d520a037686ce3efddeab8f28895662f019ca3ca18a626650f7d1e
@@ -2288,7 +2293,7 @@ LAYERZERO_WRAPED_NETWORKS = {
     42                      : 28,
     43                      : 11,
     44                      : 46,
-    45                      : 0
+    45                      : 47
 }
 
 LAYERZERO_NETWORKS_DATA = {
