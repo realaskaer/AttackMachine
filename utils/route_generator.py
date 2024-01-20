@@ -13,7 +13,8 @@ from general_settings import GOOGLE_SHEET_URL, GOOGLE_SHEET_PAGE_NAME, GLOBAL_NE
 from settings import (MODULES_COUNT, ALL_MODULES_TO_RUN,
                       TRANSFER_IN_ROUTES, TRANSFER_COUNT, EXCLUDED_MODULES,
                       DMAIL_IN_ROUTES, DMAIL_COUNT, COLLATERAL_IN_ROUTES, COLLATERAL_COUNT,
-                      CLASSIC_ROUTES_MODULES_USING, WITHDRAW_LP, WITHDRAW_LANDING, HELPERS_CONFIG)
+                      CLASSIC_ROUTES_MODULES_USING, WITHDRAW_LP, WITHDRAW_LANDING, HELPERS_CONFIG,
+                      CLASSIC_WITHDRAW_DEPENDENCIES)
 
 GSHEET_CONFIG = "./data/services/service_account.json"
 os.environ["GSPREAD_SILENCE_WARNINGS"] = "1"
@@ -350,12 +351,26 @@ class RouteGenerator(Logger):
     @staticmethod
     def classic_generate_route():
         route = []
+        deposit_modules = [
+            'deposit_basilisk',
+            'deposit_eralend',
+            'deposit_reactorfusion',
+            'deposit_zerolend',
+            'deposit_nostra',
+            'deposit_zklend',
+            'deposit_rocketsam',
+            'deposit_layerbank',
+        ]
         for i in CLASSIC_ROUTES_MODULES_USING:
             module_name = random.choice(i)
             if module_name is None:
                 continue
             module = get_func_by_name(module_name)
             route.append(module.__name__)
+            if CLASSIC_WITHDRAW_DEPENDENCIES and module_name in deposit_modules:
+                withdraw_module_name = module_name.replace('deposit', 'withdraw')
+                withdraw_module = get_func_by_name(withdraw_module_name)
+                route.append(withdraw_module.__name__)
         return route
 
     def get_function_mappings_key(self, value):
