@@ -194,7 +194,6 @@ BSC_RPC = Network(
     rpc=[
         'https://rpc.ankr.com/bsc',
         'https://binance.llamarpc.com',
-        'https://bsc-mainnet.public.blastapi.io',
     ],
     chain_id=56,
     eip1559_support=False,
@@ -245,7 +244,7 @@ OpBNB_RPC = Network(
 MoonbeamRPC = Network(
     name='Moonbeam',
     rpc=[
-        'https://moonbeam.public.blastapi.io',
+        'https://rpc.ankr.com/moonbeam',
     ],
     chain_id=1284,
     eip1559_support=False,

@@ -11,13 +11,13 @@ from utils.tools import gas_checker, helper
 from general_settings import TRANSFER_AMOUNT
 from settings import (
     NATIVE_WITHDRAW_AMOUNT,
-    NATIVE_DEPOSIT_AMOUNT,
+    NATIVE_DEPOSIT_AMOUNT, NATIVE_CHAIN_ID_TO, NATIVE_CHAIN_ID_FROM,
 )
 from config import (
     WETH_ABI,
     TOKENS_PER_CHAIN,
     NATIVE_CONTRACTS_PER_CHAIN,
-    NATIVE_ABI,
+    NATIVE_ABI, CHAIN_NAME,
 )
 
 
@@ -375,3 +375,49 @@ class Zora(Blockchain, SimpleEVM):
     def __init__(self, client):
         SimpleEVM.__init__(self, client)
         Blockchain.__init__(self, client)
+
+    async def get_bridge_info(self, amount_in_wei):
+        url = 'https://api-zora.reservoir.tools/execute/call/v1'
+
+        payload = {
+            "user": self.client.address,
+            "txs": [
+                {
+                    "to": self.client.address,
+                    "value": f"{amount_in_wei}",
+                    "data": "0x"
+                }
+            ],
+            "originChainId": self.client.network.chain_id
+        }
+
+        data = await self.make_request(method='POST', url=url, json=payload)
+
+        contract_address = data["steps"]["items"]["data"]
+        tx_data = data["steps"]["items"]["data"]
+        value = data["steps"]["items"]["value"]
+
+        return contract_address, tx_data, value
+
+    @helper
+    @gas_checker
+    async def bridge(self):
+        amount = await self.client.get_smart_amount(NATIVE_DEPOSIT_AMOUNT)
+        amount_in_wei = int(amount * 10 ** 18)
+
+        contract_address, tx_data, value = await self.get_bridge_info(amount_in_wei)
+
+        self.logger_msg(
+            *self.client.acc_info, msg=f'Bridge {amount} from {self.network} -> {CHAIN_NAME[NATIVE_CHAIN_ID_TO]}')
+
+        if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
+
+            transaction = await self.client.prepare_transaction(value=value) | {
+                'to': contract_address,
+                'data': tx_data
+            }
+
+            return await self.client.send_transaction(transaction)
+
+        else:
+            raise RuntimeError('Insufficient balance!')

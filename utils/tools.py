@@ -11,6 +11,7 @@ import pandas as pd
 from getpass import getpass
 
 from aiohttp import ClientSession, TCPConnector
+from web3.exceptions import TimeExhausted
 
 from utils.networks import *
 from termcolor import cprint
@@ -181,7 +182,7 @@ def helper(func):
                 try:
                     return await func(self, *args, **kwargs)
                 except (PriceImpactException, BlockchainException, SoftwareException,
-                        asyncio.exceptions.TimeoutError) as err:
+                        asyncio.exceptions.TimeoutError, TimeExhausted) as err:
                     error = err
                     attempts += 1
 

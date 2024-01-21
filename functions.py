@@ -5,8 +5,9 @@ from utils.networks import *
 from config import CEX_WRAPED_ID, LAYERZERO_WRAPED_NETWORKS
 from general_settings import GLOBAL_NETWORK
 from settings import (ORBITER_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, RHINO_CHAIN_ID_FROM, ACROSS_CHAIN_ID_FROM,
-                      OKX_DEPOSIT_NETWORK, SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, INSCRIPTION_NETWORK, SRC_CHAIN_L2PASS,
-                      SRC_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_BUNGEE, SRC_CHAIN_L2TELEGRAPH)
+                      OKX_DEPOSIT_NETWORK, SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, SRC_CHAIN_L2PASS,
+                      SRC_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_BUNGEE, SRC_CHAIN_L2TELEGRAPH, NATIVE_CHAIN_ID_FROM,
+                      L2PASS_GAS_STATION_ID_FROM)
 
 
 def get_client(account_number, private_key, network, proxy, bridge_from_evm:bool = False) -> Client | StarknetClient:
@@ -409,6 +410,14 @@ async def refuel_l2pass(account_number, private_key, _, proxy):
     return await worker.refuel(chain_from_id)
 
 
+async def gas_station_l2pass(account_number, private_key, _, proxy):
+    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(L2PASS_GAS_STATION_ID_FROM)]
+    network = get_network_by_chain_id(chain_from_id)
+
+    worker = L2Pass(get_client(account_number, private_key, network, proxy))
+    return await worker.gas_station(chain_from_id)
+
+
 async def l2pass_for_refuel_attack(account_number, private_key, _, proxy, chain_from_id, **kwargs):
     network = get_network_by_chain_id(chain_from_id)
 
@@ -430,7 +439,7 @@ async def l2pass_nft_attack(account_number, private_key, network, proxy):
 
 async def merkly_refuel_google(account_number, private_key, _, proxy, chain_from, chain_to):
     attack_data = {
-        chain_to: (0.000001, 0.000002)
+        chain_to: (0.000001, 0.000002222)
     }
     wrapped_chain_from = LAYERZERO_WRAPED_NETWORKS[chain_from]
     network = get_network_by_chain_id(wrapped_chain_from)
@@ -441,7 +450,7 @@ async def merkly_refuel_google(account_number, private_key, _, proxy, chain_from
 
 async def l2pass_refuel_google(account_number, private_key, _, proxy, chain_from, chain_to):
     attack_data = {
-        chain_to: (0.000001, 0.000002)
+        chain_to: (0.000001, 0.000002222)
     }
     wrapped_chain_from = LAYERZERO_WRAPED_NETWORKS[chain_from]
     network = get_network_by_chain_id(wrapped_chain_from)
@@ -452,7 +461,7 @@ async def l2pass_refuel_google(account_number, private_key, _, proxy, chain_from
 
 async def zerius_refuel_google(account_number, private_key, _, proxy, chain_from, chain_to):
     attack_data = {
-        chain_to: (0.000001, 0.000002)
+        chain_to: (0.000001, 0.000002222)
     }
     wrapped_chain_from = LAYERZERO_WRAPED_NETWORKS[chain_from]
     network = get_network_by_chain_id(wrapped_chain_from)
@@ -825,18 +834,6 @@ async def wrap_abuser(account_number, private_key, network, proxy):
     return await worker.wraps_abuser()
 
 
-async def mint_token_avnu(account_number, private_key, network, proxy):
-
-    worker = Custom(get_client(account_number, private_key, network, proxy))
-    return await worker.mint_token_avnu()
-
-
-async def mint_token_jediswap(account_number, private_key, network, proxy):
-
-    worker = Custom(get_client(account_number, private_key, network, proxy))
-    return await worker.mint_token_jediswap()
-
-
 async def bridge_stargate(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.smart_bridge_l0(dapp_id=1)
@@ -860,35 +857,6 @@ async def swap_coredao(client, **kwargs):
 async def swap_bridged_usdc(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.swap_bridged_usdc()
-
-
-async def mint_inscription(account_number, private_key, _, proxy):
-    network = get_network_by_chain_id(LAYERZERO_WRAPED_NETWORKS[INSCRIPTION_NETWORK])
-
-    worker = Inscription(get_client(account_number, private_key, network, proxy))
-    return await worker.mint_inscribe()
-
-
-async def mint_scroll_nft(account_number, private_key, network, proxy):
-
-    worker = ScrollNFT(get_client(account_number, private_key, network, proxy))
-    return await worker.mint()
-
-
-async def claim_refund_zkfair(account_number, private_key, _, proxy):
-
-    worker = ZKFair(get_client(account_number, private_key, ZKFairRPC, proxy))
-    return await worker.claim_refund()
-
-
-async def claim_drop_zkfair(account_number, private_key, _, proxy):
-    worker = ZKFair(get_client(account_number, private_key, ZKFairRPC, proxy))
-    return await worker.claim_drop()
-
-
-async def stake_zkfair(account_number, private_key, _, proxy):
-    worker = ZKFair(get_client(account_number, private_key, ZKFairRPC, proxy))
-    return await worker.stake_tokens()
 
 
 async def grapedraw_bid(account_number, private_key, network, proxy):
@@ -929,3 +897,10 @@ async def bingx_withdraw(account_number, private_key, network, proxy):
 async def bingx_transfer(account_number, private_key, network, proxy):
     worker = BingX(get_client(account_number, private_key, network, proxy))
     return await worker.withdraw(transfer_mode=True)
+
+
+async def bridge_zora(account_number, private_key, _, proxy):
+    network = get_network_by_chain_id(NATIVE_CHAIN_ID_FROM)
+
+    worker = Zora(get_client(account_number, private_key, network, proxy))
+    return await worker.bridge()

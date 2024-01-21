@@ -1,5 +1,6 @@
 import random
 
+from modules.interfaces import BlockchainException
 from settings import DST_CHAIN_ZERIUS_NFT, DST_CHAIN_ZERIUS_REFUEL
 from config import ZERIUS_CONTRACT_PER_CHAINS, ZERIUS_ABI, ZERO_ADDRESS, LAYERZERO_NETWORKS_DATA, \
     LAYERZERO_WRAPED_NETWORKS, CHAIN_NAME
@@ -163,4 +164,4 @@ class Zerius(Minter, Logger):
             return await self.client.wait_for_l0_received(tx_hash)
         except Exception as error:
             if not need_check:
-                raise RuntimeError(f'Error during the refuel!. Error: {error}')
+                raise BlockchainException(f'Error during the refuel!. Error: {error}')

@@ -57,9 +57,11 @@ OKX_BALANCE_WANTED = 0.01               # Необходимый баланс н
     * - не поддерживается в Rhino.fi
     (A) - сети, поддерживаемые Across мостом
     (0) - поддерживается только для Orbiter моста
-    ORBITER_CHAIN_ID_FROM(TO) = [2, 4, 16] | Одна из сетей будет выбрана
+    NATIVE_CHAIN_ID_FROM(TO) = [2, 4, 16] | Одна из сетей будет выбрана
     NATIVE_WITHDRAW_AMOUNT | Настройка для вывода из нативного моста (withdraw_native_bridge)
 """
+NATIVE_CHAIN_ID_FROM = [13]                # Исходящая сеть. 21.01.2024 Применимо только для bridge_zora
+NATIVE_CHAIN_ID_TO = [11]                  # Входящая сеть. 21.01.2024 Применимо только для bridge_zora
 NATIVE_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (% или кол-во)
 NATIVE_WITHDRAW_AMOUNT = (0.0001, 0.0002)   # (минимум, максимум) (% или кол-во)
 
@@ -186,9 +188,7 @@ DST_CHAIN_L2PASS_REFUEL = {
 
 SRC_CHAIN_BUNGEE = [43]          # Исходящая сеть для Bungee
 DST_CHAIN_BUNGEE_REFUEL = {
-    20: (0.000001, 0.00002),  # Chain ID: (минимум, максимум) в нативном токене исходящей сети (кол-во)
-    28: (0.000001, 0.00002),
-    29: (0.000001, 0.00002),
+    17: (0.00005, 0.00006),  # Chain ID: (минимум, максимум) в нативном токене исходящей сети (кол-во)
 }
 
 SRC_CHAIN_L2TELEGRAPH = [43]    # Исходящая сеть для L2Telegraph.
@@ -232,6 +232,14 @@ L2PASS_ATTACK_NFT = [
     [6, 8],
 ]
 
+L2PASS_GAS_STATION_ID_FROM = [33]
+L2PASS_GAS_STATION_DATA = [
+    [3, 0.000001],
+    [5, 0.000001],
+    [6, 0.000001],
+    [8, 0.000001],
+]
+
 """
 --------------------------------------------------OTHER SETTINGS--------------------------------------------------------
 
@@ -239,15 +247,7 @@ L2PASS_ATTACK_NFT = [
     ZKSTARS_NFT_CONTRACTS | Укажите какие NFT ID будут участвовать в минте. Все что в скобках, будут использованы
     NEW_WALLET_TYPE | Определяет какой кошелек будет задеплоен, если вы решили создать новый. 0 - ArgentX | 1 - Braavos
     MINTFUN_CONTRACTS | Список контрактов для минта в выбранной сети (GLOBAL NETWORK)
-    
-    GRAPEGRAW_TICKETS_AMOUNT | Количество билетов для покупки в одной транзакции на сайте https://grapegraw.io
-    
-    INSCRIPTION_DATA | Указывайте дату для минта. Обычно ее дают на сайтах. Поддерживаются форматы в виде json и hex.
-        В формате json - 'data....'
-        В формате hex - 0x123
-    INSCRIPTION_NETWORK | Сеть в которой планируется минтить инскрипшен. Поддерживаются все сети из OMNI-CHAIN CONTROL    
-    
-    MEMCOIN_AMOUNT | Сумма в ETH, на которую планируете покупать мемкоин.
+    GRAPEGRAW_TICKETS_AMOUNT | Количество билетов для покупки в одной транзакции на сайте https://grapedraw.com/
 """
 
 STARKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при (0) заминтит случайную новую NFT
@@ -255,15 +255,6 @@ ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при (0) заминтит случай
 NEW_WALLET_TYPE = 1
 
 GRAPEDRAW_TICKETS_AMOUNT = 1
-
-INSCRIPTION_DATA = ''
-INSCRIPTION_NETWORK = 0
-
-MEMCOIN_AMOUNT = 0.01  # сумма в ETH
-
-ZKFAIR_STAKE_PERIOD = 90  # кол-во дней для стейкинга (месяц = 30)
-ZKFAIR_STAKE_AMOUNT = 50  # процент от баланса ZKF для стейкинга
-ZKFAIR_CLAIM_REFUND_PHASES = [1, 2, 3, 4]  # фазы для клейма рефаунда
 
 MINTFUN_CONTRACTS = {
     '0x123': 0,
@@ -336,18 +327,6 @@ HELPERS_CONFIG = {
     bridge_native                    # смотри BRIDGE CONTROL. (кол-во из NATIVE_DEPOSIT_AMOUNT)
     okx_deposit                      # ввод средств на биржу
     okx_collect_from_sub             # сбор средств на субАккаунтов на основной счет
-    
----------------------------------------------------CUSTOM---------------------------------------------------------------        
-    
-    mint_token_avnu                  # обмен щитка на AVNU. Сумма в ETH - MEMCOIN_AMOUNT. Контракт менять в config.py
-    mint_token_jediswap              # обмен щитка на JediSwap. Контракт в config.py - TOKENS_PER_CHAIN (Starknet)   
-    mint_scroll_nft                  # минт Scroll NFT за деплой контрактов
-    mint_inscription                 # минт инскрипшена в сети INSCRIPTION_NETWORK(номера из L0).
-    zksync_rhino_checker             # проверка на eligible для минта Rhino.fi Pro Hunter NFT 
-    zksync_rhino_mint                # минт Rhino.fi Hunter NFT
-    zksync_rhino_mint_pro            # проверка на eligible и минт Rhino.fi Pro Hunter NFT
-    claim_refund_zkfair              # клейм рефанда за участие в раздаче ZKFair. см. ZKFAIR_CLAIM_REFUND_PHASES
-    stake_zkfair                     # стейкинг токена ZKF в сети ZKFair. см. ZKFAIR_STAKE_PERIOD, ZKFAIR_STAKE_AMOUNT
     
 --------------------------------------------------LAYERZERO-------------------------------------------------------------            
     
@@ -526,6 +505,7 @@ HELPERS_CONFIG = {
     
 --------------------------------------------------------ZORA------------------------------------------------------------        
     
+    bridge_zora
     mint_mintfun
     mint_zkstars
     deposit_rocketsam

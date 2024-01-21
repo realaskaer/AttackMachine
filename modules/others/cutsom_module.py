@@ -3,9 +3,9 @@ import random
 from config import ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA, \
     TOKENS_PER_CHAIN2, CHAIN_NAME
 from modules import Logger, Aggregator
-from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS, AMOUNT_PERCENT
+from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS
 from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
-    MEMCOIN_AMOUNT, L2PASS_ATTACK_NFT, \
+    L2PASS_ATTACK_NFT, \
     ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW, OKX_DEPOSIT_AMOUNT
 from utils.tools import helper, gas_checker, sleep
 
@@ -228,26 +228,6 @@ class Custom(Logger, Aggregator):
         finally:
             for client in clients:
                 await client.session.close()
-
-    @helper
-    async def mint_token_avnu(self):
-        from functions import swap_avnu
-
-        amount, amount_in_wei = MEMCOIN_AMOUNT, int(MEMCOIN_AMOUNT * 10 ** 18)
-        data = 'ETH', 'MEMCOIN', amount, amount_in_wei
-
-        return await swap_avnu(self.client.account_name, self.client.private_key,
-                               self.client.network, self.client.proxy_init, swapdata=data)
-
-    @helper
-    async def mint_token_jediswap(self):
-        from functions import swap_jediswap
-
-        amount, amount_in_wei = MEMCOIN_AMOUNT, int(MEMCOIN_AMOUNT * 10 ** 18)
-        data = 'ETH', 'MEMCOIN', amount, amount_in_wei
-
-        return await swap_jediswap(self.client.account_name, self.client.private_key,
-                                   self.client.network, self.client.proxy_init, swapdata=data)
 
     @helper
     async def swap_bridged_usdc(self):

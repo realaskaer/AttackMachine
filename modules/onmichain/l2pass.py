@@ -1,13 +1,14 @@
 import random
 
 from modules import Refuel, Logger
-from settings import DST_CHAIN_L2PASS_REFUEL, DST_CHAIN_L2PASS_NFT
+from modules.interfaces import BlockchainException
+from settings import DST_CHAIN_L2PASS_REFUEL, DST_CHAIN_L2PASS_NFT, L2PASS_GAS_STATION_DATA
 from eth_abi import encode
 from utils.tools import gas_checker, helper, sleep
 from config import (
     L2PASS_CONTRACTS_PER_CHAINS,
     L2PASS_ABI,
-    LAYERZERO_NETWORKS_DATA, CHAIN_NAME, ZERO_ADDRESS, LAYERZERO_WRAPED_NETWORKS
+    LAYERZERO_NETWORKS_DATA, ZERO_ADDRESS, LAYERZERO_WRAPED_NETWORKS
 )
 
 
@@ -26,7 +27,6 @@ class L2Pass(Refuel, Logger):
         return False
 
     async def get_estimate_send_fee(self, contract, adapter_params, dst_chain_id, nft_id):
-
         estimate_gas_bridge_fee = (await contract.functions.estimateSendFee(
             dst_chain_id,
             self.client.address,
@@ -83,7 +83,7 @@ class L2Pass(Refuel, Logger):
             return await self.client.wait_for_l0_received(tx_hash)
         except Exception as error:
             if not need_check:
-                raise RuntimeError(f'Error during the refuel!. Error: {error}')
+                raise BlockchainException(f'Error during the refuel!. Error: {error}')
 
     @helper
     @gas_checker
@@ -160,3 +160,12 @@ class L2Pass(Refuel, Logger):
             return LAYERZERO_WRAPED_NETWORKS[chain_id_from], dst_chain_id
 
         return await self.client.wait_for_l0_received(tx_hash)
+
+    @helper
+    @gas_checker
+    async def gas_station(self, chain_from_id):
+
+        gas_data = L2PASS_GAS_STATION_DATA
+        random.shuffle(gas_data)
+
+        # for path in gas_data:

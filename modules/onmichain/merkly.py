@@ -3,6 +3,8 @@ import random
 from modules import Refuel, Logger
 from eth_abi import abi
 from decimal import Decimal
+
+from modules.interfaces import BlockchainException
 from settings import DST_CHAIN_MERKLY_REFUEL, DST_CHAIN_MERKLY_WORMHOLE, WORMHOLE_TOKENS_AMOUNT
 from utils.tools import gas_checker, helper, sleep
 from config import (
@@ -80,7 +82,7 @@ class Merkly(Refuel, Logger):
             return await self.client.wait_for_l0_received(tx_hash)
         except Exception as error:
             if not need_check:
-                raise RuntimeError(f'Error during the refuel!. Error: {error}')
+                raise BlockchainException(f'Error during the refuel!. Error: {error}')
 
     @helper
     @gas_checker

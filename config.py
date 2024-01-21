@@ -1292,11 +1292,13 @@ OKX_DEPOSIT_L0_DATA = {
 L2PASS_CONTRACTS_PER_CHAINS = {
     1: {
         'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',
+        'gas_station'           : '0x0000c74e9931C7D6c1a6e811fE96a8a808E06969',
         'ONFT'                  : '0x0000049F63Ef0D60aBE49fdD8BEbfa5a68822222',
         'endpoint'              : '0xAa58e77238f0E4A565343a89A79b4aDDD744d649'
     },
     2: {
         'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',
+        'gas_station'           : '0x0000c74e9931C7D6c1a6e811fE96a8a808E06969',
         'ONFT'                  : '0x0000049F63Ef0D60aBE49fdD8BEbfa5a68822222',
         'endpoint'              : '0x484c402B0c8254BD555B68827239BAcE7F491023'
     },
@@ -1317,11 +1319,13 @@ L2PASS_CONTRACTS_PER_CHAINS = {
     },
     6: {
         'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',
+        'gas_station'           : '0x0000c74e9931C7D6c1a6e811fE96a8a808E06969',
         'ONFT'                  : '0x042002711e4d7A7Fc486742a85dBf096beeb0420',
         'endpoint'              : '0xa184998eC58dc1dA77a1F9f1e361541257A50CF4'
     },
     7: {
         'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',
+        'gas_station'           : '0x0000c74e9931C7D6c1a6e811fE96a8a808E06969',
         'ONFT'                  : '0x0000049F63Ef0D60aBE49fdD8BEbfa5a68822222',
         'endpoint'              : '0xa2C203d7EF78ed80810da8404090f926d67Cd892'
     },
@@ -1352,16 +1356,19 @@ L2PASS_CONTRACTS_PER_CHAINS = {
     },
     14: {
         'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',
+        'gas_station'           : '0x0000c74e9931C7D6c1a6e811fE96a8a808E06969',
         'ONFT'                  : '0x0000049F63Ef0D60aBE49fdD8BEbfa5a68822222',
         'endpoint'              : '0x3c2269811836af69497E5F486A85D7316753cf62'
     },
     15: {
         'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',
+        'gas_station'           : '0x0000c74e9931C7D6c1a6e811fE96a8a808E06969',
         'ONFT'                  : '0x0000049F63Ef0D60aBE49fdD8BEbfa5a68822222',
         'endpoint'              : '0x3c2269811836af69497E5F486A85D7316753cf62'
     },
     16: {
         'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',
+        'gas_station'           : '0x0000c74e9931C7D6c1a6e811fE96a8a808E06969',
         'ONFT'                  : '0x0000049F63Ef0D60aBE49fdD8BEbfa5a68822222',
         'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
     },
@@ -1377,11 +1384,13 @@ L2PASS_CONTRACTS_PER_CHAINS = {
     },
     19: {
         'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',
+        'gas_station'           : '0x0000c74e9931C7D6c1a6e811fE96a8a808E06969',
         'ONFT'                  : '0x0000049F63Ef0D60aBE49fdD8BEbfa5a68822222',
         'endpoint'              : '0x3A73033C0b1407574C76BdBAc67f126f6b4a9AA9'
     },
     20: {
         'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',
+        'gas_station'           : '0x0000c74e9931C7D6c1a6e811fE96a8a808E06969',
         'ONFT'                  : '0x0000049F63Ef0D60aBE49fdD8BEbfa5a68822222',
         'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
     },
@@ -1412,6 +1421,7 @@ L2PASS_CONTRACTS_PER_CHAINS = {
     },
     26: {
         'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',
+        'gas_station'           : '0x0000c74e9931C7D6c1a6e811fE96a8a808E06969',
         'ONFT'                  : '0x0000049F63Ef0D60aBE49fdD8BEbfa5a68822222',
         'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
     },
@@ -1432,11 +1442,13 @@ L2PASS_CONTRACTS_PER_CHAINS = {
     },
     30: {
         'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',
+        'gas_station'           : '0x0000c74e9931C7D6c1a6e811fE96a8a808E06969',
         'ONFT'                  : '0x0000049F63Ef0D60aBE49fdD8BEbfa5a68822222',
         'endpoint'              : '0x7004396C99D5690da76A7C59057C5f3A53e01704'
     },
     31: {
         'refuel'                : '0x222228060E7Efbb1D78BB5D454581910e3922222',
+        'gas_station'           : '0x0000c74e9931C7D6c1a6e811fE96a8a808E06969',
         'ONFT'                  : '0x0000049F63Ef0D60aBE49fdD8BEbfa5a68822222',
         'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
     },
