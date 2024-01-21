@@ -2058,6 +2058,17 @@ CHAIN_NAME_FROM_ID = {
     1: 'Etherium',
 }
 
+L2TELEGRAPH_ADD_VALUE = {
+    'Avalanche': 0.035 * 10 ** 18,
+    'opBNB': 0.002 * 10 ** 18,
+    'Polygon': 0.007 * 10 ** 18,
+    'Gnosis': 0.01 * 10 ** 18,
+    'Celo': 0.007 * 10 ** 18,
+    'Moonriver': 0.0003 * 10 ** 18,
+    'Fuse': 0,
+    'BNB Chain': 0.002 * 10 ** 18
+}
+
 L2TELEGRAPH_SRC_CHAIN_BRIDGE_CONTRACTS = {
     "Arbitrum Nova": '0x5B10aE182C297ec76fE6fe0E3Da7c4797ceDE02D',
     "zkSync": '0xD43A183C97dB9174962607A8b6552CE320eAc5aA',

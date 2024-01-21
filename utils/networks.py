@@ -193,7 +193,6 @@ BSC_RPC = Network(
     name='BNB Chain',
     rpc=[
         'https://rpc.ankr.com/bsc',
-        'https://binance.llamarpc.com',
     ],
     chain_id=56,
     eip1559_support=False,
@@ -377,7 +376,7 @@ HorizenRPC = Network(
     chain_id=7332,
     eip1559_support=False,
     token='ZEN',
-    explorer='https://opbnbscan.com/'
+    explorer='https://explorer.horizen.io/'
 )
 
 MetisRPC = Network(

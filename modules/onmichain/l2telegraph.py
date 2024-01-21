@@ -14,7 +14,7 @@ from config import (
     L2TELEGRAPH_DST_CHAIN_MESSENGER_CONTRACTS,
     L2TELEGRAPH_SRC_CHAIN_BRIDGE_CONTRACTS,
     L2TELEGRAPH_DST_CHAIN_BRIDGE_CONTRACTS,
-    LAYERZERO_NETWORKS_DATA,
+    LAYERZERO_NETWORKS_DATA, L2TELEGRAPH_ADD_VALUE,
 )
 
 
@@ -62,7 +62,9 @@ class L2Telegraph(Messenger, Logger):
             adapter_params
         ).call())[0]
 
-        value = estimate_fees + 250000000000000
+        add_value = L2TELEGRAPH_ADD_VALUE.get(self.network, 0.00025 * 10 ** 18)
+
+        value = round(int(estimate_fees + add_value), 8)
 
         tx_params = await self.client.prepare_transaction(value=value)
 
@@ -107,7 +109,7 @@ class L2Telegraph(Messenger, Logger):
             adapter_params
         ).call())[0]
 
-        value = estimate_fees + 100000000000000
+        value = round(estimate_fees, 8)
 
         await asyncio.sleep(1)
 
