@@ -126,6 +126,7 @@ AVAILABLE_MODULES_INFO = {
     l2pass_nft_attack                   : (l2pass_nft_attack, 3, 'L2Pass NFT Attack', 0, [2, 3, 4, 8, 11, 12]),
     send_message_dmail                  : (send_message_dmail, 2, 'Dmail Message', 1, [3, 4, 8, 9, 11]),
     send_message_l2telegraph            : (send_message_l2telegraph, 2, 'L2Telegraph Message', 0, [2, 3, 4, 8, 11, 12]),
+    bingx_transfer                      : (bingx_transfer, 2, 'BingX Transfer', 0, [2, 3, 4, 8, 9, 11, 12]),
     transfer_eth                        : (transfer_eth, 2, 'Transfer ETH', 0, [2, 3, 4, 8, 9, 11, 12]),
     transfer_eth_to_myself              : (transfer_eth_to_myself, 2, 'Transfer ETH to myself', 0, [2, 3, 4,8,9,11,12]),
     withdraw_liquidity_maverick         : (withdraw_liquidity_maverick, 3, 'Maverick Withdraw', 0, [11]),
