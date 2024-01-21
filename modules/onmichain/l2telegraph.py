@@ -24,12 +24,6 @@ class L2Telegraph(Messenger, Logger):
         Logger.__init__(self)
 
         self.network = self.client.network.name
-        self.message_contract = self.client.get_contract(
-            L2TELEGRAPH_SRC_CHAIN_MESSENGER_CONTRACTS[self.network],
-            L2TELEGRAPH_SEND_MESSAGE_ABI)
-        self.nft_contract = self.client.get_contract(
-            L2TELEGRAPH_SRC_CHAIN_BRIDGE_CONTRACTS[self.network],
-            L2TELEGRAPH_NFT_BRIDGE_ABI)
         chain_id_to = random.choice(DST_CHAIN_L2TELEGRAPH)
         self.dst_chain_name, self.dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[chain_id_to]
 
@@ -47,6 +41,11 @@ class L2Telegraph(Messenger, Logger):
             *self.client.acc_info,
             msg=f'Send message on L2Telegraph from {self.client.network.name} to {self.dst_chain_name}')
 
+        message_contract = self.client.get_contract(
+            L2TELEGRAPH_SRC_CHAIN_MESSENGER_CONTRACTS[self.network],
+            L2TELEGRAPH_SEND_MESSAGE_ABI
+        )
+
         adapter_params = encode(["uint16", "uint"],
                                 [2, 250000])
 
@@ -55,7 +54,7 @@ class L2Telegraph(Messenger, Logger):
 
         adapter_params, payload = self.client.w3.to_hex(adapter_params[30:]), self.client.w3.to_hex(payload[30:])
 
-        estimate_fees = (await self.message_contract.functions.estimateFees(
+        estimate_fees = (await message_contract.functions.estimateFees(
             self.dst_chain_id,
             self.client.address,
             payload,
@@ -70,7 +69,7 @@ class L2Telegraph(Messenger, Logger):
         trusted_remote = (L2TELEGRAPH_DST_CHAIN_MESSENGER_CONTRACTS[self.dst_chain_name] +
                           L2TELEGRAPH_SRC_CHAIN_MESSENGER_CONTRACTS[self.network][2:])
 
-        transaction = await self.message_contract.functions.sendMessage(
+        transaction = await message_contract.functions.sendMessage(
             Faker().word(),
             self.dst_chain_id,
             trusted_remote
@@ -85,6 +84,11 @@ class L2Telegraph(Messenger, Logger):
             *self.client.acc_info,
             msg=f"Mint and bridge NFT L2Telegraph on {self.client.network.name}. Price for mint: 0.0005 ETH")
 
+        nft_contract = self.client.get_contract(
+            L2TELEGRAPH_SRC_CHAIN_BRIDGE_CONTRACTS[self.network],
+            L2TELEGRAPH_NFT_BRIDGE_ABI
+        )
+
         mint_price = 500000000000000
 
         adapter_params = encode(["uint16", "uint"],
@@ -95,7 +99,7 @@ class L2Telegraph(Messenger, Logger):
 
         adapter_params, payload = self.client.w3.to_hex(adapter_params[30:]), self.client.w3.to_hex(payload[30:])
 
-        estimate_fees = (await self.message_contract.functions.estimateFees(
+        estimate_fees = (await nft_contract.functions.estimateFees(
             self.dst_chain_id,
             self.client.address,
             payload,
@@ -113,7 +117,7 @@ class L2Telegraph(Messenger, Logger):
 
             tx_params = await self.client.prepare_transaction(value=mint_price)
 
-            transaction = await self.nft_contract.functions.mint().build_transaction(tx_params)
+            transaction = await nft_contract.functions.mint().build_transaction(tx_params)
 
             tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
@@ -129,7 +133,7 @@ class L2Telegraph(Messenger, Logger):
             salt = (L2TELEGRAPH_DST_CHAIN_BRIDGE_CONTRACTS[self.dst_chain_name] +
                     L2TELEGRAPH_SRC_CHAIN_BRIDGE_CONTRACTS[self.network][2:])
 
-            transaction = await self.nft_contract.functions.crossChain(
+            transaction = await nft_contract.functions.crossChain(
                 self.dst_chain_id,
                 salt,
                 nft_id
