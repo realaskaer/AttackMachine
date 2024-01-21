@@ -38,6 +38,20 @@ class BingX(CEX, Logger):
         except Exception as error:
             raise RuntimeError(f'Bad signature for BingX request: {error}')
 
+    async def get_balance(self, ccy: str):
+        path = '/openApi/spot/v1/account/balance'
+
+        params = {
+            'timestamp': str(int(time.time() * 1000))
+        }
+
+        parse_params = self.parse_params(params)
+
+        url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
+        data = await self.make_request(url=url, headers=self.headers, module_name='Balances Data')
+        return [item for item in data['balances'] if item['asset'] == ccy][0]['free']
+
+
     async def deposit(self):
         pass
 
@@ -55,7 +69,7 @@ class BingX(CEX, Logger):
         return [item for item in data if item['coin'] == ccy]
 
     @helper
-    async def withdraw(self, want_balance:float = 0, multi_withdraw_data:dict = None):
+    async def withdraw(self, want_balance:float = 0, multi_withdraw_data:dict = None, transfer_mode:bool = False):
         if GLOBAL_NETWORK == 9:
             await self.client.initialize_account(check_balance=True)
 
@@ -79,10 +93,14 @@ class BingX(CEX, Logger):
 
         network_name = ' '.join(BINGX_NETWORKS_NAME[network].split('-')[1:])
         network_data = networks_data[network_name]
-        amount = want_balance if want_balance else await self.client.get_smart_amount(amount)
+
+        if transfer_mode:
+            amount = await self.get_balance(ccy)
+        else:
+            amount = want_balance if want_balance else await self.client.get_smart_amount(amount)
 
         self.logger_msg(
-            *self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name}")
+            *self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
 
         if network_data['withdrawEnable']:
             address = f"0x{hex(self.client.address)[2:]:0>64}" if BINGX_WITHDRAW_NETWORK == 4 else self.client.address

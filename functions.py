@@ -925,3 +925,7 @@ async def bingx_withdraw(account_number, private_key, network, proxy):
     worker = BingX(get_client(account_number, private_key, network, proxy))
     return await worker.withdraw()
 
+
+async def bingx_transfer(account_number, private_key, network, proxy):
+    worker = BingX(get_client(account_number, private_key, network, proxy))
+    return await worker.withdraw(transfer_mode=True)
