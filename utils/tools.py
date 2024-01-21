@@ -173,27 +173,38 @@ def create_okx_withdrawal_list():
 def helper(func):
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
+        from modules.interfaces import PriceImpactException, BlockchainException, SoftwareException
         attempts = 0
+        error = None
         try:
-            while True:
+            while attempts <= MAXIMUM_RETRY:
                 try:
                     return await func(self, *args, **kwargs)
-                except Exception as error:
-                    self.logger_msg(
-                        self.client.account_name,
-                        None, msg=f"{error} | Try[{attempts + 1}/{MAXIMUM_RETRY + 1}]", type_msg='error')
-                    if 'message' not in error:
-                        traceback.print_exc()
-
+                except (PriceImpactException, BlockchainException, SoftwareException,
+                        asyncio.exceptions.TimeoutError) as err:
+                    error = err
                     attempts += 1
-                    if attempts > MAXIMUM_RETRY:
-                        break
 
-                    await sleep(self, *SLEEP_TIME_RETRY)
+                except Exception as err:
+                    error = err
+                    attempts += 1
+                    traceback.print_exc()
+                finally:
+                    if attempts:
+                        if isinstance(error, asyncio.exceptions.TimeoutError):
+                            error = 'Connection to RPC is not stable'
+
+                        self.logger_msg(
+                            self.client.account_name,
+                            None, msg=f"{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]", type_msg='error')
+
+                        await sleep(self, *SLEEP_TIME_RETRY)
+
+                        if attempts > MAXIMUM_RETRY:
+                            self.logger_msg(self.client.account_name,
+                                            None, msg=f"Tries are over, launching next module.\n", type_msg='error')
         finally:
             await self.client.session.close()
-        self.logger_msg(self.client.account_name,
-                        None, msg=f"Tries are over, launching next module.\n", type_msg='error')
         return False
     return wrapper
 

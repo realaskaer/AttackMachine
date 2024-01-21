@@ -5,7 +5,7 @@ from asyncio import sleep
 from aiohttp import ClientSession, TCPConnector
 from aiohttp_socks import ProxyConnector
 from web3.exceptions import TransactionNotFound, TimeExhausted
-
+from modules.interfaces import PriceImpactException, BlockchainException, SoftwareException
 from modules import Logger
 from utils.networks import Network
 from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, CHAIN_IDS, TOKENS_PER_CHAIN2
@@ -104,7 +104,7 @@ class Client(Logger):
         price_impact = 100 - (amount2_in_usd / amount1_in_usd) * 100
 
         if price_impact > PRICE_IMPACT:
-            raise RuntimeError(
+            raise PriceImpactException(
                 f'DEX price impact > your wanted impact | DEX impact: {price_impact:.3}% > Your impact {PRICE_IMPACT}%')
 
     async def get_bridge_data(self, chain_from_id: int, module_name: str):
@@ -167,7 +167,7 @@ class Client(Logger):
                 if t > timeout:
                     raise RuntimeError(f'{token_name} has not been received within {timeout} seconds')
         except Exception as error:
-            raise RuntimeError(f'Error in <WAIT FOR RECEIVING> function. Error: {error}')
+            raise SoftwareException(f'Error in <WAIT FOR RECEIVING> function. Error: {error}')
         finally:
             await client.session.close()
 
@@ -288,7 +288,7 @@ class Client(Logger):
             return biggest_token_balance_name, random_to_token_name, amount, amount_in_wei
 
         else:
-            raise RuntimeError('Insufficient balance on account!')
+            raise SoftwareException('Insufficient balance on account!')
 
     def get_contract(self, contract_address: str, abi=ERC20_ABI):
         return self.w3.eth.contract(
@@ -335,10 +335,8 @@ class Client(Logger):
                 tx_params['gasPrice'] = await self.w3.eth.gas_price
 
             return tx_params
-        except TimeoutError or ValueError as error:
-            raise error(f'Bad connection or rate limit error | Error: {self.get_normalize_error(error)}')
         except Exception as error:
-            raise RuntimeError(f'Prepare transaction | Error: {self.get_normalize_error(error)}')
+            raise BlockchainException(f'Prepare transaction | Error: {self.get_normalize_error(error)}')
 
     async def make_approve(self, token_address: str, spender_address: str, amount_in_wei: int):
         transaction = await self.get_contract(token_address).functions.approve(
@@ -380,7 +378,7 @@ class Client(Logger):
             await sleep(random.randint(5, 9))
             return result
         except Exception as error:
-            raise RuntimeError(f'Check for approve | {self.get_normalize_error(error)}')
+            raise BlockchainException(f'Check for approve | {self.get_normalize_error(error)}')
 
     async def send_transaction(self, transaction, need_hash: bool = False, without_gas: bool = False,
                                poll_latency: int = 10, timeout: int = 360):
@@ -388,7 +386,7 @@ class Client(Logger):
             if not without_gas:
                 transaction['gas'] = int((await self.w3.eth.estimate_gas(transaction)) * GAS_MULTIPLIER)
         except Exception as error:
-            raise RuntimeError(f'Gas calculating | {self.get_normalize_error(error)}')
+            raise BlockchainException(f'Gas calculating | {self.get_normalize_error(error)}')
 
         try:
             singed_tx = self.w3.eth.account.sign_transaction(transaction, self.private_key)
@@ -398,7 +396,7 @@ class Client(Logger):
                 self.logger_msg(*self.acc_info, msg='RPC got error, but tx was send', type_msg='warning')
                 return True
             else:
-                raise RuntimeError(f'Send transaction | {self.get_normalize_error(error)}')
+                raise BlockchainException(f'Send transaction | {self.get_normalize_error(error)}')
 
         try:
 
@@ -432,7 +430,7 @@ class Client(Logger):
                     total_time += poll_latency
                     await asyncio.sleep(poll_latency)
         except Exception as error:
-            raise RuntimeError(f'Verify transaction | {self.get_normalize_error(error)}')
+            raise BlockchainException(f'Verify transaction | {self.get_normalize_error(error)}')
 
     async def get_token_price(self, token_name: str, vs_currency: str = 'usd') -> float:
 
@@ -444,7 +442,7 @@ class Client(Logger):
             if response.status == 200:
                 data = await response.json()
                 return float(data[token_name][vs_currency])
-            raise RuntimeError(f'Bad request to CoinGecko API: {response.status}')
+            raise SoftwareException(f'Bad request to CoinGecko API: {response.status}')
 
     async def wait_for_l0_received(self, tx_hash):
         if not WAIT_FOR_RECEIPT:
@@ -476,7 +474,7 @@ class Client(Logger):
                 await asyncio.sleep(sleep_time)
                 t += sleep_time
             if t > timeout:
-                raise RuntimeError(f'Funds have not been received on destination chain within {timeout} seconds')
+                raise SoftwareException(f'Funds have not been received on destination chain within {timeout} seconds')
 
         async with self.session.get(url=url) as response:
             result = await response.json()

@@ -18,6 +18,18 @@ def get_user_agent():
             f' Chrome/119.0.0.0 Safari/{random_version} Edg/119.0.0.0')
 
 
+class PriceImpactException(Exception):
+    pass
+
+
+class BlockchainException(Exception):
+    pass
+
+
+class SoftwareException(Exception):
+    pass
+
+
 class Logger(ABC):
     def __init__(self):
         self.logger = logger
