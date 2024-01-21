@@ -48,9 +48,8 @@ class BingX(CEX, Logger):
         parse_params = self.parse_params(params)
 
         url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
-        data = await self.make_request(url=url, headers=self.headers, module_name='Balances Data')
+        data = await self.make_request(url=url, headers=self.headers, module_name='Balances Data', content_type=None)
         return [item for item in data['balances'] if item['asset'] == ccy][0]['free']
-
 
     async def deposit(self):
         pass

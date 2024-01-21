@@ -74,13 +74,14 @@ class CEX(ABC):
         pass
 
     async def make_request(self, method:str = 'GET', url:str = None, data:str = None, params:dict = None,
-                           headers:dict = None, json:dict = None, module_name:str = 'Request'):
+                           headers:dict = None, json:dict = None, module_name:str = 'Request',
+                           content_type:str | None = "application/json"):
 
         async with ClientSession() as session:
             async with session.request(method=method, url=url, headers=headers, data=data, json=json,
                                        params=params) as response:
 
-                data: dict = await response.json()
+                data: dict = await response.json(content_type=content_type)
                 if int(data['code']) != 0:
                     message = data.get('msg') or data.get('desc') or ''
                     error = f"Error code: {data['code']} Msg: {message}"
