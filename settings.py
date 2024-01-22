@@ -179,9 +179,9 @@ DST_CHAIN_MERKLY_REFUEL = {
 }
 
 SRC_CHAIN_L2PASS = [1]          # Исходящая сеть для L2PASS
-DST_CHAIN_L2PASS_NFT = [6]     # Входящая сеть для L2PASS Mint NFT
+DST_CHAIN_L2PASS_NFT = [42]     # Входящая сеть для L2PASS Mint NFT
 DST_CHAIN_L2PASS_REFUEL = {
-    20: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
+    42: (0.0005, 0.0005),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
     28: (0.000001, 0.00002),
     29: (0.000001, 0.00002),
 }
@@ -313,7 +313,7 @@ HELPERS_CONFIG = {
 ---------------------------------------------------HELPERS--------------------------------------------------------------        
 
     okx_withdraw                     # смотри CEX CONTROL
-    binx_withdraw                    # смотри CEX CONTROL
+    bingx_withdraw                   # смотри CEX CONTROL
     okx_multi_withdraw               # вывод в несколько сетей. Смотри CEX CONTROL (OKX_MULTI_WITHDRAW)
     random_okx_withdraw              # вывод в рандомную сеть из OKX_MULTI_WITHDRAW
     collector_eth                    # сбор всех токенов в ETH
