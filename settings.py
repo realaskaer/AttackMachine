@@ -10,7 +10,7 @@
     6 - ETH-Linea             15 - ZEN-Horizen *OKX        24 - USDT-Avalanche       33 - USDT-ERC20
     7 - ETH-Base              16 - KLAY-Klaytn             25 - USDT-Arbitrum One    34 - USDT-BEP20 *BingX
     8 - CELO-Celo             17 - FTM-Fantom              26 - USDC-ERC20           35 - USDC-BEP20 *BingX
-    9 - ONE-Harmony           19 - AVAX-Avalanche          27 - USDC-Optimism
+    9 - ONE-Harmony           18 - AVAX-Avalanche          27 - USDC-Optimism
 
     *OKX   - поддерживается только на OKX
     *BingX - поддерживается только на BingX
@@ -191,7 +191,7 @@ DST_CHAIN_BUNGEE_REFUEL = {
     17: (0.00005, 0.00006),  # Chain ID: (минимум, максимум) в нативном токене исходящей сети (кол-во)
 }
 
-SRC_CHAIN_L2TELEGRAPH = [43]    # Исходящая сеть для L2Telegraph.
+SRC_CHAIN_L2TELEGRAPH = [33]    # Исходящая сеть для L2Telegraph.
 DST_CHAIN_L2TELEGRAPH = [2]    # Входящая сеть для L2Telegraph.
 
 '---------------------------------------------LAYERZERO ATTACKS--------------------------------------------------------'
