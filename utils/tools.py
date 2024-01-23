@@ -194,10 +194,11 @@ def helper(func):
                     if attempts:
                         if isinstance(error, asyncio.exceptions.TimeoutError):
                             error = 'Connection to RPC is not stable'
-
+                        
                         if isinstance(error, BlockchainException):
                             self.logger_msg(
-                                *self.acc_info, msg=f'Maybe problem with node: {self.rpc}', type_msg='warning')
+                                self.client.account_name,
+                                None, msg=f'Maybe problem with node: {self.client.rpc}', type_msg='warning')
 
                         self.logger_msg(
                             self.client.account_name,
