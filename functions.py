@@ -633,9 +633,19 @@ async def okx_multi_withdraw(account_number, private_key, network, proxy):
     return await worker.okx_multi_withdraw()
 
 
+async def bingx_multi_withdraw(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.bingx_multi_withdraw()
+
+
 async def random_okx_withdraw(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.random_okx_withdraw()
+
+
+async def random_bingx_withdraw(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.random_bingx_withdraw()
 
 
 async def okx_deposit(account_number, private_key, _, proxy, dep_network=OKX_DEPOSIT_NETWORK, **kwargs):
@@ -889,9 +899,9 @@ async def stargate_volume(account_number, private_key, network, proxy):
 #     return await worker.mint_berachain_tokens()
 
 
-async def bingx_withdraw(account_number, private_key, network, proxy):
+async def bingx_withdraw(account_number, private_key, network, proxy, **kwargs):
     worker = BingX(get_client(account_number, private_key, network, proxy))
-    return await worker.withdraw()
+    return await worker.withdraw(**kwargs)
 
 
 async def bingx_transfer(account_number, private_key, network, proxy):

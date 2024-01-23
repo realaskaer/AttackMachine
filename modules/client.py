@@ -90,6 +90,7 @@ class Client(Logger):
         to_token_amount = await self.get_normalize_amount(to_token_name, to_token_amount_in_wei)
 
         token_info = {
+            'DAI': 'dai',
             'USDT': 'tether',
             'USDC': 'usd-coin',
             'USDC.e': 'bridged-usdc-polygon-pos-bridge',
@@ -332,7 +333,10 @@ class Client(Logger):
                 tx_params['maxFeePerGas'] = max_fee_per_gas
                 tx_params['type'] = '0x2'
             else:
-                tx_params['gasPrice'] = await self.w3.eth.gas_price
+                if self.network.name == 'BNB Chain':
+                    tx_params['gasPrice'] = self.w3.to_wei(int(round(random.uniform(1.2, 1.5), 1)), 'gwei')
+                else:
+                    tx_params['gasPrice'] = await self.w3.eth.gas_price
 
             return tx_params
         except Exception as error:

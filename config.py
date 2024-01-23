@@ -241,8 +241,8 @@ TOKENS_PER_CHAIN = {
         'USDT'              : "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
     },
     'Arbitrum Nova':{
-        "ETH"               : "0x765277EebeCA2e31912C9946eAe1021199B39C61",
-        "WETH"              : "0x765277EebeCA2e31912C9946eAe1021199B39C61",
+        "ETH"               : "0x722E8BdD2ce80A4422E880164f2079488e115365",
+        "WETH"              : "0x722E8BdD2ce80A4422E880164f2079488e115365",
         "DAI"               : "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"
     },
     'Zora':{

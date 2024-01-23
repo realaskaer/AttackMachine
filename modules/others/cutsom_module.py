@@ -6,7 +6,8 @@ from modules import Logger, Aggregator
 from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS
 from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
     L2PASS_ATTACK_NFT, \
-    ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW, OKX_DEPOSIT_AMOUNT
+    ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW, OKX_DEPOSIT_AMOUNT, \
+    BINGX_MULTI_WITHDRAW
 from utils.tools import helper, gas_checker, sleep
 
 
@@ -350,6 +351,37 @@ class Custom(Logger, Aggregator):
         return True
 
     @helper
+    async def bingx_multi_withdraw(self, random_network:bool = False):
+        from functions import bingx_withdraw
+
+        if random_network:
+            shuffle_withdraw = list(BINGX_MULTI_WITHDRAW.items())
+            shuffle_withdraw = [random.choice(shuffle_withdraw)]
+        else:
+            shuffle_withdraw = list(BINGX_MULTI_WITHDRAW.items())
+            random.shuffle(shuffle_withdraw)
+
+        multi_withdraw_data = {}
+
+        for network, amount in shuffle_withdraw:
+
+            multi_withdraw_data['network'] = network
+            multi_withdraw_data['amount'] = amount
+
+            try:
+                await bingx_withdraw(self.client.account_name, self.client.private_key,
+                                     self.client.network, self.client.proxy_init,
+                                     multi_withdraw_data=multi_withdraw_data)
+
+            except Exception as error:
+                self.logger_msg(
+                    *self.client.acc_info, msg=f"Withdraw from BingX failed. Error: {error}", type_msg='error')
+
+            await sleep(self)
+
+        return True
+
+    @helper
     async def smart_refuel(self, dapp_id:int = None):
         from functions import merkly_for_refuel_attack, l2pass_for_refuel_attack, zerius_for_refuel_attack
         from settings import (SRC_CHAIN_MERKLY, SRC_CHAIN_L2PASS, SRC_CHAIN_ZERIUS,
@@ -435,5 +467,11 @@ class Custom(Logger, Aggregator):
     @helper
     async def random_okx_withdraw(self):
         await self.okx_multi_withdraw(random_network=True)
+
+        return True
+
+    @helper
+    async def random_bingx_withdraw(self):
+        await self.bingx_multi_withdraw(random_network=True)
 
         return True

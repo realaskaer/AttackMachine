@@ -29,6 +29,10 @@ OKX_DEPOSIT_AMOUNT = ('100', '100')     # (минимальная, максим�
 
 BINGX_WITHDRAW_NETWORK = 25             # Сеть вывода из BINGX
 BINGX_WITHDRAW_AMOUNT = (1, 1)          # (минимальная, максимальная) сумма для вывода из BINGX (кол-во)
+BINGX_MULTI_WITHDRAW = {                # Сеть вывода: (минимум, максимум) в токене для вывода (кол-во)
+    9: (1, 1.011),
+    4: (0.0001, 0.000111),
+}
 
 OKX_BALANCE_WANTED = 0.01               # Необходимый баланс на аккаунтах для уравнителя (make_balance_to_average)
 
@@ -293,7 +297,9 @@ EXCLUDED_MODULES = ['swap_openocean']  # Исключает выбранные �
 
 HELPERS_CONFIG = {
     'okx_withdraw'                        : 0,  # смотри CEX CONTROL
+    'bingx_withdraw'                      : 0,  # смотри CEX CONTROL
     'okx_multi_withdraw'                  : 0,  # вывод в несколько сетей. Смотри CEX CONTROL (OKX_MULTI_WITHDRAW)
+    'bingx_multi_withdraw'                : 0,  # вывод в несколько сетей. Смотри CEX CONTROL (BINGX_MULTI_WITHDRAW)
     'collector_eth'                       : 0,  # сбор всех токенов в ETH внутри сети GLOBAL_NETWORK
     'make_balance_to_average'             : 0,  # уравнивает ваши балансы на аккаунтах (см. инструкцию к софту)
     'upgrade_stark_wallet'                : 0,  # обновляет кошелек, во время маршрута
@@ -315,7 +321,9 @@ HELPERS_CONFIG = {
     okx_withdraw                     # смотри CEX CONTROL
     bingx_withdraw                   # смотри CEX CONTROL
     okx_multi_withdraw               # вывод в несколько сетей. Смотри CEX CONTROL (OKX_MULTI_WITHDRAW)
+    bingx_multi_withdraw             # вывод в несколько сетей. Смотри CEX CONTROL (BINGX_MULTI_WITHDRAW)
     random_okx_withdraw              # вывод в рандомную сеть из OKX_MULTI_WITHDRAW
+    random_bingx_withdraw            # вывод в рандомную сеть из BINGX_MULTI_WITHDRAW
     collector_eth                    # сбор всех токенов в ETH
     make_balance_to_average          # уравнивает ваши балансы на аккаунтах (см. инструкцию к софту) 
     upgrade_stark_wallet             # обновляет кошелек, во время маршрута
@@ -425,8 +433,7 @@ HELPERS_CONFIG = {
     send_message_dmail
     random_approve
     transfer_eth                     
-    transfer_eth_to_myself   
-    wrap_abuser                     
+    transfer_eth_to_myself                        
     enable_collateral_zklend
     disable_collateral_zklend
     mint_starknet_identity
@@ -509,15 +516,13 @@ HELPERS_CONFIG = {
     mint_mintfun
     mint_zkstars
     deposit_rocketsam
-    wrap_abuser                           
     transfer_eth                     
     transfer_eth_to_myself
 
 --------------------------------------------------------NOVA------------------------------------------------------------        
     
     swap_sushiswap
-    deposit_rocketsam
-    wrap_abuser                          
+    deposit_rocketsam                          
     transfer_eth                     
     transfer_eth_to_myself
     
