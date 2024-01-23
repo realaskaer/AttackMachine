@@ -122,6 +122,9 @@ class Custom(Logger, Aggregator):
     async def wraps_abuser(self):
         from functions import swap_odos, swap_oneinch, swap_xyfinance, swap_avnu
 
+        if GLOBAL_NETWORK == 9:
+            await self.client.initialize_account()
+
         func = {
             3: [swap_odos, swap_oneinch, swap_xyfinance],
             4: [swap_xyfinance],

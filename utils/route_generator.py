@@ -149,6 +149,7 @@ AVAILABLE_MODULES_INFO = {
     #mint_berachain_tokens               : (mint_berachain_tokens, 5, 'Mint BeraChain Tokens', 0, [2, 3, 4, 8, 9, 11, 12])
 }
 
+
 def get_func_by_name(module_name, help_message:bool = False):
     for k, v in AVAILABLE_MODULES_INFO.items():
         if k.__name__ == module_name:
@@ -477,9 +478,13 @@ class RouteGenerator(Logger):
             collaterals_modules = [enable_collateral_layerbank, disable_collateral_layerbank]
 
         if GLOBAL_NETWORK != 0:
-            for i in range(len(wallet_modules_statuses)):
-                if wallet_modules_statuses[i] in ["Not Started", "Error"]:
-                    modules_to_work.append(modules_list[i])
+            try:
+                for i in range(len(wallet_modules_statuses)):
+                    if wallet_modules_statuses[i] in ["Not Started", "Error"]:
+                        modules_to_work.append(modules_list[i])
+            except IndexError:
+                raise RuntimeError('Wrong GLOBAL_NETWORK or you missing the fields in your Google Sheet')
+
         else:
             for i in range(len(wallet_modules_statuses)):
                 if wallet_modules_statuses[i] in ["Not Started", "Error"]:

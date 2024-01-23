@@ -176,8 +176,8 @@ class Runner(Logger):
 
         clean_google_progress_file()
 
-    async def generate_smart_routes(self, route_generator, accounts_data: tuple):
-        account_name, private_key = None, None
+    @staticmethod
+    async def generate_smart_routes(route_generator, accounts_data: tuple):
         try:
             if SOFTWARE_MODE:
                 accounts_name = [str(i[0]) for i in accounts_data]
@@ -186,8 +186,7 @@ class Runner(Logger):
                 account_name, private_key = accounts_data
                 await route_generator.get_smart_route(str(account_name))
         except Exception as error:
-            self.logger_msg(account_name, None, f"Can`t generate smart route. Error: {error}", 'error')
-            raise RuntimeError
+            raise RuntimeError(f"Can`t generate smart route. Error: {error}")
 
     async def change_ip_proxy(self):
         try:
@@ -438,8 +437,10 @@ class Runner(Logger):
                 await self.run_parallel(smart_route, route_generator)
             else:
                 await self.run_consistently(smart_route, route_generator)
+        except RuntimeError as error:
+            self.logger_msg(None, None, msg=error, type_msg='error')
         except Exception as error:
-            self.logger_msg(None, None, f"Total error: {error}\n", 'error')
+            self.logger_msg(None, None, msg=error, type_msg='error')
             if smart_route and check_google_progress_file():
                 self.logger_msg(None, None, f"Machine cant die. Saving progress in Google...\n",
                                 'warning')
