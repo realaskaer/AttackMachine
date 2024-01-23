@@ -466,28 +466,24 @@ async def zerius_refuel_google(account_number, private_key, _, proxy, chain_from
     wrapped_chain_from = LAYERZERO_WRAPED_NETWORKS[chain_from]
     network = get_network_by_chain_id(wrapped_chain_from)
 
-    worker = Zerius(get_client(account_number, private_key, network, proxy), wrapped_chain_from)
-    return await worker.refuel(attack_data=attack_data)
+    worker = Zerius(get_client(account_number, private_key, network, proxy))
+    return await worker.refuel(wrapped_chain_from, attack_data=attack_data)
 
 
 async def l2pass_bridge_google(account_number, private_key, _, proxy, chain_from, chain_to):
-    attack_data = chain_to
-
     wrapped_chain_from = LAYERZERO_WRAPED_NETWORKS[chain_from]
     network = get_network_by_chain_id(wrapped_chain_from)
 
     worker = L2Pass(get_client(account_number, private_key, network, proxy))
-    return await worker.bridge(chain_id_from=wrapped_chain_from, attack_data=attack_data)
+    return await worker.bridge(chain_id_from=wrapped_chain_from, attack_data=chain_to)
 
 
 async def zerius_bridge_google(account_number, private_key, _, proxy, chain_from, chain_to):
-    attack_data = chain_to
-
     wrapped_chain_from = LAYERZERO_WRAPED_NETWORKS[chain_from]
     network = get_network_by_chain_id(wrapped_chain_from)
 
-    worker = Zerius(get_client(account_number, private_key, network, proxy), wrapped_chain_from)
-    return await worker.bridge(attack_data=attack_data)
+    worker = Zerius(get_client(account_number, private_key, network, proxy))
+    return await worker.bridge(wrapped_chain_from, attack_data=chain_to)
 
 
 async def l2pass_refuel_attack(account_number, private_key, network, proxy):
@@ -510,8 +506,8 @@ async def merkly_refuel_attack(account_number, private_key, network, proxy):
 async def zerius_for_refuel_attack(account_number, private_key, _, proxy, chain_from_id, **kwargs):
     network = get_network_by_chain_id(chain_from_id)
 
-    worker = Zerius(get_client(account_number, private_key, network, proxy), chain_from_id)
-    return await worker.refuel(**kwargs)
+    worker = Zerius(get_client(account_number, private_key, network, proxy))
+    return await worker.refuel(chain_from_id, **kwargs)
 
 
 async def zerius_refuel_attack(account_number, private_key, network, proxy):
@@ -522,8 +518,8 @@ async def zerius_refuel_attack(account_number, private_key, network, proxy):
 async def zerius_for_nft_attack(account_number, private_key, _, proxy, chain_from_id, **kwargs):
     network = get_network_by_chain_id(chain_from_id)
 
-    worker = Zerius(get_client(account_number, private_key, network, proxy), chain_from_id)
-    return await worker.bridge(**kwargs)
+    worker = Zerius(get_client(account_number, private_key, network, proxy))
+    return await worker.bridge(chain_from_id, **kwargs)
 
 
 async def zerius_nft_attack(account_number, private_key, network, proxy):
@@ -535,16 +531,16 @@ async def refuel_zerius(account_number, private_key, _, proxy):
     chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_ZERIUS)]
     network = get_network_by_chain_id(chain_from_id)
 
-    worker = Zerius(get_client(account_number, private_key, network, proxy), chain_from_id)
-    return await worker.refuel()
+    worker = Zerius(get_client(account_number, private_key, network, proxy))
+    return await worker.refuel(chain_from_id)
 
 
 async def mint_zerius(account_number, private_key, _, proxy):
     chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_ZERIUS)]
     network = get_network_by_chain_id(chain_from_id)
 
-    worker = Zerius(get_client(account_number, private_key, network, proxy), chain_from_id)
-    return await worker.mint()
+    worker = Zerius(get_client(account_number, private_key, network, proxy))
+    return await worker.mint(chain_from_id)
 
 
 async def mint_merkly(account_number, private_key, _, proxy):
@@ -567,8 +563,8 @@ async def bridge_zerius(account_number, private_key, _, proxy):
     chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_ZERIUS)]
     network = get_network_by_chain_id(chain_from_id)
 
-    worker = Zerius(get_client(account_number, private_key, network, proxy), chain_from_id)
-    return await worker.bridge()
+    worker = Zerius(get_client(account_number, private_key, network, proxy))
+    return await worker.bridge(chain_from_id)
 
 
 async def bridge_l2pass(account_number, private_key, _, proxy):

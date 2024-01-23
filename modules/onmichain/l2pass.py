@@ -48,13 +48,12 @@ class L2Pass(Refuel, Logger):
         dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
         dst_amount = self.client.round_amount(*dst_data[1])
 
-        l2pass_contracts = L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]
-
-        refuel_contract = self.client.get_contract(l2pass_contracts['refuel'], L2PASS_ABI['refuel'])
-
         if not need_check:
             refuel_info = f'{dst_amount} {dst_native_name} to {dst_chain_name} from {self.client.network.name}'
             self.logger_msg(*self.client.acc_info, msg=f'Refuel on L2Pass: {refuel_info}')
+
+        l2pass_contracts = L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]
+        refuel_contract = self.client.get_contract(l2pass_contracts['refuel'], L2PASS_ABI['refuel'])
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
         dst_contract_address = L2PASS_CONTRACTS_PER_CHAINS[LAYERZERO_WRAPED_NETWORKS[dst_data[0]]]['refuel']
