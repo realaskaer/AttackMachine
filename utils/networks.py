@@ -403,7 +403,7 @@ AstarRPC = Network(
     chain_id=592,
     eip1559_support=False,
     token='ASTR',
-    explorer='https://explorer.metis.io/'
+    explorer='https://astar.blockscout.com/'
 )
 
 KavaRPC = Network(
@@ -423,7 +423,6 @@ KlaytnRPC = Network(
     name='Klaytn',
     rpc=[
         'https://rpc.ankr.com/klaytn',
-        'https://1rpc.io/klay',
     ],
     chain_id=8217,
     eip1559_support=False,
