@@ -598,6 +598,9 @@ class RouteGenerator(Logger):
 
     def smart_routes_json_save(self, account_name:str, route:list):
         progress_file_path = './data/services/wallets_progress.json'
+
+        random.shuffle(route)
+
         try:
             with open(progress_file_path, 'r+') as file:
                 data = json.load(file)
