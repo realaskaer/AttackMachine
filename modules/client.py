@@ -334,7 +334,7 @@ class Client(Logger):
                 tx_params['type'] = '0x2'
             else:
                 if self.network.name == 'BNB Chain':
-                    tx_params['gasPrice'] = self.w3.to_wei(int(round(random.uniform(1.2, 1.5), 1)), 'gwei')
+                    tx_params['gasPrice'] = self.w3.to_wei(round(random.uniform(1.2, 1.5), 1), 'gwei')
                 else:
                     tx_params['gasPrice'] = await self.w3.eth.gas_price
 
@@ -424,7 +424,6 @@ class Client(Logger):
                         return False
                 except TransactionNotFound:
                     if total_time > timeout:
-                        self.logger_msg(*self.acc_info, msg=f'Maybe problem with node: {self.rpc}', type_msg='warning')
                         raise TimeExhausted(f"Transaction {tx_hash !r} is not in the chain after {timeout} seconds")
                     total_time += poll_latency
                     await asyncio.sleep(poll_latency)
