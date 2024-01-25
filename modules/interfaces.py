@@ -8,7 +8,8 @@ from random import uniform
 from config import CHAIN_NAME
 
 from general_settings import (LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS,
-                              OKX_API_SECRET, GLOBAL_NETWORK, BINGX_API_KEY, BINGX_API_SECRET)
+                              OKX_API_SECRET, GLOBAL_NETWORK, BINGX_API_KEY, BINGX_API_SECRET, BINANCE_API_KEY,
+                              BINANCE_API_SECRET)
 from utils.networks import StarknetRPC
 
 
@@ -74,8 +75,11 @@ class CEX(ABC):
         elif class_name == 'BingX':
             self.api_key = BINGX_API_KEY
             self.api_secret = BINGX_API_SECRET
+        elif class_name == 'Binance':
+            self.api_key = BINANCE_API_KEY
+            self.api_secret = BINANCE_API_SECRET
         else:
-            raise RuntimeError('CEX don`t available now')
+            raise SoftwareException('CEX don`t available now')
 
     @abstractmethod
     async def deposit(self):
@@ -94,13 +98,17 @@ class CEX(ABC):
                                        params=params) as response:
 
                 data: dict = await response.json(content_type=content_type)
-                if int(data['code']) != 0:
-                    message = data.get('msg') or data.get('desc') or ''
+
+                if self.class_name == 'Binance' and response.status in [200, 201]:
+                    return data
+
+                if int(data.get('code')) != 0:
+                    message = data.get('msg') or data.get('desc') or 'Unknown error'
                     error = f"Error code: {data['code']} Msg: {message}"
-                    raise RuntimeError(f"Bad request to {self.class_name}({module_name}): {error}")
-                else:
-                    # self.logger.success(f"{self.info} {module_name}")
-                    return data['data']
+                    raise SoftwareException(f"Bad request to {self.class_name}({module_name}): {error}")
+
+                # self.logger.success(f"{self.info} {module_name}")
+                return data['data']
 
 
 class Aggregator(ABC):
@@ -121,9 +129,9 @@ class Aggregator(ABC):
                 data = await response.json()
                 if response.status == 200:
                     return data
-                raise RuntimeError(f"Bad request to {self.__class__.__name__} API: {response.status}")
+                raise SoftwareException(f"Bad request to {self.__class__.__name__} API: {response.status}")
             except ContentTypeError:
-                raise RuntimeError(f"Bad request to {self.__class__.__name__} API. Problem in API functionality")
+                raise SoftwareException(f"Bad request to {self.__class__.__name__} API. Problem in API functionality")
 
 
 class Bridge(ABC):
@@ -169,7 +177,7 @@ class Bridge(ABC):
             data = await response.json()
             if response.status in [200, 201]:
                 return data
-            raise RuntimeError(f"Bad request to {self.__class__.__name__} API: {response.status}")
+            raise SoftwareException(f"Bad request to {self.__class__.__name__} API: {response.status}")
 
 
 class Refuel(ABC):
@@ -228,4 +236,4 @@ class Blockchain(ABC):
             data = await response.json()
             if response.status == 200:
                 return data
-            raise RuntimeError(f"Bad request to {self.__class__.__name__} API: {response.status}")
+            raise SoftwareException(f"Bad request to {self.__class__.__name__} API: {response.status}")

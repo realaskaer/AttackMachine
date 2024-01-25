@@ -7,7 +7,7 @@ from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS
 from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
     L2PASS_ATTACK_NFT, \
     ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW, OKX_DEPOSIT_AMOUNT, \
-    BINGX_MULTI_WITHDRAW, SHUFFLE_NFT_ATTACK
+    BINGX_MULTI_WITHDRAW, SHUFFLE_NFT_ATTACK, BINANCE_MULTI_WITHDRAW
 from utils.tools import helper, gas_checker, sleep
 
 
@@ -314,6 +314,8 @@ class Custom(Logger, Aggregator):
             random.shuffle(attack_bridge_without_none)
 
         for chain_id_from, chain_id_to in attack_bridge_without_none:
+            if isinstance(chain_id_to, list):
+                chain_id_to = random.choice(chain_id_to)
 
             chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
 
@@ -325,14 +327,22 @@ class Custom(Logger, Aggregator):
         return True
 
     @helper
-    async def okx_multi_withdraw(self, random_network:bool = False):
-        from functions import okx_withdraw
+    async def cex_multi_withdraw(self, dapp_id:int, random_network:bool = False):
+        from functions import okx_withdraw, bingx_withdraw, binance_withdraw
+
+        dapp_config = {
+            1: (okx_withdraw, OKX_MULTI_WITHDRAW),
+            2: (bingx_withdraw, BINGX_MULTI_WITHDRAW),
+            3: (binance_withdraw, BINANCE_MULTI_WITHDRAW)
+        }[dapp_id]
+
+        func, withdraw_datas = dapp_config
 
         if random_network:
-            shuffle_withdraw = list(OKX_MULTI_WITHDRAW.items())
+            shuffle_withdraw = list(withdraw_datas.items())
             shuffle_withdraw = [random.choice(shuffle_withdraw)]
         else:
-            shuffle_withdraw = list(OKX_MULTI_WITHDRAW.items())
+            shuffle_withdraw = list(withdraw_datas.items())
             random.shuffle(shuffle_withdraw)
 
         multi_withdraw_data = {}
@@ -343,42 +353,12 @@ class Custom(Logger, Aggregator):
             multi_withdraw_data['amount'] = amount
 
             try:
-                await okx_withdraw(self.client.account_name, self.client.private_key,
-                                   self.client.network, self.client.proxy_init, multi_withdraw_data=multi_withdraw_data)
-            except Exception as error:
-                self.logger_msg(
-                    *self.client.acc_info, msg=f"Withdraw from OKX failed. Error: {error}", type_msg='error')
-
-            await sleep(self)
-
-        return True
-
-    @helper
-    async def bingx_multi_withdraw(self, random_network:bool = False):
-        from functions import bingx_withdraw
-
-        if random_network:
-            shuffle_withdraw = list(BINGX_MULTI_WITHDRAW.items())
-            shuffle_withdraw = [random.choice(shuffle_withdraw)]
-        else:
-            shuffle_withdraw = list(BINGX_MULTI_WITHDRAW.items())
-            random.shuffle(shuffle_withdraw)
-
-        multi_withdraw_data = {}
-
-        for network, amount in shuffle_withdraw:
-
-            multi_withdraw_data['network'] = network
-            multi_withdraw_data['amount'] = amount
-
-            try:
-                await bingx_withdraw(self.client.account_name, self.client.private_key,
-                                     self.client.network, self.client.proxy_init,
-                                     multi_withdraw_data=multi_withdraw_data)
+                await func(self.client.account_name, self.client.private_key, self.client.network,
+                           self.client.proxy_init, multi_withdraw_data=multi_withdraw_data)
 
             except Exception as error:
                 self.logger_msg(
-                    *self.client.acc_info, msg=f"Withdraw from BingX failed. Error: {error}", type_msg='error')
+                    *self.client.acc_info, msg=f"Withdraw from CEX failed. Error: {error}", type_msg='error')
 
             await sleep(self)
 
@@ -442,7 +422,7 @@ class Custom(Logger, Aggregator):
 
         tokens, chains = dapp_config
 
-        await self.okx_multi_withdraw(random_network=True)
+        await self.cex_multi_withdraw(dapp_id=1, random_network=True)
 
         for _ in range(STARGATE_SWAPS_AMOUNT):
             await self.smart_bridge_l0(dapp_id=dapp_id)
@@ -468,13 +448,7 @@ class Custom(Logger, Aggregator):
         return True
 
     @helper
-    async def random_okx_withdraw(self):
-        await self.okx_multi_withdraw(random_network=True)
-
-        return True
-
-    @helper
-    async def random_bingx_withdraw(self):
-        await self.bingx_multi_withdraw(random_network=True)
+    async def random_cex_withdraw(self, dapp_id):
+        await self.cex_multi_withdraw(dapp_id, random_network=True)
 
         return True

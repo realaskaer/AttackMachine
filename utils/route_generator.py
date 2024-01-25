@@ -25,10 +25,13 @@ AVAILABLE_MODULES_INFO = {
     # module_name                       : (module name, priority, tg info, can be help module, supported network)
     okx_withdraw                        : (okx_withdraw, -3, 'OKX Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
     bingx_withdraw                      : (bingx_withdraw, -3, 'BingX Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
+    binance_withdraw                    : (binance_withdraw, -3, 'Binance Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
     okx_multi_withdraw                  : (okx_multi_withdraw, 0, 'OKX Multi Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
     bingx_multi_withdraw                : (bingx_multi_withdraw, 0, 'BingX Multi Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
+    binance_multi_withdraw              : (binance_multi_withdraw, 0, 'Binance Multi Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
     random_okx_withdraw                 : (random_okx_withdraw, 0, 'OKX Random Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
     random_bingx_withdraw               : (random_bingx_withdraw, 0, 'BingX Random Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
+    random_binance_withdraw             : (random_binance_withdraw, 0, 'Binance Random Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
     make_balance_to_average             : (make_balance_to_average, -2, 'Check and make wanted balance', 0, [0]),
     collector_eth                       : (collector_eth, -1, 'Collect ETH from tokens', 0, [2, 3, 4, 8, 9, 11, 12]),
     deploy_stark_wallet                 : (deploy_stark_wallet, 0, 'Deploy Wallet', 0, [9]),

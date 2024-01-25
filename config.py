@@ -1,5 +1,4 @@
 import asyncio
-from termcolor import cprint
 from utils.tools import get_accounts_data, get_eth_price
 
 ACROSS_ABI = {
@@ -2211,6 +2210,7 @@ OKX_NETWORKS_NAME = {
     31                      : 'USDC-Polygon (Bridged)',
     32                      : 'USDC-Optimism (Bridged)',
     33                      : 'USDT-ERC20',
+    36                      : 'INJ-INJ',
 }
 
 BINGX_NETWORKS_NAME = {
@@ -2222,7 +2222,7 @@ BINGX_NETWORKS_NAME = {
     6                       : "ETH-LINEA",
     7                       : "ETH-BASE",
     8                       : 'CELO-CELO',
-    9                      : 'ONE-HARMONY',
+    9                       : 'ONE-HARMONY',
     # 10                      : 'GLMR-Moonbeam',
     # 11                      : 'MOVR-Moonriver',
     12                      : 'METIS-METIS',
@@ -2239,7 +2239,7 @@ BINGX_NETWORKS_NAME = {
     23                      : 'USDT-OPTIMISM',
     # 24                      : 'USDT-Avalanche',
     25                      : 'USDT-ARBITRUM',
-    26                      : 'USDС-ERC20',
+    26                      : 'USDC-ERC20',
     27                      : 'USDC-Optimism (Circle)',
     28                      : 'USDC-AVAX-C',
     29                      : 'USDC-Arbitrum One (Circle)',
@@ -2249,6 +2249,46 @@ BINGX_NETWORKS_NAME = {
     33                      : 'USDT-ERC20',
     34                      : 'USDT-BEP20',
     35                      : 'USDC-BEP20',
+    36                      : 'INJ-INJ',
+}
+
+BINANCE_NETWORKS_NAME = {
+    1                       : "ETH-ETH",
+    2                       : "ETH-ARBITRUM",
+    3                       : "ETH-OPTIMISM",
+    # 4                       : "ETH-STARKNET",
+    5                       : "ETH-ZKSYNCERA",
+    # 6                       : "ETH-LINEA",
+    7                       : "ETH-BASE",
+    8                       : 'CELO-CELO',
+    9                       : 'ONE-HARMONY',
+    10                      : 'GLMR-Moonbeam',
+    11                      : 'MOVR-Moonriver',
+    # 12                      : 'METIS-METIS',
+    # 13                      : 'CORE-CORE',
+    14                      : 'CFX-CFX',
+    15                      : 'ZEN-Horizen',
+    16                      : 'KLAY-KLAYTN',
+    17                      : 'FTM-FANTOM',
+    18                      : 'AVAX-AVAXC',
+    19                      : 'ASTR-ASTR',
+    20                      : 'BNB-BSC',
+    21                      : 'MATIC-MATIC',
+    22                      : 'USDT-MATIC',
+    23                      : 'USDT-OPTIMISM',
+    24                      : 'USDT-AVAXC',
+    25                      : 'USDT-ARBITRUM',
+    26                      : 'USDC-ETH',
+    27                      : 'USDC-OPTIMISM',
+    28                      : 'USDC-AVAXC',
+    29                      : 'USDC-ARBITRUM',
+    30                      : 'USDC-MATIC',
+    # 31                      : 'USDC-Polygon (Bridged)',
+    # 32                      : 'USDC-Optimism (Bridged)',
+    33                      : 'USDT-ETH',
+    34                      : 'USDT-BSC',
+    35                      : 'USDC-BSC',
+    36                      : 'INJ-INJ',
 }
 
 CEX_WRAPED_ID = {

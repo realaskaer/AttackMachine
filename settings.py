@@ -1,19 +1,16 @@
 """
 --------------------------------------------------CEX CONTROL-----------------------------------------------------------
-    Выберите сети/суммы для вывода и ввода с OKX. Не забудьте вставить API ключи снизу.
+    Выберите сети/суммы для вывода и ввода с CEX. Не забудьте вставить API ключи снизу.
 
-    1 - ETH-ERC20             10 - GLMR-Moonbeam *OKX      19 - ASTR-Astar           28 - USDC-Avalanche *OKX
-    2 - ETH-Arbitrum One      11 - MOVR-Moonriver *OKX     20 - BNB-BSC              29 - USDC-Arbitrum One
+    1 - ETH-ERC20             10 - GLMR-Moonbeam           19 - ASTR-Astar           28 - USDC-Avalanche
+    2 - ETH-Arbitrum One      11 - MOVR-Moonriver          20 - BNB-BSC              29 - USDC-Arbitrum One
     3 - ETH-Optimism          12 - METIS-Metis             21 - MATIC-Polygon        30 - USDC-Polygon
-    4 - ETH-Starknet          13 - CORE-CORE *OKX          22 - USDT-Polygon         31 - USDC-Polygon (Bridged)
+    4 - ETH-Starknet          13 - CORE-CORE               22 - USDT-Polygon         31 - USDC-Polygon (Bridged)
     5 - ETH-zkSync Era        14 - CFX-Conflux             23 - USDT-Optimism        32 - USDC-Optimism (Bridged)
-    6 - ETH-Linea             15 - ZEN-Horizen *OKX        24 - USDT-Avalanche       33 - USDT-ERC20
-    7 - ETH-Base              16 - KLAY-Klaytn             25 - USDT-Arbitrum One    34 - USDT-BEP20 *BingX
-    8 - CELO-Celo             17 - FTM-Fantom              26 - USDC-ERC20           35 - USDC-BEP20 *BingX
-    9 - ONE-Harmony           18 - AVAX-Avalanche          27 - USDC-Optimism
-
-    *OKX   - поддерживается только на OKX
-    *BingX - поддерживается только на BingX
+    6 - ETH-Linea             15 - ZEN-Horizen             24 - USDT-Avalanche       33 - USDT-ERC20
+    7 - ETH-Base              16 - KLAY-Klaytn             25 - USDT-Arbitrum One    34 - USDT-BEP20
+    8 - CELO-Celo             17 - FTM-Fantom              26 - USDC-ERC20           35 - USDC-BEP20
+    9 - ONE-Harmony           18 - AVAX-Avalanche          27 - USDC-Optimism        36 - INJ-Injective
 
 ------------------------------------------------------------------------------------------------------------------------
 """
@@ -24,12 +21,19 @@ OKX_MULTI_WITHDRAW = {          # Сеть вывода: (минимум, мак
     4: (0.0001, 0.000111),
 }
 
-OKX_DEPOSIT_NETWORK = 32                # Сеть из которой планируется пополнение OKX
-OKX_DEPOSIT_AMOUNT = ('100', '100')     # (минимальная, максимальная) сумма для пополнения OKX (% или кол-во)
+OKX_DEPOSIT_NETWORK = 21                 # Сеть из которой планируется пополнение OKX
+OKX_DEPOSIT_AMOUNT = (0.11, 0.12)        # (минимальная, максимальная) сумма для пополнения OKX (% или кол-во)
 
-BINGX_WITHDRAW_NETWORK = 25             # Сеть вывода из BINGX
-BINGX_WITHDRAW_AMOUNT = (1, 1)          # (минимальная, максимальная) сумма для вывода из BINGX (кол-во)
-BINGX_MULTI_WITHDRAW = {                # Сеть вывода: (минимум, максимум) в токене для вывода (кол-во)
+BINGX_WITHDRAW_NETWORK = 25              # Сеть вывода из BingX
+BINGX_WITHDRAW_AMOUNT = (1, 1)           # (минимальная, максимальная) сумма для вывода из BingX (кол-во)
+BINGX_MULTI_WITHDRAW = {                 # Сеть вывода: (минимум, максимум) в токене для вывода (кол-во)
+    9: (1, 1.011),
+    4: (0.0001, 0.000111),
+}
+
+BINANCE_WITHDRAW_NETWORK = 3              # Сеть вывода из Binance
+BINANCE_WITHDRAW_AMOUNT = (0.001, 0.001)  # (минимальная, максимальная) сумма для вывода из Binance (кол-во)
+BINANCE_MULTI_WITHDRAW = {                # Сеть вывода: (минимум, максимум) в токене для вывода (кол-во)
     9: (1, 1.011),
     4: (0.0001, 0.000111),
 }
@@ -151,10 +155,12 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (
     MERKLY_ATTACK_REFUEL = [
         ([43, 3, 0.0001], None),  # Пример использования None для атаки: (данные для атаки, None).
     ]                               Если будет выбран None, то модуль будет пропущен 
+                                    Применяется для всех модулей.
                                      
     MERKLY_ATTACK_REFUEL = [
         [43, [1, 2, 3], 0.0001],  # Пример использования случайной атаки: (исходящая сеть, список входящих сетей, сумма)
-    ]                                 Если будет указан список сетей, то модуль выберет одну сеть из списка 
+    ]                               Если будет указан список сетей, то модуль выберет одну сеть из списка.
+                                    Применяется для всех модулей.
     
     L2PASS_GAS_STATION_DATA | Gas Station на L2Pass https://l2pass.com/gas-station. 
                               Указываете в списках сеть и сумму к refuel.
@@ -164,6 +170,7 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (
             1) L2Pass - https://l2pass.com/refuel  
             2) Zerius - https://zerius.io/refuel
             3) Merkly - https://minter.merkly.com/gas  
+            
 """
 STARGATE_CHAINS = [1, 7, 22, 31]
 STARGATE_TOKENS = ['ETH', 'ETH', 'ETH', 'ETH']

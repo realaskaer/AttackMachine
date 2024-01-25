@@ -177,8 +177,10 @@ class L2Pass(Refuel, Logger):
             L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]['gas_station'], L2PASS_ABI['gas_station']
         )
 
-        for chaid_to, amount in gas_data:
-            dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[chaid_to]
+        for chain_id_to, amount in gas_data:
+            if isinstance(chain_id_to, list):
+                chain_id_to = random.choice(chain_id_to)
+            dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[chain_id_to]
             dst_amount = int(self.client.round_amount(*(amount, amount * 1.2)) * 10 ** 18)
             adapter_params = await gas_contract.functions.createAdapterParams(
                 dst_chain_id,

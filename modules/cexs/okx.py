@@ -56,40 +56,35 @@ class OKX(CEX, Logger):
             await self.client.initialize_account(check_balance=True)
 
         url = 'https://www.okx.cab/api/v5/asset/withdrawal'
-        if not multi_withdraw_data:
-            ccy = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK].split('-')[0]
-            withdraw_data = await self.get_currencies(ccy)
-            dst_chain_id = CEX_WRAPED_ID[OKX_WITHDRAW_NETWORK]
 
-            networks_data = {item['chain']: {'can_withdraw': item['canWd'], 'min_fee': item['minFee'],
-                                             'min_wd': item['minWd'], 'max_wd': item['maxWd']} for item in withdraw_data}
-
-            network_name = OKX_NETWORKS_NAME[OKX_WITHDRAW_NETWORK]
-            network_data = networks_data[network_name]
-            if want_balance:
-                amount = want_balance
-            else:
-                amount = await self.client.get_smart_amount(OKX_WITHDRAW_AMOUNT)
+        if multi_withdraw_data is None:
+            network_id = OKX_WITHDRAW_NETWORK
+            amount = OKX_WITHDRAW_AMOUNT
         else:
+            network_id = multi_withdraw_data['network']
+            amount = multi_withdraw_data['amount']
 
-            ccy = OKX_NETWORKS_NAME[multi_withdraw_data['network']].split('-')[0]
-            dst_chain_id = CEX_WRAPED_ID[multi_withdraw_data['network']]
-            withdraw_data = await self.get_currencies(ccy)
+        network_raw_name = OKX_NETWORKS_NAME[network_id]
+        ccy, network_name = network_raw_name.split('-')
+        dst_chain_id = CEX_WRAPED_ID[network_id]
+        withdraw_data = await self.get_currencies(ccy)
 
-            networks_data = {item['chain']: {'can_withdraw': item['canWd'], 'min_fee': item['minFee'],
-                                             'min_wd': item['minWd'], 'max_wd': item['maxWd']} for item in
-                             withdraw_data}
+        network_data = {
+            item['chain']: {
+                'can_withdraw': item['canWd'],
+                'min_fee': item['minFee'],
+                'min_wd': item['minWd'],
+                'max_wd': item['maxWd']
+            } for item in withdraw_data
+        }[network_raw_name]
 
-            network_name = OKX_NETWORKS_NAME[multi_withdraw_data['network']]
-            network_data = networks_data[network_name]
-            amount = await self.client.get_smart_amount(multi_withdraw_data['amount'])
+        amount = await self.client.get_smart_amount(amount)
 
-        network_name_log = " ".join(network_name.split('-')[1:])
         self.logger_msg(
-            *self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name_log}")
+            *self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name}")
 
         if network_data['can_withdraw']:
-            address = f"0x{hex(self.client.address)[2:]:0>64}" if OKX_WITHDRAW_NETWORK == 4 else self.client.address
+            address = f"0x{hex(self.client.address)[2:]:0>64}" if network_id == 4 else self.client.address
             min_wd, max_wd = float(network_data['min_wd']), float(network_data['max_wd'])
 
             if min_wd <= amount <= max_wd:
@@ -100,12 +95,12 @@ class OKX(CEX, Logger):
                     "dest": "4",
                     "toAddr": address,
                     "fee": network_data['min_fee'],
-                    "chain": f"{network_name}",
+                    "chain": network_raw_name,
                 }
 
                 headers = await self.get_headers(method="POST", request_path=url, body=str(body))
 
-                ccy = f"{ccy}.e" if network_name_log.split()[-1] == '(Bridged)' else ccy
+                ccy = f"{ccy}.e" if network_id in [31, 32] else ccy
 
                 old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
                                                                           check_balance_on_dst=True)
@@ -209,8 +204,8 @@ class OKX(CEX, Logger):
 
         return True
 
-    async def get_sub_balances(self, ccy:str = 'ETH'):
-        sub_balances = {}
+    async def get_cex_balances(self, ccy:str = 'ETH'):
+        balances = {}
         url_sub_list = "https://www.okx.cab/api/v5/users/subaccount/list"
 
         await asyncio.sleep(10)
@@ -220,6 +215,15 @@ class OKX(CEX, Logger):
 
         if ccy == 'USDC.e':
             ccy = 'USDC'
+
+        url_balance = f"https://www.okx.cab/api/v5/asset/balances?ccy={ccy}"
+
+        headers = await self.get_headers(request_path=url_balance)
+
+        balance = (await self.make_request(url=url_balance, headers=headers, module_name='Get Account balance'))
+
+        if balance:
+            balances['Main CEX Account'] = float(balance[0]['availBal'])
 
         for sub_data in sub_list:
             sub_name = sub_data['subAcct']
@@ -232,9 +236,9 @@ class OKX(CEX, Logger):
             await asyncio.sleep(3)
 
             if sub_balance:
-                sub_balances[sub_name] = float(sub_balance[0]['availBal'])
+                balances[sub_name] = float(sub_balance[0]['availBal'])
 
-        return sub_balances
+        return balances
 
     async def wait_deposit_confirmation(self, amount:float, old_sub_balances:dict, ccy:str = 'ETH',
                                         check_time:int = 45, timeout:int = 1200):
@@ -244,7 +248,7 @@ class OKX(CEX, Logger):
         await asyncio.sleep(10)
         total_time = 0
         while total_time < timeout:
-            new_sub_balances = await self.get_sub_balances(ccy=ccy)
+            new_sub_balances = await self.get_cex_balances(ccy=ccy)
             for sub_name, sub_balance in new_sub_balances.items():
                 if sub_balance > old_sub_balances[sub_name]:
                     self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} complete", type_msg='success')
@@ -284,14 +288,15 @@ class OKX(CEX, Logger):
             deposit_network = OKX_DEPOSIT_NETWORK
             deposit_amount = OKX_DEPOSIT_AMOUNT
 
-        ccy = OKX_NETWORKS_NAME[deposit_network].split('-')[0]
+        network_raw_name = OKX_NETWORKS_NAME[deposit_network]
+        ccy, network_name = network_raw_name.split('-')
         withdraw_data = await self.get_currencies(ccy)
 
-        networks_data = {item['chain']: {'can_dep': item['canDep'], 'min_dep': item['minDep']}
-                         for item in withdraw_data}
-        network_name = OKX_NETWORKS_NAME[deposit_network]
-        network_data = networks_data[network_name]
-        ccy = f"{ccy}.e" if deposit_network in [32, 33] else ccy
+        networks_raw_data = {item['chain']: {'can_dep': item['canDep'], 'min_dep': item['minDep']}
+                             for item in withdraw_data}
+
+        network_data = networks_raw_data[network_raw_name]
+        ccy = f"{ccy}.e" if deposit_network in [31, 32] else ccy
         amount = await self.client.get_smart_amount(deposit_amount, token_name=ccy)
 
         self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to OKX wallet: {info}")
@@ -330,7 +335,7 @@ class OKX(CEX, Logger):
                             'data': '0x'
                         }
 
-                sub_balances = await self.get_sub_balances(ccy=ccy)
+                sub_balances = await self.get_cex_balances(ccy=ccy)
 
                 result = await self.client.send_transaction(transaction)
 

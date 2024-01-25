@@ -8,14 +8,15 @@
     Количество - (0.01, 0.02)
     Процент    - ("55", "60") ⚠️ Значения в скобках
 
+    AMOUNT_PERCENT_WRAPS
     AMOUNT_PERCENT | Указывать только %, без кавычек. Можно указывать с точностью до 6 цифры (99.123456, 99.654321).
                         ⚠️Остальные настройки сумм указывать в кавычках(если хотите работать в %)⚠️
     MIN_BALANCE | Минимальный баланс для аккаунта. При меньшем балансе будет ошибка: (Insufficient balance on account!)
 """
 AMOUNT_PERCENT = (55, 60)  # Применяется для обменов.
 AMOUNT_PERCENT_WRAPS = (55, 60)  # Применяется для модуля wrap_abuser.
-LIQUIDITY_AMOUNT = (0.0001, 0.0002)  # Применяется для добавления ликвидности, депозитов на лендинги и wrap ETH
-TRANSFER_AMOUNT = (0.00001, 0.00005)  # Применяется для трансферов
+LIQUIDITY_AMOUNT = (0.001, 0.002)  # Применяется для добавления ликвидности, депозитов на лендинги и wrap ETH
+TRANSFER_AMOUNT = ('99', '99')  # Применяется для трансферов
 MIN_BALANCE = 0.001  # Количество ETH на аккаунте
 
 """
@@ -95,6 +96,10 @@ OKX_API_PASSPHRAS = ""
 # BINGX API KEYS https://bingx.com/ru-ru/account/api/
 BINGX_API_KEY = ""
 BINGX_API_SECRET = ""
+
+# BINANCE API KEYS https://www.binance.com/ru/my/settings/api-management
+BINANCE_API_KEY = ""
+BINANCE_API_SECRET = ""
 
 # EXCEL AND GOOGLE INFO
 EXCEL_PASSWORD = False

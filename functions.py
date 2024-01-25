@@ -626,22 +626,32 @@ async def okx_withdraw(account_number, private_key, network, proxy, *args, **kwa
 
 async def okx_multi_withdraw(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
-    return await worker.okx_multi_withdraw()
+    return await worker.cex_multi_withdraw(dapp_id=1)
 
 
 async def bingx_multi_withdraw(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
-    return await worker.bingx_multi_withdraw()
+    return await worker.cex_multi_withdraw(dapp_id=2)
+
+
+async def binance_multi_withdraw(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.cex_multi_withdraw(dapp_id=3)
 
 
 async def random_okx_withdraw(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
-    return await worker.random_okx_withdraw()
+    return await worker.random_cex_withdraw(dapp_id=1)
 
 
 async def random_bingx_withdraw(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
-    return await worker.random_bingx_withdraw()
+    return await worker.random_cex_withdraw(dapp_id=2)
+
+
+async def random_binance_withdraw(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.random_cex_withdraw(dapp_id=3)
 
 
 async def okx_deposit(account_number, private_key, _, proxy, dep_network=OKX_DEPOSIT_NETWORK, **kwargs):
@@ -903,6 +913,11 @@ async def bingx_withdraw(account_number, private_key, network, proxy, **kwargs):
 async def bingx_transfer(account_number, private_key, network, proxy):
     worker = BingX(get_client(account_number, private_key, network, proxy))
     return await worker.withdraw(transfer_mode=True)
+
+
+async def binance_withdraw(account_number, private_key, network, proxy, **kwargs):
+    worker = Binance(get_client(account_number, private_key, network, proxy))
+    return await worker.withdraw(**kwargs)
 
 
 async def bridge_zora(account_number, private_key, _, proxy):

@@ -7,20 +7,20 @@ from utils.tools import helper
 from config import CEX_WRAPED_ID, BINGX_NETWORKS_NAME
 from general_settings import GLOBAL_NETWORK
 from settings import (
-    BINGX_WITHDRAW_NETWORK, BINGX_WITHDRAW_AMOUNT
+    BINANCE_WITHDRAW_AMOUNT, BINANCE_WITHDRAW_NETWORK
 )
 
 
-class BingX(CEX, Logger):
+class Binance(CEX, Logger):
     def __init__(self, client):
         self.client = client
         Logger.__init__(self)
-        CEX.__init__(self, client, 'BingX')
+        CEX.__init__(self, client, 'Binance')
 
-        self.api_url = "https://open-api.bingx.com"
+        self.api_url = "https://api.binance.com"
         self.headers = {
             "Content-Type": "application/json",
-            "X-BX-APIKEY": self.api_key,
+            "X-MBX-APIKEY": self.api_key,
         }
 
     @staticmethod
@@ -55,7 +55,7 @@ class BingX(CEX, Logger):
         pass
 
     async def get_currencies(self, ccy):
-        path = '/openApi/wallets/v1/capital/config/getall'
+        path = '/sapi/v1/capital/config/getall'
 
         params = {
             'timestamp': str(int(time.time() * 1000))
@@ -71,12 +71,13 @@ class BingX(CEX, Logger):
     async def withdraw(self, want_balance:float = 0, multi_withdraw_data:dict = None, transfer_mode:bool = False):
         if GLOBAL_NETWORK == 9:
             await self.client.initialize_account(check_balance=True)
+        await self.get_currencies('ETH')
 
-        path = '/openApi/wallets/v1/capital/withdraw/apply'
+        path = '/sapi/v1/capital/withdraw/apply'
 
         if multi_withdraw_data is None:
-            network_id = BINGX_WITHDRAW_NETWORK
-            amount = BINGX_WITHDRAW_AMOUNT
+            network_id = BINANCE_WITHDRAW_NETWORK
+            amount = BINANCE_WITHDRAW_AMOUNT
         else:
             network_id = multi_withdraw_data['network']
             amount = multi_withdraw_data['amount']
@@ -96,16 +97,11 @@ class BingX(CEX, Logger):
             } for item in withdraw_data
         }[network_name]
 
-        if transfer_mode:
-            amount = await self.get_balance(ccy)
-        else:
-            amount = want_balance if want_balance else await self.client.get_smart_amount(amount)
-
         self.logger_msg(
             *self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
 
         if network_data['withdrawEnable']:
-            address = f"0x{hex(self.client.address)[2:]:0>64}" if BINGX_WITHDRAW_NETWORK == 4 else self.client.address
+            address = f"0x{hex(self.client.address)[2:]:0>64}" if BINANCE_WITHDRAW_NETWORK == 4 else self.client.address
             min_wd, max_wd = float(network_data['withdrawMin']), float(network_data['withdrawMax'])
 
             if min_wd <= amount <= max_wd:
@@ -115,12 +111,11 @@ class BingX(CEX, Logger):
                     "amount": amount,
                     "coin": ccy,
                     "network": network_name,
-                    "walletType": "1",
                 }
 
                 parse_params = self.parse_params(params)
 
-                ccy = f"{ccy}.e" if network_id in [31, 32] else ccy
+                ccy = f"{ccy}.e" if network_name.split()[-1] == '(Bridged)' else ccy
 
                 old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
                                                                           check_balance_on_dst=True)
