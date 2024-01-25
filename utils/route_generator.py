@@ -561,8 +561,10 @@ class RouteGenerator(Logger):
 
         smart_route.append(AVAILABLE_MODULES_INFO[okx_withdraw] if HELPERS_CONFIG['okx_withdraw'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[bingx_withdraw] if HELPERS_CONFIG['bingx_withdraw'] else None)
+        smart_route.append(AVAILABLE_MODULES_INFO[binance_withdraw] if HELPERS_CONFIG['binance_withdraw'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[okx_multi_withdraw] if HELPERS_CONFIG['okx_multi_withdraw'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[bingx_multi_withdraw] if HELPERS_CONFIG['bingx_multi_withdraw'] else None)
+        smart_route.append(AVAILABLE_MODULES_INFO[binance_multi_withdraw] if HELPERS_CONFIG['binance_multi_withdraw'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[okx_deposit] if HELPERS_CONFIG['okx_deposit'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[collector_eth] if HELPERS_CONFIG['collector_eth'] else None)
         smart_route.append(

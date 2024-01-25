@@ -316,8 +316,10 @@ EXCLUDED_MODULES = ['swap_openocean']  # Исключает выбранные �
 HELPERS_CONFIG = {
     'okx_withdraw'                        : 0,  # смотри CEX CONTROL
     'bingx_withdraw'                      : 0,  # смотри CEX CONTROL
+    'binance_withdraw'                    : 0,  # смотри CEX CONTROL
     'okx_multi_withdraw'                  : 0,  # вывод в несколько сетей. Смотри CEX CONTROL (OKX_MULTI_WITHDRAW)
     'bingx_multi_withdraw'                : 0,  # вывод в несколько сетей. Смотри CEX CONTROL (BINGX_MULTI_WITHDRAW)
+    'binance_multi_withdraw'              : 0,  # вывод в несколько сетей. Смотри CEX CONTROL (BINANCE_MULTI_WITHDRAW)
     'collector_eth'                       : 0,  # сбор всех токенов в ETH внутри сети GLOBAL_NETWORK
     'make_balance_to_average'             : 0,  # уравнивает ваши балансы на аккаунтах (см. инструкцию к софту)
     'upgrade_stark_wallet'                : 0,  # обновляет кошелек, во время маршрута
