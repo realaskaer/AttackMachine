@@ -90,13 +90,13 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (
 ---------------------------------------------OMNI-CHAIN CONTROL---------------------------------------------------------
     Проверьте руками, работают ли сети на сайте. (Софт сам проверит, но зачем его напрягать?)
        
-     (B)Arbitrum = 1                  Goerli = 16                        OKX = 30
-        Arbitrum Nova = 2             Gnosis = 17                     (B)Optimism = 31
+        Arbitrum = 1                  Goerli = 16                        OKX = 30
+        Arbitrum Nova = 2             Gnosis = 17                        Optimism = 31
         Astar = 3                     Harmony = 18                       Orderly = 32
-     (B)Aurora = 4                    Horizen = 19                    (B)Polygon = 33  
-     (B)Avalanche = 5                 Kava = 20                       (B)Polygon zkEVM = 34
+        Aurora = 4                    Horizen = 19                       Polygon = 33  
+        Avalanche = 5                 Kava = 20                          Polygon zkEVM = 34
         BNB = 6                       Klaytn = 21                        Scroll = 35
-     (B)Base = 7                      Linea = 22                         ShimmerEVM = 36
+        Base = 7                      Linea = 22                         ShimmerEVM = 36
         Canto = 8                     Loot = 23                          Telos = 37
         Celo = 9                      Manta = 24                         TomoChain = 38 
         Conflux = 10                  Mantle = 25                        Tenet = 39
@@ -150,12 +150,15 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (
     MERKLY_ATTACK_REFUEL = [
     ([43, 3, 0.0001], None),  # Пример использования рандомной атаки: (данные для атаки, None). Если будет выбран None,
     ]                                 то модуль будет пропущен 
-    
-    (B) - Поддерживаемые входящие сети в Bungee
+        
+    L2PASS_GAS_STATION_DATA | Gas Station на L2Pass https://l2pass.com/gas-station. 
+                              Указываете в списках сеть и сумму к refuel.
+
     Сумму для Merkly и Zerius нужно подавать в нативном токене входящей сети. Указывайте на 10% меньше от лимита,
     во избежания ошибок работы LayerZero мостов. Смотреть лимиты можно здесь: 
-            1) Zerius - https://zerius.io/refuel
-            2) Merkly - https://minter.merkly.com/gas  
+            1) L2Pass - https://l2pass.com/refuel  
+            2) Zerius - https://zerius.io/refuel
+            3) Merkly - https://minter.merkly.com/gas  
 """
 STARGATE_CHAINS = [1, 7, 22, 31]
 STARGATE_TOKENS = ['ETH', 'ETH', 'ETH', 'ETH']
