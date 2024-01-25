@@ -7,7 +7,7 @@ from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS
 from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
     L2PASS_ATTACK_NFT, \
     ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW, OKX_DEPOSIT_AMOUNT, \
-    BINGX_MULTI_WITHDRAW
+    BINGX_MULTI_WITHDRAW, SHUFFLE_NFT_ATTACK
 from utils.tools import helper, gas_checker, sleep
 
 
@@ -273,6 +273,9 @@ class Custom(Logger, Aggregator):
             random.shuffle(attack_refuel_without_none)
 
         for chain_id_from, chain_id_to, amount in attack_refuel_without_none:
+            if isinstance(chain_id_to, list):
+                chain_id_to = random.choice(chain_id_to)
+
             refuel_data = {
                 chain_id_to: (amount, round(amount * 1.1, 7))
             }
@@ -307,7 +310,7 @@ class Custom(Logger, Aggregator):
                 continue
             attack_bridge_without_none.append(path)
 
-        if SHUFFLE_ATTACK:
+        if SHUFFLE_NFT_ATTACK:
             random.shuffle(attack_bridge_without_none)
 
         for chain_id_from, chain_id_to in attack_bridge_without_none:
