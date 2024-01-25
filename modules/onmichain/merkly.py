@@ -4,13 +4,13 @@ from modules import Refuel, Logger
 from eth_abi import abi
 from decimal import Decimal
 
-from modules.interfaces import BlockchainException
+from modules.interfaces import BlockchainException, SoftwareException
 from settings import DST_CHAIN_MERKLY_REFUEL, DST_CHAIN_MERKLY_WORMHOLE, WORMHOLE_TOKENS_AMOUNT
 from utils.tools import gas_checker, helper, sleep
 from config import (
     MERKLY_CONTRACTS_PER_CHAINS,
     MERKLY_ABI,
-    LAYERZERO_NETWORKS_DATA, CHAIN_NAME, MERKLY_NFT_WORMHOLE_INFO, MERKLY_WRAPPED_NETWORK,
+    LAYERZERO_NETWORKS_DATA, MERKLY_NFT_WORMHOLE_INFO, MERKLY_WRAPPED_NETWORK,
     MERKLY_TOKENS_WORMHOLE_INFO, LAYERZERO_WRAPED_NETWORKS
 )
 
@@ -50,7 +50,7 @@ class Merkly(Refuel, Logger):
         gas_limit = await refuel_contract.functions.minDstGasLookup(dst_chain_id, 0).call()
 
         if gas_limit == 0 and not need_check:
-            raise RuntimeError('This refuel path is not active!')
+            raise SoftwareException('This refuel path is not active!')
 
         adapter_params = abi.encode(["uint16", "uint64", "uint256"],
                                     [2, gas_limit, dst_native_gas_amount])

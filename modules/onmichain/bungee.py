@@ -1,6 +1,7 @@
 import random
 
 from modules import Refuel, Logger
+from modules.interfaces import SoftwareException
 from settings import DST_CHAIN_BUNGEE_REFUEL
 from utils.tools import gas_checker, helper
 from config import (
@@ -26,7 +27,7 @@ class Bungee(Refuel, Logger):
             if response.status == 200:
                 data = await response.json()
                 return [chain for chain in data['result'] if chain['name'] == self.network][0]
-            raise RuntimeError(f'Bad request to Bungee API: {response.status}')
+            raise SoftwareException(f'Bad request to Bungee API: {response.status}')
 
     @helper
     @gas_checker
@@ -72,10 +73,10 @@ class Bungee(Refuel, Logger):
                         return await self.client.send_transaction(transaction)
 
                     else:
-                        raise RuntimeError("Insufficient balance!")
+                        raise SoftwareException("Insufficient balance!")
                 else:
-                    raise RuntimeError(f'Limit range for refuel: {min_amount} - {max_amount} ETH!')
+                    raise SoftwareException(f'Limit range for refuel: {min_amount} - {max_amount} ETH!')
             else:
-                raise RuntimeError('Destination chain refuel is not active!')
+                raise SoftwareException('Destination chain refuel is not active!')
         else:
-            raise RuntimeError('Source chain refuel is not active!')
+            raise SoftwareException('Source chain refuel is not active!')

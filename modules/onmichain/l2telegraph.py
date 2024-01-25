@@ -3,6 +3,7 @@ import random
 
 from faker import Faker
 
+from modules.interfaces import SoftwareException
 from settings import DST_CHAIN_L2TELEGRAPH
 from utils.tools import sleep, gas_checker, helper
 from eth_abi import encode
@@ -16,7 +17,6 @@ from config import (
     L2TELEGRAPH_DST_CHAIN_BRIDGE_CONTRACTS,
     LAYERZERO_NETWORKS_DATA, L2TELEGRAPH_ADD_VALUE,
 )
-
 
 class L2Telegraph(Messenger, Logger):
     def __init__(self, client):
@@ -144,4 +144,4 @@ class L2Telegraph(Messenger, Logger):
             return await self.client.send_transaction(transaction)
 
         else:
-            raise RuntimeError('Insufficient balance for mint!')
+            raise SoftwareException('Insufficient balance for mint!')

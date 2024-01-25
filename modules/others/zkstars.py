@@ -1,3 +1,4 @@
+from modules.interfaces import SoftwareException
 from utils.tools import helper, gas_checker
 from modules import Minter, Logger
 from config import ZKSTARS_CONTRACTS, ZKSTARS_ABI
@@ -17,7 +18,7 @@ class ZkStars(Minter, Logger):
                 if not (await nft_contract.functions.balanceOf(self.client.address).call()):
                     return nft_contract, contract_id
 
-        raise RuntimeError('All StarkStars NFT have been minted')
+        raise SoftwareException('All StarkStars NFT have been minted')
 
     @helper
     @gas_checker

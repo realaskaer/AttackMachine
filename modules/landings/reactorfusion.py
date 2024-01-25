@@ -1,3 +1,4 @@
+from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 from config import REACTORFUSION_CONTRACTS, REACTORFUSION_ABI
 from modules import Landing, Logger
@@ -45,7 +46,7 @@ class ReactorFusion(Landing, Logger):
             return await self.client.send_transaction(transaction)
 
         else:
-            raise RuntimeError("Insufficient balance on ReactorFusion!")
+            raise SoftwareException("Insufficient balance on ReactorFusion!")
 
     @helper
     @gas_checker

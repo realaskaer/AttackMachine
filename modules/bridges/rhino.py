@@ -10,6 +10,7 @@ from modules import Bridge, Logger
 from datetime import datetime, timezone
 
 from general_settings import GLOBAL_NETWORK
+from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, sleep, helper
 from eth_account.messages import encode_defunct
 from utils.stark_signature.stark_singature import sign, pedersen_hash, EC_ORDER, private_to_stark_key
@@ -391,7 +392,7 @@ class Rhino(Bridge, Logger):
                 self.logger_msg(
                     *self.client.acc_info, msg=f"Insufficient balance in {self.client.network.name}", type_msg='error')
         except Exception as error:
-            raise RuntimeError(f"Rhino error: {error}")
+            raise SoftwareException(f"Rhino error: {error}")
         finally:
             await self.client.session.close()
             await self.evm_client.session.close()
@@ -410,7 +411,7 @@ class Rhino(Bridge, Logger):
             self.logger_msg(*self.client.acc_info,
                             msg=f'Wallet is eligible for mint Pro Hunter NFT', type_msg='success')
             return
-        raise RuntimeError('Wallet not eligible for mint Pro Hunter NFT!')
+        raise SoftwareException('Wallet not eligible for mint Pro Hunter NFT!')
 
     async def stat_checker(self):
         url = 'https://api.rhino.fi/activity-trackers/trackers/ZKSYNC'
@@ -474,4 +475,4 @@ class Rhino(Bridge, Logger):
 
             return await self.client.send_transaction(transaction)
 
-        raise RuntimeError('Wallet not eligible for mint Pro Hunter NFT!')
+        raise SoftwareException('Wallet not eligible for mint Pro Hunter NFT!')

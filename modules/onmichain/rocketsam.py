@@ -2,6 +2,7 @@ import random
 
 from modules import Landing, Logger
 from config import ROCKETSAM_ABI, ROCKETSAM_CONTRACTS
+from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 
 
@@ -22,7 +23,7 @@ class RocketSam(Landing, Logger):
                 if contract_balance == 0:
                     return contract, contract_address
         if withdraw_mode:
-            raise RuntimeError('Insufficient balance on RocketSam!')
+            raise SoftwareException('Insufficient balance on RocketSam!')
         else:
             self.logger_msg(
                 *self.client.acc_info, msg=f'All pools have been used, take a random one', type_msg='warning')

@@ -1,6 +1,6 @@
 import random
 
-from modules.interfaces import BlockchainException
+from modules.interfaces import BlockchainException, SoftwareException
 from settings import DST_CHAIN_ZERIUS_NFT, DST_CHAIN_ZERIUS_REFUEL
 from config import ZERIUS_CONTRACT_PER_CHAINS, ZERIUS_ABI, ZERO_ADDRESS, LAYERZERO_NETWORKS_DATA, \
     LAYERZERO_WRAPED_NETWORKS
@@ -132,7 +132,7 @@ class Zerius(Minter, Logger):
         gas_limit = await refuel_contract.functions.minDstGasLookup(dst_chain_id, 0).call()
 
         if gas_limit == 0 and not need_check:
-            raise RuntimeError('This refuel path is not active!')
+            raise SoftwareException('This refuel path is not active!')
 
         adapter_params = encode(["uint16", "uint64", "uint256"],
                                 [2, gas_limit, dst_native_gas_amount])

@@ -4,6 +4,7 @@ from config import ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYER
     TOKENS_PER_CHAIN2, CHAIN_NAME
 from modules import Logger, Aggregator
 from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS
+from modules.interfaces import SoftwareException
 from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
     L2PASS_ATTACK_NFT, \
     ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW, OKX_DEPOSIT_AMOUNT, \
@@ -116,7 +117,7 @@ class Custom(Logger, Aggregator):
 
             return await okx_withdraw(self.client.account_name, self.client.private_key, self.client.network,
                                       self.client.proxy_init, want_balance=need_to_withdraw)
-        raise RuntimeError('Account has enough tokens on balance!')
+        raise SoftwareException('Account has enough tokens on balance!')
 
     @helper
     @gas_checker
@@ -199,7 +200,7 @@ class Custom(Logger, Aggregator):
                     for client, token in zip(clients, tokens)]
 
         if all(balance_in_wei == 0 for balance_in_wei, _, _ in balances):
-            raise RuntimeError('Insufficient balances in all networks!')
+            raise SoftwareException('Insufficient balances in all networks!')
 
         index = balances.index(max(balances, key=lambda x: x[1] * (ETH_PRICE if x[2] == 'ETH' else 1)))
         current_client = clients[index]
@@ -207,7 +208,7 @@ class Custom(Logger, Aggregator):
         balance_in_wei, balance, _ = balances[index]
 
         if (balance * ETH_PRICE < 1 and from_token_name == 'ETH') or (balance < 1 and from_token_name != 'ETH'):
-            raise RuntimeError('Balance on source chain < 1$!')
+            raise SoftwareException('Balance on source chain < 1$!')
 
         amount_in_wei = balance_in_wei if from_token_name != 'ETH' else int(
             (await current_client.get_smart_amount(need_percent=True)) * 10 ** 18)
@@ -241,7 +242,7 @@ class Custom(Logger, Aggregator):
         data = 'USDC', 'USDC.e', amount, amount_in_wei
 
         if amount_in_wei == 0:
-            raise RuntimeError("Insufficient USDC balances")
+            raise SoftwareException("Insufficient USDC balances")
 
         return await swap_woofi(self.client.account_name, self.client.private_key,
                                 self.client.network, self.client.proxy_init, swapdata=data)

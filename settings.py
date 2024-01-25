@@ -31,8 +31,8 @@ BINGX_MULTI_WITHDRAW = {                 # Сеть вывода: (миниму�
     4: (0.0001, 0.000111),
 }
 
-BINANCE_WITHDRAW_NETWORK = 3              # Сеть вывода из Binance
-BINANCE_WITHDRAW_AMOUNT = (0.001, 0.001)  # (минимальная, максимальная) сумма для вывода из Binance (кол-во)
+BINANCE_WITHDRAW_NETWORK = 25             # Сеть вывода из Binance
+BINANCE_WITHDRAW_AMOUNT = (2, 3)          # (минимальная, максимальная) сумма для вывода из Binance (кол-во)
 BINANCE_MULTI_WITHDRAW = {                # Сеть вывода: (минимум, максимум) в токене для вывода (кол-во)
     9: (1, 1.011),
     4: (0.0001, 0.000111),
@@ -338,10 +338,13 @@ HELPERS_CONFIG = {
 
     okx_withdraw                     # смотри CEX CONTROL
     bingx_withdraw                   # смотри CEX CONTROL
+    binance_withdraw                 # смотри CEX CONTROL
     okx_multi_withdraw               # вывод в несколько сетей. Смотри CEX CONTROL (OKX_MULTI_WITHDRAW)
     bingx_multi_withdraw             # вывод в несколько сетей. Смотри CEX CONTROL (BINGX_MULTI_WITHDRAW)
+    binance_multi_withdraw           # вывод в несколько сетей. Смотри CEX CONTROL (BINANCE_MULTI_WITHDRAW)
     random_okx_withdraw              # вывод в рандомную сеть из OKX_MULTI_WITHDRAW
     random_bingx_withdraw            # вывод в рандомную сеть из BINGX_MULTI_WITHDRAW
+    random_binance_withdraw          # вывод в рандомную сеть из BINANCE_MULTI_WITHDRAW
     collector_eth                    # сбор всех токенов в ETH
     make_balance_to_average          # уравнивает ваши балансы на аккаунтах (см. инструкцию к софту) 
     upgrade_stark_wallet             # обновляет кошелек, во время маршрута

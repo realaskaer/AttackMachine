@@ -16,7 +16,7 @@ from starknet_py.net.client_models import Call
 from aiohttp import ClientSession, TCPConnector
 from aiohttp_socks import ProxyConnector
 from modules import Logger
-from modules.interfaces import get_user_agent
+from modules.interfaces import get_user_agent, SoftwareException
 from utils.networks import Network
 from config import (
     TOKENS_PER_CHAIN,
@@ -233,7 +233,7 @@ class StarknetClient(Logger):
         price_impact = 100 - (amount2_in_usd / amount1_in_usd) * 100
 
         if price_impact > PRICE_IMPACT:
-            raise RuntimeError(
+            raise SoftwareException(
                 f'DEX price impact > your wanted impact | DEX impact: {price_impact:.3}% > Your impact {PRICE_IMPACT}%')
 
     async def get_bridge_data(self, chain_from_id: int, module_name: str):
@@ -297,7 +297,7 @@ class StarknetClient(Logger):
                     await asyncio.sleep(sleep_time)
                     t += sleep_time
         except Exception:
-            raise RuntimeError(f'{token_name} has not been received within {timeout} seconds')
+            raise SoftwareException(f'{token_name} has not been received within {timeout} seconds')
         finally:
             await client.session.close()
 
@@ -342,8 +342,8 @@ class StarknetClient(Logger):
                         landing_withdraw_data.append(landing_balance)
                     return landing_withdraw_data
         if deposit:
-            raise RuntimeError(f'Insufficient balance on account!')
-        raise RuntimeError(f'Insufficient balance on {class_name} pools!')
+            raise SoftwareException(f'Insufficient balance on account!')
+        raise SoftwareException(f'Insufficient balance on {class_name} pools!')
 
     async def check_and_get_eth(self, settings:tuple = None, bridge_mode:bool = False,
                                 initial_chain_id:int = 0) -> [float, int]:
@@ -401,7 +401,7 @@ class StarknetClient(Logger):
             return biggest_token_balance_name, random_to_token_name, amount, amount_in_wei
 
         else:
-            raise RuntimeError('Insufficient balance on account!')
+            raise SoftwareException('Insufficient balance on account!')
 
     async def get_contract(self, contract_address: int, proxy_config: bool = False):
         return await Contract.from_address(address=contract_address, provider=self.account, proxy_config=proxy_config)
@@ -454,7 +454,7 @@ class StarknetClient(Logger):
             return True
 
         except Exception as error:
-            raise RuntimeError(f'Send transaction | {self.get_normalize_error(error)}')
+            raise SoftwareException(f'Send transaction | {self.get_normalize_error(error)}')
 
     async def make_request(self, method:str = 'GET', url:str = None, headers:dict = None, params: dict = None,
                            data:str = None, json:dict = None, module_name:str = None):
@@ -466,7 +466,7 @@ class StarknetClient(Logger):
             data = await response.json()
             if response.status == 200:
                 return data
-            raise RuntimeError(f"Bad request to {module_name} API: {response.status}")
+            raise SoftwareException(f"Bad request to {module_name} API: {response.status}")
 
     async def get_gas_price(self):
         url = 'https://alpha-mainnet.starknet.io/feeder_gateway/get_block?blockNumber=latest'

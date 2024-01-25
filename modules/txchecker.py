@@ -12,7 +12,7 @@ from datetime import datetime
 from config import PRIVATE_KEYS, PROXIES
 from collections import defaultdict
 
-from modules.interfaces import get_user_agent
+from modules.interfaces import get_user_agent, SoftwareException
 
 API_URL = "https://block-explorer-api.mainnet.zksync.io"
 
@@ -189,7 +189,7 @@ async def main():
             wallets = [AsyncWeb3().eth.account.from_key(private_key).address for private_key in PRIVATE_KEYS]
         except Exception as error:
             cprint('\n⚠️⚠️⚠️Put your wallets into data/accounts_data.xlsx first!⚠️⚠️⚠️\n', color='light_red', attrs=["blink"])
-            raise RuntimeError(f"{error}")
+            raise SoftwareException(f"{error}")
 
         tx_checker = TxChecker()
 

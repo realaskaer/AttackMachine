@@ -1,3 +1,4 @@
+from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 from config import ZEROLEND_CONTRACTS, ZEROLEND_ABI, TOKENS_PER_CHAIN
 from modules import Landing, Logger
@@ -52,7 +53,7 @@ class ZeroLend(Landing, Logger):
             return await self.client.send_transaction(transaction)
 
         else:
-            raise RuntimeError('Insufficient balance on ZeroLend!')
+            raise SoftwareException('Insufficient balance on ZeroLend!')
 
     @helper
     @gas_checker

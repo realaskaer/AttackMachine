@@ -1,6 +1,7 @@
 from time import time
 from eth_abi import abi
 from modules import DEX, Logger
+from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 from general_settings import SLIPPAGE
 from config import (
@@ -165,4 +166,4 @@ class SyncSwap(DEX, Logger):
             return await self.client.verify_transaction(transaction)
 
         else:
-            raise RuntimeError('Insufficient balance on SyncSwap!')
+            raise SoftwareException('Insufficient balance on SyncSwap!')

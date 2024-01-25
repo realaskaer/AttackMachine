@@ -1,5 +1,6 @@
 from time import time
 from modules import DEX, Logger
+from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 from general_settings import SLIPPAGE
 from config import (
@@ -157,4 +158,4 @@ class Mute(DEX, Logger):
             return await self.client.send_transaction(transaction)
 
         else:
-            raise RuntimeError('Insufficient balance on Mute!')
+            raise SoftwareException('Insufficient balance on Mute!')

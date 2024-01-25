@@ -1,5 +1,6 @@
 from time import time
 from modules import DEX, Logger
+from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 from general_settings import SLIPPAGE
 from config import (
@@ -70,6 +71,6 @@ class Velocore(DEX, Logger):
                 *full_data
             ).build_transaction(tx_params)
         else:
-            raise RuntimeError('Velocore interface(UniswapV2) does not support swaps Token -> Token')
+            raise SoftwareException('Velocore interface(UniswapV2) does not support swaps Token -> Token')
 
         return await self.client.send_transaction(transaction)

@@ -3,6 +3,7 @@ import json
 from config import TOKENS_PER_CHAIN
 from modules import Bridge, Logger
 from general_settings import GLOBAL_NETWORK
+from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 
 
@@ -157,8 +158,8 @@ class LayerSwap(Bridge, Logger):
                     return result
 
                 else:
-                    raise RuntimeError("Insufficient balance!")
+                    raise SoftwareException("Insufficient balance!")
             else:
-                raise RuntimeError(f"Limit range for bridge: {min_amount} - {max_amount} ETH")
+                raise SoftwareException(f"Limit range for bridge: {min_amount} - {max_amount} ETH")
         else:
-            raise RuntimeError(f"Bridge {source_asset} {bridge_info} is not active!")
+            raise SoftwareException(f"Bridge {source_asset} {bridge_info} is not active!")

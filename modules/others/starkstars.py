@@ -1,3 +1,4 @@
+from modules.interfaces import SoftwareException
 from utils.tools import helper, gas_checker
 from modules import Minter, Logger
 from config import TOKENS_PER_CHAIN, STARKSTARS_COUNTACTS
@@ -15,7 +16,7 @@ class StarkStars(Minter, Logger):
                 nft_contract = await self.client.get_contract(contract_address=contract_address)
                 if not (await nft_contract.functions["balance_of"].call(self.client.address))[0]:
                     return contract_id, nft_contract
-        raise RuntimeError('All StarkStars NFT have been minted')
+        raise SoftwareException('All StarkStars NFT have been minted')
 
     @helper
     @gas_checker

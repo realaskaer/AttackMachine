@@ -1,4 +1,5 @@
 from config import BASILISK_CONTRACTS, BASILISK_ABI
+from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 from modules import Landing, Logger
 
@@ -44,7 +45,7 @@ class Basilisk(Landing, Logger):
 
             return await self.client.send_transaction(transaction)
         else:
-            raise RuntimeError("Insufficient balance on Basilisk!")
+            raise SoftwareException("Insufficient balance on Basilisk!")
 
     @helper
     @gas_checker

@@ -182,7 +182,7 @@ class Client(Logger):
                     await asyncio.sleep(sleep_time)
                     t += sleep_time
                 if t > timeout:
-                    raise RuntimeError(f'{token_name} has not been received within {timeout} seconds')
+                    raise SoftwareException(f'{token_name} has not been received within {timeout} seconds')
         except Exception as error:
             raise SoftwareException(f'Error in <WAIT FOR RECEIVING> function. Error: {error}')
         finally:
@@ -292,7 +292,7 @@ class Client(Logger):
 
             random_to_token_name = random.choice(token_names_list)
             if not random_to_token_name:
-                raise RuntimeError(f'No available pair from {biggest_token_balance_name}')
+                raise SoftwareException(f'No available pair from {biggest_token_balance_name}')
 
             if biggest_token_balance_name == 'ETH':
                 percent = round(random.uniform(*AMOUNT_PERCENT), 9) / 100
@@ -381,7 +381,7 @@ class Client(Logger):
             await asyncio.sleep(1)
 
             if not without_bal_check and balance_in_wei <= 0:
-                raise RuntimeError(f'Zero {symbol} balance')
+                raise SoftwareException(f'Zero {symbol} balance')
 
             approved_amount_in_wei = await self.get_allowance(
                 token_address=token_address,

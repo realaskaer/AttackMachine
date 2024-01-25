@@ -1,4 +1,5 @@
 from config import ERALEND_CONTRACTS, ERALEND_ABI
+from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 from modules import Landing, Logger
 
@@ -45,7 +46,7 @@ class EraLend(Landing, Logger):
             return await self.client.send_transaction(transaction)
 
         else:
-            raise RuntimeError(f'Insufficient balance on EraLend!')
+            raise SoftwareException(f'Insufficient balance on EraLend!')
 
     @helper
     @gas_checker

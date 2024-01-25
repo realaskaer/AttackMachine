@@ -1,5 +1,6 @@
 from modules import DEX, Logger
 from config import MYSWAP_CONTRACT, TOKENS_PER_CHAIN
+from modules.interfaces import SoftwareException
 from utils.tools import helper, gas_checker
 from general_settings import SLIPPAGE
 
@@ -24,7 +25,7 @@ class MySwap(DEX, Logger):
         if pool_id is None:
             pool_id = pool_data.get(to_token_name + from_token_name)
             if pool_id is None:
-                raise RuntimeError('This pool is not supported on mySwap')
+                raise SoftwareException('This pool is not supported on mySwap')
             else:
                 return pool_id, True
         else:

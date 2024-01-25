@@ -3,6 +3,7 @@ import time
 
 from hashlib import sha256
 from modules import CEX, Logger
+from modules.interfaces import SoftwareException
 from utils.tools import helper
 from config import CEX_WRAPED_ID, BINGX_NETWORKS_NAME
 from general_settings import GLOBAL_NETWORK
@@ -36,7 +37,7 @@ class BingX(CEX, Logger):
 
             return signature
         except Exception as error:
-            raise RuntimeError(f'Bad signature for BingX request: {error}')
+            raise SoftwareException(f'Bad signature for BingX request: {error}')
 
     async def get_balance(self, ccy: str):
         path = '/openApi/spot/v1/account/balance'
@@ -136,6 +137,6 @@ class BingX(CEX, Logger):
 
                 return True
             else:
-                raise RuntimeError(f"Limit range for withdraw: {min_wd:.5f} {ccy} - {max_wd} {ccy}")
+                raise SoftwareException(f"Limit range for withdraw: {min_wd:.5f} {ccy} - {max_wd} {ccy}")
         else:
-            raise RuntimeError(f"Withdraw from {network_name} is not available")
+            raise SoftwareException(f"Withdraw from {network_name} is not available")

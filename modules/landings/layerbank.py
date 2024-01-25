@@ -1,4 +1,5 @@
 from config import LAYERBANK_CONTRACTS, LAYERBANK_ABI
+from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 from modules import Landing, Logger
 
@@ -49,7 +50,7 @@ class LayerBank(Landing, Logger):
 
             return await self.client.send_transaction(transaction)
         else:
-            raise RuntimeError("Insufficient balance on LayerBank!")
+            raise SoftwareException("Insufficient balance on LayerBank!")
 
     @helper
     @gas_checker

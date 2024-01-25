@@ -1,5 +1,6 @@
 from time import time
 from modules import DEX, Logger
+from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 from general_settings import SLIPPAGE
 from config import (
@@ -55,7 +56,7 @@ class Maverick(DEX, Logger):
         if pool_address is None:
             pool_address = MAVERICK_CONTRACTS[self.network].get(f"{to_token_name}-{from_token_name}")
         if pool_address is None:
-            raise RuntimeError('Maverick does not support this pool')
+            raise SoftwareException('Maverick does not support this pool')
         return pool_address
 
     @helper
@@ -235,4 +236,4 @@ class Maverick(DEX, Logger):
             return await self.client.send_transaction(transaction)
 
         else:
-            raise RuntimeError('Insufficient balance on Maverick!')
+            raise SoftwareException('Insufficient balance on Maverick!')

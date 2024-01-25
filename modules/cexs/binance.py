@@ -3,8 +3,9 @@ import time
 
 from hashlib import sha256
 from modules import CEX, Logger
+from modules.interfaces import SoftwareException
 from utils.tools import helper
-from config import CEX_WRAPED_ID, BINGX_NETWORKS_NAME
+from config import CEX_WRAPED_ID, BINANCE_NETWORKS_NAME
 from general_settings import GLOBAL_NETWORK
 from settings import (
     BINANCE_WITHDRAW_AMOUNT, BINANCE_WITHDRAW_NETWORK
@@ -36,7 +37,7 @@ class Binance(CEX, Logger):
 
             return signature
         except Exception as error:
-            raise RuntimeError(f'Bad signature for BingX request: {error}')
+            raise SoftwareException(f'Bad signature for BingX request: {error}')
 
     async def get_balance(self, ccy: str):
         path = '/openApi/spot/v1/account/balance'
@@ -82,11 +83,13 @@ class Binance(CEX, Logger):
             network_id = multi_withdraw_data['network']
             amount = multi_withdraw_data['amount']
 
-        network_raw_name = BINGX_NETWORKS_NAME[network_id]
+        network_raw_name = BINANCE_NETWORKS_NAME[network_id]
         ccy, network_name = network_raw_name.split('-')
 
         dst_chain_id = CEX_WRAPED_ID[network_id]
         withdraw_data = (await self.get_currencies(ccy))[0]['networkList']
+
+        amount = want_balance if want_balance else await self.client.get_smart_amount(amount)
 
         network_data = {
             item['network']: {
@@ -131,6 +134,6 @@ class Binance(CEX, Logger):
 
                 return True
             else:
-                raise RuntimeError(f"Limit range for withdraw: {min_wd:.5f} {ccy} - {max_wd} {ccy}")
+                raise SoftwareException(f"Limit range for withdraw: {min_wd:.5f} {ccy} - {max_wd} {ccy}")
         else:
-            raise RuntimeError(f"Withdraw from {network_name} is not available")
+            raise SoftwareException(f"Withdraw from {network_name} is not available")

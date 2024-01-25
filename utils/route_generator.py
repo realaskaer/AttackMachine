@@ -344,9 +344,7 @@ class RouteGenerator(Logger):
                 if module_func:
                     map_data[module_name] = module_func
                 else:
-                    self.logger_msg(None, None,
-                                    msg=f"That setting is wrong in Google SpreadSheets", type_msg='error')
-                    raise RuntimeError()
+                    raise SoftwareException(f"That setting is wrong in Google SpreadSheets")
 
         else:
             self.logger_msg(None, None,
@@ -389,7 +387,7 @@ class RouteGenerator(Logger):
             return self.ws.col_values(1)[1:]
         except Exception as error:
             self.logger_msg(None, None, f"Put data into 'GOOGLE_SHEET_URL' and 'service_accounts.json' first!", 'error')
-            raise RuntimeError(f"{error}")
+            raise SoftwareException(f"{error}")
 
     async def update_sheet(self, result_list: list, result_count: tuple):
         batch_size = 200
@@ -492,7 +490,7 @@ class RouteGenerator(Logger):
                     if wallet_modules_statuses[i] in ["Not Started", "Error"]:
                         modules_to_work.append(modules_list[i])
             except IndexError:
-                raise RuntimeError('Wrong GLOBAL_NETWORK or you missing the fields in your Google Sheet')
+                raise SoftwareException('Wrong GLOBAL_NETWORK or you missing the fields in your Google Sheet')
 
         else:
             for i in range(len(wallet_modules_statuses)):

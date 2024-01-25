@@ -6,12 +6,13 @@ from starknet_py.net.full_node_client import FullNodeClient
 
 from eth_account import Account
 from modules import Blockchain, Logger, Bridge
+from modules.interfaces import SoftwareException
 from utils.networks import StarknetRPC
 from utils.tools import gas_checker, helper
 from general_settings import TRANSFER_AMOUNT
 from settings import (
     NATIVE_WITHDRAW_AMOUNT,
-    NATIVE_DEPOSIT_AMOUNT, NATIVE_CHAIN_ID_TO, NATIVE_CHAIN_ID_FROM,
+    NATIVE_DEPOSIT_AMOUNT, NATIVE_CHAIN_ID_TO,
 )
 from config import (
     WETH_ABI,
@@ -48,7 +49,7 @@ class SimpleEVM(Logger):
                 from json import load
                 contract_data = load(file)
         except:
-            raise RuntimeError("Bad data in contract_json.json")
+            raise SoftwareException("Bad data in contract_json.json")
 
         self.logger_msg(*self.client.acc_info, msg=f"Deploy contract on {self.client.network.name}")
 
@@ -96,7 +97,7 @@ class SimpleEVM(Logger):
             return await self.client.send_transaction(tx_params)
 
         else:
-            raise RuntimeError('Insufficient balance!')
+            raise SoftwareException('Insufficient balance!')
 
     @helper
     @gas_checker
@@ -114,7 +115,7 @@ class SimpleEVM(Logger):
             return await self.client.send_transaction(transaction)
 
         else:
-            raise RuntimeError('Insufficient balance!')
+            raise SoftwareException('Insufficient balance!')
 
     @helper
     @gas_checker
@@ -205,7 +206,7 @@ class Scroll(Blockchain, SimpleEVM):
             return await self.client.send_transaction(transaction)
 
         else:
-            raise RuntimeError('Insufficient balance!')
+            raise SoftwareException('Insufficient balance!')
 
     @helper
     @gas_checker
@@ -227,7 +228,7 @@ class Scroll(Blockchain, SimpleEVM):
             return await self.client.send_transaction(transaction)
 
         else:
-            raise RuntimeError('Insufficient balance!')
+            raise SoftwareException('Insufficient balance!')
 
 
 class ZkSync(Blockchain, SimpleEVM):
@@ -276,7 +277,7 @@ class ZkSync(Blockchain, SimpleEVM):
             return await self.client.send_transaction(transaction)
 
         else:
-            raise RuntimeError('Bridge on txSync | Insufficient balance!')
+            raise SoftwareException('Bridge on txSync | Insufficient balance!')
 
     @helper
     @gas_checker
@@ -297,7 +298,7 @@ class ZkSync(Blockchain, SimpleEVM):
             return await self.client.send_transaction(transaction)
 
         else:
-            raise RuntimeError('Withdraw on txSync | Insufficient balance!')
+            raise SoftwareException('Withdraw on txSync | Insufficient balance!')
 
 
 class StarknetEVM(Blockchain, Logger, Bridge):
@@ -420,4 +421,4 @@ class Zora(Blockchain, SimpleEVM):
             return await self.client.send_transaction(transaction)
 
         else:
-            raise RuntimeError('Insufficient balance!')
+            raise SoftwareException('Insufficient balance!')
