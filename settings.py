@@ -111,7 +111,8 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (
     STARGATE_TOKENS | Выберите монеты, между которыми будут производиться свапы. Доступны: ETH, USDT, USDC. 
         Токены указывать в таком же порядке, как и чейны. Условно STARGATE_CHAINS = [5, 6] и
         STARGATE_TOKENS = ['USDC', 'USDT'] будет означать, что для 5 чейна будет USDC, а для 6 USDT
-    
+        Свапы производятся на значение из AMOUNT_PERCENT. 
+        
     STARGATE_SWAPS_AMOUNT | Количество бриджей внутри модуля stargate_volume
     
     COREDAO_CHAINS | Аналогично STARGATE_CHAINS
@@ -361,7 +362,7 @@ HELPERS_CONFIG = {
     smart_zerius                     # автоматический поиск доступного пути для refuel. настройки из refuel_zerius
     mint_and_bridge_l2telegraph      # mint и bridge NFT через L2Telegraph. См. OMNI-CHAIN CONTROLE
     send_message_l2telegraph         # смотри OMNI-CHAIN CONTROL
-    stargate_volume                  # выводит из рандомной сети OKX_MULTI_WITHDRAW -> бриджи на Stargate -> деп на OKX
+    stargate_volume                  # выводит из рандомной сети OKX_MULTI_WITHDRAW -> бриджит на Stargate -> деп на OKX
     bridge_stargate                  # бриджи на Stargate. STARGATE_CHAINS, STARGATE_TOKENS. См. OMNI-CHAIN CONTROLE
     bridge_coredao                   # бриджи на CoreDAO. COREDAO_CHAINS, COREDAO_TOKENS. См. OMNI-CHAIN CONTROLE
     zerius_refuel_attack             # Refuel атака на Zerius. Делает много рефьелов в разные сети. См. OMNI-CHAIN CONTROLE
