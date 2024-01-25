@@ -2,12 +2,14 @@ import json
 import random
 import asyncio
 import traceback
+import ipaddress
 
 import telebot
 import re
 from aiohttp import ClientSession
 
 from modules import Logger
+from modules.interfaces import SoftwareException
 from utils.networks import EthereumRPC
 from web3 import AsyncWeb3, AsyncHTTPProvider
 from functions import get_network_by_chain_id
@@ -186,11 +188,12 @@ class Runner(Logger):
                 account_name, private_key = accounts_data
                 await route_generator.get_smart_route(str(account_name))
         except Exception as error:
-            raise RuntimeError(f"Can`t generate smart route. Error: {error}")
+            raise SoftwareException(f"Can`t generate smart route. Error: {error}")
 
     async def change_ip_proxy(self):
         try:
             self.logger_msg(None, None, f'Trying to change IP address\n', 'info')
+
 
             if not await self.make_request(url=MOBILE_PROXY_URL_CHANGER[0]):
                 await self.make_request(url=MOBILE_PROXY_URL_CHANGER[random.randint(1, 2)])
@@ -229,7 +232,7 @@ class Runner(Logger):
                 return PROXIES[account_number % num_proxies]
             except Exception as error:
                 self.logger_msg(account_name, None, f"Bad data in proxy, but you want proxy! Error: {error}", 'error')
-                raise RuntimeError("Proxy error")
+                raise SoftwareException("Proxy error")
 
     def get_help_module(self, account_name, used_modules):
         cache = set()
@@ -252,7 +255,7 @@ class Runner(Logger):
         try:
             route_data = self.load_routes().get(str(account_name), {}).get('route')
             if not route_data:
-                raise RuntimeError(f"No route available")
+                raise SoftwareException(f"No route available")
 
             if GLOBAL_NETWORK == 0:
                 route_paths = [i.split()[2].split('-') for i in route_data]
@@ -305,7 +308,8 @@ class Runner(Logger):
 
                 if result:
                     self.update_step(account_name, current_step + 1)
-                    await self.smart_sleep(account_name, account_number=1)
+                    if not (current_step + 1) > len(route_modules):
+                        await self.smart_sleep(account_name, account_number=1)
                 else:
                     self.collect_bad_wallets(account_name, module_name)
                     result = False
@@ -350,9 +354,7 @@ class Runner(Logger):
                     disable_notification = True
                 await self.send_tg_message(account_name, message_to_send=message_list,
                                            disable_notification=disable_notification)
-                await asyncio.sleep(1)
 
-            await asyncio.sleep(1)
             if not SOFTWARE_MODE:
                 self.logger_msg(None, None, f"Start running next wallet!\n", 'info')
             else:
@@ -429,7 +431,8 @@ class Runner(Logger):
         route_generator = None
         clean_gwei_file()
         if smart_route:
-            clean_google_progress_file()
+            if not check_google_progress_file():
+                clean_google_progress_file()
             route_generator = RouteGenerator(silent=False)
 
         try:
@@ -437,7 +440,7 @@ class Runner(Logger):
                 await self.run_parallel(smart_route, route_generator)
             else:
                 await self.run_consistently(smart_route, route_generator)
-        except RuntimeError as error:
+        except SoftwareException as error:
             self.logger_msg(None, None, msg=error, type_msg='error')
         except Exception as error:
             self.logger_msg(None, None, msg=error, type_msg='error')

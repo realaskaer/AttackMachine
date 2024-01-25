@@ -80,12 +80,12 @@ class Custom(Logger, Aggregator):
         else:
             self.logger_msg(*self.client.acc_info, msg=f"Account balance already in ETH!", type_msg='warning')
 
-        return True
-
     @helper
     @gas_checker
     async def collect_eth(self):
         await self.collect_eth_util()
+
+        return True
 
     @helper
     @gas_checker

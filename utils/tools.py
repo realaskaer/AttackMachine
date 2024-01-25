@@ -4,6 +4,7 @@ import os
 import random
 import asyncio
 import functools
+import sys
 import traceback
 
 import msoffcrypto
@@ -42,71 +43,82 @@ async def sleep(self, min_time=SLEEP_TIME[0], max_time=SLEEP_TIME[1]):
 
 
 def get_accounts_data():
-    decrypted_data = io.BytesIO()
-    with open('./data/accounts_data.xlsx', 'rb') as file:
-        if EXCEL_PASSWORD:
-            cprint('⚔️ Enter the password degen', color='light_blue')
-            password = getpass()
-            office_file = msoffcrypto.OfficeFile(file)
+    try:
+        decrypted_data = io.BytesIO()
+        with open('./data/accounts_data.xlsx', 'rb') as file:
+            if EXCEL_PASSWORD:
+                cprint('⚔️ Enter the password degen', color='light_blue')
+                password = getpass()
+                office_file = msoffcrypto.OfficeFile(file)
 
-            try:
-                office_file.load_key(password=password)
-            except msoffcrypto.exceptions.DecryptionError:
-                cprint('\n⚠️ Incorrect password to decrypt Excel file! ⚠️\n', color='light_red', attrs=["blink"])
-                raise DecryptionError('Incorrect password')
+                try:
+                    office_file.load_key(password=password)
+                except msoffcrypto.exceptions.DecryptionError:
+                    cprint('\n⚠️ Incorrect password to decrypt Excel file! ⚠️', color='light_red', attrs=["blink"])
+                    raise DecryptionError('Incorrect password')
 
-            try:
+                try:
+                    office_file.decrypt(decrypted_data)
+                except msoffcrypto.exceptions.InvalidKeyError:
+                    cprint('\n⚠️ Incorrect password to decrypt Excel file! ⚠️', color='light_red', attrs=["blink"])
+                    raise InvalidKeyError('Incorrect password')
+
+                except msoffcrypto.exceptions.DecryptionError:
+                    cprint('\n⚠️ Set password on your Excel file first! ⚠️', color='light_red', attrs=["blink"])
+                    raise DecryptionError('Excel without password')
+
                 office_file.decrypt(decrypted_data)
-            except msoffcrypto.exceptions.InvalidKeyError:
-                cprint('\n⚠️ Incorrect password to decrypt Excel file! ⚠️\n', color='light_red', attrs=["blink"])
-                raise InvalidKeyError('Incorrect password')
 
-            except msoffcrypto.exceptions.DecryptionError:
-                cprint('\n⚠️ Set password on your Excel file first! ⚠️\n', color='light_red', attrs=["blink"])
-                raise DecryptionError('Excel without password')
+                try:
+                    wb = pd.read_excel(decrypted_data, sheet_name=EXCEL_PAGE_NAME)
+                except ValueError as error:
+                    cprint('\n⚠️ Wrong page name! ⚠️', color='light_red', attrs=["blink"])
+                    raise ValueError(f"{error}")
+            else:
+                try:
+                    wb = pd.read_excel(file, sheet_name=EXCEL_PAGE_NAME)
+                except ValueError as error:
+                    cprint('\n⚠️ Wrong page name! ⚠️', color='light_red', attrs=["blink"])
+                    raise ValueError(f"{error}")
 
-            office_file.decrypt(decrypted_data)
+            accounts_data = {}
+            for index, row in wb.iterrows():
+                account_name = row["Name"]
+                private_key = row["Private Key"]
+                private_key_evm = row["Private Key EVM"] if GLOBAL_NETWORK == 9 else 0x123
+                proxy = row["Proxy"]
+                okx_address = row['OKX address']
+                accounts_data[int(index) + 1] = {
+                    "account_number": account_name,
+                    "private_key_evm": private_key_evm,
+                    "private_key": private_key,
+                    "proxy": proxy,
+                    "okx_wallet": okx_address,
+                }
 
-            try:
-                wb = pd.read_excel(decrypted_data, sheet_name=EXCEL_PAGE_NAME)
-            except ValueError as error:
-                cprint('\n⚠️ Wrong page name! ⚠️\n', color='light_red', attrs=["blink"])
-                raise ValueError(f"{error}")
-        else:
-            try:
-                wb = pd.read_excel(file, sheet_name=EXCEL_PAGE_NAME)
-            except ValueError as error:
-                cprint('\n⚠️ Wrong page name! ⚠️\n', color='light_red', attrs=["blink"])
-                raise ValueError(f"{error}")
+            acc_name, priv_key_evm, priv_key, proxy, okx_wallet = [], [], [], [], []
+            for k, v in accounts_data.items():
+                acc_name.append(v['account_number'] if isinstance(v['account_number'], (int, str)) else None)
+                priv_key_evm.append(v['private_key_evm'])
+                priv_key.append(v['private_key'])
+                proxy.append(v['proxy'] if isinstance(v['proxy'], str) else None)
+                okx_wallet.append(v['okx_wallet'] if isinstance(v['okx_wallet'], str) else None)
 
-        accounts_data = {}
-        for index, row in wb.iterrows():
-            account_name = row["Name"]
-            private_key = row["Private Key"]
-            private_key_evm = row["Private Key EVM"] if GLOBAL_NETWORK == 9 else 0x123
-            proxy = row["Proxy"]
-            okx_address = row['OKX address']
-            accounts_data[int(index) + 1] = {
-                "account_number": account_name,
-                "private_key_evm": private_key_evm,
-                "private_key": private_key,
-                "proxy": proxy,
-                "okx_wallet": okx_address,
-            }
+            acc_name = [str(item) for item in acc_name if item is not None]
+            proxy = [item for item in proxy if item is not None]
+            okx_wallet = [item for item in okx_wallet if item is not None]
 
-        acc_name, priv_key_evm, priv_key, proxy, okx_wallet = [], [], [], [], []
-        for k, v in accounts_data.items():
-            acc_name.append(v['account_number'] if isinstance(v['account_number'], (int, str)) else None)
-            priv_key_evm.append(v['private_key_evm'])
-            priv_key.append(v['private_key'])
-            proxy.append(v['proxy'] if isinstance(v['proxy'], str) else None)
-            okx_wallet.append(v['okx_wallet'] if isinstance(v['okx_wallet'], str) else None)
+            return acc_name, priv_key_evm, priv_key, proxy, okx_wallet
+    except (DecryptionError, InvalidKeyError, DecryptionError, ValueError):
+        sys.exit()
 
-        acc_name = [str(item) for item in acc_name if item is not None]
-        proxy = [item for item in proxy if item is not None]
-        okx_wallet = [item for item in okx_wallet if item is not None]
+    except ImportError:
+        cprint(f'\nAre you sure about EXCEL_PASSWORD in general_settings.py?', color='light_red')
+        sys.exit()
 
-        return acc_name, priv_key_evm, priv_key, proxy, okx_wallet
+    except Exception as error:
+        cprint(f'\nError in <get_accounts_data> function! Error: {error}\n', color='light_red')
+        sys.exit()
 
 
 def clean_stark_file():
@@ -199,6 +211,7 @@ def helper(func):
                             self.logger_msg(
                                 self.client.account_name,
                                 None, msg=f'Maybe problem with node: {self.client.rpc}', type_msg='warning')
+                            await self.client.change_rpc()
 
                         self.logger_msg(
                             self.client.account_name,
@@ -274,15 +287,18 @@ def get_max_gwei_setting():
 
 
 async def get_eth_price():
-    url = 'https://api.coingecko.com/api/v3/simple/price'
+    try:
+        url = 'https://api.coingecko.com/api/v3/simple/price'
 
-    params = {
-        'ids': 'ethereum',
-        'vs_currencies': 'usd'
-    }
+        params = {
+            'ids': 'ethereum',
+            'vs_currencies': 'usd'
+        }
 
-    async with ClientSession(connector=TCPConnector(verify_ssl=False)) as session:
-        async with session.get(url=url, params=params) as response:
-            data = await response.json()
-            if response.status == 200:
-                return data['ethereum']['usd']
+        async with ClientSession(connector=TCPConnector(verify_ssl=False)) as session:
+            async with session.get(url=url, params=params) as response:
+                data = await response.json()
+                if response.status == 200:
+                    return data['ethereum']['usd']
+    except Exception as error:
+        cprint(f'\nError in <get_eth_price> function! Error: {error}\n', color='light_red')

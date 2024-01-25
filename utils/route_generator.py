@@ -7,6 +7,7 @@ from functions import *
 from web3 import AsyncWeb3
 from config import ACCOUNT_NAMES
 from modules import Logger
+from modules.interfaces import SoftwareException
 from gspread.utils import rowcol_to_a1
 from gspread import Client, Spreadsheet, Worksheet, service_account
 from general_settings import GOOGLE_SHEET_URL, GOOGLE_SHEET_PAGE_NAME, GLOBAL_NETWORK, SHUFFLE_ROUTE
@@ -125,6 +126,7 @@ AVAILABLE_MODULES_INFO = {
     l2pass_bridge_google                : (l2pass_bridge_google, 3, 'L2Pass Google Bridge', 0, [2, 3, 4, 8, 11, 12]),
     zerius_nft_attack                   : (zerius_nft_attack, 3, 'Zerius NFT Attack', 0, [2, 3, 4, 8, 11, 12]),
     l2pass_nft_attack                   : (l2pass_nft_attack, 3, 'L2Pass NFT Attack', 0, [2, 3, 4, 8, 11, 12]),
+    gas_station_l2pass                  : (gas_station_l2pass, 3, 'L2Pass Gas Station', 0, [2, 3, 4, 8, 11, 12]),
     send_message_dmail                  : (send_message_dmail, 2, 'Dmail Message', 1, [3, 4, 8, 9, 11]),
     send_message_l2telegraph            : (send_message_l2telegraph, 2, 'L2Telegraph Message', 0, [2, 3, 4, 8, 11, 12]),
     bingx_transfer                      : (bingx_transfer, 2, 'BingX Transfer', 0, [2, 3, 4, 8, 9, 11, 12]),
@@ -315,6 +317,8 @@ class RouteGenerator(Logger):
                 'L2Telegraph Message': send_message_l2telegraph,
             }
         elif GLOBAL_NETWORK == 0:
+            if not self.ws:
+                raise SoftwareException('GLOBAL_NETWORK = 0 does not support classic routes')
             map_data = {}
             modules_names = (self.ws.row_values(1))[2:]
             for module_name in modules_names:
@@ -599,7 +603,8 @@ class RouteGenerator(Logger):
     def smart_routes_json_save(self, account_name:str, route:list):
         progress_file_path = './data/services/wallets_progress.json'
 
-        random.shuffle(route)
+        if SHUFFLE_ROUTE:
+            random.shuffle(route)
 
         try:
             with open(progress_file_path, 'r+') as file:

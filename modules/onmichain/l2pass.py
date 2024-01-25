@@ -86,8 +86,8 @@ class L2Pass(Refuel, Logger):
 
     @helper
     @gas_checker
-    async def mint(self, chain_id_from):
-        onft_contract = self.client.get_contract(L2PASS_CONTRACTS_PER_CHAINS[chain_id_from]['ONFT'], L2PASS_ABI['ONFT'])
+    async def mint(self, chain_from_id):
+        onft_contract = self.client.get_contract(L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], L2PASS_ABI['ONFT'])
 
         mint_price = await onft_contract.functions.mintPrice().call()
 
@@ -107,21 +107,21 @@ class L2Pass(Refuel, Logger):
 
     @helper
     @gas_checker
-    async def bridge(self, chain_id_from, attack_mode:bool = False, attack_data:int = None):
+    async def bridge(self, chain_from_id, attack_mode:bool = False, attack_data:int = None):
         if not attack_mode and attack_data is None:
             dst_chain = random.choice(DST_CHAIN_L2PASS_NFT)
         else:
             dst_chain = attack_data
 
-        onft_contract = self.client.get_contract(L2PASS_CONTRACTS_PER_CHAINS[chain_id_from]['ONFT'], L2PASS_ABI['ONFT'])
+        onft_contract = self.client.get_contract(L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], L2PASS_ABI['ONFT'])
 
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
 
         nft_id = await self.get_nft_id(onft_contract)
 
         if not nft_id:
-            new_client = await self.client.new_client(chain_id_from)
-            await L2Pass(new_client).mint(chain_id_from)
+            new_client = await self.client.new_client(chain_from_id)
+            await L2Pass(new_client).mint(chain_from_id)
             nft_id = await self.get_nft_id(onft_contract)
             await sleep(self, 5, 10)
 
@@ -156,7 +156,7 @@ class L2Pass(Refuel, Logger):
 
         if attack_data and attack_mode is False:
             await self.client.wait_for_l0_received(tx_hash)
-            return LAYERZERO_WRAPED_NETWORKS[chain_id_from], dst_chain_id
+            return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
 
         return await self.client.wait_for_l0_received(tx_hash)
 
@@ -166,5 +166,39 @@ class L2Pass(Refuel, Logger):
 
         gas_data = L2PASS_GAS_STATION_DATA
         random.shuffle(gas_data)
+        total_gas = 0
+        refuel_list = []
 
-        # for path in gas_data:
+        self.logger_msg(
+            *self.client.acc_info,
+            msg=f"Refuel with Gas Station from {self.client.network.name}. Destination networks count: {len(gas_data)}")
+
+        gas_contract = self.client.get_contract(
+            L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]['gas_station'], L2PASS_ABI['gas_station']
+        )
+
+        for chaid_to, amount in gas_data:
+            dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[chaid_to]
+            dst_amount = int(self.client.round_amount(*(amount, amount * 1.2)) * 10 ** 18)
+            adapter_params = await gas_contract.functions.createAdapterParams(
+                dst_chain_id,
+                dst_amount,
+                self.client.address
+            ).call()
+
+            gas_for_refuel = await gas_contract.functions.estimateFees(
+                dst_chain_id,
+                adapter_params
+            ).call()
+
+            refuel_list.append([dst_chain_id, dst_amount])
+            total_gas += gas_for_refuel
+
+        transaction = await gas_contract.functions.useGasStation(
+            refuel_list,
+            self.client.address
+        ).build_transaction(await self.client.prepare_transaction(value=total_gas))
+
+        tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+
+        return await self.client.wait_for_l0_received(tx_hash)

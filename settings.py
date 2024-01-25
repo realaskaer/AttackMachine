@@ -236,7 +236,7 @@ L2PASS_ATTACK_NFT = [
     [6, 8],
 ]
 
-L2PASS_GAS_STATION_ID_FROM = [33]
+L2PASS_GAS_STATION_ID_FROM = [6]
 L2PASS_GAS_STATION_DATA = [
     [3, 0.000001],
     [5, 0.000001],
@@ -358,7 +358,8 @@ HELPERS_CONFIG = {
     merkly_refuel_attack             # Refuel атака на Merkly.      
     l2pass_refuel_attack             # Refuel атака на L2Pass.
     zerius_nft_attack                # NFT Bridge атака на Zerius.
-    l2pass_nft_attack                # NFT Bridge атака на L2Pass.    
+    l2pass_nft_attack                # NFT Bridge атака на L2Pass.
+    gas_station_l2pass               # Refuel в несколько сетей с помощью 1 транзакции. см. L2PASS_GAS_STATION_DATA     
     
 ---------------------------------------------------WORMHOLE-------------------------------------------------------------            
 

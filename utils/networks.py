@@ -184,7 +184,7 @@ Polygon_ZKEVM_RPC = Network(
         'https://rpc.ankr.com/polygon_zkevm'
     ],
     chain_id=1101,
-    eip1559_support=True,
+    eip1559_support=False,
     token='ETH',
     explorer='https://zkevm.polygonscan.com/'
 )

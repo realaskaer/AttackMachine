@@ -439,7 +439,7 @@ async def l2pass_nft_attack(account_number, private_key, network, proxy):
 
 async def merkly_refuel_google(account_number, private_key, _, proxy, chain_from, chain_to):
     attack_data = {
-        chain_to: (0.000001, 0.000002222)
+        chain_to: (0.000001, 0.0000022)
     }
     wrapped_chain_from = LAYERZERO_WRAPED_NETWORKS[chain_from]
     network = get_network_by_chain_id(wrapped_chain_from)
@@ -450,7 +450,7 @@ async def merkly_refuel_google(account_number, private_key, _, proxy, chain_from
 
 async def l2pass_refuel_google(account_number, private_key, _, proxy, chain_from, chain_to):
     attack_data = {
-        chain_to: (0.000001, 0.000002222)
+        chain_to: (0.000001, 0.0000022)
     }
     wrapped_chain_from = LAYERZERO_WRAPED_NETWORKS[chain_from]
     network = get_network_by_chain_id(wrapped_chain_from)
@@ -461,7 +461,7 @@ async def l2pass_refuel_google(account_number, private_key, _, proxy, chain_from
 
 async def zerius_refuel_google(account_number, private_key, _, proxy, chain_from, chain_to):
     attack_data = {
-        chain_to: (0.000001, 0.000002222)
+        chain_to: (0.000001, 0.0000022)
     }
     wrapped_chain_from = LAYERZERO_WRAPED_NETWORKS[chain_from]
     network = get_network_by_chain_id(wrapped_chain_from)
@@ -475,7 +475,7 @@ async def l2pass_bridge_google(account_number, private_key, _, proxy, chain_from
     network = get_network_by_chain_id(wrapped_chain_from)
 
     worker = L2Pass(get_client(account_number, private_key, network, proxy))
-    return await worker.bridge(chain_id_from=wrapped_chain_from, attack_data=chain_to)
+    return await worker.bridge(chain_from_id=wrapped_chain_from, attack_data=chain_to)
 
 
 async def zerius_bridge_google(account_number, private_key, _, proxy, chain_from, chain_to):

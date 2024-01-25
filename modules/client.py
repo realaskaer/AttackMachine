@@ -66,6 +66,22 @@ class Client(Logger):
         except:
             return error
 
+    async def change_rpc(self):
+        self.logger_msg(
+            self.account_name, None, msg=f'Trying to replace RPC', type_msg='warning')
+
+        if len(self.network.rpc) != 1:
+            rpcs_list = [rpc for rpc in self.network.rpc if rpc != self.rpc]
+            new_rpc = random.choice(rpcs_list)
+            self.w3 = AsyncWeb3(AsyncHTTPProvider(new_rpc, request_kwargs=self.request_kwargs))
+            self.logger_msg(
+                self.account_name, None,
+                msg=f'RPC successfully replaced. New RPC: {new_rpc}', type_msg='success')
+        else:
+            self.logger_msg(
+                self.account_name, None,
+                msg=f'This network has only 1 RPC, no replacement is possible', type_msg='warning')
+
     async def get_decimals(self, token_name: str):
         contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
         return await contract.functions.decimals().call()
