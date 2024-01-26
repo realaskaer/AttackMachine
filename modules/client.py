@@ -350,7 +350,7 @@ class Client(Logger):
                 tx_params['type'] = '0x2'
             else:
                 if self.network.name == 'BNB Chain':
-                    tx_params['gasPrice'] = self.w3.to_wei(round(random.uniform(1.2, 1.5), 1), 'gwei')
+                    tx_params['gasPrice'] = self.w3.to_wei(round(random.uniform(1.3, 1.5), 1), 'gwei')
                 else:
                     tx_params['gasPrice'] = await self.w3.eth.gas_price
 
