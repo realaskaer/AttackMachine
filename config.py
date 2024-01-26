@@ -297,6 +297,12 @@ TOKENS_PER_CHAIN = {
     "BNB Chain":{
         "USDT"              : "0x55d398326f99059fF775485246999027B3197955",
         "USDC"              : "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+    },
+    "Manta":{
+        "ETH"               : "0x0Dc808adcE2099A9F62AA87D9670745AbA741746",
+        "WETH"              : "0x0Dc808adcE2099A9F62AA87D9670745AbA741746",
+        "USDT"              : "0xf417F5A458eC102B90352F697D6e2Ac3A3d2851f",
+        "USDC"              : "0xb73603C5d87fA094B7314C74ACE2e64D165016fb",
     }
 }
 
