@@ -75,6 +75,9 @@ class L2Pass(Refuel, Logger):
 
             tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
+            if need_check:
+                return True
+
             if attack_data and attack_mode is False:
                 await self.client.wait_for_l0_received(tx_hash)
                 return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
@@ -82,7 +85,7 @@ class L2Pass(Refuel, Logger):
             return await self.client.wait_for_l0_received(tx_hash)
         except Exception as error:
             if not need_check:
-                raise BlockchainException(f'Error during the refuel!. Error: {error}')
+                raise BlockchainException(f'{error}')
 
     @helper
     @gas_checker

@@ -154,6 +154,9 @@ class Zerius(Minter, Logger):
                 adapter_params
             ).build_transaction(tx_params)
 
+            if need_check:
+                return True
+
             tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
             if attack_data and attack_mode is False:
@@ -163,4 +166,4 @@ class Zerius(Minter, Logger):
             return await self.client.wait_for_l0_received(tx_hash)
         except Exception as error:
             if not need_check:
-                raise BlockchainException(f'Error during the refuel!. Error: {error}')
+                raise BlockchainException(f'{error}')

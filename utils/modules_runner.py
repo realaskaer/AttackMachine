@@ -194,7 +194,6 @@ class Runner(Logger):
         try:
             self.logger_msg(None, None, f'Trying to change IP address\n', 'info')
 
-
             if not await self.make_request(url=MOBILE_PROXY_URL_CHANGER[0]):
                 await self.make_request(url=MOBILE_PROXY_URL_CHANGER[random.randint(1, 2)])
 
@@ -276,8 +275,6 @@ class Runner(Logger):
             if current_step >= len(route_modules):
                 self.logger_msg(
                     account_name, None, f"All modules in the route were completed", type_msg='warning')
-
-                await asyncio.sleep(5)
                 return
 
             await self.smart_sleep(account_name, index, accounts_delay=True)

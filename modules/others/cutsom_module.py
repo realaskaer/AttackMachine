@@ -8,7 +8,7 @@ from modules.interfaces import SoftwareException
 from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
     L2PASS_ATTACK_NFT, \
     ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW, OKX_DEPOSIT_AMOUNT, \
-    BINGX_MULTI_WITHDRAW, SHUFFLE_NFT_ATTACK, BINANCE_MULTI_WITHDRAW
+    BINGX_MULTI_WITHDRAW, SHUFFLE_NFT_ATTACK, BINANCE_MULTI_WITHDRAW, SMART_REFUEL_BATCH
 from utils.tools import helper, gas_checker, sleep
 
 
@@ -383,31 +383,56 @@ class Custom(Logger, Aggregator):
 
         random.shuffle(src_chains)
         random.shuffle(dst_datas)
+
+        result = False
         refuel_flag = False
-        for src_chain in src_chains:
-            for dst_data in dst_datas:
-                refuel_data = {
-                    dst_data[0]: dst_data[1]
-                }
+        for dst_data in dst_datas:
+            chain_id_to = LAYERZERO_WRAPED_NETWORKS[dst_data[0]]
+            for src_chain in src_chains:
+                try:
+                    refuel_data = {
+                        dst_data[0]: dst_data[1]
+                    }
 
-                chain_id_from = LAYERZERO_WRAPED_NETWORKS[src_chain]
-                refuel_flag = await merkly_for_refuel_attack(
-                    self.client.account_name, self.client.private_key, self.client.network, self.client.proxy_init,
-                    chain_id_from, attack_mode=True, attack_data=refuel_data, need_check=True)
+                    chain_id_from = LAYERZERO_WRAPED_NETWORKS[src_chain]
+                    refuel_flag = await func(
+                        self.client.account_name, self.client.private_key, self.client.network, self.client.proxy_init,
+                        chain_id_from, attack_mode=True, attack_data=refuel_data, need_check=True)
 
-                if refuel_flag:
+                    if refuel_flag:
+                        self.logger_msg(
+                            *self.client.acc_info,
+                            msg=f"Detected funds to refuel {CHAIN_NAME[chain_id_to]} from {CHAIN_NAME[chain_id_from]}",
+                            type_msg='success')
+
+                        result = await func(self.client.account_name, self.client.private_key, self.client.network,
+                                            self.client.proxy_init, chain_id_from, attack_mode=True,
+                                            attack_data=refuel_data)
+
+                        if not SMART_REFUEL_BATCH:
+                            return True
+
+                        if SMART_REFUEL_BATCH:
+                            random.shuffle(src_chains)
+
+                            if result:
+                                break
+
+                except Exception as error:
                     self.logger_msg(
-                        *self.client.acc_info, msg=f"Detected funds on {CHAIN_NAME[chain_id_from]}", type_msg='success')
+                        *self.client.acc_info, msg=f"Warning during smart refuel: {error}", type_msg='warning')
 
-                    await func(self.client.account_name, self.client.private_key, self.client.network,
-                               self.client.proxy_init, chain_id_from, attack_mode=True, attack_data=refuel_data)
-
-                    return True
+            if not result and SMART_REFUEL_BATCH:
+                self.logger_msg(
+                    *self.client.acc_info, msg=f"Can`t refuel to {CHAIN_NAME[chain_id_to]} from those SRC networks\n",
+                    type_msg='warning')
 
         if refuel_flag is False:
             self.logger_msg(
                 *self.client.acc_info, msg=f"Can`t detect funds in all networks!", type_msg='warning')
 
+        if SMART_REFUEL_BATCH:
+            return True
         return False
 
     @helper

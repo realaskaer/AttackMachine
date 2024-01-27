@@ -82,7 +82,7 @@ class Merkly(Refuel, Logger):
             return await self.client.wait_for_l0_received(tx_hash)
         except Exception as error:
             if not need_check:
-                raise BlockchainException(f'Error during the refuel!. Error: {error}')
+                raise BlockchainException(f'{error}')
 
     @helper
     @gas_checker

@@ -1,24 +1,23 @@
 import io
-import json
 import os
+import sys
+import json
 import random
 import asyncio
 import functools
-import sys
 import traceback
-
 import msoffcrypto
 import pandas as pd
+
 from getpass import getpass
-
-from aiohttp import ClientSession, TCPConnector
-from web3.exceptions import TimeExhausted
-
-from utils.networks import *
 from termcolor import cprint
+from utils.networks import *
 from datetime import datetime, timedelta
+from web3.exceptions import TimeExhausted
 from web3 import AsyncWeb3, AsyncHTTPProvider
+from aiohttp import ClientSession, TCPConnector
 from msoffcrypto.exceptions import DecryptionError, InvalidKeyError
+
 from general_settings import (
     SLEEP_TIME,
     GLOBAL_NETWORK,
@@ -189,6 +188,7 @@ def helper(func):
         from modules.interfaces import PriceImpactException, BlockchainException, SoftwareException
         attempts = 0
         error = None
+        stop_flag = False
         try:
             while attempts <= MAXIMUM_RETRY:
                 try:
@@ -203,25 +203,32 @@ def helper(func):
                     attempts += 1
                     traceback.print_exc()
                 finally:
+                    msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
                     if attempts:
                         if isinstance(error, asyncio.exceptions.TimeoutError):
                             error = 'Connection to RPC is not stable'
                         
                         if isinstance(error, BlockchainException):
-                            self.logger_msg(
-                                self.client.account_name,
-                                None, msg=f'Maybe problem with node: {self.client.rpc}', type_msg='warning')
-                            await self.client.change_rpc()
+                            if 'insufficient funds' in str(error):
+                                stop_flag = True
+                                network_name = self.client.network.name
+                                msg = f'Insufficient funds on {network_name}, software will stop this action\n'
+                            else:
+                                self.logger_msg(
+                                    self.client.account_name,
+                                    None, msg=f'Maybe problem with node: {self.client.rpc}', type_msg='warning')
+                                await self.client.change_rpc()
 
-                        self.logger_msg(
-                            self.client.account_name,
-                            None, msg=f"{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]", type_msg='error')
+                        self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
+
+                        if stop_flag:
+                            break
 
                         await sleep(self, *SLEEP_TIME_RETRY)
 
                         if attempts > MAXIMUM_RETRY:
                             self.logger_msg(self.client.account_name,
-                                            None, msg=f"Tries are over, launching next module.\n", type_msg='error')
+                                            None, msg=f"Tries are over, software will stop module\n", type_msg='error')
         finally:
             await self.client.session.close()
         return False

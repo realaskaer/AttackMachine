@@ -356,7 +356,7 @@ class Client(Logger):
 
             return tx_params
         except Exception as error:
-            raise BlockchainException(f'Prepare transaction | Error: {self.get_normalize_error(error)}')
+            raise BlockchainException(f'{self.get_normalize_error(error)}')
 
     async def make_approve(self, token_address: str, spender_address: str, amount_in_wei: int):
         transaction = await self.get_contract(token_address).functions.approve(
@@ -398,7 +398,7 @@ class Client(Logger):
             await sleep(random.randint(5, 9))
             return result
         except Exception as error:
-            raise BlockchainException(f'Check for approve | {self.get_normalize_error(error)}')
+            raise BlockchainException(f'{self.get_normalize_error(error)}')
 
     async def send_transaction(self, transaction, need_hash: bool = False, without_gas: bool = False,
                                poll_latency: int = 10, timeout: int = 360):
@@ -406,7 +406,7 @@ class Client(Logger):
             if not without_gas:
                 transaction['gas'] = int((await self.w3.eth.estimate_gas(transaction)) * GAS_MULTIPLIER)
         except Exception as error:
-            raise BlockchainException(f'Gas calculating | {self.get_normalize_error(error)}')
+            raise BlockchainException(f'{self.get_normalize_error(error)}')
 
         try:
             singed_tx = self.w3.eth.account.sign_transaction(transaction, self.private_key)
@@ -416,7 +416,7 @@ class Client(Logger):
                 self.logger_msg(*self.acc_info, msg='RPC got error, but tx was send', type_msg='warning')
                 return True
             else:
-                raise BlockchainException(f'Send transaction | {self.get_normalize_error(error)}')
+                raise BlockchainException(f'{self.get_normalize_error(error)}')
 
         try:
 
@@ -449,7 +449,7 @@ class Client(Logger):
                     total_time += poll_latency
                     await asyncio.sleep(poll_latency)
         except Exception as error:
-            raise BlockchainException(f'Verify transaction | {self.get_normalize_error(error)}')
+            raise BlockchainException(f'{self.get_normalize_error(error)}')
 
     async def get_token_price(self, token_name: str, vs_currency: str = 'usd') -> float:
 
