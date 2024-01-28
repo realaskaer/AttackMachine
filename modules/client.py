@@ -350,7 +350,7 @@ class Client(Logger):
                 tx_params['type'] = '0x2'
             else:
                 if self.network.name == 'BNB Chain':
-                    tx_params['gasPrice'] = self.w3.to_wei(round(random.uniform(1.3, 1.5), 1), 'gwei')
+                    tx_params['gasPrice'] = self.w3.to_wei(round(random.uniform(1.2, 1.5), 1), 'gwei')
                 else:
                     tx_params['gasPrice'] = await self.w3.eth.gas_price
 
@@ -421,7 +421,7 @@ class Client(Logger):
         try:
 
             total_time = 0
-            timeout = timeout if self.network.name not in ['Polygon', 'BNB Chain'] else 1200
+            timeout = timeout if self.network.name == 'Polygon' else 1200
 
             while True:
                 try:
@@ -441,7 +441,13 @@ class Client(Logger):
                         return False
                 except TransactionNotFound:
                     if total_time > timeout:
-                        raise TimeExhausted(f"Transaction {tx_hash !r} is not in the chain after {timeout} seconds")
+                        if self.network.name == 'BNB Chain':
+                            self.logger_msg(
+                                *self.acc_info,
+                                msg=f'Transaction was sent and tried to be confirmed, but not finished yet',
+                                type_msg='warning')
+                            return True
+                        raise TimeExhausted(f"Transaction is not in the chain after {timeout} seconds")
                     total_time += poll_latency
                     await asyncio.sleep(poll_latency)
 
