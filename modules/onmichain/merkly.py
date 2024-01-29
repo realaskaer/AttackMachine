@@ -75,11 +75,14 @@ class Merkly(Refuel, Logger):
 
             tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
-            if attack_data and attack_mode is False:
-                await self.client.wait_for_l0_received(tx_hash)
-                return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+            if isinstance(tx_hash, bytes):
+                if self.client.network.name != 'Polygon':
+                    await self.client.wait_for_l0_received(tx_hash)
 
-            return await self.client.wait_for_l0_received(tx_hash)
+            if attack_data and attack_mode is False:
+                return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+            return True
+
         except Exception as error:
             if not need_check:
                 raise BlockchainException(f'{error}')
