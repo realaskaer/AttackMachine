@@ -240,6 +240,8 @@ TOKENS_PER_CHAIN = {
         "WETH"              : "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
         'USDC'              : "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
         'USDT'              : "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+        'USDC.e'            : "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+        'DAI'               : "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
     },
     'Arbitrum Nova':{
         "ETH"               : "0x722E8BdD2ce80A4422E880164f2079488e115365",
@@ -255,7 +257,8 @@ TOKENS_PER_CHAIN = {
         "WETH"              : "0x4200000000000000000000000000000000000006",
         "USDC"              : "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
         "USDT"              : "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
-        "USDC.e"            : "0x7F5c764cBc14f9669B88837ca1490cCa17c31607"
+        "USDC.e"            : "0x7F5c764cBc14f9669B88837ca1490cCa17c31607",
+        "DAI"               : "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1"
     },
     "Polygon":{
         'MATIC'             : "0x0000000000000000000000000000000000001010",
@@ -310,7 +313,7 @@ ACROSS_CONTRACT = {
     'Arbitrum'              : '0x269727F088F16E1Aea52Cf5a97B1CD41DAA3f02D',
     'Optimism'              : '0x269727F088F16E1Aea52Cf5a97B1CD41DAA3f02D',
     'Base'                  : '0x269727F088F16E1Aea52Cf5a97B1CD41DAA3f02D',
-    'Etherium': '',
+    'Etherium'              : '',
     'Polygon'               : '',
 }
 
@@ -540,8 +543,34 @@ VELOCORE_CONTRACTS = {
     }
 }
 
-ODOS_CONTRACT = {
-    "router"                : '0x4bBa932E9792A2b917D47830C93a9BC79320E4f7'
+RANGO_CONTRACTS = {
+    'Arbitrum': {
+        "router": "0x69460570c93f9DE5E2edbC3052bf10125f0Ca22d"
+    },
+    'Optimism': {
+        "router": "0x69460570c93f9DE5E2edbC3052bf10125f0Ca22d"
+    },
+    'Linea': {
+        "router": '0x69460570c93f9DE5E2edbC3052bf10125f0Ca22d'
+    },
+    'Base': {
+        "router": '0x69460570c93f9DE5E2edbC3052bf10125f0Ca22d'
+    }
+}
+
+ODOS_CONTRACTS = {
+    'Arbitrum': {
+        "router": "0xa669e7A0d4b3e4Fa48af2dE86BD4CD7126Be4e13"
+    },
+    'Optimism': {
+        "router": "0xCa423977156BB05b13A2BA3b76Bc5419E2fE9680"
+    },
+    'zkSync': {
+        "router": '0x4bBa932E9792A2b917D47830C93a9BC79320E4f7'
+    },
+    'Base': {
+        "router": '0x19cEeAd7105607Cd444F5ad10dd51356436095a1'
+    }
 }
 
 ORBITER_CONTRACTS = {
@@ -579,11 +608,34 @@ ZKSWAP_CONTRACTS = {
     "router"                : '0x18381c0f738146Fb694DE18D1106BdE2BE040Fa4'
 }
 
-XYSWAP_CONTRACT = {
-    "router"                : '0x30E63157bD0bA74C814B786F6eA2ed9549507b46'
+XYFINANCE_CONTRACTS = {
+    'Arbitrum': {
+        "router"                : "0x062b1Db694F6A437e3c028FC60dd6feA7444308c"
+    },
+    'Optimism': {
+        "router"                : "0xF8d342db903F266de73B10a1e46601Bb08a3c195"
+    },
+    'zkSync':{
+        "router"                : '0x30E63157bD0bA74C814B786F6eA2ed9549507b46'
+    },
+    'Base':{
+        "router"                : '0x6aCd0Ec9405CcB701c57A88849C4F1CD85a3f3ab'
+    },
+    'Linea':{
+        "router"                : '0xc693C8AAD9745588e95995fef4570d6DcEF98000'
+    },
+    'Scroll':{
+        "router"                : '0x22bf2A9fcAab9dc96526097318f459eF74277042'
+    }
 }
 
 OPENOCEAN_CONTRACTS = {
+    'Arbitrum': {
+        "router"                : "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+    },
+    'Optimism':{
+        "router"                : "0x6352a56caadC4F1E25CD6c75970Fa768A3304e64"
+    },
     'zkSync':{
         "router"                : '0x36A1aCbbCAfca2468b85011DDD16E7Cb4d673230'
     },
@@ -603,7 +655,13 @@ GRAPEDRAW_CONTRACTS = {
     'Base': '0x44c1Cf007C9761c4665d4E0172515146692509CA'
 }
 
-ONEINCH_CONTRACT = {
+ONEINCH_CONTRACTS = {
+    'Arbitrum': {
+        "router"                : "0x1111111254EEB25477B68fb85Ed929f73A960582"
+    },
+    'Optimism':{
+        "router"                : "0x1111111254EEB25477B68fb85Ed929f73A960582"
+    },
     'zkSync':{
         "router"                : '0x6e2B76966cbD9cF4cC2Fa0D76d24d5241E0ABC2F'
     },
@@ -2481,6 +2539,7 @@ CHAIN_NAME = {
     44: 'LootChain',
     45: 'ZKFair',
     46: 'Beam',
+    47: 'inEVM',
 }
 
 

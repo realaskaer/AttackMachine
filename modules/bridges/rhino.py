@@ -5,13 +5,13 @@ import base64
 import random
 import asyncio
 
-from config import TOKENS_PER_CHAIN, RHINO_CONTRACTS, RHINO_ABI
+from config import TOKENS_PER_CHAIN
 from modules import Bridge, Logger
 from datetime import datetime, timezone
 
 from general_settings import GLOBAL_NETWORK
 from modules.interfaces import SoftwareException
-from utils.tools import gas_checker, sleep, helper
+from utils.tools import gas_checker, sleep
 from eth_account.messages import encode_defunct
 from utils.stark_signature.stark_singature import sign, pedersen_hash, EC_ORDER, private_to_stark_key
 from utils.stark_signature.eth_coder import encrypt_with_public_key, decrypt_with_private_key, get_public_key
@@ -396,83 +396,3 @@ class Rhino(Bridge, Logger):
         finally:
             await self.client.session.close()
             await self.evm_client.session.close()
-
-    @helper
-    async def check_eligible(self):
-        url = 'https://api.rhino.fi/activity-trackers/trackers/ZKSYNC'
-
-        params = {
-            'address': self.client.address
-        }
-
-        data = await self.make_request(url=url, params=params)
-
-        if float(data['ranking']['topPercentage']) <= 0.3:
-            self.logger_msg(*self.client.acc_info,
-                            msg=f'Wallet is eligible for mint Pro Hunter NFT', type_msg='success')
-            return
-        raise SoftwareException('Wallet not eligible for mint Pro Hunter NFT!')
-
-    async def stat_checker(self):
-        url = 'https://api.rhino.fi/activity-trackers/trackers/ZKSYNC'
-
-        params = {
-            'address': self.client.address
-        }
-
-        data = await self.make_request(url=url, params=params)
-
-        return float(data['ranking']['topPercentage'])
-
-    async def get_nft_signature(self):
-        url = f'https://api.rhino.fi/activity-trackers/nftSignature/ZKSYNC'
-
-        params = {
-            'address': self.client.address
-        }
-
-        headers = self.make_headers()
-        signature = await self.make_request(url=url, params=params, headers=headers)
-
-        return signature
-
-    @helper
-    @gas_checker
-    async def mint_common(self):
-        self.logger_msg(*self.client.acc_info, msg=f'Mint Hunter NFT on Rhino.fi')
-
-        nft_contract = self.client.get_contract(RHINO_CONTRACTS['nft_common'], RHINO_ABI['nft_common'])
-
-        mint_fee = await nft_contract.functions.mintFee().call()
-
-        tx_params = await self.client.prepare_transaction(value=mint_fee)
-        transaction = await nft_contract.functions.mint().build_transaction(tx_params)
-
-        return await self.client.send_transaction(transaction)
-
-    @helper
-    @gas_checker
-    async def mint_rare(self):
-
-        top_percent = await self.stat_checker()
-
-        if top_percent <= 0.3:
-
-            self.logger_msg(*self.client.acc_info,
-                            msg=f'Wallet is eligible for mint Pro Hunter NFT', type_msg='success')
-            self.logger_msg(*self.client.acc_info, msg=f'Mint Pro Hunter NFT on Rhino.fi')
-
-            nft_contract = self.client.get_contract(RHINO_CONTRACTS['nft_rare'], RHINO_ABI['nft_rare'])
-
-            signature = await self.get_nft_signature()
-
-            #mint_fee = await nft_contract.functions.mintFee().call()
-
-            tx_params = await self.client.prepare_transaction(value=0)
-            transaction = await nft_contract.functions.mint(
-                signature
-            ).build_transaction(tx_params)
-
-            return await self.client.send_transaction(transaction)
-
-        raise SoftwareException('Wallet not eligible for mint Pro Hunter NFT!')

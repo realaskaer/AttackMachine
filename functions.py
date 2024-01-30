@@ -77,7 +77,7 @@ def get_network_by_chain_id(chain_id):
         44: LootChainRPC,
         45: ZKFairRPC,
         46: BeamRPC,
-        47: InEVM_RPC
+        47: InEVM_RPC,
     }[chain_id]
 
 
@@ -808,22 +808,10 @@ async def random_approve(account_number, private_key, network, proxy):
     return await worker.random_approve()
 
 
-async def zksync_rhino_checker(account_number, private_key, network, proxy):
+async def smart_random_approve(account_number, private_key, network, proxy):
 
-    worker = Rhino(get_client(account_number, private_key, network, proxy))
-    return await worker.check_eligible()
-
-
-async def zksync_rhino_mint(account_number, private_key, network, proxy):
-
-    worker = Rhino(get_client(account_number, private_key, network, proxy))
-    return await worker.mint_common()
-
-
-async def zksync_rhino_mint_pro(account_number, private_key, network, proxy):
-
-    worker = Rhino(get_client(account_number, private_key, network, proxy))
-    return await worker.mint_rare()
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.smart_random_approve()
 
 
 async def mint_mintfun(account_number, private_key, network, proxy):
@@ -898,11 +886,6 @@ async def smart_zerius(account_number, private_key, network, proxy):
 async def stargate_volume(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.l0_volume_abuse(dapp_id=1)
-
-
-# async def mint_berachain_tokens(account_number, private_key, network, proxy):
-#     worker = Faucet(get_client(account_number, private_key, network, proxy))
-#     return await worker.mint_berachain_tokens()
 
 
 async def bingx_withdraw(account_number, private_key, network, proxy, **kwargs):

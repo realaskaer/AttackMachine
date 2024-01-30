@@ -111,13 +111,9 @@ class CEX(ABC):
                 return data['data']
 
 
-class Aggregator(ABC):
+class RequestClient(ABC):
     def __init__(self, client):
         self.client = client
-
-    @abstractmethod
-    async def swap(self):
-        pass
 
     async def make_request(self, method:str = 'GET', url:str = None, headers:dict = None, params: dict = None,
                            data:str = None, json:dict = None):

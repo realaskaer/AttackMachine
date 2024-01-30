@@ -2,7 +2,7 @@ import random
 
 from config import ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA, \
     TOKENS_PER_CHAIN2, CHAIN_NAME
-from modules import Logger, Aggregator
+from modules import Logger, RequestClient
 from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS
 from modules.interfaces import SoftwareException
 from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
@@ -12,14 +12,11 @@ from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
 from utils.tools import helper, gas_checker, sleep
 
 
-class Custom(Logger, Aggregator):
+class Custom(Logger, RequestClient):
     def __init__(self, client):
         self.client = client
         Logger.__init__(self)
-        Aggregator.__init__(self, client)
-
-    async def swap(self):
-        pass
+        RequestClient.__init__(self, client)
 
     async def collect_eth_util(self):
         from functions import swap_odos, swap_oneinch, swap_openocean, swap_xyfinance, swap_rango, swap_avnu
@@ -29,12 +26,12 @@ class Custom(Logger, Aggregator):
         self.logger_msg(*self.client.acc_info, msg=f"Start collecting tokens in ETH")
 
         func = {
-            3: [swap_odos, swap_oneinch, swap_openocean, swap_xyfinance],
-            4: [swap_rango, swap_openocean, swap_xyfinance],
-            8: [swap_openocean, swap_xyfinance],
-            9: [swap_avnu],
-            11: [swap_openocean, swap_xyfinance, swap_odos, swap_oneinch]
-        }[GLOBAL_NETWORK]
+            'Base': [swap_rango, swap_odos, swap_oneinch, swap_openocean, swap_xyfinance],
+            'Linea': [swap_rango, swap_openocean, swap_xyfinance],
+            'Scroll': [swap_openocean, swap_xyfinance],
+            'Starknet': [swap_rango, swap_avnu],
+            'zkSync Era': [swap_rango, swap_openocean, swap_xyfinance, swap_odos, swap_oneinch]
+        }[self.client.network.name]
 
         wallet_balance = {k: await self.client.get_token_balance(k, False)
                           for k, v in TOKENS_PER_CHAIN[self.client.network.name].items()}
@@ -122,18 +119,34 @@ class Custom(Logger, Aggregator):
     @helper
     @gas_checker
     async def wraps_abuser(self):
+        await self.wraps_abuser_util()
+
+        return True
+
+    @helper
+    @gas_checker
+    async def smart_wraps_abuser(self):
+        from functions import wrap_abuser
+
+        await self.wraps_abuser_util()
+
+        return True
+
+    async def wraps_abuser_util(self):
         from functions import swap_odos, swap_oneinch, swap_xyfinance, swap_avnu
 
         if GLOBAL_NETWORK == 9:
             await self.client.initialize_account()
 
         func = {
-            3: [swap_odos, swap_oneinch, swap_xyfinance],
-            4: [swap_xyfinance],
-            8: [swap_xyfinance],
-            9: [swap_avnu],
-            11: [swap_oneinch, swap_xyfinance]
-        }[GLOBAL_NETWORK]
+            'Arbitrum': [swap_odos, swap_oneinch, swap_xyfinance],
+            'Optimism': [swap_odos, swap_oneinch, swap_xyfinance],
+            'Base': [swap_odos, swap_oneinch, swap_xyfinance],
+            'Linea': [swap_xyfinance],
+            'Scroll': [swap_xyfinance],
+            'Starknet': [swap_avnu],
+            'zkSync Era': [swap_xyfinance, swap_odos, swap_oneinch]
+        }[self.client.network.name]
 
         current_tokens = list(TOKENS_PER_CHAIN[self.client.network.name].items())[:2]
 
@@ -453,16 +466,11 @@ class Custom(Logger, Aggregator):
         for _ in range(STARGATE_SWAPS_AMOUNT):
             await self.smart_bridge_l0(dapp_id=dapp_id)
 
-        clients = [await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[chain])
-                   for chain in chains]
-        balances = [await client.get_token_balance(omnicheck=True, token_name=token, check_symbol=False)
-                    for client, token in zip(clients, tokens)]
-
-        index = balances.index(max(balances, key=lambda x: x[1] * (ETH_PRICE if x[2] == 'ETH' else 1)))
+        client, index = await self.balance_searcher(chains, tokens)
 
         dep_chain = chains[index]
         dep_token = tokens[index]
-        amount = await clients[index].get_smart_amount(OKX_DEPOSIT_AMOUNT, token_name=dep_token)
+        amount = await client.get_smart_amount(OKX_DEPOSIT_AMOUNT, token_name=dep_token)
         deposit_data = OKX_DEPOSIT_L0_DATA[dep_chain][dep_token], (amount, amount)
 
         await okx_deposit(self.client.account_name, self.client.private_key, self.client.network,
@@ -473,8 +481,70 @@ class Custom(Logger, Aggregator):
 
         return True
 
+    async def balance_searcher(self, chains, tokens):
+        clients = [await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[chain])
+                   for chain in chains]
+        balances = [await client.get_token_balance(omnicheck=True, token_name=token, check_symbol=False)
+                    for client, token in zip(clients, tokens)]
+
+        index = balances.index(max(balances, key=lambda x: x[1] * (ETH_PRICE if x[2] == 'ETH' else 1)))
+
+        for index_client, client in enumerate(clients):
+            if index_client != index:
+                await client.session.close()
+
+        return clients[index], index
+
     @helper
     async def random_cex_withdraw(self, dapp_id):
         await self.cex_multi_withdraw(dapp_id, random_network=True)
 
         return True
+
+    @helper
+    @gas_checker
+    async def smart_random_approve(self):
+        from config import (IZUMI_CONTRACTS, MAVERICK_CONTRACTS, RANGO_CONTRACTS, ODOS_CONTRACTS, ONEINCH_CONTRACTS,
+                            OPENOCEAN_CONTRACTS, PANCAKE_CONTRACTS, SUSHISWAP_CONTRACTS,
+                            UNISWAP_CONTRACTS, STARGATE_CONTRACTS, WOOFI_CONTRACTS, XYFINANCE_CONTRACTS, TOKENS_PER_CHAIN)
+
+        all_contracts = {
+            "Rango.Exchange": RANGO_CONTRACTS,
+            "Maverick": MAVERICK_CONTRACTS,
+            "SushiSwap": SUSHISWAP_CONTRACTS,
+            "Uniswap": UNISWAP_CONTRACTS,
+            "Stargate": STARGATE_CONTRACTS,
+            "PancakeSwap": PANCAKE_CONTRACTS,
+            "WooFi": WOOFI_CONTRACTS,
+            "iZumi": IZUMI_CONTRACTS,
+            "ODOS": ODOS_CONTRACTS,
+            "1inch": ONEINCH_CONTRACTS,
+            "OpenOcean": OPENOCEAN_CONTRACTS,
+            "XYfinance": XYFINANCE_CONTRACTS,
+        }
+
+        client, index = await self.balance_searcher(STARGATE_CHAINS, STARGATE_TOKENS)
+
+        network_name = client.network.name
+
+        all_network_contracts = {
+            name: contracts[network_name]['router']
+            for name, contracts in all_contracts.items()
+            if contracts.get(network_name)
+        }
+
+        approve_contracts = [(k, v) for k, v in all_network_contracts.items()]
+        contract_name, approve_contract = random.choice(approve_contracts)
+        native = ['ETH', 'WETH', 'BNB', 'MATIC', 'AVAX', 'WMATIC']
+        token_contract = random.choice([i for i in list(TOKENS_PER_CHAIN[network_name].items()) if i not in native])
+        amount = random.uniform(1, 10000)
+        amount_in_wei = int(amount * 10 ** await client.get_decimals(token_contract[0]))
+
+        message = f"Approve {amount:.4f} {token_contract[0]} for {contract_name}"
+        self.logger_msg(*client.acc_info, msg=message)
+        result = await client.check_for_approved(token_contract[1], approve_contract, amount_in_wei,
+                                               without_bal_check=True)
+
+        await client.session.close()
+
+        return result

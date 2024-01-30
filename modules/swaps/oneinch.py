@@ -1,16 +1,16 @@
 import asyncio
 
-from modules import Aggregator, Logger
+from modules import RequestClient, Logger
 from utils.tools import gas_checker, helper
 from general_settings import SLIPPAGE, ONEINCH_API_KEY
 from config import TOKENS_PER_CHAIN, ETH_MASK, HELP_SOFTWARE
 
 
-class OneInch(Aggregator, Logger):
+class OneInch(RequestClient, Logger):
     def __init__(self, client):
         self.client = client
         Logger.__init__(self)
-        Aggregator.__init__(self, client)
+        RequestClient.__init__(self, client)
         self.network = self.client.network.name
 
     async def get_contract_address(self):

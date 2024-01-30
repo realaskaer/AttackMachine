@@ -136,16 +136,16 @@ class SimpleEVM(Logger):
     @helper
     @gas_checker
     async def random_approve(self):
-        from config import (IZUMI_CONTRACTS, MAVERICK_CONTRACTS, MUTE_CONTRACTS, ODOS_CONTRACT, ONEINCH_CONTRACT,
+        from config import (IZUMI_CONTRACTS, MAVERICK_CONTRACTS, MUTE_CONTRACTS, ODOS_CONTRACTS, ONEINCH_CONTRACTS,
                             OPENOCEAN_CONTRACTS, PANCAKE_CONTRACTS, SPACEFI_CONTRACTS, SUSHISWAP_CONTRACTS,
-                            UNISWAP_CONTRACTS, VELOCORE_CONTRACTS, WOOFI_CONTRACTS, XYSWAP_CONTRACT, TOKENS_PER_CHAIN)
+                            UNISWAP_CONTRACTS, VELOCORE_CONTRACTS, WOOFI_CONTRACTS, XYFINANCE_CONTRACTS, TOKENS_PER_CHAIN)
 
         all_contracts = {
             "iZumi":IZUMI_CONTRACTS,
             "Maverick":MAVERICK_CONTRACTS,
             "Mute":MUTE_CONTRACTS,
-            "ODOS":ODOS_CONTRACT,
-            "1inch":ONEINCH_CONTRACT,
+            "ODOS":ODOS_CONTRACTS,
+            "1inch":ONEINCH_CONTRACTS,
             "OpenOcean":OPENOCEAN_CONTRACTS,
             "PancakeSwap":PANCAKE_CONTRACTS,
             "SpaceFi":SPACEFI_CONTRACTS,
@@ -153,7 +153,7 @@ class SimpleEVM(Logger):
             "Uniswap":UNISWAP_CONTRACTS,
             "Velocore":VELOCORE_CONTRACTS,
             "WooFi":WOOFI_CONTRACTS,
-            "XYfinance":XYSWAP_CONTRACT,
+            "XYfinance":XYFINANCE_CONTRACTS,
         }
 
         all_network_contracts = {

@@ -1,4 +1,4 @@
-from .interfaces import DEX, Aggregator, Bridge, Refuel, Messenger, Landing, Minter, Blockchain, Creator, CEX, Logger
+from .interfaces import DEX, RequestClient, Bridge, Refuel, Messenger, Landing, Minter, Blockchain, Creator, CEX, Logger
 from modules.cexs.okx import OKX
 from .client import Client
 from .stark_client import StarknetClient

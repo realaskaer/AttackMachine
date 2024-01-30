@@ -33,7 +33,6 @@ AVAILABLE_MODULES_INFO = {
     random_bingx_withdraw               : (random_bingx_withdraw, 0, 'BingX Random Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
     random_binance_withdraw             : (random_binance_withdraw, 0, 'Binance Random Withdraw', 0, [2, 3, 4, 8, 9, 11, 12]),
     make_balance_to_average             : (make_balance_to_average, -2, 'Check and make wanted balance', 0, [0]),
-    collector_eth                       : (collector_eth, -1, 'Collect ETH from tokens', 0, [2, 3, 4, 8, 9, 11, 12]),
     deploy_stark_wallet                 : (deploy_stark_wallet, 0, 'Deploy Wallet', 0, [9]),
     bridge_rhino                        : (bridge_rhino, 1, 'Rhino Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
     bridge_layerswap                    : (bridge_layerswap, 1, 'LayerSwap Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
@@ -86,6 +85,7 @@ AVAILABLE_MODULES_INFO = {
     swap_bridged_usdc                   : (swap_bridged_usdc, 2, 'Swap USDC to Bridged', 1, [0]),
     wrap_eth                            : (wrap_eth, 2, 'Wrap ETH', 0, [2, 3, 4, 8, 11, 12]),
     random_approve                      : (random_approve, 2, 'Random Approve', 0, [2, 3, 4, 8, 9, 11, 12]),
+    smart_random_approve                : (smart_random_approve, 2, 'Smart Random Approve', 0, [2, 3, 4, 8, 9, 11, 12]),
     disable_collateral_basilisk         : (disable_collateral_basilisk, 3, 'Disable Basilisk Collateral', 1, [11]),
     disable_collateral_eralend          : (disable_collateral_eralend, 3, 'Disable EraLend Collateral', 1, [11]),
     disable_collateral_reactorfusion    : (disable_collateral_reactorfusion, 3, 'Disable ReactorFusion Collateral', 1, [11]),
@@ -148,12 +148,9 @@ AVAILABLE_MODULES_INFO = {
     withdraw_rocketsam                  : (withdraw_rocketsam, 3, 'RocketSam Withdraw', 0, [2, 3, 4, 8, 11, 12]),
     withdraw_native_bridge              : (withdraw_native_bridge, 3, 'Native Bridge Withdraw', 0, [9, 11]),
     wrap_abuser                         : (wrap_abuser, 2, 'Wrap Abuse =)', 0, [0]),
-    zksync_rhino_checker                : (zksync_rhino_checker, 3, 'Rhino Checker', 0, [11]),
-    zksync_rhino_mint                   : (zksync_rhino_mint, 3, 'Rhino Mint zkSync Hunter NFT', 0, [11]),
-    zksync_rhino_mint_pro               : (zksync_rhino_mint_pro, 3, 'Rhino Mint zkSync Pro Hunter NFT', 0, [11]),
-    okx_deposit                         : (okx_deposit, 4, 'OKX Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
-    okx_collect_from_sub                : (okx_collect_from_sub, 5, 'OKX Collect money', 0, [2, 3, 4, 8, 9, 11, 12]),
-    #mint_berachain_tokens               : (mint_berachain_tokens, 5, 'Mint BeraChain Tokens', 0, [2, 3, 4, 8, 9, 11, 12])
+    collector_eth                       : (collector_eth, 4, 'Collect ETH from tokens', 0, [2, 3, 4, 8, 9, 11, 12]),
+    okx_deposit                         : (okx_deposit, 5, 'OKX Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
+    okx_collect_from_sub                : (okx_collect_from_sub, 6, 'OKX Collect money', 0, [2, 3, 4, 8, 9, 11, 12]),
 }
 
 

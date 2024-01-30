@@ -36,11 +36,13 @@ zkSyncEraRPC = Network(
     name='zkSync',
     rpc=[
         'https://mainnet.era.zksync.io',
+        'https://1rpc.io/zksync2-era',
+        'https://zksync.meowrpc.com',
     ],
     chain_id=324,
     eip1559_support=True,
     token='ETH',
-    explorer='https://explorer.zksync.io/',
+    explorer='https://era.zksync.network/',
 )
 
 ScrollRPC = Network(
@@ -88,6 +90,8 @@ PolygonRPC = Network(
     name='Polygon',
     rpc=[
         'https://rpc.ankr.com/polygon',
+        'https://polygon.llamarpc.com',
+        'https://polygon-rpc.com',
     ],
     chain_id=137,
     eip1559_support=False,
@@ -116,7 +120,6 @@ EthereumRPC = Network(
     rpc=[
         'https://rpc.ankr.com/eth',
         'https://ethereum.publicnode.com',
-        'https://rpc.mevblocker.io',
         'https://rpc.flashbots.net',
         'https://1rpc.io/eth',
         'https://eth.drpc.org'
@@ -145,6 +148,7 @@ BaseRPC = Network(
     name='Base',
     rpc=[
         'https://mainnet.base.org',
+        'https://base.llamarpc.com',
     ],
     chain_id=8453,
     eip1559_support=True,
@@ -193,6 +197,8 @@ BSC_RPC = Network(
     name='BNB Chain',
     rpc=[
         'https://rpc.ankr.com/bsc',
+        'https://binance.llamarpc.com',
+        'https://bscrpc.com',
     ],
     chain_id=56,
     eip1559_support=False,
@@ -204,6 +210,7 @@ MantaRPC = Network(
     name='Manta',
     rpc=[
         'https://pacific-rpc.manta.network/http'
+        'https://1rpc.io/manta'
     ],
     chain_id=169,
     eip1559_support=True,
@@ -244,6 +251,8 @@ MoonbeamRPC = Network(
     name='Moonbeam',
     rpc=[
         'https://rpc.ankr.com/moonbeam',
+        'https://1rpc.io/glmr',
+        'https://rpc.api.moonbeam.network',
     ],
     chain_id=1284,
     eip1559_support=False,
@@ -255,6 +264,7 @@ MoonriverRPC = Network(
     name='Moonriver',
     rpc=[
         'https://moonriver.public.blastapi.io',
+        'https://moonriver.publicnode.com',
     ],
     chain_id=1285,
     eip1559_support=False,
@@ -423,6 +433,8 @@ KlaytnRPC = Network(
     name='Klaytn',
     rpc=[
         'https://rpc.ankr.com/klaytn',
+        'https://1rpc.io/klay',
+        'https://klaytn.drpc.org',
     ],
     chain_id=8217,
     eip1559_support=False,

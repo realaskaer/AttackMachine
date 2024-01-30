@@ -1,14 +1,14 @@
 from utils.tools import gas_checker, helper
 from config import TOKENS_PER_CHAIN, HELP_SOFTWARE
 from general_settings import SLIPPAGE, UNLIMITED_APPROVE
-from modules import Aggregator, Logger
+from modules import RequestClient, Logger
 
 
-class Rango(Aggregator, Logger):
+class Rango(RequestClient, Logger):
     def __init__(self, client):
         self.client = client
         Logger.__init__(self)
-        Aggregator.__init__(self, client)
+        RequestClient.__init__(self, client)
         self.network = self.client.network.name
 
     async def get_quote(self, from_token_address, to_token_address, from_token_name, to_token_name, amount):

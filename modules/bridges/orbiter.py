@@ -54,9 +54,10 @@ class Orbiter(Bridge, Logger):
         destination_code = 9000 + to_chain['id']
         decimals = await self.client.get_decimals(token_name)
         fee = int(float(bridge_data['fee']) * 10 ** decimals)
-        min_price, max_price = bridge_data['min_amount'], bridge_data['max_amount']
         amount_in_wei = round(int(amount * 10 ** decimals), -4)
         full_amount = amount_in_wei + destination_code + fee
+
+        min_price, max_price = bridge_data['min_amount'], bridge_data['max_amount']
 
         if from_chain['name'] != 'Starknet' and to_chain['name'] == 'Starknet':
 

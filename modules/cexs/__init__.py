@@ -1,3 +1,3 @@
-from .okx import OKX
-from .bingx import BingX
 from .binance import Binance
+from .bingx import BingX
+from .okx import OKX

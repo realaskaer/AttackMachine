@@ -1,14 +1,14 @@
 from config import AVNU_CONTRACT, TOKENS_PER_CHAIN, HELP_SOFTWARE
 from utils.tools import helper, gas_checker
 from general_settings import SLIPPAGE
-from modules import Aggregator, Logger
+from modules import RequestClient, Logger
 
 
-class AVNU(Aggregator, Logger):
+class AVNU(RequestClient, Logger):
     def __init__(self, client):
         self.client = client
         Logger.__init__(self)
-        Aggregator.__init__(self, client)
+        RequestClient.__init__(self, client)
 
     async def get_quotes(self, from_token_address: int, to_token_address: int, amount_in_wei: int):
         url = "https://starknet.api.avnu.fi/swap/v1/quotes"
