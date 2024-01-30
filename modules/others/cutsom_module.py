@@ -1,15 +1,18 @@
 import random
 
-from config import ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA, \
-    TOKENS_PER_CHAIN2, CHAIN_NAME
 from modules import Logger, RequestClient
 from general_settings import GLOBAL_NETWORK, AMOUNT_PERCENT_WRAPS
-from modules.interfaces import SoftwareException
-from settings import OKX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, \
-    L2PASS_ATTACK_NFT, \
-    ZERIUS_ATTACK_NFT, SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW, OKX_DEPOSIT_AMOUNT, \
-    BINGX_MULTI_WITHDRAW, SHUFFLE_NFT_ATTACK, BINANCE_MULTI_WITHDRAW, SMART_REFUEL_BATCH
+from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry
 from utils.tools import helper, gas_checker, sleep
+from config import (
+    ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA,
+    TOKENS_PER_CHAIN2, CHAIN_NAME
+)
+from settings import (
+    CEX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, L2PASS_ATTACK_NFT, ZERIUS_ATTACK_NFT,
+    SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW, OKX_DEPOSIT_AMOUNT,
+    BINGX_MULTI_WITHDRAW, SHUFFLE_NFT_ATTACK, BINANCE_MULTI_WITHDRAW, SMART_REFUEL_BATCH,
+)
 
 
 class Custom(Logger, RequestClient):
@@ -30,7 +33,7 @@ class Custom(Logger, RequestClient):
             'Linea': [swap_rango, swap_openocean, swap_xyfinance],
             'Scroll': [swap_openocean, swap_xyfinance],
             'Starknet': [swap_rango, swap_avnu],
-            'zkSync Era': [swap_rango, swap_openocean, swap_xyfinance, swap_odos, swap_oneinch]
+            'zkSync': [swap_rango, swap_openocean, swap_xyfinance, swap_odos, swap_oneinch]
         }[self.client.network.name]
 
         wallet_balance = {k: await self.client.get_token_balance(k, False)
@@ -92,7 +95,7 @@ class Custom(Logger, RequestClient):
 
         self.logger_msg(*self.client.acc_info, msg=f"Stark check all balance to make average")
 
-        amount = OKX_BALANCE_WANTED
+        amount = CEX_BALANCE_WANTED
         wanted_amount_in_usd = float(f'{amount * ETH_PRICE:.2f}')
 
         wallet_balance = {k: await self.client.get_token_balance(k, False)
@@ -114,7 +117,7 @@ class Custom(Logger, RequestClient):
 
             return await okx_withdraw(self.client.account_name, self.client.private_key, self.client.network,
                                       self.client.proxy_init, want_balance=need_to_withdraw)
-        raise SoftwareException('Account has enough tokens on balance!')
+        raise SoftwareExceptionWithoutRetry('Account has enough tokens on balance!')
 
     @helper
     @gas_checker
@@ -131,7 +134,7 @@ class Custom(Logger, RequestClient):
             'Linea': [swap_xyfinance],
             'Scroll': [swap_xyfinance],
             'Starknet': [swap_avnu],
-            'zkSync Era': [swap_xyfinance, swap_odos, swap_oneinch]
+            'zkSync': [swap_xyfinance, swap_odos, swap_oneinch]
         }[self.client.network.name]
 
         current_tokens = list(TOKENS_PER_CHAIN[self.client.network.name].items())[:2]

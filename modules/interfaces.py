@@ -31,6 +31,10 @@ class SoftwareException(Exception):
     pass
 
 
+class SoftwareExceptionWithoutRetry(Exception):
+    pass
+
+
 class Logger(ABC):
     def __init__(self):
         self.logger = logger
