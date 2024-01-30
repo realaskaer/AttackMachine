@@ -666,7 +666,7 @@ ONEINCH_CONTRACTS = {
         "router"                : '0x6e2B76966cbD9cF4cC2Fa0D76d24d5241E0ABC2F'
     },
     'Base':{
-        "router"                : '0x1111111254eeb25477b68fb85ed929f73a960582'
+        "router"                : '0x1111111254EEB25477B68fb85Ed929f73A960582'
     }
 }
 
