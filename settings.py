@@ -116,9 +116,7 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (
         Токены указывать в таком же порядке, как и чейны. Условно STARGATE_CHAINS = [5, 6] и
         STARGATE_TOKENS = ['USDC', 'USDT'] будет означать, что для 5 чейна будет USDC, а для 6 USDT
         Свапы производятся на значение из AMOUNT_PERCENT. 
-        
-    STARGATE_SWAPS_AMOUNT | Количество бриджей внутри модуля stargate_volume
-    
+            
     COREDAO_CHAINS | Аналогично STARGATE_CHAINS
     COREDAO_TOKENS | Аналогично STARGATE_TOKENS
     
@@ -174,7 +172,6 @@ ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (
 """
 STARGATE_CHAINS = [1, 7, 22, 31]
 STARGATE_TOKENS = ['ETH', 'ETH', 'ETH', 'ETH']
-STARGATE_SWAPS_AMOUNT = 4       # применяется для stargate_volume
 
 COREDAO_CHAINS = [33, 11]
 COREDAO_TOKENS = ['USDC', 'USDT']
