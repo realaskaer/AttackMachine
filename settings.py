@@ -16,7 +16,7 @@
 """
 OKX_WITHDRAW_NETWORK = 5                # Сеть вывода из OKX
 OKX_WITHDRAW_AMOUNT = (0.0004, 0.0005)  # (минимальная, максимальная) сумма для вывода из OKX (кол-во)
-OKX_MULTI_WITHDRAW = {                  # Сеть вывода: (минимум, максимум) в токене для вывода (кол-во)
+OKX_MULTI_WITHDRAW = {  # Сеть вывода: (минимум, максимум) в токене для вывода (кол-во)
     17: (1, 1.011),
     21: (1.9, 1.911)
 }
@@ -375,7 +375,6 @@ HELPERS_CONFIG = {
     send_message_l2telegraph         # смотри OMNI-CHAIN CONTROL
     smart_cex_deposit                # депозит средств на биржу для сети с наибольшим балансом из STARGATE_CHAINS 
     smart_random_approve             # рандомный апрув для сети с наибольшим балансом из STARGATE_CHAINS 
-    stargate_volume                  # выводит из рандомной сети OKX_MULTI_WITHDRAW -> бриджит на Stargate -> деп на OKX
     bridge_stargate                  # бриджи на Stargate. STARGATE_CHAINS, STARGATE_TOKENS. См. OMNI-CHAIN CONTROLE
     bridge_coredao                   # бриджи на CoreDAO. COREDAO_CHAINS, COREDAO_TOKENS. См. OMNI-CHAIN CONTROLE
     zerius_refuel_attack             # Refuel атака на Zerius. Делает много рефьелов в разные сети. См. OMNI-CHAIN CONTROLE
