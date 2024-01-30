@@ -421,7 +421,7 @@ class Client(Logger):
         try:
 
             total_time = 0
-            timeout = timeout if self.network.name == 'Polygon' else 1200
+            timeout = timeout if self.network.name != 'Polygon' else 1200
 
             while True:
                 try:
@@ -441,7 +441,7 @@ class Client(Logger):
                         return False
                 except TransactionNotFound:
                     if total_time > timeout:
-                        if self.network.name == 'BNB Chain':
+                        if self.network.name in ['BNB Chain', 'Moonbeam']:
                             self.logger_msg(
                                 *self.acc_info,
                                 msg=f'Transaction was sent and tried to be confirmed, but not finished yet',
