@@ -449,37 +449,31 @@ class Custom(Logger, RequestClient):
         return False
 
     @helper
-    async def l0_volume_abuse(self, dapp_id:int = None):
-        from functions import okx_deposit, okx_collect_from_sub
+    async def smart_cex_deposit(self, dapp_id:int = None):
+        from functions import okx_deposit
         from config import OKX_DEPOSIT_L0_DATA
-        from settings import STARGATE_SWAPS_AMOUNT
 
         dapp_config = {
-            1: (STARGATE_TOKENS, STARGATE_CHAINS),
-            2: (COREDAO_TOKENS, COREDAO_CHAINS)
+            1: (okx_deposit, STARGATE_CHAINS, STARGATE_TOKENS),
         }[dapp_id]
 
-        tokens, chains = dapp_config
-
-        await self.cex_multi_withdraw(dapp_id=1, random_network=True)
-
-        for _ in range(STARGATE_SWAPS_AMOUNT):
-            await self.smart_bridge_l0(dapp_id=dapp_id)
+        func, chains, tokens = dapp_config
 
         client, index = await self.balance_searcher(chains, tokens)
+
+        self.logger_msg(*self.client.acc_info, msg=f"Detected balance in {client.network.name}", type_msg='success')
 
         dep_chain = chains[index]
         dep_token = tokens[index]
         amount = await client.get_smart_amount(OKX_DEPOSIT_AMOUNT, token_name=dep_token)
         deposit_data = OKX_DEPOSIT_L0_DATA[dep_chain][dep_token], (amount, amount)
 
-        await okx_deposit(self.client.account_name, self.client.private_key, self.client.network,
-                          self.client.proxy_init, dep_network=deposit_data[0], deposit_data=deposit_data)
+        result = await okx_deposit(self.client.account_name, self.client.private_key, self.client.network,
+                                   self.client.proxy_init, dep_network=deposit_data[0], deposit_data=deposit_data)
 
-        await okx_collect_from_sub(self.client.account_name, self.client.private_key, self.client.network,
-                                   self.client.proxy_init, ccy=dep_token)
+        await client.session.close()
 
-        return True
+        return result
 
     async def balance_searcher(self, chains, tokens):
         clients = [await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[chain])
@@ -525,6 +519,8 @@ class Custom(Logger, RequestClient):
 
         client, index = await self.balance_searcher(STARGATE_CHAINS, STARGATE_TOKENS)
 
+        self.logger_msg(*self.client.acc_info, msg=f"Detected balance in {client.network.name}", type_msg='success')
+
         network_name = client.network.name
 
         all_network_contracts = {
@@ -543,7 +539,7 @@ class Custom(Logger, RequestClient):
         message = f"Approve {amount:.4f} {token_contract[0]} for {contract_name}"
         self.logger_msg(*client.acc_info, msg=message)
         result = await client.check_for_approved(token_contract[1], approve_contract, amount_in_wei,
-                                               without_bal_check=True)
+                                                 without_bal_check=True)
 
         await client.session.close()
 

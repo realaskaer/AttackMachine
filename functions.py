@@ -661,9 +661,9 @@ async def okx_deposit(account_number, private_key, _, proxy, dep_network=OKX_DEP
     return await worker.deposit(**kwargs)
 
 
-async def okx_collect_from_sub(account_number, private_key, network, proxy, ccy=None):
-    worker = OKX(get_client(account_number, private_key, network, proxy))
-    return await worker.collect_from_sub(ccy)
+async def smart_cex_deposit(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.smart_cex_deposit()
 
 
 async def swap_jediswap(account_number, private_key, network, proxy, *args, **kwargs):

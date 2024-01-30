@@ -121,7 +121,7 @@ class OKX(CEX, Logger):
             raise SoftwareException(f"Withdraw from {network_name} is not available")
 
     @helper
-    async def transfer_from_subaccounts(self, ccy:str = 'ETH'):
+    async def transfer_from_subaccounts(self, ccy:str = 'ETH', amount:float = None):
 
         self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
 
@@ -153,7 +153,7 @@ class OKX(CEX, Logger):
                 body = {
                     "ccy": ccy,
                     "type": "2",
-                    "amt": f"{sub_balance}",
+                    "amt": f"{amount}",
                     "from": "6",
                     "to": "6",
                     "subAcct": sub_name
@@ -165,8 +165,7 @@ class OKX(CEX, Logger):
                                         module_name='SubAccount transfer')
 
                 self.logger_msg(*self.client.acc_info,
-                                msg=f"Transfer {sub_balance} {ccy} to main account complete",
-                                type_msg='success')
+                                msg=f"Transfer {amount} {ccy} to main account complete",type_msg='success')
         if flag:
             self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
         return True
@@ -343,22 +342,14 @@ class OKX(CEX, Logger):
 
                 await self.wait_deposit_confirmation(amount, sub_balances, ccy=ccy)
 
+                await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
+
+                await sleep(self, 5, 10)
+
+                await self.transfer_from_spot_to_funding(ccy=ccy)
+
                 return result
             else:
                 raise SoftwareException(f"Minimum to deposit: {min_dep} {ccy}")
         else:
             raise SoftwareException(f"Deposit to {network_name} is not available")
-
-    @helper
-    async def collect_from_sub(self, ccy):
-
-        if not ccy:
-            ccy = OKX_NETWORKS_NAME[OKX_DEPOSIT_NETWORK].split('-')[0]
-
-        await self.transfer_from_subaccounts(ccy=ccy)
-
-        await sleep(self, 5, 10)
-
-        await self.transfer_from_spot_to_funding(ccy=ccy)
-
-        return True

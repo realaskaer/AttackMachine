@@ -150,7 +150,7 @@ AVAILABLE_MODULES_INFO = {
     wrap_abuser                         : (wrap_abuser, 2, 'Wrap Abuse =)', 0, [0]),
     collector_eth                       : (collector_eth, 4, 'Collect ETH from tokens', 0, [2, 3, 4, 8, 9, 11, 12]),
     okx_deposit                         : (okx_deposit, 5, 'OKX Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
-    okx_collect_from_sub                : (okx_collect_from_sub, 6, 'OKX Collect money', 0, [2, 3, 4, 8, 9, 11, 12]),
+    smart_cex_deposit                   : (smart_cex_deposit, 5, 'Smart CEX Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
 }
 
 
