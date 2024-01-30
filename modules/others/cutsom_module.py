@@ -532,12 +532,13 @@ class Custom(Logger, RequestClient):
         approve_contracts = [(k, v) for k, v in all_network_contracts.items()]
         contract_name, approve_contract = random.choice(approve_contracts)
         native = ['ETH', 'WETH', 'BNB', 'MATIC', 'AVAX', 'WMATIC']
-        token_contract = random.choice([i for i in list(TOKENS_PER_CHAIN[network_name].items()) if i not in native])
+        token_contract = random.choice([i for i in list(TOKENS_PER_CHAIN[network_name].items()) if i[0] not in native])
         amount = random.uniform(1, 10000)
         amount_in_wei = int(amount * 10 ** await client.get_decimals(token_contract[0]))
 
         message = f"Approve {amount:.4f} {token_contract[0]} for {contract_name}"
         self.logger_msg(*client.acc_info, msg=message)
+
         result = await client.check_for_approved(token_contract[1], approve_contract, amount_in_wei,
                                                  without_bal_check=True)
 

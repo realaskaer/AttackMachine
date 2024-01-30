@@ -165,7 +165,7 @@ class SimpleEVM(Logger):
         approve_contracts = [(k, v) for k, v in all_network_contracts.items()]
         contract_name, approve_contract = random.choice(approve_contracts)
         native = ['ETH', 'WETH']
-        token_contract = random.choice([i for i in list(TOKENS_PER_CHAIN[self.network].items()) if i not in native])
+        token_contract = random.choice([i for i in list(TOKENS_PER_CHAIN[self.network].items()) if i[0] not in native])
         amount = random.uniform(1, 10000)
         amount_in_wei = int(amount * 10 ** await self.client.get_decimals(token_contract[0]))
 
