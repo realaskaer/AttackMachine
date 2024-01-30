@@ -663,7 +663,7 @@ async def okx_deposit(account_number, private_key, _, proxy, dep_network=OKX_DEP
 
 async def smart_cex_deposit(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
-    return await worker.smart_cex_deposit()
+    return await worker.smart_cex_deposit(dapp_id=1)
 
 
 async def swap_jediswap(account_number, private_key, network, proxy, *args, **kwargs):

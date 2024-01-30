@@ -119,20 +119,6 @@ class Custom(Logger, RequestClient):
     @helper
     @gas_checker
     async def wraps_abuser(self):
-        await self.wraps_abuser_util()
-
-        return True
-
-    @helper
-    @gas_checker
-    async def smart_wraps_abuser(self):
-        from functions import wrap_abuser
-
-        await self.wraps_abuser_util()
-
-        return True
-
-    async def wraps_abuser_util(self):
         from functions import swap_odos, swap_oneinch, swap_xyfinance, swap_avnu
 
         if GLOBAL_NETWORK == 9:
