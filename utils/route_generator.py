@@ -150,6 +150,11 @@ AVAILABLE_MODULES_INFO = {
     wrap_abuser                         : (wrap_abuser, 2, 'Wrap Abuse =)', 0, [0]),
     collector_eth                       : (collector_eth, 4, 'Collect ETH from tokens', 0, [2, 3, 4, 8, 9, 11, 12]),
     okx_deposit                         : (okx_deposit, 5, 'OKX Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
+    bingx_deposit                       : (bingx_deposit, 5, 'Bingx Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
+    binance_deposit                     : (binance_deposit, 5, 'Binance Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
+    okx_limiter_deposit                 : (okx_limiter_deposit, 5, 'OKX Limiter Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
+    bingx_limiter_deposit               : (bingx_limiter_deposit, 5, 'BingX Limiter Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
+    binance_limiter_deposit             : (binance_limiter_deposit, 5, 'Binance Limiter Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
     smart_cex_deposit                   : (smart_cex_deposit, 5, 'Smart CEX Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
 }
 

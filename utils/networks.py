@@ -440,11 +440,10 @@ KlaytnRPC = Network(
 FantomRPC = Network(
     name='Fantom',
     rpc=[
-        'https://rpcapi.fantom.network',
         'https://rpc.ankr.com/fantom',
     ],
     chain_id=250,
-    eip1559_support=False,
+    eip1559_support=True,
     token='FTM',
     explorer='https://ftmscan.com/'
 )

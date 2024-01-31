@@ -9,7 +9,7 @@ from questionary import Choice, select
 from modules.interfaces import SoftwareException
 from utils.modules_runner import Runner
 from utils.route_generator import RouteGenerator
-from utils.tools import create_okx_withdrawal_list, drop_date, clean_stark_file, check_progress_file
+from utils.tools import create_cex_withdrawal_list, drop_date, clean_stark_file, check_progress_file
 
 
 def when():
@@ -46,7 +46,7 @@ def main():
                     Choice("🤖 Start running smart routes (c)GOOGLE POWERED", 'smart_routes_run'),
                     Choice("🚀 Start running classic routes for each wallet", 'classic_routes_run'),
                     Choice("📄 Generate classic-route for each wallet", 'classic_routes_gen'),
-                    Choice("💾 Create and safe OKX withdrawal file", 'create_okx_list'),
+                    Choice("💾 Create and safe CEX withdrawal file", 'create_cex_list'),
                     Choice("✅ Check the connection of each proxy", 'check_proxy'),
                     Choice("📊 Get TX stats for all wallets", 'tx_stat'),
                     Choice("⏰ WHEN?", 'when'),
@@ -72,9 +72,9 @@ def main():
                 print()
                 asyncio.run(runner.run_accounts(smart_route=False))
                 print()
-            elif answer == 'create_okx_list':
+            elif answer == 'create_cex_list':
                 print()
-                create_okx_withdrawal_list()
+                create_cex_withdrawal_list()
                 print()
             elif answer == 'tx_stat':
                 print()

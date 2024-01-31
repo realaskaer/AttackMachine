@@ -184,10 +184,6 @@ class L2Pass(Refuel, Logger):
         total_gas = 0
         refuel_list = []
 
-        self.logger_msg(
-            *self.client.acc_info,
-            msg=f"Refuel with Gas Station from {self.client.network.name}. Destination networks count: {len(gas_data)}")
-
         gas_contract = self.client.get_contract(
             L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]['gas_station'], L2PASS_ABI['gas_station']
         )
@@ -214,14 +210,18 @@ class L2Pass(Refuel, Logger):
             refuel_list.append([dst_chain_id, dst_amount])
             total_gas += gas_for_refuel
 
+        self.logger_msg(
+            *self.client.acc_info,
+            msg=f"Refuel with Gas Station from {self.client.network.name}. LayerZero transactions: {len(refuel_list)}")
+
         try:
             transaction = await gas_contract.functions.useGasStation(
                 refuel_list,
                 self.client.address
-            ).build_transaction(await self.client.prepare_transaction(value=total_gas))
+            ).build_transaction(await self.client.prepare_transaction(value=int(total_gas * 1.01)))
 
             tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
             return await self.client.wait_for_l0_received(tx_hash)
-        except (ValueError, ContractLogicError) as error:
+        except Exception as error:
             raise SoftwareException(f'Problem during the Gas Station: {error}')

@@ -6,12 +6,14 @@ from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry
 from utils.tools import helper, gas_checker, sleep
 from config import (
     ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA,
-    TOKENS_PER_CHAIN2, CHAIN_NAME
+    TOKENS_PER_CHAIN2, CHAIN_NAME, OKX_NETWORKS_NAME, BINGX_NETWORKS_NAME, BINANCE_NETWORKS_NAME
 )
 from settings import (
     CEX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, L2PASS_ATTACK_NFT, ZERIUS_ATTACK_NFT,
     SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW, OKX_DEPOSIT_AMOUNT,
-    BINGX_MULTI_WITHDRAW, SHUFFLE_NFT_ATTACK, BINANCE_MULTI_WITHDRAW, SMART_REFUEL_BATCH,
+    BINGX_MULTI_WITHDRAW, SHUFFLE_NFT_ATTACK, BINANCE_MULTI_WITHDRAW, SMART_REFUEL_BATCH, OKX_WITHDRAW_NETWORK,
+    OKX_WITHDRAW_AMOUNT, BINGX_WITHDRAW_NETWORK, BINANCE_WITHDRAW_NETWORK, BINANCE_WITHDRAW_AMOUNT,
+    BINGX_WITHDRAW_AMOUNT, CEX_DEPOSIT_LIMITER
 )
 
 
@@ -534,3 +536,41 @@ class Custom(Logger, RequestClient):
         await client.session.close()
 
         return result
+
+    @helper
+    @gas_checker
+    async def cex_limiter_deposit(self, dapp_id:int = None):
+        from functions import okx_deposit, bingx_deposit, binance_deposit, get_network_by_chain_id
+        from config import CEX_WRAPED_ID
+
+        dapp_config = {
+            1: (okx_deposit, OKX_WITHDRAW_NETWORK, OKX_WITHDRAW_AMOUNT, OKX_NETWORKS_NAME),
+            2: (bingx_deposit, BINGX_WITHDRAW_NETWORK, BINGX_WITHDRAW_AMOUNT, BINGX_NETWORKS_NAME),
+            3: (binance_deposit, BINANCE_WITHDRAW_NETWORK, BINANCE_WITHDRAW_AMOUNT, BINANCE_NETWORKS_NAME),
+        }[dapp_id]
+
+        func, dep_network, dep_amount, cex_config = dapp_config
+
+        dep_token = cex_config[dep_network].split('-')[0]
+
+        _, balance, _ = await self.client.get_token_balance(token_name=dep_token, check_symbol=False)
+
+        limit_amount, wanted_to_hold_amount = CEX_DEPOSIT_LIMITER
+        min_wanted_amount, max_wanted_amount = min(wanted_to_hold_amount), max(wanted_to_hold_amount)
+
+        if balance > limit_amount:
+
+            dep_amount = await self.client.get_smart_amount(dep_amount)
+
+            if min_wanted_amount <= (balance - dep_amount) <= max_wanted_amount:
+
+                deposit_data = dep_network, (dep_amount, dep_amount)
+
+                network = get_network_by_chain_id(CEX_WRAPED_ID[dep_network])
+
+                return await okx_deposit(self.client.account_name, self.client.private_key, network,
+                                         self.client.proxy_init, dep_network=dep_network, deposit_data=deposit_data)
+
+            raise SoftwareExceptionWithoutRetry('Account balance not in CEX_DEPOSIT_LIMITER!')
+
+        raise SoftwareExceptionWithoutRetry('Account balance < CEX_DEPOSIT_LIMITER!')

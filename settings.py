@@ -13,8 +13,8 @@
     9 - ONE-Harmony           18 - AVAX-Avalanche          27 - USDC-Optimism        36 - INJ-Injective
 
     CEX_DEPOSIT_LIMITER | Настройка лимитного вывода на биржу. Указывать в токенах, которые выводите на биржу
-                          1 значение - это минимальный баланс на аккаунте.
-                          2 значение - это минимально и максимально сумма, которая останется на аккаунте, после вывода.
+                          1 значение - это минимальный баланс на аккаунте, чтобы софт начал процесс вывода
+                          2 значение - это минимально и максимально сумма, которая должна остаться после вывода.
 
     CEX_BALANCE_WANTED | Софт выведет средства с биржи таким образом, чтобы уровнять баланс аккаунта к этой настройке.
                          Модуль (make_balance_to_average). Указывать в токенах, которые собираетесь заводить на кошелек
@@ -37,6 +37,9 @@ BINGX_MULTI_WITHDRAW = {                 # Сеть вывода: (миниму�
     4: (0.0001, 0.000111),
 }
 
+BINGX_DEPOSIT_NETWORK = 21
+BINGX_DEPOSIT_AMOUNT = (0.21, 0.22)
+
 BINANCE_WITHDRAW_NETWORK = 20             # Сеть вывода из Binance
 BINANCE_WITHDRAW_AMOUNT = (0.004, 0.004)  # (минимальная, максимальная) сумма для вывода из Binance (кол-во)
 BINANCE_MULTI_WITHDRAW = {                # Сеть вывода: (минимум, максимум) в токене для вывода (кол-во)
@@ -44,7 +47,10 @@ BINANCE_MULTI_WITHDRAW = {                # Сеть вывода: (миниму
     4: (0.0001, 0.000111),
 }
 
-CEX_DEPOSIT_LIMITER = 0.003, (0.001, 0.002)  # (Ограничитель баланса, (мин. сумма, макс. сумма для остатка на балансе))
+BINANCE_DEPOSIT_NETWORK = 21
+BINANCE_DEPOSIT_AMOUNT = (0.11, 0.12)
+
+CEX_DEPOSIT_LIMITER = 2.0, (1.0, 1.01)  # (Ограничитель баланса, (мин. сумма, макс. сумма для остатка на балансе))
 CEX_BALANCE_WANTED = 0.01               # Необходимый баланс на аккаунтах для уравнителя (make_balance_to_average)
 
 """
@@ -260,12 +266,10 @@ L2PASS_ATTACK_NFT = [
     [6, 8],
 ]
 
-L2PASS_GAS_STATION_ID_FROM = [6]
+L2PASS_GAS_STATION_ID_FROM = [14]
 L2PASS_GAS_STATION_DATA = [
-    [3, 0.000001],
-    [5, 0.000001],
-    [6, 0.000001],
-    [8, 0.000001],
+    [33, 0.0000001],
+    ([33, 0.0000001], None),
 ]
 
 """
@@ -348,19 +352,28 @@ HELPERS_CONFIG = {
     okx_multi_withdraw               # вывод в несколько сетей. Смотри CEX CONTROL (OKX_MULTI_WITHDRAW)
     bingx_multi_withdraw             # вывод в несколько сетей. Смотри CEX CONTROL (BINGX_MULTI_WITHDRAW)
     binance_multi_withdraw           # вывод в несколько сетей. Смотри CEX CONTROL (BINANCE_MULTI_WITHDRAW)
+    
     random_okx_withdraw              # вывод в рандомную сеть из OKX_MULTI_WITHDRAW
     random_bingx_withdraw            # вывод в рандомную сеть из BINGX_MULTI_WITHDRAW
     random_binance_withdraw          # вывод в рандомную сеть из BINANCE_MULTI_WITHDRAW
+    
     collector_eth                    # сбор всех токенов в ETH
     make_balance_to_average          # уравнивает ваши балансы на аккаунтах (см. CEX_BALANCE_WANTED) 
     upgrade_stark_wallet             # обновляет кошелек, во время маршрута
     deploy_stark_wallet              # деплоит кошелек, после вывода с OKX
+    
     bridge_across                    # смотри BRIDGE CONTROL
     bridge_rhino                     # смотри BRIDGE CONTROL
     bridge_layerswap                 # смотри BRIDGE CONTROL
     bridge_orbiter                   # смотри BRIDGE CONTROL
     bridge_native                    # смотри BRIDGE CONTROL. (кол-во из NATIVE_DEPOSIT_AMOUNT)
+    
     okx_deposit                      # ввод средств на биржу + сбор средств на субАккаунтов на основной счет
+    bingx_deposit                    # ввод средств на биржу
+    binance_deposit                  # ввод средств на биржу
+    okx_limiter_deposit              # ввод средств на биржу с проверкой по CEX_DEPOSIT_LIMITER
+    bingx_limiter_deposit            # ввод средств на биржу с проверкой по CEX_DEPOSIT_LIMITER   
+    binance_limiter_deposit          # ввод средств на биржу с проверкой по CEX_DEPOSIT_LIMITER   
     
 --------------------------------------------------LAYERZERO-------------------------------------------------------------            
     
@@ -375,12 +388,12 @@ HELPERS_CONFIG = {
     smart_merkly                     # автоматический поиск доступного пути для refuel. настройки из refuel_merkly
     smart_l2pass                     # автоматический поиск доступного пути для refuel. настройки из refuel_l2pass
     smart_zerius                     # автоматический поиск доступного пути для refuel. настройки из refuel_zerius
-    mint_and_bridge_l2telegraph      # mint и bridge NFT через L2Telegraph. См. OMNI-CHAIN CONTROLE
-    send_message_l2telegraph         # смотри OMNI-CHAIN CONTROL
     smart_cex_deposit                # депозит средств на биржу для сети с наибольшим балансом из STARGATE_CHAINS 
     smart_random_approve             # рандомный апрув для сети с наибольшим балансом из STARGATE_CHAINS 
     bridge_stargate                  # бриджи на Stargate. STARGATE_CHAINS, STARGATE_TOKENS. См. OMNI-CHAIN CONTROLE
     bridge_coredao                   # бриджи на CoreDAO. COREDAO_CHAINS, COREDAO_TOKENS. См. OMNI-CHAIN CONTROLE
+    mint_and_bridge_l2telegraph      # mint и bridge NFT через L2Telegraph. См. OMNI-CHAIN CONTROLE
+    send_message_l2telegraph         # смотри OMNI-CHAIN CONTROL
     zerius_refuel_attack             # Refuel атака на Zerius. Делает много рефьелов в разные сети. См. OMNI-CHAIN CONTROLE
     merkly_refuel_attack             # Refuel атака на Merkly.      
     l2pass_refuel_attack             # Refuel атака на L2Pass.

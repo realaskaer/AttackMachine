@@ -58,7 +58,8 @@ MAVERICK_ROUTER_ABI = [{'inputs': [{'internalType': 'contract IFactory', 'name':
 MINTFUN_ABI = {
     1: [{'inputs': [{'internalType': 'uint32', 'name': 'quantity', 'type': 'uint32'}], 'name': 'mint', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [], 'name': 'name', 'outputs': [{'internalType': 'string', 'name': '', 'type': 'string'}], 'stateMutability': 'view', 'type': 'function'}],
     2: [{'inputs': [{'internalType': 'address', 'name': 'minter', 'type': 'address'}], 'name': 'mint', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [], 'name': 'name', 'outputs': [{'internalType': 'string', 'name': '', 'type': 'string'}], 'stateMutability': 'view', 'type': 'function'}],
-    3: [{'inputs': [], 'name': 'mint', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [], 'name': 'name', 'outputs': [{'internalType': 'string', 'name': '', 'type': 'string'}], 'stateMutability': 'view', 'type': 'function'}]
+    3: [],
+    4: [{'inputs': [], 'name': 'mint', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [], 'name': 'name', 'outputs': [{'internalType': 'string', 'name': '', 'type': 'string'}], 'stateMutability': 'view', 'type': 'function'}]
 }
 
 L2PASS_ABI = {
@@ -1578,7 +1579,8 @@ L2PASS_CONTRACTS_PER_CHAINS = {
         'endpoint'              : '0x9740FF91F1985D8d2B71494aE1A2f723bb3Ed9E4'
     },
     41: {
-        'refuel'                : '',
+        'refuel'                : '0xE47b05F2026a82048caAECf5caE58e5AAE2405eA',
+        'gas_station'           : '0x0000c74e9931C7D6c1a6e811fE96a8a808E06969',
         'ONFT'                  : '',
         'endpoint'              : '0xC1b15d3B262bEeC0e3565C11C9e0F6134BdaCB36'
     },
@@ -2552,6 +2554,6 @@ TITLE = """
 ╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝    ╚═╝     ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚══════╝
 """
 
-ACCOUNT_NAMES, PRIVATE_KEYS_EVM, PRIVATE_KEYS, PROXIES, OKX_WALLETS = get_accounts_data()
+ACCOUNT_NAMES, PRIVATE_KEYS_EVM, PRIVATE_KEYS, PROXIES, CEX_WALLETS = get_accounts_data()
 
 ETH_PRICE = asyncio.run(get_eth_price())

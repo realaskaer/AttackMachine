@@ -2,7 +2,7 @@ import json
 import random
 
 from modules import Bridge, Logger
-from modules.interfaces import SoftwareException
+from modules.interfaces import SoftwareExceptionWithoutRetry
 from utils.tools import helper
 from config import ORBITER_CONTRACTS, ORBITER_ABI, TOKENS_PER_CHAIN
 from general_settings import GLOBAL_NETWORK
@@ -34,7 +34,7 @@ class Orbiter(Bridge, Logger):
 
         if bridge_data:
             return bridge_data
-        raise SoftwareException(f'That bridge is not active!')
+        raise SoftwareExceptionWithoutRetry(f'That bridge is not active!')
 
     @helper
     async def bridge(self, chain_from_id:int, private_keys:dict = None):
@@ -111,7 +111,7 @@ class Orbiter(Bridge, Logger):
             if balance_in_wei > full_amount:
 
                 if int(f"{full_amount}"[-4:]) != destination_code:
-                    raise SoftwareException('Math problem in Python. Machine will save your money =)')
+                    raise SoftwareExceptionWithoutRetry('Math problem in Python. Machine will save your money =)')
 
                 old_balance_on_dst = await self.client.wait_for_receiving(to_chain_id, token_name=token_name,
                                                                           check_balance_on_dst=True)
@@ -126,6 +126,6 @@ class Orbiter(Bridge, Logger):
                 return result
 
             else:
-                raise SoftwareException(f'Insufficient balance!')
+                raise SoftwareExceptionWithoutRetry(f'Insufficient balance!')
         else:
-            raise SoftwareException(f"Limit range for bridge: {min_price} – {max_price} {token_name}!")
+            raise SoftwareExceptionWithoutRetry(f"Limit range for bridge: {min_price} – {max_price} {token_name}!")

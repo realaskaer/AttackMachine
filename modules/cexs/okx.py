@@ -6,7 +6,7 @@ from hashlib import sha256
 from modules import CEX, Logger
 from datetime import datetime, timezone
 
-from modules.interfaces import SoftwareException
+from modules.interfaces import SoftwareExceptionWithoutRetry
 from utils.tools import helper, sleep
 from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPED_ID
 from general_settings import GLOBAL_NETWORK
@@ -41,7 +41,7 @@ class OKX(CEX, Logger):
                 "x-simulated-trading": "0"
             }
         except Exception as error:
-            raise SoftwareException(f'Bad headers for OKX request: {error}')
+            raise SoftwareExceptionWithoutRetry(f'Bad headers for OKX request: {error}')
 
     async def get_currencies(self, ccy: str = 'ETH'):
         url = 'https://www.okx.cab/api/v5/asset/currencies'
@@ -116,9 +116,9 @@ class OKX(CEX, Logger):
 
                 return True
             else:
-                raise SoftwareException(f"Limit range for withdraw: {min_wd:.5f} {ccy} - {max_wd} {ccy}")
+                raise SoftwareExceptionWithoutRetry(f"Limit range for withdraw: {min_wd:.5f} {ccy} - {max_wd} {ccy}")
         else:
-            raise SoftwareException(f"Withdraw from {network_name} is not available")
+            raise SoftwareExceptionWithoutRetry(f"Withdraw from {network_name} is not available")
 
     @helper
     async def transfer_from_subaccounts(self, ccy:str = 'ETH', amount:float = None):
@@ -279,7 +279,7 @@ class OKX(CEX, Logger):
         try:
             okx_wallet = okx_withdraw_list[self.client.account_name]
         except Exception as error:
-            raise SoftwareException(f'There is no wallet listed for deposit to OKX: {error}')
+            raise SoftwareExceptionWithoutRetry(f'There is no wallet listed for deposit to OKX: {error}')
 
         info = f"{okx_wallet[:10]}....{okx_wallet[-6:]}"
 
@@ -350,6 +350,6 @@ class OKX(CEX, Logger):
 
                 return result
             else:
-                raise SoftwareException(f"Minimum to deposit: {min_dep} {ccy}")
+                raise SoftwareExceptionWithoutRetry(f"Minimum to deposit: {min_dep} {ccy}")
         else:
-            raise SoftwareException(f"Deposit to {network_name} is not available")
+            raise SoftwareExceptionWithoutRetry(f"Deposit to {network_name} is not available")

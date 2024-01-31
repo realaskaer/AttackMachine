@@ -13,7 +13,7 @@ from getpass import getpass
 from termcolor import cprint
 from utils.networks import *
 from datetime import datetime, timedelta
-from web3.exceptions import TimeExhausted
+from web3.exceptions import TimeExhausted, ContractLogicError
 from web3 import AsyncWeb3, AsyncHTTPProvider
 from aiohttp import ClientSession, TCPConnector
 from msoffcrypto.exceptions import DecryptionError, InvalidKeyError
@@ -167,17 +167,17 @@ def drop_date():
     return future_date.strftime("%Y.%m.%d")
 
 
-def create_okx_withdrawal_list():
-    from config import ACCOUNT_NAMES, OKX_WALLETS
-    okx_data = {}
+def create_cex_withdrawal_list():
+    from config import ACCOUNT_NAMES, CEX_WALLETS
+    cex_data = {}
 
-    if ACCOUNT_NAMES and OKX_WALLETS:
-        with open('./data/services/okx_withdraw_list.json', 'w') as file:
-            for account_name, okx_wallet in zip(ACCOUNT_NAMES, OKX_WALLETS):
-                okx_data[str(account_name)] = okx_wallet
-            json.dump(okx_data, file, indent=4)
-        cprint('✅ Successfully added and saved OKX wallets data', 'light_blue')
-        cprint('⚠️ Check all OKX deposit wallets by yourself to avoid problems', 'light_yellow', attrs=["blink"])
+    if ACCOUNT_NAMES and CEX_WALLETS:
+        with open('./data/services/cex_withdraw_list.json', 'w') as file:
+            for account_name, cex_wallet in zip(ACCOUNT_NAMES, CEX_WALLETS):
+                cex_data[str(account_name)] = cex_wallet
+            json.dump(cex_data, file, indent=4)
+        cprint('✅ Successfully added and saved CEX wallets data', 'light_blue')
+        cprint('⚠️ Check all CEX deposit wallets by yourself to avoid problems', 'light_yellow', attrs=["blink"])
     else:
         cprint('❌ Put your wallets into files, before running this function', 'light_red')
 
@@ -197,8 +197,9 @@ def helper(func):
             while attempts <= MAXIMUM_RETRY:
                 try:
                     return await func(self, *args, **kwargs)
-                except (PriceImpactException, BlockchainException, SoftwareException,
-                        asyncio.exceptions.TimeoutError, TimeExhausted, ValueError) as err:
+                except (PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
+                        BlockchainExceptionWithoutRetry, asyncio.exceptions.TimeoutError, TimeExhausted, ValueError,
+                        ContractLogicError) as err:
                     error = err
                     attempts += 1
 
@@ -216,7 +217,8 @@ def helper(func):
                         elif isinstance(error, SoftwareExceptionWithoutRetry):
                             stop_flag = True
                         elif isinstance(error, (BlockchainException, BlockchainExceptionWithoutRetry)):
-                            if any([i in str(error) for i in ['insufficient funds', 'gas required']]):
+
+                            if any([i in str(error) for i in ['insufficient funds']]):
                                 stop_flag = True
                                 network_name = self.client.network.name
                                 msg = f'Insufficient funds on {network_name}, software will stop this action\n'

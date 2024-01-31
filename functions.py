@@ -7,7 +7,7 @@ from general_settings import GLOBAL_NETWORK
 from settings import (ORBITER_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, RHINO_CHAIN_ID_FROM, ACROSS_CHAIN_ID_FROM,
                       OKX_DEPOSIT_NETWORK, SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, SRC_CHAIN_L2PASS,
                       SRC_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_BUNGEE, SRC_CHAIN_L2TELEGRAPH, NATIVE_CHAIN_ID_FROM,
-                      L2PASS_GAS_STATION_ID_FROM)
+                      L2PASS_GAS_STATION_ID_FROM, BINGX_DEPOSIT_NETWORK, BINANCE_DEPOSIT_NETWORK)
 
 
 def get_client(account_number, private_key, network, proxy, bridge_from_evm:bool = False) -> Client | StarknetClient:
@@ -659,6 +659,35 @@ async def okx_deposit(account_number, private_key, _, proxy, dep_network=OKX_DEP
 
     worker = OKX(get_client(account_number, private_key, network, proxy))
     return await worker.deposit(**kwargs)
+
+
+async def bingx_deposit(account_number, private_key, _, proxy, dep_network=BINGX_DEPOSIT_NETWORK, **kwargs):
+    network = get_network_by_chain_id(CEX_WRAPED_ID[dep_network])
+
+    worker = BingX(get_client(account_number, private_key, network, proxy))
+    return await worker.deposit(**kwargs)
+
+
+async def binance_deposit(account_number, private_key, _, proxy, dep_network=BINANCE_DEPOSIT_NETWORK, **kwargs):
+    network = get_network_by_chain_id(CEX_WRAPED_ID[dep_network])
+
+    worker = Binance(get_client(account_number, private_key, network, proxy))
+    return await worker.deposit(**kwargs)
+
+
+async def okx_limiter_deposit(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.cex_limiter_deposit(dapp_id=1)
+
+
+async def bingx_limiter_deposit(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.cex_limiter_deposit(dapp_id=2)
+
+
+async def binance_limiter_deposit(account_number, private_key, network, proxy):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.cex_limiter_deposit(dapp_id=3)
 
 
 async def smart_cex_deposit(account_number, private_key, network, proxy):
