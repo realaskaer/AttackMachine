@@ -36,7 +36,6 @@ zkSyncEraRPC = Network(
     name='zkSync',
     rpc=[
         'https://mainnet.era.zksync.io',
-        'https://1rpc.io/zksync2-era',
         'https://zksync.meowrpc.com',
     ],
     chain_id=324,

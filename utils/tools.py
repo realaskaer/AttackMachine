@@ -186,7 +186,8 @@ def helper(func):
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
         from modules.interfaces import (
-            PriceImpactException,BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry
+            PriceImpactException,BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
+            BlockchainExceptionWithoutRetry
         )
 
         attempts = 0
@@ -210,16 +211,19 @@ def helper(func):
                     if attempts:
                         if isinstance(error, asyncio.exceptions.TimeoutError):
                             error = 'Connection to RPC is not stable'
+                            await self.client.change_rpc()
 
-                        if isinstance(error, SoftwareExceptionWithoutRetry):
+                        elif isinstance(error, SoftwareExceptionWithoutRetry):
                             stop_flag = True
-
-                        if isinstance(error, BlockchainException):
-                            if 'insufficient funds' in str(error):
+                        elif isinstance(error, (BlockchainException, BlockchainExceptionWithoutRetry)):
+                            if any([i in str(error) for i in ['insufficient funds', 'gas required']]):
                                 stop_flag = True
                                 network_name = self.client.network.name
                                 msg = f'Insufficient funds on {network_name}, software will stop this action\n'
                             else:
+                                if isinstance(error, BlockchainExceptionWithoutRetry):
+                                    stop_flag = True
+
                                 self.logger_msg(
                                     self.client.account_name,
                                     None, msg=f'Maybe problem with node: {self.client.rpc}', type_msg='warning')

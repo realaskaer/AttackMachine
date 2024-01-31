@@ -27,6 +27,10 @@ class BlockchainException(Exception):
     pass
 
 
+class BlockchainExceptionWithoutRetry(Exception):
+    pass
+
+
 class SoftwareException(Exception):
     pass
 
