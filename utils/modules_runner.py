@@ -1,22 +1,20 @@
+import re
 import json
 import random
 import asyncio
 import traceback
-import ipaddress
-
 import telebot
-import re
-from aiohttp import ClientSession
 
 from modules import Logger
-from modules.interfaces import SoftwareException
+from aiohttp import ClientSession
 from utils.networks import EthereumRPC
 from web3 import AsyncWeb3, AsyncHTTPProvider
 from functions import get_network_by_chain_id
-from utils.tools import clean_progress_file, clean_google_progress_file, clean_gwei_file, check_google_progress_file
-from utils.route_generator import RouteGenerator, AVAILABLE_MODULES_INFO, get_func_by_name
-from config import ACCOUNT_NAMES, PRIVATE_KEYS_EVM, PRIVATE_KEYS, PROXIES, CHAIN_NAME
+from modules.interfaces import SoftwareException
 from settings import HELP_NEW_MODULE, EXCLUDED_MODULES
+from config import ACCOUNT_NAMES, PRIVATE_KEYS_EVM, PRIVATE_KEYS, PROXIES, CHAIN_NAME
+from utils.route_generator import RouteGenerator, AVAILABLE_MODULES_INFO, get_func_by_name
+from utils.tools import clean_progress_file, clean_google_progress_file, clean_gwei_file, check_google_progress_file
 from general_settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, TG_ID, TG_TOKEN, MOBILE_PROXY,
                               MOBILE_PROXY_URL_CHANGER, WALLETS_TO_WORK, TELEGRAM_NOTIFICATIONS, GLOBAL_NETWORK,
                               SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM, SHUFFLE_WALLETS, BREAK_ROUTE)
@@ -77,7 +75,7 @@ class Runner(Logger):
             return json.load(f)
 
     async def smart_sleep(self, account_name, account_number, accounts_delay=False):
-        if SLEEP_MODE:
+        if SLEEP_MODE and account_number:
             if accounts_delay:
                 duration = random.randint(*tuple(x * account_number for x in SLEEP_TIME_STREAM))
             else:
@@ -249,8 +247,10 @@ class Runner(Logger):
                                 msg='All modules were in the route, stopping the account', type_msg='error')
                 return None, False
 
-    async def run_account_modules(self, account_name, private_key, network, proxy, smart_route_type, index):
-        message_list, result_list, used_modules, route_paths, break_flag = [], [], [], [], False
+    async def run_account_modules(
+            self, account_name:str, private_key:str, network, proxy:str | None, smart_route_type:bool, index:int,
+            parallel_mode: bool = False):
+        message_list, result_list, used_modules, route_paths, break_flag, module_counter = [], [], [], [], False, 0
         try:
             route_data = self.load_routes().get(str(account_name), {}).get('route')
             if not route_data:
@@ -277,14 +277,17 @@ class Runner(Logger):
                     account_name, None, f"All modules in the route were completed", type_msg='warning')
                 return
 
-            await self.smart_sleep(account_name, index, accounts_delay=True)
-
             while current_step < len(route_modules):
+                module_counter += 1
                 module_name = route_modules[current_step][0]
                 module_helper_type = route_modules[current_step][1]
                 module_func = get_func_by_name(module_name)
                 module_name_tg = AVAILABLE_MODULES_INFO[module_func][2]
-                self.logger_msg(account_name, None, f"🚀 Launch module: {module_info[module_func][2]}")
+
+                if parallel_mode and module_counter == 1:
+                    await self.smart_sleep(account_name, index, accounts_delay=True)
+
+                self.logger_msg(account_name, None, f"🚀 Launch module: {module_info[module_func][2]}\n")
 
                 module_input_data = [account_name, private_key, network, proxy]
                 if route_modules[current_step][0] in BRIDGE_NAMES:
@@ -295,7 +298,7 @@ class Runner(Logger):
                 if GLOBAL_NETWORK == 0:
                     module_input_data.extend([int(i) for i in route_paths[current_step]])
                 try:
-                    result = await module_func(*module_input_data)
+                    result = True#await module_func(*module_input_data)
                 except Exception as error:
                     info = f"Module name: {module_info[module_func][2]} | Error {error}"
                     self.logger_msg(
@@ -305,7 +308,7 @@ class Runner(Logger):
 
                 if result:
                     self.update_step(account_name, current_step + 1)
-                    if not (current_step + 1) > len(route_modules):
+                    if not (current_step + 2) > (len(route_modules)):
                         await self.smart_sleep(account_name, account_number=1)
                 else:
                     self.collect_bad_wallets(account_name, module_name)
@@ -382,12 +385,12 @@ class Runner(Logger):
 
             tasks = []
 
-            for index, data in enumerate(accounts, 1):
+            for index, data in enumerate(accounts):
                 account_name, private_key = data
                 tasks.append(asyncio.create_task(
                     self.run_account_modules(
                         account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK),
-                        self.get_proxy_for_account(account_name), smart_route, index)))
+                        self.get_proxy_for_account(account_name), smart_route, index, parallel_mode=True)))
 
             await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -404,13 +407,18 @@ class Runner(Logger):
 
     async def run_consistently(self, smart_route_type, route_generator):
 
-        for account_name, private_key in self.get_wallets():
+        accounts_data = self.get_wallets()
+
+        for account_name, private_key in accounts_data:
             if smart_route_type:
                 clean_progress_file()
                 await self.generate_smart_routes(route_generator, (account_name, private_key))
 
             await self.run_account_modules(account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK),
                                            self.get_proxy_for_account(account_name), smart_route_type, index=1)
+
+            if len(accounts_data) > 1:
+                await self.smart_sleep(account_name, account_number=1)
 
             if smart_route_type:
                 await self.update_sheet_data(route_generator)

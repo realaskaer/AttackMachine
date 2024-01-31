@@ -197,7 +197,7 @@ def helper(func):
             while attempts <= MAXIMUM_RETRY:
                 try:
                     return await func(self, *args, **kwargs)
-                except (PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
+                except (PriceImpactException, BlockchainException, SoftwareException,
                         BlockchainExceptionWithoutRetry, asyncio.exceptions.TimeoutError, TimeExhausted, ValueError,
                         ContractLogicError) as err:
                     error = err
