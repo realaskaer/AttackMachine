@@ -77,11 +77,11 @@ class Merkly(Refuel, Logger):
 
             tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
-            result = False
+            result = True
             if isinstance(tx_hash, bytes):
                 if self.client.network.name != 'Polygon':
                     result = await self.client.wait_for_l0_received(tx_hash)
-            else:
+            elif isinstance(tx_hash, bool):
                 result = tx_hash
 
             if attack_data and attack_mode is False:

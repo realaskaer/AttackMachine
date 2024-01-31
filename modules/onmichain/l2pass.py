@@ -75,16 +75,16 @@ class L2Pass(Refuel, Logger):
                 self.client.address
             ).build_transaction(await self.client.prepare_transaction(value=estimate_send_fee))
 
-            tx_hash = await self.client.send_transaction(transaction, need_hash=True)
-
             if need_check:
                 return True
 
-            result = False
+            tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+
+            result = True
             if isinstance(tx_hash, bytes):
                 if self.client.network.name != 'Polygon':
                     result = await self.client.wait_for_l0_received(tx_hash)
-            else:
+            elif isinstance(tx_hash, bool):
                 result = tx_hash
 
             if attack_data and attack_mode is False:
@@ -192,9 +192,12 @@ class L2Pass(Refuel, Logger):
             L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]['gas_station'], L2PASS_ABI['gas_station']
         )
 
-        for chain_id_to, amount in gas_data:
-            if isinstance(chain_id_to, list):
-                chain_id_to = random.choice(chain_id_to)
+        for refuel_data in gas_data:
+            if isinstance(refuel_data, tuple):
+                refuel_data = random.choice(refuel_data)
+            if not refuel_data:
+                continue
+            chain_id_to, amount = refuel_data
             dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[chain_id_to]
             dst_amount = int(self.client.round_amount(*(amount, amount * 1.2)) * 10 ** 18)
             adapter_params = await gas_contract.functions.createAdapterParams(
