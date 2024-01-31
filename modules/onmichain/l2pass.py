@@ -1,9 +1,9 @@
 import random
 
-from web3.exceptions import Web3ValidationError
+from web3.exceptions import Web3ValidationError, ContractLogicError
 
 from modules import Refuel, Logger
-from modules.interfaces import BlockchainException, BlockchainExceptionWithoutRetry
+from modules.interfaces import BlockchainException, BlockchainExceptionWithoutRetry, SoftwareException
 from settings import DST_CHAIN_L2PASS_REFUEL, DST_CHAIN_L2PASS_NFT, L2PASS_GAS_STATION_DATA
 from eth_abi import encode
 from utils.tools import gas_checker, helper, sleep
@@ -214,11 +214,14 @@ class L2Pass(Refuel, Logger):
             refuel_list.append([dst_chain_id, dst_amount])
             total_gas += gas_for_refuel
 
-        transaction = await gas_contract.functions.useGasStation(
-            refuel_list,
-            self.client.address
-        ).build_transaction(await self.client.prepare_transaction(value=total_gas))
+        try:
+            transaction = await gas_contract.functions.useGasStation(
+                refuel_list,
+                self.client.address
+            ).build_transaction(await self.client.prepare_transaction(value=total_gas))
 
-        tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+            tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
-        return await self.client.wait_for_l0_received(tx_hash)
+            return await self.client.wait_for_l0_received(tx_hash)
+        except (ValueError, ContractLogicError) as error:
+            raise SoftwareException(f'Problem during the Gas Station: {error}')
