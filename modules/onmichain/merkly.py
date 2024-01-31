@@ -1,10 +1,12 @@
 import random
 
+from web3.exceptions import Web3ValidationError
+
 from modules import Refuel, Logger
 from eth_abi import abi
 from decimal import Decimal
 
-from modules.interfaces import BlockchainException, SoftwareException
+from modules.interfaces import BlockchainException, SoftwareException, BlockchainExceptionWithoutRetry
 from settings import DST_CHAIN_MERKLY_REFUEL, DST_CHAIN_MERKLY_WORMHOLE, WORMHOLE_TOKENS_AMOUNT
 from utils.tools import gas_checker, helper, sleep
 from config import (
@@ -75,13 +77,20 @@ class Merkly(Refuel, Logger):
 
             tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
+            result = False
             if isinstance(tx_hash, bytes):
                 if self.client.network.name != 'Polygon':
-                    await self.client.wait_for_l0_received(tx_hash)
+                    result = await self.client.wait_for_l0_received(tx_hash)
+            else:
+                result = tx_hash
 
             if attack_data and attack_mode is False:
                 return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
-            return True
+            return result
+
+        except Web3ValidationError:
+            if not need_check:
+                raise BlockchainExceptionWithoutRetry(f'Problem to validate ABI function')
 
         except Exception as error:
             if not need_check:

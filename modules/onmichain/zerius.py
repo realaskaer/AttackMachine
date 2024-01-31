@@ -1,6 +1,8 @@
 import random
 
-from modules.interfaces import BlockchainException, SoftwareException
+from web3.exceptions import Web3ValidationError
+
+from modules.interfaces import BlockchainException, SoftwareException, BlockchainExceptionWithoutRetry
 from settings import DST_CHAIN_ZERIUS_NFT, DST_CHAIN_ZERIUS_REFUEL
 from config import ZERIUS_CONTRACT_PER_CHAINS, ZERIUS_ABI, ZERO_ADDRESS, LAYERZERO_NETWORKS_DATA, \
     LAYERZERO_WRAPED_NETWORKS
@@ -159,13 +161,20 @@ class Zerius(Minter, Logger):
 
             tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
+            result = False
             if isinstance(tx_hash, bytes):
                 if self.client.network.name != 'Polygon':
-                    await self.client.wait_for_l0_received(tx_hash)
+                    result = await self.client.wait_for_l0_received(tx_hash)
+            else:
+                result = tx_hash
 
             if attack_data and attack_mode is False:
                 return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
-            return True
+            return result
+
+        except Web3ValidationError as error:
+            if not need_check:
+                raise BlockchainExceptionWithoutRetry(f'{error}')
 
         except Exception as error:
             if not need_check:

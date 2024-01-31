@@ -1,7 +1,9 @@
 import random
 
+from web3.exceptions import Web3ValidationError
+
 from modules import Refuel, Logger
-from modules.interfaces import BlockchainException
+from modules.interfaces import BlockchainException, BlockchainExceptionWithoutRetry
 from settings import DST_CHAIN_L2PASS_REFUEL, DST_CHAIN_L2PASS_NFT, L2PASS_GAS_STATION_DATA
 from eth_abi import encode
 from utils.tools import gas_checker, helper, sleep
@@ -78,13 +80,20 @@ class L2Pass(Refuel, Logger):
             if need_check:
                 return True
 
+            result = False
             if isinstance(tx_hash, bytes):
                 if self.client.network.name != 'Polygon':
-                    await self.client.wait_for_l0_received(tx_hash)
+                    result = await self.client.wait_for_l0_received(tx_hash)
+            else:
+                result = tx_hash
 
             if attack_data and attack_mode is False:
                 return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
-            return True
+            return result
+
+        except Web3ValidationError as error:
+            if not need_check:
+                raise BlockchainExceptionWithoutRetry(f'{error}')
 
         except Exception as error:
             if not need_check:
