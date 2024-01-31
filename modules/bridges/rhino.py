@@ -329,7 +329,9 @@ class Rhino(Bridge, Logger):
             *self.client.acc_info, msg=f"Withdraw from Rhino to {chain_name_log} complete. {note}", type_msg='success')
         await sleep(self, 60, 120)
 
-    async def bridge(self, chain_from_id:int, private_keys:dict = None):
+    async def bridge(
+            self, chain_from_id:int, private_keys:dict = None, bridge_data:tuple = None, need_fee:bool = False
+    ):
         try:
             if GLOBAL_NETWORK == 9 and chain_from_id == 9:
                 await self.client.initialize_account()
@@ -339,31 +341,29 @@ class Rhino(Bridge, Logger):
             if GLOBAL_NETWORK != 9:
                 self.evm_client = self.client
 
-            self.nonce, self.signature = self.get_authentication_data()
+            if bridge_data:
+                chain_from_name, chain_to_name, amount, to_chain_id = bridge_data
+            else:
+                (chain_from_name, chain_to_name,
+                 amount, to_chain_id) = await self.client.get_bridge_data(chain_from_id, 'Rhino')
 
+            if need_fee:
+                return round(float(amount + 0.00066), 5)
+
+            self.nonce, self.signature = self.get_authentication_data()
             self.logger_msg(*self.client.acc_info, msg=f"Check previous registration on Rhino")
 
             rhino_user_config = await self.get_user_config()
 
             if not rhino_user_config['isRegistered']:
-                await asyncio.sleep(1)
-
                 self.logger_msg(*self.client.acc_info, msg=f"New user on Rhino, make registration")
                 await self.reg_new_acc()
-
-                await asyncio.sleep(1)
 
                 self.logger_msg(*self.client.acc_info, msg=f"Successfully registered on Rhino", type_msg='success')
                 rhino_user_config = await self.get_user_config()
             else:
-                await asyncio.sleep(1)
 
                 self.logger_msg(*self.client.acc_info, msg=f"Already registered on Rhino", type_msg='success')
-
-            await asyncio.sleep(1)
-
-            (chain_from_name, chain_to_name,
-             amount, to_chain_id) = await self.client.get_bridge_data(chain_from_id, 'Rhino')
 
             _, balance, _ = await self.client.get_token_balance()
 
@@ -371,13 +371,9 @@ class Rhino(Bridge, Logger):
 
                 source_chain_info = rhino_user_config['DVF']['bridgeConfigPerChain'][chain_from_name]
 
-                await asyncio.sleep(1)
-
                 old_balance_on_dst = await self.client.wait_for_receiving(to_chain_id, check_balance_on_dst=True)
 
                 await self.deposit_to_rhino(amount, source_chain_info, chain_from_name, chain_to_name, private_keys)
-
-                await asyncio.sleep(1)
 
                 dst_address = await self.get_address_for_bridge(private_keys['evm_key'], False)
                 if chain_to_name == 'STARKNET':

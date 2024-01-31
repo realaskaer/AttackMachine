@@ -135,11 +135,11 @@ class Client(Logger):
         deposit_info = bridge_info[2]
         src_chain_id = chain_from_id
         source_chain = bridge_info[0][src_chain_id]
-        dst_chains = random.choice(bridge_info[1])
-        destination_chain = bridge_info[0][dst_chains]
+        dst_chain_id = random.choice(bridge_info[1])
+        destination_chain = bridge_info[0][dst_chain_id]
 
         amount = await self.get_smart_amount(deposit_info)
-        return source_chain, destination_chain, amount, dst_chains
+        return source_chain, destination_chain, amount, dst_chain_id
 
     async def new_client(self, chain_id):
         from functions import get_network_by_chain_id

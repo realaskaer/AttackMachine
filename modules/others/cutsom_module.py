@@ -11,10 +11,10 @@ from config import (
 from settings import (
     CEX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, L2PASS_ATTACK_NFT, ZERIUS_ATTACK_NFT,
     SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_MULTI_WITHDRAW, OKX_DEPOSIT_AMOUNT,
-    BINGX_MULTI_WITHDRAW, SHUFFLE_NFT_ATTACK, BINANCE_MULTI_WITHDRAW, SMART_REFUEL_BATCH, OKX_WITHDRAW_NETWORK,
-    OKX_WITHDRAW_AMOUNT, BINGX_WITHDRAW_NETWORK, BINANCE_WITHDRAW_NETWORK, BINANCE_WITHDRAW_AMOUNT,
-    BINGX_WITHDRAW_AMOUNT, CEX_DEPOSIT_LIMITER, BINANCE_DEPOSIT_AMOUNT, BINGX_DEPOSIT_AMOUNT, OKX_DEPOSIT_NETWORK,
-    BINGX_DEPOSIT_NETWORK, BINANCE_DEPOSIT_NETWORK
+    BINGX_MULTI_WITHDRAW, SHUFFLE_NFT_ATTACK, BINANCE_MULTI_WITHDRAW, SMART_REFUEL_BATCH,
+    CEX_DEPOSIT_LIMITER, BINANCE_DEPOSIT_AMOUNT, BINGX_DEPOSIT_AMOUNT, OKX_DEPOSIT_NETWORK,
+    BINGX_DEPOSIT_NETWORK, BINANCE_DEPOSIT_NETWORK, RHINO_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, ORBITER_CHAIN_ID_FROM,
+    ACROSS_CHAIN_ID_FROM, BRIDGE_AMOUNT_LIMITER
 )
 
 
@@ -453,8 +453,6 @@ class Custom(Logger, RequestClient):
 
         client, index = await self.balance_searcher(chains, tokens)
 
-        self.logger_msg(*self.client.acc_info, msg=f"Detected balance in {client.network.name}", type_msg='success')
-
         dep_chain = chains[index]
         dep_token = tokens[index]
         amount = await client.get_smart_amount(OKX_DEPOSIT_AMOUNT, token_name=dep_token)
@@ -467,10 +465,11 @@ class Custom(Logger, RequestClient):
 
         return result
 
-    async def balance_searcher(self, chains, tokens):
-        clients = [await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[chain])
+    async def balance_searcher(self, chains, tokens, omni_check:bool = True):
+
+        clients = [await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[chain] if omni_check else chain)
                    for chain in chains]
-        balances = [await client.get_token_balance(omnicheck=True, token_name=token, check_symbol=False)
+        balances = [await client.get_token_balance(omnicheck=omni_check, token_name=token, check_symbol=False)
                     for client, token in zip(clients, tokens)]
 
         index = balances.index(max(balances, key=lambda x: x[1] * (ETH_PRICE if x[2] == 'ETH' else 1)))
@@ -478,6 +477,11 @@ class Custom(Logger, RequestClient):
         for index_client, client in enumerate(clients):
             if index_client != index:
                 await client.session.close()
+
+        self.logger_msg(
+            *self.client.acc_info,
+            msg=f"Detected {balances[index][1]:5f} {tokens[index]} in {clients[index].network.name}",
+            type_msg='success')
 
         return clients[index], index
 
@@ -511,8 +515,6 @@ class Custom(Logger, RequestClient):
 
         client, index = await self.balance_searcher(STARGATE_CHAINS, STARGATE_TOKENS)
 
-        self.logger_msg(*self.client.acc_info, msg=f"Detected balance in {client.network.name}", type_msg='success')
-
         network_name = client.network.name
 
         all_network_contracts = {
@@ -541,8 +543,7 @@ class Custom(Logger, RequestClient):
     @helper
     @gas_checker
     async def cex_limiter_deposit(self, dapp_id:int = None):
-        from functions import okx_deposit, bingx_deposit, binance_deposit, get_network_by_chain_id
-        from config import CEX_WRAPED_ID
+        from functions import okx_deposit, bingx_deposit, binance_deposit
 
         dapp_config = {
             1: (okx_deposit, OKX_DEPOSIT_NETWORK, OKX_DEPOSIT_AMOUNT, OKX_NETWORKS_NAME),
@@ -571,8 +572,68 @@ class Custom(Logger, RequestClient):
                     return await okx_deposit(self.client.account_name, self.client.private_key, self.client.network,
                                              self.client.proxy_init, dep_network=dep_network, deposit_data=deposit_data)
 
-                raise SoftwareExceptionWithoutRetry('Account balance not in CEX_DEPOSIT_LIMITER!')
+                info = (f"{min_wanted_amount:.5f} {dep_token} <= {balance - dep_amount:.5f}"
+                        f" {dep_token} <= {max_wanted_amount:.5f} {dep_token}")
+                raise SoftwareExceptionWithoutRetry(f'Account balance will be not in wanted hold amount: {info}')
 
-            raise SoftwareExceptionWithoutRetry('Account balance < wanted deposit amount!')
+            info = f"{balance:.5f} {dep_token} < {dep_amount:.5f} {dep_token}"
+            raise SoftwareExceptionWithoutRetry(f'Account balance < wanted deposit amount: {info}')
 
-        raise SoftwareExceptionWithoutRetry('Account balance < CEX_DEPOSIT_LIMITER!')
+        info = f"{balance:.5f} {dep_token} < {limit_amount:.5f} {dep_token}"
+        raise SoftwareExceptionWithoutRetry(f'Account balance < wanted limit amount: {info}')
+
+    @helper
+    @gas_checker
+    async def bridge_limiter(self, dapp_id:int = None, private_keys:tuple = None):
+        client = None
+        try:
+            from functions import bridge_rhino, bridge_layerswap, bridge_orbiter, bridge_across
+
+            func, dapp_name, dapp_chains = {
+                1: (bridge_rhino, 'Rhino', RHINO_CHAIN_ID_FROM),
+                2: (bridge_layerswap, 'LayerSwap', LAYERSWAP_CHAIN_ID_FROM),
+                3: (bridge_orbiter, 'Orbiter', ORBITER_CHAIN_ID_FROM),
+                4: (bridge_across, 'Across', ACROSS_CHAIN_ID_FROM),
+            }[dapp_id]
+
+            dapp_tokens = ['ETH' for _ in dapp_chains]
+
+            client, chain_index = await self.balance_searcher(chains=dapp_chains, tokens=dapp_tokens, omni_check=False)
+
+            chain_from_id, token_name = dapp_chains[chain_index], dapp_tokens[chain_index]
+            _, balance, _ = await client.get_token_balance(token_name=token_name, check_symbol=False)
+
+            source_chain_name, destination_chain, amount, dst_chain_id = await client.get_bridge_data(
+                chain_from_id=chain_from_id, module_name=dapp_name
+            )
+
+            limit_amount, wanted_to_hold_amount = BRIDGE_AMOUNT_LIMITER
+            min_wanted_amount, max_wanted_amount = min(wanted_to_hold_amount), max(wanted_to_hold_amount)
+            bridge_data = source_chain_name, destination_chain, amount, dst_chain_id
+
+            if balance > limit_amount:
+
+                amount_after_bridge = await func(client.account_name, client.private_key, client.network,
+                                                 client.proxy_init, chain_from_id=[chain_from_id],
+                                                 private_keys=private_keys, bridge_data=bridge_data, need_fee=True)
+
+                if balance > amount_after_bridge:
+
+                    if min_wanted_amount <= (balance - amount_after_bridge) <= max_wanted_amount:
+
+                        return await func(client.account_name, client.private_key, client.network, client.proxy_init,
+                                          chain_from_id=[chain_from_id], private_keys=private_keys,
+                                          bridge_data=bridge_data)
+
+                    info = (f"{min_wanted_amount:.5f} {token_name} <= {balance - amount_after_bridge:.5f}"
+                            f" {token_name} <= {max_wanted_amount:.5f} {token_name}")
+                    raise SoftwareExceptionWithoutRetry(f'Account balance will be not in wanted hold amount: {info}')
+
+                info = f"{balance:.5f} {token_name} < {amount_after_bridge:.5f} {token_name}"
+                raise SoftwareExceptionWithoutRetry(f'Account balance < wanted bridge amount: {info}')
+
+            info = f"{balance:.5f} {token_name} < {limit_amount:.5f} {token_name}"
+            raise SoftwareExceptionWithoutRetry(f'Account balance < wanted limit amount: {info}')
+
+        finally:
+            await client.session.close()

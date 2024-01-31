@@ -14,7 +14,7 @@
 
     CEX_DEPOSIT_LIMITER | Настройка лимитного вывода на биржу. Указывать в токенах, которые выводите на биржу
                           1 значение - это минимальный баланс на аккаунте, чтобы софт начал процесс вывода
-                          2 значение - это минимально и максимально сумма, которая должна остаться после вывода.
+                          2 значение - это мин. и макс. сумма, которая должна остаться на балансе после вывода.
 
     CEX_BALANCE_WANTED | Софт выведет средства с биржи таким образом, чтобы уровнять баланс аккаунта к этой настройке.
                          Модуль (make_balance_to_average). Указывать в токенах, которые собираетесь заводить на кошелек
@@ -27,8 +27,8 @@ OKX_MULTI_WITHDRAW = {                  # Сеть вывода: (минимум
     21: (1.9, 1.911)
 }
 
-OKX_DEPOSIT_NETWORK = 21                 # Сеть из которой планируется пополнение OKX
-OKX_DEPOSIT_AMOUNT = (0.11, 0.12)        # (минимальная, максимальная) сумма для пополнения OKX (% или кол-во)
+OKX_DEPOSIT_NETWORK = 3                 # Сеть из которой планируется пополнение OKX
+OKX_DEPOSIT_AMOUNT = (0.1, 0.2)        # (минимальная, максимальная) сумма для пополнения OKX (% или кол-во)
 
 BINGX_WITHDRAW_NETWORK = 25              # Сеть вывода из BingX
 BINGX_WITHDRAW_AMOUNT = (1, 1)           # (минимальная, максимальная) сумма для вывода из BingX (кол-во)
@@ -50,7 +50,7 @@ BINANCE_MULTI_WITHDRAW = {                # Сеть вывода: (миниму
 BINANCE_DEPOSIT_NETWORK = 21
 BINANCE_DEPOSIT_AMOUNT = (0.11, 0.12)
 
-CEX_DEPOSIT_LIMITER = 2.0, (1.0, 1.01)  # (Ограничитель баланса, (мин. сумма, макс. сумма для остатка на балансе))
+CEX_DEPOSIT_LIMITER = 0.009, (0.005, 0.006)  # (Ограничитель баланса, (мин. сумма, макс. сумма для остатка на балансе))
 CEX_BALANCE_WANTED = 0.01               # Необходимый баланс на аккаунтах для уравнителя (make_balance_to_average)
 
 """
@@ -80,17 +80,19 @@ CEX_BALANCE_WANTED = 0.01               # Необходимый баланс н
     (0) - поддерживается только для Orbiter моста
     NATIVE_CHAIN_ID_FROM(TO) = [2, 4, 16] | Одна из сетей будет выбрана
     NATIVE_WITHDRAW_AMOUNT | Настройка для вывода из нативного моста (withdraw_native_bridge)
-    BRIDGE_AMOUNT_LIMITER | Аналогично CEX_DEPOSIT_LIMITER
+    BRIDGE_AMOUNT_LIMITER | Настройка лимитных бриджей. Указывать в токене, который участвует в бридже
+                            1 значение - это минимальный баланс на аккаунте, чтобы софт начал процесс бриджа
+                            2 значение - это мин. и макс. сумма, которая должна остаться на балансе после бриджа
 """
 NATIVE_CHAIN_ID_FROM = [13]                # Исходящая сеть. 21.01.2024 Применимо только для bridge_zora
 NATIVE_CHAIN_ID_TO = [11]                  # Входящая сеть. 21.01.2024 Применимо только для bridge_zora
 NATIVE_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (% или кол-во)
 NATIVE_WITHDRAW_AMOUNT = (0.0001, 0.0002)   # (минимум, максимум) (% или кол-во)
 
-ORBITER_CHAIN_ID_FROM = [7]                # Исходящая сеть
-ORBITER_CHAIN_ID_TO = [45]                  # Входящая сеть
-ORBITER_DEPOSIT_AMOUNT = (1, 1)          # (минимум, максимум) (% или кол-во)
-ORBITER_TOKEN_NAME = 'USDC'
+ORBITER_CHAIN_ID_FROM = [1, 2, 3, 7]                # Исходящая сеть
+ORBITER_CHAIN_ID_TO = [11]                  # Входящая сеть
+ORBITER_DEPOSIT_AMOUNT = (0.003, 0.004)          # (минимум, максимум) (% или кол-во)
+ORBITER_TOKEN_NAME = 'ETH'
 
 LAYERSWAP_CHAIN_ID_FROM = [1]                # Исходящая сеть
 LAYERSWAP_CHAIN_ID_TO = [4]                  # Входящая сеть
@@ -104,7 +106,7 @@ ACROSS_CHAIN_ID_FROM = [9]                # Исходящая сеть
 ACROSS_CHAIN_ID_TO = [4]                  # Входящая сеть
 ACROSS_DEPOSIT_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (% или кол-во)
 
-BRIDGE_AMOUNT_LIMITER = 0.003, (0.01, 0.02)  # (Ограничитель баланса, (мин. сумма, макс. сумма для остатка на балансе))
+BRIDGE_AMOUNT_LIMITER = 0.005, (0.004, 0.006)  # (Ограничитель баланса, (мин. сумма, макс. сумма для остатка на балансе))
 """
 ---------------------------------------------OMNI-CHAIN CONTROL---------------------------------------------------------
     Проверьте руками, работают ли сети на сайте. (Софт сам проверит, но зачем его напрягать?)
@@ -289,7 +291,7 @@ NEW_WALLET_TYPE = 1
 GRAPEDRAW_TICKETS_AMOUNT = 1
 
 MINTFUN_CONTRACTS = [
-    '0xd0f37c9e70293bd023e2f8b7cbc6406d11cc6759',
+    '0xe0d83db75a01ff01c2706d6df299207c420d7da8',
 ]
 
 """
@@ -366,7 +368,11 @@ HELPERS_CONFIG = {
     bridge_rhino                     # смотри BRIDGE CONTROL
     bridge_layerswap                 # смотри BRIDGE CONTROL
     bridge_orbiter                   # смотри BRIDGE CONTROL
-    bridge_native                    # смотри BRIDGE CONTROL. (кол-во из NATIVE_DEPOSIT_AMOUNT)
+    bridge_native                    # смотри BRIDGE CONTROL (кол-во из NATIVE_DEPOSIT_AMOUNT)
+    bridge_rhino_limiter             # смотри BRIDGE CONTROL (проверка по BRIDGE_AMOUNT_LIMITER)   
+    bridge_layerswap_limiter         # смотри BRIDGE CONTROL (проверка по BRIDGE_AMOUNT_LIMITER)         
+    bridge_orbiter_limiter           # смотри BRIDGE CONTROL (проверка по BRIDGE_AMOUNT_LIMITER)     
+    bridge_across_limiter            # смотри BRIDGE CONTROL (проверка по BRIDGE_AMOUNT_LIMITER)          
     
     okx_deposit                      # ввод средств на биржу + сбор средств на субАккаунтов на основной счет
     bingx_deposit                    # ввод средств на биржу

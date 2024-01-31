@@ -37,18 +37,26 @@ class Orbiter(Bridge, Logger):
         raise SoftwareExceptionWithoutRetry(f'That bridge is not active!')
 
     @helper
-    async def bridge(self, chain_from_id:int, private_keys:dict = None):
+    async def bridge(
+            self, chain_from_id:int, private_keys:dict = None, bridge_data:tuple = None, need_fee:bool = False
+    ):
         if GLOBAL_NETWORK == 9 and chain_from_id == 9:
             await self.client.initialize_account()
         elif GLOBAL_NETWORK == 9 and chain_from_id != 9:
             await self.client.session.close()
             self.client = await self.client.initialize_evm_client(private_keys['evm_key'], chain_from_id)
 
-        from_chain, to_chain, amount, to_chain_id = await self.client.get_bridge_data(chain_from_id, 'Orbiter')
+        if bridge_data:
+            from_chain, to_chain, amount, to_chain_id = bridge_data
+        else:
+            from_chain, to_chain, amount, to_chain_id = await self.client.get_bridge_data(chain_from_id, 'Orbiter')
+
         token_name = ORBITER_TOKEN_NAME
 
         bridge_info = f'{amount} {token_name} from {from_chain["name"]} to {to_chain["name"]}'
-        self.logger_msg(*self.client.acc_info, msg=f'Bridge on Orbiter: {bridge_info}')
+
+        if not need_fee:
+            self.logger_msg(*self.client.acc_info, msg=f'Bridge on Orbiter: {bridge_info}')
 
         bridge_data = self.get_maker_data(from_chain['id'], to_chain['id'], token_name)
         destination_code = 9000 + to_chain['id']
@@ -56,6 +64,9 @@ class Orbiter(Bridge, Logger):
         fee = int(float(bridge_data['fee']) * 10 ** decimals)
         amount_in_wei = round(int(amount * 10 ** decimals), -4)
         full_amount = amount_in_wei + destination_code + fee
+
+        if need_fee:
+            return round(float(full_amount / 10 ** decimals), 5)
 
         min_price, max_price = bridge_data['min_amount'], bridge_data['max_amount']
 
@@ -103,7 +114,7 @@ class Orbiter(Bridge, Logger):
             }]
 
         if min_price <= amount <= max_price:
-            if self.client.network.name in ['Polygon', 'Optimism']:
+            if self.client.network.name in ['Polygon', 'Optimism'] and token_name == 'USDC':
                 balance_in_wei, _, _ = await self.client.get_token_balance('USDC.e')
             else:
                 balance_in_wei, _, _ = await self.client.get_token_balance(token_name)

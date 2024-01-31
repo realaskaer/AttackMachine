@@ -71,20 +71,27 @@ class LayerSwap(Bridge, Logger):
 
     @helper
     @gas_checker
-    async def bridge(self, chain_from_id: int, private_keys:dict = None):
+    async def bridge(
+            self, chain_from_id: int, private_keys:dict = None, bridge_data:tuple = None, need_fee:bool = False
+    ):
         if GLOBAL_NETWORK == 9 and chain_from_id == 9:
             await self.client.initialize_account()
         elif GLOBAL_NETWORK == 9 and chain_from_id != 9:
             await self.client.session.close()
             self.client = await self.client.initialize_evm_client(private_keys['evm_key'], chain_from_id)
 
-        (source_chain, destination_chain,
-         amount, to_chain_id) = await self.client.get_bridge_data(chain_from_id, 'LayerSwap')
+        if bridge_data:
+            source_chain, destination_chain, amount, to_chain_id = bridge_data
+        else:
+            (source_chain, destination_chain,
+             amount, to_chain_id) = await self.client.get_bridge_data(chain_from_id, 'LayerSwap')
 
         source_asset, destination_asset, refuel = 'ETH', 'ETH', False
 
         bridge_info = f'{self.client.network.name} -> {destination_asset} {destination_chain.capitalize()[:-8]}'
-        self.logger_msg(*self.client.acc_info, msg=f'Bridge on LayerSwap: {amount} {source_asset} {bridge_info}')
+
+        if not need_fee:
+            self.logger_msg(*self.client.acc_info, msg=f'Bridge on LayerSwap: {amount} {source_asset} {bridge_info}')
 
         networks_data = await self.get_networks_data()
 
@@ -100,6 +107,9 @@ class LayerSwap(Bridge, Logger):
             data = source_chain, destination_chain, source_asset, destination_asset, refuel
 
             min_amount, max_amount, fee_amount = (await self.get_swap_rate(*data)).values()
+
+            if need_fee:
+                return round(float(fee_amount + amount), 5)
 
             if float(min_amount) <= amount <= float(max_amount):
 

@@ -21,7 +21,8 @@ from general_settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, 
 
 
 BRIDGE_NAMES = ['bridge_rhino', 'bridge_layerswap', 'bridge_orbiter', 'bridge_across',
-                'bridge_native', 'withdraw_native_bridge']
+                'bridge_native', 'withdraw_native_bridge', 'bridge_rhino_limiter', 'bridge_layerswap_limiter',
+                'bridge_orbiter_limiter', 'bridge_across_limiter']
 
 
 class Runner(Logger):

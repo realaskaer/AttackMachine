@@ -216,6 +216,8 @@ def helper(func):
 
                         elif isinstance(error, SoftwareExceptionWithoutRetry):
                             stop_flag = True
+                            msg = f'{error}'
+
                         elif isinstance(error, (BlockchainException, BlockchainExceptionWithoutRetry)):
 
                             if any([i in str(error) for i in ['insufficient funds']]):
@@ -225,6 +227,7 @@ def helper(func):
                             else:
                                 if isinstance(error, BlockchainExceptionWithoutRetry):
                                     stop_flag = True
+                                    msg = f'{error}'
 
                                 self.logger_msg(
                                     self.client.account_name,

@@ -40,6 +40,10 @@ AVAILABLE_MODULES_INFO = {
     bridge_across                       : (bridge_across, 1, 'Across Bridge', 0, [2, 3, 11, 12]),
     bridge_native                       : (bridge_native, 1, 'Native Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
     bridge_zora                         : (bridge_zora, 1, 'Zora Instant Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
+    bridge_rhino_limiter                : (bridge_rhino_limiter, 1, 'Rhino Limiter Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
+    bridge_layerswap_limiter            : (bridge_layerswap_limiter, 1, 'LayerSwap Limiter Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
+    bridge_orbiter_limiter              : (bridge_orbiter_limiter, 1, 'Orbiter Limiter Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
+    bridge_across_limiter               : (bridge_across_limiter, 1, 'Across Limiter Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
     upgrade_stark_wallet                : (upgrade_stark_wallet, 2, 'Upgrade Wallet', 0, [9]),
     add_liquidity_maverick              : (add_liquidity_maverick, 2, 'Maverick Liquidity', 0, [11]),
     add_liquidity_mute                  : (add_liquidity_mute, 2, 'Mute Liquidity', 0, [11]),
@@ -118,7 +122,6 @@ AVAILABLE_MODULES_INFO = {
     refuel_l2pass                       : (refuel_l2pass, 3, 'L2Pass Refuel', 0, [2, 3, 4, 8, 11, 12]),
     smart_zerius                        : (smart_zerius, 3, 'Zerius Smart Refuel', 0, [2, 3, 4, 8, 11, 12]),
     refuel_zerius                       : (refuel_zerius, 3, 'Zerius Refuel', 0, [2, 3, 4, 8, 11, 12]),
-    stargate_volume                     : (stargate_volume, 3, 'Stargate Volume + OKX', 0, [2, 3, 4, 8, 11, 12]),
     zerius_refuel_attack                : (zerius_refuel_attack, 3, 'Zerius Refuel Attack', 0, [2, 3, 4, 8, 11, 12]),
     merkly_refuel_attack                : (merkly_refuel_attack, 3, 'Merkly Refuel Attack', 0, [2, 3, 4, 8, 11, 12]),
     l2pass_refuel_attack                : (l2pass_refuel_attack, 3, 'L2Pass Refuel Attack', 0, [2, 3, 4, 8, 11, 12]),
@@ -571,8 +574,6 @@ class RouteGenerator(Logger):
         smart_route.append(AVAILABLE_MODULES_INFO[collector_eth] if HELPERS_CONFIG['collector_eth'] else None)
         smart_route.append(
             AVAILABLE_MODULES_INFO[make_balance_to_average] if HELPERS_CONFIG['make_balance_to_average'] else None)
-        smart_route.append(
-            AVAILABLE_MODULES_INFO[okx_collect_from_sub] if HELPERS_CONFIG['okx_collect_from_sub'] else None)
         smart_route.append(
             AVAILABLE_MODULES_INFO[upgrade_stark_wallet] if HELPERS_CONFIG['upgrade_stark_wallet'] else None)
         smart_route.append(

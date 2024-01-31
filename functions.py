@@ -334,48 +334,76 @@ async def mint_domain_ens(account_number, private_key, network, proxy):
     return await worker.mint()
 
 
-async def bridge_layerswap(account_number, _, __, proxy, *args, **kwargs):
-    chain_from_id = random.choice(LAYERSWAP_CHAIN_ID_FROM)
+async def bridge_layerswap(
+        account_number, _, __, proxy, chain_from_id=LAYERSWAP_CHAIN_ID_FROM, *args, **kwargs
+):
+    chain_from_id = random.choice(chain_from_id)
     network = get_network_by_chain_id(chain_from_id)
 
-    bridge_from_evm = True if 9 not in LAYERSWAP_CHAIN_ID_FROM else False
-    private_key = get_key_by_id_from(args, chain_from_id)
+    bridge_from_evm = True if 9 != chain_from_id else False
+    private_key = get_key_by_id_from(args if args else kwargs['private_keys'], chain_from_id)
 
     worker = LayerSwap(get_client(account_number, private_key, network, proxy, bridge_from_evm))
     return await worker.bridge(chain_from_id, *args, **kwargs)
 
 
-async def bridge_orbiter(account_number, _, __, proxy, *args, **kwargs):
-    chain_from_id = random.choice(ORBITER_CHAIN_ID_FROM)
+async def bridge_orbiter(
+        account_number, _, __, proxy, chain_from_id=ORBITER_CHAIN_ID_FROM, *args, **kwargs
+):
+    chain_from_id = random.choice(chain_from_id)
     network = get_network_by_chain_id(chain_from_id)
 
-    bridge_from_evm = True if 9 not in ORBITER_CHAIN_ID_FROM else False
-    private_key = get_key_by_id_from(args, chain_from_id)
+    bridge_from_evm = True if 9 != chain_from_id else False
+    private_key = get_key_by_id_from(args if args else kwargs['private_keys'], chain_from_id)
 
     worker = Orbiter(get_client(account_number, private_key, network, proxy, bridge_from_evm))
     return await worker.bridge(chain_from_id, *args, **kwargs)
 
 
-async def bridge_rhino(account_number, _, __, proxy, *args, **kwargs):
-    chain_from_id = random.choice(RHINO_CHAIN_ID_FROM)
+async def bridge_rhino(
+        account_number, _, __, proxy, chain_from_id=RHINO_CHAIN_ID_FROM, *args, **kwargs
+):
+    chain_from_id = random.choice(chain_from_id)
     network = get_network_by_chain_id(chain_from_id)
 
-    bridge_from_evm = True if 9 not in RHINO_CHAIN_ID_FROM else False
-    private_key = get_key_by_id_from(args, chain_from_id)
+    bridge_from_evm = True if 9 != chain_from_id else False
+    private_key = get_key_by_id_from(args if args else kwargs['private_keys'], chain_from_id)
 
     worker = Rhino(get_client(account_number, private_key, network, proxy, bridge_from_evm))
     return await worker.bridge(chain_from_id, *args, **kwargs)
 
 
-async def bridge_across(account_number, _, __, proxy, *args, **kwargs):
-    chain_from_id = random.choice(ACROSS_CHAIN_ID_FROM)
+async def bridge_across(
+        account_number, _, __, proxy, chain_from_id=ACROSS_CHAIN_ID_FROM, *args, **kwargs
+):
+    chain_from_id = random.choice(chain_from_id)
     network = get_network_by_chain_id(chain_from_id)
 
-    bridge_from_evm = True if 9 not in ACROSS_CHAIN_ID_FROM else False
-    private_key = get_key_by_id_from(args, chain_from_id)
+    bridge_from_evm = True if 9 != chain_from_id else False
+    private_key = get_key_by_id_from(args if args else kwargs['private_keys'], chain_from_id)
 
     worker = Across(get_client(account_number, private_key, network, proxy, bridge_from_evm))
     return await worker.bridge(chain_from_id, *args, **kwargs)
+
+
+async def bridge_rhino_limiter(account_number, private_key, network, proxy, *args):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.bridge_limiter(dapp_id=1, private_keys=args)
+
+
+async def bridge_layerswap_limiter(account_number, private_key, network, proxy, *args):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.bridge_limiter(dapp_id=2, private_keys=args)
+
+
+async def bridge_orbiter_limiter(account_number, private_key, network, proxy, *args):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.bridge_limiter(dapp_id=3, private_keys=args)
+
+
+async def bridge_across_limiter(account_number, private_key, network, proxy, *args):
+    worker = Custom(get_client(account_number, private_key, network, proxy))
+    return await worker.bridge_limiter(dapp_id=4, private_keys=args)
 
 
 async def refuel_merkly(account_number, private_key, _, proxy):
@@ -675,17 +703,23 @@ async def binance_deposit(account_number, private_key, _, proxy, dep_network=BIN
     return await worker.deposit(**kwargs)
 
 
-async def okx_limiter_deposit(account_number, private_key, network, proxy):
+async def okx_limiter_deposit(account_number, private_key, _, proxy):
+    network = get_network_by_chain_id(CEX_WRAPED_ID[OKX_DEPOSIT_NETWORK])
+
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.cex_limiter_deposit(dapp_id=1)
 
 
-async def bingx_limiter_deposit(account_number, private_key, network, proxy):
+async def bingx_limiter_deposit(account_number, private_key, _, proxy):
+    network = get_network_by_chain_id(CEX_WRAPED_ID[BINGX_DEPOSIT_NETWORK])
+
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.cex_limiter_deposit(dapp_id=2)
 
 
-async def binance_limiter_deposit(account_number, private_key, network, proxy):
+async def binance_limiter_deposit(account_number, private_key, _, proxy):
+    network = get_network_by_chain_id(CEX_WRAPED_ID[BINANCE_DEPOSIT_NETWORK])
+
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.cex_limiter_deposit(dapp_id=3)
 
@@ -910,11 +944,6 @@ async def smart_l2pass(account_number, private_key, network, proxy):
 async def smart_zerius(account_number, private_key, network, proxy):
     worker = Custom(get_client(account_number, private_key, network, proxy))
     return await worker.smart_refuel(dapp_id=3)
-
-
-async def stargate_volume(account_number, private_key, network, proxy):
-    worker = Custom(get_client(account_number, private_key, network, proxy))
-    return await worker.l0_volume_abuse(dapp_id=1)
 
 
 async def bingx_withdraw(account_number, private_key, network, proxy, **kwargs):

@@ -24,7 +24,8 @@ class Across(Bridge, Logger):
 
         fees_data = await self.make_request(url=url, params=params)
 
-        return fees_data['spokePoolAddress'], int(fees_data['relayFeePct']), int(fees_data['timestamp'])
+        return (fees_data['spokePoolAddress'], int(fees_data['relayFeePct']),
+                int(fees_data['relayGasFeeTotal']), int(fees_data['timestamp']))
 
     async def get_bridge_limits(self, chain_id):
         url = 'https://across.to/api/limits'
@@ -53,17 +54,24 @@ class Across(Bridge, Logger):
 
     @helper
     @gas_checker
-    async def bridge(self, chain_from_id:int, private_keys:dict = None):
+    async def bridge(
+            self, chain_from_id:int, private_keys:dict = None, bridge_data:tuple = None, need_fee:bool = False
+    ):
         if GLOBAL_NETWORK == 9 and chain_from_id == 9:
             await self.client.initialize_account()
         elif GLOBAL_NETWORK == 9 and chain_from_id != 9:
             await self.client.session.close()
             self.client = await self.client.initialize_evm_client(private_keys['evm_key'], chain_from_id)
 
-        from_chain, to_chain, amount, to_chain_id = await self.client.get_bridge_data(chain_from_id, 'Across')
+        if bridge_data:
+            from_chain, to_chain, amount, to_chain_id = bridge_data
+        else:
+            from_chain, to_chain, amount, to_chain_id = await self.client.get_bridge_data(chain_from_id, 'Across')
 
         bridge_info = f'{self.client.network.name} -> ETH {CHAIN_NAME_FROM_ID[to_chain]}'
-        self.logger_msg(*self.client.acc_info, msg=f'Bridge on Across: {amount} ETH {bridge_info}')
+
+        if not need_fee:
+            self.logger_msg(*self.client.acc_info, msg=f'Bridge on Across: {amount} ETH {bridge_info}')
 
         amount_in_wei = int(amount * 10 ** 18)
 
@@ -73,7 +81,12 @@ class Across(Bridge, Logger):
 
             if await self.check_available_routes(to_chain):
 
-                pool_adress, relay_fee_pct, timestamp = await self.get_bridge_fee(to_chain, amount_in_wei)
+                pool_adress, relay_fee_pct, relay_gas_fee_total, timestamp = await self.get_bridge_fee(
+                    to_chain, amount_in_wei
+                )
+
+                if need_fee:
+                    return round(float(amount + relay_gas_fee_total / 10 ** 18), 5)
 
                 data = [
                     self.client.address,
