@@ -298,7 +298,7 @@ class Runner(Logger):
                 if GLOBAL_NETWORK == 0:
                     module_input_data.extend([int(i) for i in route_paths[current_step]])
                 try:
-                    result = True#await module_func(*module_input_data)
+                    result = await module_func(*module_input_data)
                 except Exception as error:
                     info = f"Module name: {module_info[module_func][2]} | Error {error}"
                     self.logger_msg(
