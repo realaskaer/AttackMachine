@@ -76,3 +76,4 @@ data/services/okx_withdraw_list.json
 data/accounts_data.xlsx
 *.xlsx
 test.py
+general_settings.py
