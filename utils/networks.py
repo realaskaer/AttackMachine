@@ -90,7 +90,6 @@ PolygonRPC = Network(
     name='Polygon',
     rpc=[
         'https://rpc.ankr.com/polygon',
-        'https://polygon.llamarpc.com',
         'https://polygon-rpc.com',
     ],
     chain_id=137,
@@ -148,7 +147,6 @@ BaseRPC = Network(
     name='Base',
     rpc=[
         'https://mainnet.base.org',
-        'https://base.llamarpc.com',
     ],
     chain_id=8453,
     eip1559_support=True,
@@ -197,7 +195,6 @@ BSC_RPC = Network(
     name='BNB Chain',
     rpc=[
         'https://rpc.ankr.com/bsc',
-        'https://binance.llamarpc.com',
         'https://bscrpc.com',
     ],
     chain_id=56,
@@ -433,7 +430,6 @@ KlaytnRPC = Network(
     name='Klaytn',
     rpc=[
         'https://rpc.ankr.com/klaytn',
-        'https://1rpc.io/klay',
         'https://klaytn.drpc.org',
     ],
     chain_id=8217,

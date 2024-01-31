@@ -185,7 +185,10 @@ def create_okx_withdrawal_list():
 def helper(func):
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
-        from modules.interfaces import PriceImpactException, BlockchainException, SoftwareException
+        from modules.interfaces import (
+            PriceImpactException,BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry
+        )
+
         attempts = 0
         error = None
         stop_flag = False
@@ -207,7 +210,10 @@ def helper(func):
                     if attempts:
                         if isinstance(error, asyncio.exceptions.TimeoutError):
                             error = 'Connection to RPC is not stable'
-                        
+
+                        if isinstance(error, SoftwareExceptionWithoutRetry):
+                            stop_flag = True
+
                         if isinstance(error, BlockchainException):
                             if 'insufficient funds' in str(error):
                                 stop_flag = True
