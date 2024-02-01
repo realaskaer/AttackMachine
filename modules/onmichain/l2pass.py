@@ -222,6 +222,8 @@ class L2Pass(Refuel, Logger):
 
             tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
-            return await self.client.wait_for_l0_received(tx_hash)
+            if self.client.network.name != 'Polygon':
+                return await self.client.wait_for_l0_received(tx_hash)
+            return True if tx_hash else False
         except Exception as error:
             raise SoftwareException(f'Problem during the Gas Station: {error}')

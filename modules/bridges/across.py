@@ -1,5 +1,5 @@
 from modules import Bridge, Logger
-from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry
+from modules.interfaces import BridgeExceptionWithoutRetry
 from utils.tools import helper, gas_checker
 from config import TOKENS_PER_CHAIN, ACROSS_ABI, CHAIN_NAME_FROM_ID, ACROSS_CONTRACT
 from general_settings import GLOBAL_NETWORK, GAS_MULTIPLIER
@@ -124,7 +124,7 @@ class Across(Bridge, Logger):
                 return result
 
             else:
-                raise SoftwareExceptionWithoutRetry(f'Bridge route is not available!')
+                raise BridgeExceptionWithoutRetry(f'Bridge route is not available!')
         else:
             min_limit, max_limit = min_limit / 10 ** 18, max_limit / 10 ** 18
-            raise SoftwareExceptionWithoutRetry(f'Limit range for bridge: {min_limit:.5f} - {max_limit:.2f} ETH!')
+            raise BridgeExceptionWithoutRetry(f'Limit range for bridge: {min_limit:.5f} - {max_limit:.2f} ETH!')

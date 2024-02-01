@@ -10,7 +10,7 @@ from modules import Bridge, Logger
 from datetime import datetime, timezone
 
 from general_settings import GLOBAL_NETWORK
-from modules.interfaces import SoftwareExceptionWithoutRetry
+from modules.interfaces import BridgeExceptionWithoutRetry
 from utils.tools import gas_checker, sleep
 from eth_account.messages import encode_defunct
 from utils.stark_signature.stark_singature import sign, pedersen_hash, EC_ORDER, private_to_stark_key
@@ -388,7 +388,7 @@ class Rhino(Bridge, Logger):
                 self.logger_msg(
                     *self.client.acc_info, msg=f"Insufficient balance in {self.client.network.name}", type_msg='error')
         except Exception as error:
-            raise SoftwareExceptionWithoutRetry(f"Rhino error: {error}")
+            raise BridgeExceptionWithoutRetry(f"Rhino error: {error}")
         finally:
             await self.client.session.close()
             await self.evm_client.session.close()

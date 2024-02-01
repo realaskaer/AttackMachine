@@ -39,6 +39,10 @@ class SoftwareExceptionWithoutRetry(Exception):
     pass
 
 
+class BridgeExceptionWithoutRetry(Exception):
+    pass
+
+
 class Logger(ABC):
     def __init__(self):
         self.logger = logger
