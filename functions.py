@@ -344,7 +344,7 @@ async def bridge_layerswap(
     private_key = get_key_by_id_from(args if args else kwargs['private_keys'], chain_from_id)
 
     worker = LayerSwap(get_client(account_number, private_key, network, proxy, bridge_from_evm))
-    return await worker.bridge(chain_from_id, *args, **kwargs)
+    return await worker.bridge(chain_from_id, *args if args else kwargs['private_keys'])
 
 
 async def bridge_orbiter(
@@ -357,7 +357,7 @@ async def bridge_orbiter(
     private_key = get_key_by_id_from(args if args else kwargs['private_keys'], chain_from_id)
 
     worker = Orbiter(get_client(account_number, private_key, network, proxy, bridge_from_evm))
-    return await worker.bridge(chain_from_id, *args, **kwargs)
+    return await worker.bridge(chain_from_id, *args if args else kwargs['private_keys'])
 
 
 async def bridge_rhino(
@@ -370,7 +370,7 @@ async def bridge_rhino(
     private_key = get_key_by_id_from(args if args else kwargs['private_keys'], chain_from_id)
 
     worker = Rhino(get_client(account_number, private_key, network, proxy, bridge_from_evm))
-    return await worker.bridge(chain_from_id, *args, **kwargs)
+    return await worker.bridge(chain_from_id, *args if args else kwargs['private_keys'])
 
 
 async def bridge_across(
@@ -383,7 +383,7 @@ async def bridge_across(
     private_key = get_key_by_id_from(args if args else kwargs['private_keys'], chain_from_id)
 
     worker = Across(get_client(account_number, private_key, network, proxy, bridge_from_evm))
-    return await worker.bridge(chain_from_id, *args, **kwargs)
+    return await worker.bridge(chain_from_id, *args if args else kwargs['private_keys'])
 
 
 async def bridge_rhino_limiter(account_number, private_key, network, proxy, *args):
