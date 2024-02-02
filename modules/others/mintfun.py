@@ -27,7 +27,7 @@ class MintFun(Minter, Logger, RequestClient):
         timeout = 360
         while True:
             for tx in response['transactions']:
-                if int(tx['nftCount']) == 1 and tx['to'].lower() == contract_address.lower():
+                if int(tx['nftCount']) == 1 and tx['to'].lower() == contract_address.lower() and tx['isValid']:
                     calldata = response['transactions'][0]['callData'].replace(
                         'ec45d2d56ec37ffabeb503a27ae21ba806ebe075', self.client.address[2:])
                     eth_value = int(response['transactions'][0]['ethValue'])
