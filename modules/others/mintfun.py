@@ -28,11 +28,11 @@ class MintFun(Minter, Logger, RequestClient):
         while True:
             for tx in response['transactions']:
                 if int(tx['nftCount']) == 1 and tx['to'].lower() == contract_address.lower() and tx['isValid']:
-                    calldata = response['transactions'][0]['callData'].replace(
+                    calldata = tx['callData'].replace(
                         'ec45d2d56ec37ffabeb503a27ae21ba806ebe075', self.client.address[2:])
-                    eth_value = int(response['transactions'][0]['ethValue'])
-                    is_valid = response['transactions'][0]['isValid']
-                    is_allowlist = response['transactions'][0]['isAllowlist']
+                    eth_value = int(tx['ethValue'])
+                    is_valid = bool(tx['isValid'])
+                    is_allowlist = bool(tx['isAllowlist'])
 
                     return calldata, eth_value, is_valid, is_allowlist
 
