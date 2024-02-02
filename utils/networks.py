@@ -92,7 +92,7 @@ PolygonRPC = Network(
         'https://polygon-rpc.com',
     ],
     chain_id=137,
-    eip1559_support=False,
+    eip1559_support=True,
     token='MATIC',
     explorer='https://polygonscan.com/',
 )

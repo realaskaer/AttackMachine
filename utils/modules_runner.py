@@ -419,7 +419,7 @@ class Runner(Logger):
                                            self.get_proxy_for_account(account_name), smart_route_type, index=1)
 
             if len(accounts_data) > 1:
-                await self.smart_sleep(account_name, account_number=1)
+                await self.smart_sleep(account_name, account_number=1, accounts_delay=True)
 
             if smart_route_type:
                 await self.update_sheet_data(route_generator)
