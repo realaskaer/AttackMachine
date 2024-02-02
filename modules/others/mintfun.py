@@ -24,17 +24,15 @@ class MintFun(Minter, Logger, RequestClient):
         response = await self.make_request(url=url, params=params)
 
         total_time = 0
-        timeout = 360
+        timeout = 120
         while True:
             for tx in response['transactions']:
                 if int(tx['nftCount']) == 1 and tx['to'].lower() == contract_address.lower() and tx['isValid']:
                     calldata = tx['callData'].replace(
                         'ec45d2d56ec37ffabeb503a27ae21ba806ebe075', self.client.address[2:])
                     eth_value = int(tx['ethValue'])
-                    is_valid = bool(tx['isValid'])
-                    is_allowlist = bool(tx['isAllowlist'])
 
-                    return calldata, eth_value, is_valid, is_allowlist
+                    return calldata, eth_value
 
             total_time += 10
             await asyncio.sleep(10)
@@ -49,7 +47,7 @@ class MintFun(Minter, Logger, RequestClient):
             try:
                 nft_contract = self.client.w3.to_checksum_address(nft_contract)
 
-                calldata, eth_value, is_valid, is_allowlist = await self.get_tx_data(nft_contract)
+                calldata, eth_value = await self.get_tx_data(nft_contract)
 
                 contract = self.client.get_contract(self.client.w3.to_checksum_address(nft_contract), MINTFUN_ABI[1])
 
@@ -60,19 +58,12 @@ class MintFun(Minter, Logger, RequestClient):
 
                 self.logger_msg(*self.client.acc_info, msg=f"Mint {nft_name} NFT. Price: {eth_value / 10 ** 18:.6f} ETH")
 
-                if is_valid:
+                transaction = await self.client.prepare_transaction(value=eth_value) | {
+                    'to': nft_contract,
+                    'data': f"0x{calldata}"
+                }
 
-                    if not is_allowlist:
-                        transaction = await self.client.prepare_transaction(value=eth_value) | {
-                            'to': nft_contract,
-                            'data': f"0x{calldata}"
-                        }
-
-                        result = await self.client.send_transaction(transaction)
-
-                        return result
-                    raise SoftwareExceptionWithoutRetry('This is a allowlist on this mint!')
-                raise SoftwareExceptionWithoutRetry('This mint is not active!')
+                return await self.client.send_transaction(transaction)
 
             except Exception as error:
                 self.logger_msg(
