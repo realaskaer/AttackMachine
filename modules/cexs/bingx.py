@@ -281,7 +281,7 @@ class BingX(CEX, Logger):
         try:
             cex_wallet = cex_withdraw_list[self.client.account_name]
         except Exception as error:
-            raise SoftwareExceptionWithoutRetry(f'There is no wallet listed for deposit to BingX: {error}')
+            raise SoftwareExceptionWithoutRetry(f'There is no wallet listed for deposit to CEX: {error}')
 
         info = f"{cex_wallet[:10]}....{cex_wallet[-6:]}"
 

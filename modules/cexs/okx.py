@@ -270,16 +270,16 @@ class OKX(CEX, Logger):
             await self.client.initialize_account()
 
         try:
-            with open('./data/services/okx_withdraw_list.json') as file:
+            with open('./data/services/cex_withdraw_list.json') as file:
                 from json import load
                 okx_withdraw_list = load(file)
         except:
-            self.logger_msg(None, None, f"Bad data in okx_wallet_list.json", 'error')
+            self.logger_msg(None, None, f"Bad data in cex_withdraw_list.json", 'error')
 
         try:
             okx_wallet = okx_withdraw_list[self.client.account_name]
         except Exception as error:
-            raise SoftwareExceptionWithoutRetry(f'There is no wallet listed for deposit to OKX: {error}')
+            raise SoftwareExceptionWithoutRetry(f'There is no wallet listed for deposit to CEX: {error}')
 
         info = f"{okx_wallet[:10]}....{okx_wallet[-6:]}"
 
