@@ -41,7 +41,7 @@ class Rango(RequestClient, Logger):
             'amount': amount,
             'checkPrerequisites': True,
             'slippage': SLIPPAGE
-        } | ({'affiliateRef': "gd0C76", "affiliatePercent": 1,
+        } | ({'affiliateRef': "Xgbunx", "affiliatePercent": 1,
              "affiliateWallets": {self.network.upper(): "0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5"}}
              if HELP_SOFTWARE else {})
 
