@@ -123,6 +123,9 @@ class OKX(CEX, Logger):
     @helper
     async def transfer_from_subaccounts(self, ccy:str = 'ETH', amount:float = None):
 
+        if ccy == 'USDC.e':
+            ccy = 'USDC'
+
         self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
 
         url_sub_list = "https://www.okx.cab/api/v5/users/subaccount/list"
@@ -172,6 +175,9 @@ class OKX(CEX, Logger):
 
     @helper
     async def transfer_from_spot_to_funding(self, ccy:str = 'ETH'):
+
+        if ccy == 'USDC.e':
+            ccy = 'USDC'
 
         url_balance = f"https://www.okx.cab/api/v5/account/balance?ccy={ccy}"
         headers = await self.get_headers(request_path=url_balance)
