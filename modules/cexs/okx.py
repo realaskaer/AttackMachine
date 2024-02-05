@@ -211,11 +211,11 @@ class OKX(CEX, Logger):
 
         await asyncio.sleep(10)
 
-        headers = await self.get_headers(request_path=url_sub_list)
-        sub_list = await self.make_request(url=url_sub_list, headers=headers, module_name='Get subAccounts list')
-
         if ccy == 'USDC.e':
             ccy = 'USDC'
+
+        headers = await self.get_headers(request_path=url_sub_list)
+        sub_list = await self.make_request(url=url_sub_list, headers=headers, module_name='Get subAccounts list')
 
         url_balance = f"https://www.okx.cab/api/v5/asset/balances?ccy={ccy}"
 
