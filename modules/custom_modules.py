@@ -611,21 +611,21 @@ class Custom(Logger, RequestClient):
                 chain_from_id=chain_from_id, dapp_id=bridge_app_id
             )
 
-            from_chain_address = None
-            to_token_address = None
+            from_token_addr = None
+            to_token_addr = None
             from_chain_name = client.network.name
             to_chain_name = CHAIN_NAME[dst_chain_id]
             if token_name == 'USDC':
-                from_chain_address = TOKENS_PER_CHAIN[from_chain_name].get('USDC.e')
-                to_token_address = TOKENS_PER_CHAIN[to_chain_name].get('USDC.e')
-            to_token_address = to_token_address if to_token_address else TOKENS_PER_CHAIN[from_chain_name][dapp_token]
-            to_token_address = to_token_address if to_token_address else TOKENS_PER_CHAIN[to_chain_name][dapp_token]
+                from_token_addr = TOKENS_PER_CHAIN[from_chain_name].get('USDC.e')
+                to_token_addr = TOKENS_PER_CHAIN[to_chain_name].get('USDC.e')
+            from_token_addr = from_token_addr if from_token_addr else TOKENS_PER_CHAIN[from_chain_name][token_name]
+            to_token_addr = to_token_addr if to_token_addr else TOKENS_PER_CHAIN[to_chain_name][token_name]
 
             balance_in_usd, token_price = balance_data
             limit_amount, wanted_to_hold_amount = BRIDGE_AMOUNT_LIMITER
             min_wanted_amount, max_wanted_amount = min(wanted_to_hold_amount), max(wanted_to_hold_amount)
             bridge_data = (source_chain_name, destination_chain, amount,
-                           dst_chain_id, token_name, from_chain_address, to_token_address)
+                           dst_chain_id, token_name, from_token_addr, to_token_addr)
 
             if balance_in_usd > limit_amount:
 

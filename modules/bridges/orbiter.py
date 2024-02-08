@@ -3,7 +3,6 @@ import random
 
 from modules import Bridge, Logger
 from modules.interfaces import BridgeExceptionWithoutRetry, SoftwareExceptionWithoutRetry
-from config import TOKENS_PER_CHAIN
 from web3 import AsyncWeb3
 
 
