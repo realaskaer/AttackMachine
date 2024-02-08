@@ -618,8 +618,8 @@ class Custom(Logger, RequestClient):
             if token_name == 'USDC':
                 from_chain_address = TOKENS_PER_CHAIN[from_chain_name].get('USDC.e')
                 to_token_address = TOKENS_PER_CHAIN[to_chain_name].get('USDC.e')
-            to_token_address = to_token_address if to_token_address else TOKENS_PER_CHAIN[from_chain_name][token_name]
-            to_token_address = to_token_address if to_token_address else TOKENS_PER_CHAIN[to_chain_name][token_name]
+            to_token_address = to_token_address if to_token_address else TOKENS_PER_CHAIN[from_chain_name][dapp_token]
+            to_token_address = to_token_address if to_token_address else TOKENS_PER_CHAIN[to_chain_name][dapp_token]
 
             balance_in_usd, token_price = balance_data
             limit_amount, wanted_to_hold_amount = BRIDGE_AMOUNT_LIMITER
