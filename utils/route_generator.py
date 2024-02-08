@@ -26,25 +26,15 @@ AVAILABLE_MODULES_INFO = {
     okx_withdraw                        : (okx_withdraw, -3, 'OKX Withdraw', 0, []),
     bingx_withdraw                      : (bingx_withdraw, -3, 'BingX Withdraw', 0, []),
     binance_withdraw                    : (binance_withdraw, -3, 'Binance Withdraw', 0, []),
-    okx_multi_withdraw                  : (okx_multi_withdraw, 0, 'OKX Multi Withdraw', 0, []),
-    bingx_multi_withdraw                : (bingx_multi_withdraw, 0, 'BingX Multi Withdraw', 0, []),
-    binance_multi_withdraw              : (binance_multi_withdraw, 0, 'Binance Multi Withdraw', 0, []),
-    random_okx_withdraw                 : (random_okx_withdraw, 0, 'OKX Random Withdraw', 0, []),
-    random_bingx_withdraw               : (random_bingx_withdraw, 0, 'BingX Random Withdraw', 0, []),
-    random_binance_withdraw             : (random_binance_withdraw, 0, 'Binance Random Withdraw', 0, []),
     make_balance_to_average             : (make_balance_to_average, -2, 'Check and make wanted balance', 0, []),
-    deploy_stark_wallet                 : (deploy_stark_wallet, 0, 'Deploy Wallet', 0, [9]),
     bridge_rhino                        : (bridge_rhino, 1, 'Rhino Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
     bridge_layerswap                    : (bridge_layerswap, 1, 'LayerSwap Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
     bridge_orbiter                      : (bridge_orbiter, 1, 'Orbiter Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
     bridge_across                       : (bridge_across, 1, 'Across Bridge', 0, [2, 3, 11, 12]),
+    bridge_owlto                        : (bridge_owlto, 1, 'Owlto Bridge', 0, [2, 3, 11, 12]),
+    bridge_relay                        : (bridge_relay, 1, 'Relay Bridge', 0, [2, 3, 11, 12]),
     bridge_native                       : (bridge_native, 1, 'Native Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
     bridge_zora                         : (bridge_zora, 1, 'Zora Instant Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
-    bridge_rhino_limiter                : (bridge_rhino_limiter, 1, 'Rhino Limiter Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
-    bridge_layerswap_limiter            : (bridge_layerswap_limiter, 1, 'LayerSwap Limiter Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
-    bridge_orbiter_limiter              : (bridge_orbiter_limiter, 1, 'Orbiter Limiter Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
-    bridge_across_limiter               : (bridge_across_limiter, 1, 'Across Limiter Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
-    upgrade_stark_wallet                : (upgrade_stark_wallet, 2, 'Upgrade Wallet', 0, [9]),
     add_liquidity_maverick              : (add_liquidity_maverick, 2, 'Maverick Liquidity', 0, [11]),
     add_liquidity_mute                  : (add_liquidity_mute, 2, 'Mute Liquidity', 0, [11]),
     add_liquidity_syncswap              : (add_liquidity_syncswap, 2, 'SyncSwap Liquidity', 0, [11]),
@@ -52,23 +42,14 @@ AVAILABLE_MODULES_INFO = {
     deposit_eralend                     : (deposit_eralend, 2, 'EraLend Deposit', 0, [11]),
     deposit_reactorfusion               : (deposit_reactorfusion, 2, 'ReactorFusion Deposit', 0, [11]),
     deposit_zerolend                    : (deposit_zerolend, 2, 'ZeroLend Deposit', 0, [11]),
-    deposit_nostra                      : (deposit_nostra, 2, 'Nostra Deposit', 0, [9]),
-    deposit_zklend                      : (deposit_zklend, 2, 'zkLend Deposit', 0, [9]),
     deposit_layerbank                   : (deposit_layerbank, 2, 'LayerBank Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
     deposit_rocketsam                   : (deposit_rocketsam, 2, 'RocketSam Deposit', 0, [2, 3, 4, 8, 9, 11, 12]),
     enable_collateral_basilisk          : (enable_collateral_basilisk, 2, 'Enable Basilisk Collateral', 1, [11]),
     enable_collateral_eralend           : (enable_collateral_eralend, 2, 'Enable EraLend Collateral', 1, [11]),
     enable_collateral_reactorfusion     : (enable_collateral_reactorfusion, 2, 'Enable ReactorFusion Collateral', 1, [11]),
-    enable_collateral_zklend            : (enable_collateral_zklend, 2, 'Enable zkLend Collateral', 1, [9]),
     enable_collateral_layerbank         : (enable_collateral_layerbank, 2, 'Enable LayerBank Collateral', 1, [4, 8]),
     bridge_stargate                     : (bridge_stargate, 2, 'Stargate Bridge', 0, [0]),
     bridge_coredao                      : (bridge_coredao, 2, 'CoreDAO Bridge', 0, [0]),
-    swap_jediswap                       : (swap_jediswap, 2, 'JediSwap Swap', 1, [9]),
-    swap_avnu                           : (swap_avnu, 2, 'AVNU Swap', 1, [9]),
-    swap_10kswap                        : (swap_10kswap, 2, '10kSwap Swap', 1, [9]),
-    swap_sithswap                       : (swap_sithswap, 2, 'SithSwap Swap', 1, [9]),
-    swap_protoss                        : (swap_protoss, 2, 'Protoss Swap', 1, [9]),
-    swap_myswap                         : (swap_myswap, 2, 'mySwap Swap', 1, [9]),
     swap_izumi                          : (swap_izumi, 2, 'iZumi Swap', 1, [3, 4, 8, 11]),
     swap_maverick                       : (swap_maverick, 2, 'Maverick Swap', 1, [3, 11]),
     swap_mute                           : (swap_mute, 2, 'Mute Swap', 1, [11]),
@@ -93,7 +74,6 @@ AVAILABLE_MODULES_INFO = {
     disable_collateral_basilisk         : (disable_collateral_basilisk, 3, 'Disable Basilisk Collateral', 1, [11]),
     disable_collateral_eralend          : (disable_collateral_eralend, 3, 'Disable EraLend Collateral', 1, [11]),
     disable_collateral_reactorfusion    : (disable_collateral_reactorfusion, 3, 'Disable ReactorFusion Collateral', 1, [11]),
-    disable_collateral_zklend           : (disable_collateral_zklend, 2, 'Disable zkLend Collateral', 1, [9]),
     disable_collateral_layerbank        : (disable_collateral_layerbank, 3, 'Disable LayerBank Collateral', 1, [4, 8]),
     create_omnisea                      : (create_omnisea, 2, 'Omnisea Create NFT', 0, [4, 8, 11]),
     create_safe                         : (create_safe, 2, 'Gnosis Safe', 0, [3, 11]),
@@ -104,34 +84,32 @@ AVAILABLE_MODULES_INFO = {
     mint_domain_zns                     : (mint_domain_zns, 2, 'ZNS Domain Mint', 0, [11]),
     mint_mailzero                       : (mint_mailzero, 2, 'MailZero NFT mint', 0, [11]),
     mint_tevaera                        : (mint_tevaera, 2, 'Tevaera ID & NFT mint', 0, [11]),
-    mint_merkly                         : (mint_merkly, 2, 'Merkly Mint NFT', 0, [2, 3, 4, 8, 11, 12]),
-    mint_zerius                         : (mint_zerius, 2, 'Zerius Mint NFT', 0, [2, 3, 4, 8, 11, 12]),
-    mint_l2pass                         : (mint_l2pass, 2, 'L2Pass Mint NFT', 0, [2, 3, 4, 8, 11, 12]),
-    mint_starknet_identity              : (mint_starknet_identity, 2, 'Mint Starknet ID', 0, [9]),
-    mint_starkstars                     : (mint_starkstars, 2, 'StarkStars Mint', 0, [9]),
     mint_zkstars                        : (mint_zkstars, 2, 'zkStars Mint', 0, [3, 4, 8, 11, 12]),
     mint_mintfun                        : (mint_mintfun, 2, 'Mintfun Mint', 0, [3, 4, 8, 11]),
     grapedraw_bid                       : (grapedraw_bid, 2, 'Bid Place on GrapeDraw', 0, [0]),
     deploy_contract                     : (deploy_contract, 3, 'Contract Deploy', 0, []),
     bridge_zerius                       : (bridge_zerius, 3, 'Zerius Bridge NFT', 0, []),
     bridge_l2pass                       : (bridge_l2pass, 3, 'L2Pass Bridge NFT', 0, []),
+    bridge_whale                        : (bridge_whale, 3, 'Whale Bridge NFT', 0, []),
     refuel_bungee                       : (refuel_bungee, 3, 'Bungee Refuel', 0, []),
-    smart_merkly                        : (smart_merkly, 3, 'Merkly Smart Refuel', 0, []),
     refuel_merkly                       : (refuel_merkly, 3, 'Merkly Refuel', 0, []),
-    smart_l2pass                        : (smart_l2pass, 3, 'L2Pass Smart Refuel', 0, []),
     refuel_l2pass                       : (refuel_l2pass, 3, 'L2Pass Refuel', 0, []),
-    smart_zerius                        : (smart_zerius, 3, 'Zerius Smart Refuel', 0, []),
     refuel_zerius                       : (refuel_zerius, 3, 'Zerius Refuel', 0, []),
+    refuel_whale                        : (refuel_whale, 3, 'Whale Refuel', 0, []),
     zerius_refuel_attack                : (zerius_refuel_attack, 3, 'Zerius Refuel Attack', 0, []),
     merkly_refuel_attack                : (merkly_refuel_attack, 3, 'Merkly Refuel Attack', 0, []),
     l2pass_refuel_attack                : (l2pass_refuel_attack, 3, 'L2Pass Refuel Attack', 0, []),
+    whale_refuel_attack                 : (whale_refuel_attack, 3, 'Whale Refuel Attack', 0, []),
     zerius_refuel_google                : (zerius_refuel_google, 3, 'Zerius Google Refuel', 0, []),
     merkly_refuel_google                : (merkly_refuel_google, 3, 'Merkly Google Refuel', 0, []),
     l2pass_refuel_google                : (l2pass_refuel_google, 3, 'L2Pass Google Refuel', 0, []),
+    whale_refuel_google                 : (whale_refuel_google, 3, 'Whale Google Refuel', 0, []),
     zerius_bridge_google                : (zerius_bridge_google, 3, 'Zerius Google Bridge', 0, []),
     l2pass_bridge_google                : (l2pass_bridge_google, 3, 'L2Pass Google Bridge', 0, []),
+    whale_bridge_google                 : (whale_bridge_google, 3, 'Whale Google Bridge', 0, []),
     zerius_nft_attack                   : (zerius_nft_attack, 3, 'Zerius NFT Attack', 0, []),
     l2pass_nft_attack                   : (l2pass_nft_attack, 3, 'L2Pass NFT Attack', 0, []),
+    whale_nft_attack                    : (whale_nft_attack, 3, 'Whale NFT Attack', 0, []),
     gas_station_l2pass                  : (gas_station_l2pass, 3, 'L2Pass Gas Station', 0, []),
     send_message_dmail                  : (send_message_dmail, 2, 'Dmail Message', 1, [3, 4, 8, 9, 11]),
     send_message_l2telegraph            : (send_message_l2telegraph, 2, 'L2Telegraph Message', 0, []),
@@ -145,8 +123,6 @@ AVAILABLE_MODULES_INFO = {
     withdraw_eralend                    : (withdraw_eralend, 3, 'EraLend Withdraw', 0, []),
     withdraw_reactorfusion              : (withdraw_reactorfusion, 3, 'ReactorFusion Withdraw', 0, []),
     withdraw_zerolend                   : (withdraw_zerolend, 3, 'ZeroLend Withdraw', 0, []),
-    withdraw_nostra                     : (withdraw_nostra, 3, 'Nostra Withdraw', 0, []),
-    withdraw_zklend                     : (withdraw_zklend, 3, 'zkLend Withdraw', 0, []),
     withdraw_layerbank                  : (withdraw_layerbank, 3, 'LayerBank Withdraw', 0, []),
     withdraw_rocketsam                  : (withdraw_rocketsam, 3, 'RocketSam Withdraw', 0, []),
     withdraw_native_bridge              : (withdraw_native_bridge, 3, 'Native Bridge Withdraw', 0, []),
@@ -155,10 +131,7 @@ AVAILABLE_MODULES_INFO = {
     okx_deposit                         : (okx_deposit, 5, 'OKX Deposit', 0, []),
     bingx_deposit                       : (bingx_deposit, 5, 'Bingx Deposit', 0, []),
     binance_deposit                     : (binance_deposit, 5, 'Binance Deposit', 0, []),
-    okx_limiter_deposit                 : (okx_limiter_deposit, 5, 'OKX Limiter Deposit', 0, []),
-    bingx_limiter_deposit               : (bingx_limiter_deposit, 5, 'BingX Limiter Deposit', 0, []),
-    binance_limiter_deposit             : (binance_limiter_deposit, 5, 'Binance Limiter Deposit', 0, []),
-    smart_cex_deposit                   : (smart_cex_deposit, 5, 'Smart CEX Deposit', 0, []),
+    okx_deposit_l0                   : (okx_deposit_l0, 5, 'Smart CEX Deposit', 0, []),
 }
 
 
@@ -205,7 +178,7 @@ class RouteGenerator(Logger):
                 'Basilisk Deposit': deposit_basilisk,
                 'RocketSam Deposit': deposit_rocketsam,
                 'Reactorfusion Deposit': deposit_reactorfusion,
-                'Zerius Mint NFT': mint_zerius,
+              #  'Zerius Mint NFT': mint_zerius,
                 'Zerius Bridge NFT': bridge_zerius,
                 'Omnisea Create NFT': create_omnisea,
                 'Tavaera ID & NFT Mint': mint_tevaera,
@@ -221,24 +194,11 @@ class RouteGenerator(Logger):
                 'Bungee Refuel': refuel_bungee,
                 'Withdraw txSync': withdraw_native_bridge,
             }
-        elif GLOBAL_NETWORK == 9:
-            map_data = {
-                'mySwap Swap': swap_myswap,
-                'Jediswap Swap': swap_jediswap,
-                '10kSwap Swap': swap_10kswap,
-                'SithSwap Swap': swap_sithswap,
-                'Protoss Swap': swap_protoss,
-                'Avnu Swap': swap_avnu,
-                'zkLend Deposit': deposit_zklend,
-                'Nostra Deposit': deposit_nostra,
-                'Mint Starknet ID': mint_starknet_identity,
-                'Mint StarkStars': mint_starkstars,
-            }
         elif GLOBAL_NETWORK == 2:
             map_data = {
                 'SushiSwap Swap': swap_sushiswap,
                 'RocketSam Deposit': deposit_rocketsam,
-                'Zerius Mint': mint_zerius,
+               # 'Zerius Mint': mint_zerius,
                 'Zerius Bridge': bridge_zerius,
                 'Contract Deploy': deploy_contract,
                 'Merkly Refuel': refuel_merkly,
@@ -261,7 +221,7 @@ class RouteGenerator(Logger):
                 'RocketSam Deposit': deposit_rocketsam,
                 'Gnosis Safe Create': create_safe,
                 'zkStars Mint': mint_zkstars,
-                'Zerius Mint': mint_zerius,
+              #  'Zerius Mint': mint_zerius,
                 'Zerius Bridge': bridge_zerius,
                 'L2Telegraph Bridge NFT': mint_and_bridge_l2telegraph,
                 'Contract Deploy': deploy_contract,
@@ -284,7 +244,7 @@ class RouteGenerator(Logger):
                 'RocketSam Deposit': deposit_rocketsam,
                 'OmniSea Create': create_omnisea,
                 'zkStars Mint': mint_zkstars,
-                'Zerius Mint': mint_zerius,
+               # 'Zerius Mint': mint_zerius,
                 'Zerius Bridge': bridge_zerius,
                 'L2Telegraph Bridge NFT': mint_and_bridge_l2telegraph,
                 'Contract Deploy': deploy_contract,
@@ -303,7 +263,7 @@ class RouteGenerator(Logger):
                 'RocketSam Deposit': deposit_rocketsam,
                 'OmniSea Create': create_omnisea,
                 'zkStars Mint':  mint_zkstars,
-                'Zerius Mint': mint_zerius,
+               # 'Zerius Mint': mint_zerius,
                 'Zerius Bridge': bridge_zerius,
                 'L2Telegraph Bridge NFT': mint_and_bridge_l2telegraph,
                 'Contract Deploy': deploy_contract,
@@ -316,7 +276,7 @@ class RouteGenerator(Logger):
                 'MintFun Mint': mint_mintfun,
                 'zkStars Mint': mint_zkstars,
                 'RocketSam Deposit': deposit_rocketsam,
-                'Zerius Mint': mint_zerius,
+               # 'Zerius Mint': mint_zerius,
                 'Zerius Bridge': bridge_zerius,
                 'Contract Deploy': deploy_contract,
                 'Merkly Refuel': refuel_merkly,
@@ -353,7 +313,7 @@ class RouteGenerator(Logger):
 
         else:
             self.logger_msg(None, None,
-                            msg=f"This network does not support in Google SpreadSheets", type_msg='error')
+                            msg=f"This network does not support in Google SpreadSheets", type_msg='warning')
             map_data = {}
         self.function_mappings = map_data
 
@@ -483,9 +443,6 @@ class RouteGenerator(Logger):
             collaterals_modules = [enable_collateral_eralend, enable_collateral_basilisk,
                                    enable_collateral_reactorfusion, disable_collateral_basilisk,
                                    disable_collateral_eralend, disable_collateral_reactorfusion,]
-        elif GLOBAL_NETWORK == 9:
-            collaterals_modules = [enable_collateral_zklend, disable_collateral_zklend]
-            transfers_modules = []
         elif GLOBAL_NETWORK in [4, 8]:
             collaterals_modules = [enable_collateral_layerbank, disable_collateral_layerbank]
 
@@ -544,9 +501,6 @@ class RouteGenerator(Logger):
                 smart_route.append(AVAILABLE_MODULES_INFO[withdraw_reactorfusion])
                 smart_route.append(AVAILABLE_MODULES_INFO[withdraw_basilisk])
                 smart_route.append(AVAILABLE_MODULES_INFO[withdraw_zerolend])
-            elif GLOBAL_NETWORK == 9:
-                smart_route.append(AVAILABLE_MODULES_INFO[withdraw_zklend])
-                smart_route.append(AVAILABLE_MODULES_INFO[withdraw_nostra])
             elif GLOBAL_NETWORK in [4, 8]:
                 smart_route.append(AVAILABLE_MODULES_INFO[withdraw_layerbank])
                 smart_route.append(AVAILABLE_MODULES_INFO[withdraw_rocketsam])
@@ -567,17 +521,10 @@ class RouteGenerator(Logger):
         smart_route.append(AVAILABLE_MODULES_INFO[okx_withdraw] if HELPERS_CONFIG['okx_withdraw'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[bingx_withdraw] if HELPERS_CONFIG['bingx_withdraw'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[binance_withdraw] if HELPERS_CONFIG['binance_withdraw'] else None)
-        smart_route.append(AVAILABLE_MODULES_INFO[okx_multi_withdraw] if HELPERS_CONFIG['okx_multi_withdraw'] else None)
-        smart_route.append(AVAILABLE_MODULES_INFO[bingx_multi_withdraw] if HELPERS_CONFIG['bingx_multi_withdraw'] else None)
-        smart_route.append(AVAILABLE_MODULES_INFO[binance_multi_withdraw] if HELPERS_CONFIG['binance_multi_withdraw'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[okx_deposit] if HELPERS_CONFIG['okx_deposit'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[collector_eth] if HELPERS_CONFIG['collector_eth'] else None)
         smart_route.append(
             AVAILABLE_MODULES_INFO[make_balance_to_average] if HELPERS_CONFIG['make_balance_to_average'] else None)
-        smart_route.append(
-            AVAILABLE_MODULES_INFO[upgrade_stark_wallet] if HELPERS_CONFIG['upgrade_stark_wallet'] else None)
-        smart_route.append(
-            AVAILABLE_MODULES_INFO[deploy_stark_wallet] if HELPERS_CONFIG['deploy_stark_wallet'] else None)
 
         random.shuffle(smart_route)
 
@@ -620,7 +567,7 @@ class RouteGenerator(Logger):
 
         data[account_name] = {
             "current_step": 0,
-            "route": [" ".join(item) for item in route] if isinstance(route[0], tuple) else route
+            "route": ([" ".join(item) for item in route] if isinstance(route[0], tuple) else route) if route else []
         }
 
         with open(progress_file_path, 'w') as file:

@@ -24,7 +24,7 @@ class MintFun(Minter, Logger, RequestClient):
         response = await self.make_request(url=url, params=params)
 
         total_time = 0
-        timeout = 120
+        timeout = 10
         while True:
             for tx in response['transactions']:
                 if int(tx['nftCount']) == 1 and tx['to'].lower() == contract_address.lower() and tx['isValid']:

@@ -1,9 +1,7 @@
 import random
 
-from web3.exceptions import Web3ValidationError, ContractLogicError
-
-from modules import Refuel, Logger
-from modules.interfaces import BlockchainException, BlockchainExceptionWithoutRetry, SoftwareException
+from modules import Refuel, Logger, Client
+from modules.interfaces import BlockchainException, SoftwareException, Minter
 from settings import DST_CHAIN_L2PASS_REFUEL, DST_CHAIN_L2PASS_NFT, L2PASS_GAS_STATION_DATA
 from eth_abi import encode
 from utils.tools import gas_checker, helper, sleep
@@ -14,8 +12,8 @@ from config import (
 )
 
 
-class L2Pass(Refuel, Logger):
-    def __init__(self, client):
+class L2Pass(Refuel, Minter, Logger):
+    def __init__(self, client: Client):
         self.client = client
         Logger.__init__(self)
 
@@ -78,29 +76,23 @@ class L2Pass(Refuel, Logger):
             if need_check:
                 return True
 
-            tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+            tx_result = await self.client.send_transaction(transaction, need_hash=True)
 
             result = True
-            if isinstance(tx_hash, bytes):
+            if isinstance(tx_result, bool):
+                result = tx_result
+            else:
                 if self.client.network.name != 'Polygon':
-                    result = await self.client.wait_for_l0_received(tx_hash)
-            elif isinstance(tx_hash, bool):
-                result = tx_hash
+                    result = await self.client.wait_for_l0_received(tx_result)
 
             if attack_data and attack_mode is False:
                 return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
             return result
 
-        except Web3ValidationError as error:
-            if not need_check:
-                raise BlockchainExceptionWithoutRetry(f'{error}')
-
         except Exception as error:
             if not need_check:
                 raise BlockchainException(f'{error}')
 
-    @helper
-    @gas_checker
     async def mint(self, chain_from_id):
         onft_contract = self.client.get_contract(L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], L2PASS_ABI['ONFT'])
 
@@ -122,27 +114,29 @@ class L2Pass(Refuel, Logger):
 
     @helper
     @gas_checker
-    async def bridge(self, chain_from_id, attack_mode:bool = False, attack_data:int = None):
+    async def bridge(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False):
         if not attack_mode and attack_data is None:
             dst_chain = random.choice(DST_CHAIN_L2PASS_NFT)
         else:
             dst_chain = attack_data
 
         onft_contract = self.client.get_contract(L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], L2PASS_ABI['ONFT'])
-
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
 
-        nft_id = await self.get_nft_id(onft_contract)
-
-        if not nft_id:
-            new_client = await self.client.new_client(chain_from_id)
-            await L2Pass(new_client).mint(chain_from_id)
+        nft_id = 1
+        if not need_check:
             nft_id = await self.get_nft_id(onft_contract)
-            await sleep(self, 5, 10)
 
-        self.logger_msg(
-            *self.client.acc_info,
-            msg=f"Bridge L2Pass NFT from {self.client.network.name} to {dst_chain_name}. ID: {nft_id}")
+            if not nft_id:
+                new_client = await self.client.new_client(chain_from_id)
+                await L2Pass(new_client).mint(chain_from_id)
+                nft_id = await self.get_nft_id(onft_contract)
+                await new_client.session.close()
+                await sleep(self, 5, 10)
+
+            self.logger_msg(
+                *self.client.acc_info,
+                msg=f"Bridge L2Pass NFT from {self.client.network.name} to {dst_chain_name}. ID: {nft_id}")
 
         version, gas_limit = 1, 200000
 
@@ -151,29 +145,43 @@ class L2Pass(Refuel, Logger):
 
         adapter_params = self.client.w3.to_hex(adapter_params[30:])
 
-        send_price = await onft_contract.functions.sendPrice().call()
+        try:
+            send_price = await onft_contract.functions.sendPrice().call()
 
-        estimate_send_fee = await self.get_estimate_send_fee(onft_contract, adapter_params, dst_chain_id, nft_id)
+            estimate_send_fee = await self.get_estimate_send_fee(onft_contract, adapter_params, dst_chain_id, nft_id)
+            value = int(estimate_send_fee + send_price)
 
-        tx_params = await self.client.prepare_transaction(value=int(estimate_send_fee + send_price))
+            tx_params = await self.client.prepare_transaction(value=value)
 
-        transaction = await onft_contract.functions.sendFrom(
-            self.client.address,
-            dst_chain_id,
-            self.client.address,
-            nft_id,
-            self.client.address,
-            ZERO_ADDRESS,
-            adapter_params
-        ).build_transaction(tx_params)
+            transaction = await onft_contract.functions.sendFrom(
+                self.client.address,
+                dst_chain_id,
+                self.client.address,
+                nft_id,
+                self.client.address,
+                ZERO_ADDRESS,
+                adapter_params
+            ).build_transaction(tx_params)
 
-        tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+            if need_check:
+                return True
 
-        if attack_data and attack_mode is False:
-            await self.client.wait_for_l0_received(tx_hash)
-            return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+            tx_result = await self.client.send_transaction(transaction, need_hash=True)
 
-        return await self.client.wait_for_l0_received(tx_hash)
+            result = True
+            if isinstance(tx_result, bool):
+                result = tx_result
+            else:
+                if self.client.network.name != 'Polygon':
+                    result = await self.client.wait_for_l0_received(tx_result)
+
+            if attack_data and attack_mode is False:
+                return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+            return result
+
+        except Exception as error:
+            if not need_check:
+                raise BlockchainException(f'{error}')
 
     @helper
     @gas_checker
@@ -193,7 +201,11 @@ class L2Pass(Refuel, Logger):
                 refuel_data = random.choice(refuel_data)
             if not refuel_data:
                 continue
+
             chain_id_to, amount = refuel_data
+            if isinstance(chain_id_to, list):
+                chain_id_to = random.choice(chain_id_to)
+
             dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[chain_id_to]
             dst_amount = int(self.client.round_amount(*(amount, amount * 1.2)) * 10 ** 18)
             adapter_params = await gas_contract.functions.createAdapterParams(

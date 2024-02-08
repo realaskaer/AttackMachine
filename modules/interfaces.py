@@ -1,8 +1,7 @@
-from aiohttp import ContentTypeError, ClientSession
+from aiohttp import ClientSession
 from loguru import logger
 from sys import stderr
 from datetime import datetime
-from web3 import AsyncWeb3
 from abc import ABC, abstractmethod
 from random import uniform
 from config import CHAIN_NAME
@@ -10,7 +9,6 @@ from config import CHAIN_NAME
 from general_settings import (LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS,
                               OKX_API_SECRET, GLOBAL_NETWORK, BINGX_API_KEY, BINGX_API_SECRET, BINANCE_API_KEY,
                               BINANCE_API_SECRET)
-from utils.networks import StarknetRPC
 
 
 def get_user_agent():
@@ -53,13 +51,20 @@ class Logger(ABC):
         self.logger.add(f"./data/logs/{date}.log", rotation="500 MB", level="INFO", format=logger_format)
 
     def logger_msg(self, account_name, address, msg, type_msg: str = 'info'):
+        from config import ACCOUNT_NAMES
+        class_name = self.__class__.__name__
+        software_chain = CHAIN_NAME[GLOBAL_NETWORK]
+        acc_index = '1/1'
+        if account_name:
+            account_index = ACCOUNT_NAMES.index(account_name) + 1
+            acc_index = f"{account_index}/{len(ACCOUNT_NAMES)}"
+
         if account_name is None and address is None:
-            info = f'[Attack machine] | {CHAIN_NAME[GLOBAL_NETWORK]} | {self.__class__.__name__} |'
+            info = f'[Attack machine] | {software_chain} | {class_name} |'
         elif account_name is not None and address is None:
-            info = f'[{account_name}] | {CHAIN_NAME[GLOBAL_NETWORK]} | {self.__class__.__name__} |'
+            info = f'[{acc_index}] | [{account_name}] | {software_chain} | {class_name} |'
         else:
-            address = hex(address) if GLOBAL_NETWORK == 9 else address
-            info = f'[{account_name}] | {address} | {CHAIN_NAME[GLOBAL_NETWORK]} | {self.__class__.__name__} |'
+            info = f'[{acc_index}] | [{account_name}] | {address} | {software_chain} | {class_name} |'
         if type_msg == 'info':
             self.logger.info(f"{info} {msg}")
         elif type_msg == 'error':
@@ -137,9 +142,13 @@ class RequestClient(ABC):
                 data = await response.json()
                 if response.status == 200:
                     return data
-                raise SoftwareException(f"Bad request to {self.__class__.__name__} API: {response.status}")
-            except ContentTypeError:
-                raise SoftwareException(f"Bad request to {self.__class__.__name__} API. Problem in API functionality")
+                raise SoftwareException(
+                    f"Bad request to {self.__class__.__name__} API. "
+                    f"Response status: {response.status}. Response: {await response.text()}")
+            except Exception as error:
+                raise SoftwareException(
+                    f"Bad request to {self.__class__.__name__} API. "
+                    f"Response status: {response.status}. Response: {await response.text()} Error: {error}")
 
 
 class Bridge(ABC):
@@ -157,21 +166,6 @@ class Bridge(ABC):
                 "Content-Type": "application/json",
             }
 
-    async def get_address_for_bridge(self, private_key:str, stark_key_type:bool):
-        from modules import StarknetClient
-        if private_key is None:
-            return
-        elif stark_key_type:
-            stark_client = None
-            try:
-                stark_client = StarknetClient('Bridge', private_key, StarknetRPC, self.client.proxy_init)
-                await stark_client.initialize_account()
-                return hex(stark_client.address)
-            finally:
-                await stark_client.session.close()
-        else:
-            return AsyncWeb3().eth.account.from_key(private_key).address
-
     @abstractmethod
     async def bridge(self, *args, **kwargs):
         pass
@@ -185,12 +179,14 @@ class Bridge(ABC):
             data = await response.json()
             if response.status in [200, 201]:
                 return data
-            raise SoftwareException(f"Bad request to {self.__class__.__name__} API: {response.status}")
+            raise SoftwareException(
+                f"Bad request to {self.__class__.__name__} API. "
+                f"Response status: {response.status}. Status: {response.status}. Response: {await response.text()}")
 
 
 class Refuel(ABC):
     @abstractmethod
-    async def refuel(self):
+    async def refuel(self, *args, **kwargs):
         pass
 
 
@@ -220,7 +216,7 @@ class Landing(ABC):
 
 class Minter(ABC):
     @abstractmethod
-    async def mint(self):
+    async def mint(self, *args, **kwargs):
         pass
 
 

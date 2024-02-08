@@ -6,11 +6,7 @@ from hashlib import sha256
 from modules import CEX, Logger
 from modules.interfaces import SoftwareExceptionWithoutRetry
 from utils.tools import helper
-from config import CEX_WRAPED_ID, BINANCE_NETWORKS_NAME, TOKENS_PER_CHAIN
-from general_settings import GLOBAL_NETWORK
-from settings import (
-    BINANCE_WITHDRAW_AMOUNT, BINANCE_WITHDRAW_NETWORK, BINANCE_DEPOSIT_NETWORK, BINANCE_DEPOSIT_AMOUNT
-)
+from config import CEX_WRAPPED_ID, BINANCE_NETWORKS_NAME, TOKENS_PER_CHAIN
 
 
 class Binance(CEX, Logger):
@@ -73,24 +69,14 @@ class Binance(CEX, Logger):
         return [item for item in data if item['coin'] == ccy]
 
     @helper
-    async def withdraw(self, want_balance:float = 0, multi_withdraw_data:dict = None, transfer_mode:bool = False):
-        if GLOBAL_NETWORK == 9:
-            await self.client.initialize_account(check_balance=True)
-        await self.get_currencies('ETH')
-
+    async def withdraw(self, want_balance:float = 0, withdraw_data:tuple = None, transfer_mode:bool = False):
         path = '/sapi/v1/capital/withdraw/apply'
 
-        if multi_withdraw_data is None:
-            network_id = BINANCE_WITHDRAW_NETWORK
-            amount = BINANCE_WITHDRAW_AMOUNT
-        else:
-            network_id = multi_withdraw_data['network']
-            amount = multi_withdraw_data['amount']
-
+        network_id, amount = withdraw_data
         network_raw_name = BINANCE_NETWORKS_NAME[network_id]
         ccy, network_name = network_raw_name.split('-')
+        dst_chain_id = CEX_WRAPPED_ID[network_id]
 
-        dst_chain_id = CEX_WRAPED_ID[network_id]
         withdraw_data = (await self.get_currencies(ccy))[0]['networkList']
 
         amount = want_balance if want_balance else await self.client.get_smart_amount(amount)
@@ -108,13 +94,12 @@ class Binance(CEX, Logger):
             *self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
 
         if network_data['withdrawEnable']:
-            address = f"0x{hex(self.client.address)[2:]:0>64}" if BINANCE_WITHDRAW_NETWORK == 4 else self.client.address
             min_wd, max_wd = float(network_data['withdrawMin']), float(network_data['withdrawMax'])
 
             if min_wd <= amount <= max_wd:
 
                 params = {
-                    "address": address,
+                    "address": self.client.address,
                     "amount": amount,
                     "coin": ccy,
                     "network": network_name,
@@ -122,7 +107,7 @@ class Binance(CEX, Logger):
 
                 parse_params = self.parse_params(params)
 
-                ccy = f"{ccy}.e" if network_id in [31, 32] else ccy
+                ccy = f"{ccy}.e" if network_id in [30, 31] else ccy
 
                 old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
                                                                           check_balance_on_dst=True)
@@ -177,6 +162,9 @@ class Binance(CEX, Logger):
 
     async def transfer_from_subaccounts(self, ccy: str = 'ETH', amount: float = None):
 
+        if ccy == 'USDC.e':
+            ccy = 'USDC'
+
         self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
 
         flag = True
@@ -214,6 +202,10 @@ class Binance(CEX, Logger):
         return True
 
     async def get_cex_balances(self, ccy: str = 'ETH'):
+
+        if ccy == 'USDC.e':
+            ccy = 'USDC'
+
         balances = {}
 
         main_balance = await self.get_main_balance()
@@ -240,6 +232,9 @@ class Binance(CEX, Logger):
     async def wait_deposit_confirmation(self, amount: float, old_balances: dict, ccy: str = 'ETH',
                                         check_time: int = 45, timeout: int = 1200):
 
+        if ccy == 'USDC.e':
+            ccy = 'USDC'
+
         self.logger_msg(*self.client.acc_info, msg=f"Start checking CEX balances")
 
         await asyncio.sleep(10)
@@ -261,11 +256,7 @@ class Binance(CEX, Logger):
         self.logger_msg(*self.client.acc_info, msg=f"Deposit does not complete in {timeout} seconds", type_msg='error')
 
     @helper
-    async def deposit(self, deposit_data: list = None):
-
-        if GLOBAL_NETWORK == 9:
-            await self.client.initialize_account()
-
+    async def deposit(self, deposit_data: tuple = None):
         try:
             with open('./data/services/cex_withdraw_list.json') as file:
                 from json import load
@@ -280,12 +271,7 @@ class Binance(CEX, Logger):
 
         info = f"{cex_wallet[:10]}....{cex_wallet[-6:]}"
 
-        if deposit_data:
-            deposit_network, deposit_amount = deposit_data
-        else:
-            deposit_network = BINANCE_DEPOSIT_NETWORK
-            deposit_amount = BINANCE_DEPOSIT_AMOUNT
-
+        deposit_network, deposit_amount = deposit_data
         network_raw_name = BINANCE_NETWORKS_NAME[deposit_network]
         ccy, network_name = network_raw_name.split('-')
         withdraw_data = (await self.get_currencies(ccy))[0]['networkList']
@@ -296,40 +282,28 @@ class Binance(CEX, Logger):
             } for item in withdraw_data
         }[network_name]
 
-        ccy = f"{ccy}.e" if deposit_network in [31, 32] else ccy
+        ccy = f"{ccy}.e" if deposit_network in [30, 31] else ccy
         amount = await self.client.get_smart_amount(deposit_amount, token_name=ccy)
 
         self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to OKX wallet: {info}")
 
         if network_data['depositEnable']:
 
-            if self.client.network.name == 'Starknet':
-                await self.client.initialize_account()
-                amount_in_wei = int(amount * 10 ** 18)
-                transaction = self.client.prepare_call(
-                    contract_address=TOKENS_PER_CHAIN['Starknet'][ccy],
-                    selector_name="transfer",
-                    calldata=[
-                        int(cex_wallet, 16),
-                        amount_in_wei, 0
-                    ]
-                )
-            else:
-                if ccy in ['USDT', 'USDC', 'USDC.e']:
-                    token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
-                    decimals = await self.client.get_decimals(ccy)
-                    amount_in_wei = int(amount * 10 ** decimals)
+            if ccy != self.client.token:
+                token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
+                decimals = await self.client.get_decimals(ccy)
+                amount_in_wei = int(amount * 10 ** decimals)
 
-                    transaction = await token_contract.functions.transfer(
-                        self.client.w3.to_checksum_address(cex_wallet),
-                        amount_in_wei
-                    ).build_transaction(await self.client.prepare_transaction())
-                else:
-                    amount_in_wei = int(amount * 10 ** 18)
-                    transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
-                        'to': self.client.w3.to_checksum_address(cex_wallet),
-                        'data': '0x'
-                    }
+                transaction = await token_contract.functions.transfer(
+                    self.client.w3.to_checksum_address(cex_wallet),
+                    amount_in_wei
+                ).build_transaction(await self.client.prepare_transaction())
+            else:
+                amount_in_wei = int(amount * 10 ** 18)
+                transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
+                    'to': self.client.w3.to_checksum_address(cex_wallet),
+                    'data': '0x'
+                }
 
             # cex_balances = await self.get_cex_balances(ccy=ccy)
 

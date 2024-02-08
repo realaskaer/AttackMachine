@@ -1,9 +1,10 @@
 from time import time
 from eth_abi import abi
-from modules import DEX, Logger
-from modules.interfaces import SoftwareException
-from utils.tools import gas_checker, helper
 from general_settings import SLIPPAGE
+from modules import DEX, Logger, Client
+from utils.tools import gas_checker, helper
+from modules.interfaces import SoftwareException
+from eth_account.messages import encode_structured_data
 from config import (
     SYNCSWAP_CONTRACTS,
     SYNCSWAP_CLASSIC_POOL_FACTORY_ABI,
@@ -15,7 +16,7 @@ from config import (
 
 
 class SyncSwap(DEX, Logger):
-    def __init__(self, client):
+    def __init__(self, client: Client):
         self.client = client
         Logger.__init__(self)
         self.network = self.client.network.name
@@ -26,6 +27,77 @@ class SyncSwap(DEX, Logger):
             SYNCSWAP_CONTRACTS[self.network]['classic_pool_factoty'],
             SYNCSWAP_CLASSIC_POOL_FACTORY_ABI
         )
+
+    async def get_swap_permit(self, token_name:str):
+        token_name_for_permit, version = {
+            'USDT': ("Tether USD", 1),
+            'USDC': ("USD Coin" if self.client.network.name == "Scroll" else 'USDC', 2)
+        }[token_name]
+
+        permit_data = {
+            "types": {
+                "Permit": [
+                    {
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "name": "spender",
+                        "type": "address"
+                    },
+                    {
+                        "name": "value",
+                        "type": "uint256"
+                    },
+                    {
+                        "name": "nonce",
+                        "type": "uint256"
+                    },
+                    {
+                        "name": "deadline",
+                        "type": "uint256"
+                    }
+                ],
+                "EIP712Domain": [
+                    {
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "name": "version",
+                        "type": "string"
+                    },
+                    {
+                        "name": "chainId",
+                        "type": "uint256"
+                    },
+                    {
+                        "name": "verifyingContract",
+                        "type": "address"
+                    }
+                ]
+            },
+            "domain": {
+                "name": token_name_for_permit,
+                "version": version,
+                "chainId": f"{self.client.chain_id}",
+                "verifyingContract": TOKENS_PER_CHAIN[self.client.network.name][token_name]
+            },
+            "primaryType": "Permit",
+            "message": {
+                "owner": self.client.address,
+                "spender": self.router_contract.address,
+                "value": 2 ** 256 - 1,
+                "nonce": "0",
+                "deadline": int(time()) + 10800
+            }
+        }
+
+        text_encoded = encode_structured_data(permit_data)
+        sing_data = self.client.w3.eth.account.sign_message(text_encoded,
+                                                            private_key=self.client.private_key)
+
+        return sing_data.v, sing_data.r, sing_data.s
 
     async def get_min_amount_out(self, pool_address: str, from_token_address: str, amount_in_wei: int):
         pool_contract = self.client.get_contract(pool_address, SYNCSWAP_CLASSIC_POOL_ABI)
@@ -77,11 +149,25 @@ class SyncSwap(DEX, Logger):
         }]
 
         tx_params = await self.client.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
-        transaction = await self.router_contract.functions.swap(
-            paths,
-            min_amount_out,
-            deadline,
-        ).build_transaction(tx_params)
+
+        if self.client.network.name == 'Scroll' and from_token_name != 'ETH':
+            transaction = await self.router_contract.functions.swapWithPermit(
+                paths,
+                min_amount_out,
+                deadline,
+                [
+                    from_token_address,
+                    2 * 256 - 1,
+                    deadline,
+                    *(await self.get_swap_permit(from_token_name))
+                ]
+            ).build_transaction(tx_params)
+        else:
+            transaction = await self.router_contract.functions.swap(
+                paths,
+                min_amount_out,
+                deadline,
+            ).build_transaction(tx_params)
 
         return await self.client.send_transaction(transaction)
 

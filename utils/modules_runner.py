@@ -12,17 +12,12 @@ from web3 import AsyncWeb3, AsyncHTTPProvider
 from functions import get_network_by_chain_id
 from modules.interfaces import SoftwareException
 from settings import HELP_NEW_MODULE, EXCLUDED_MODULES
-from config import ACCOUNT_NAMES, PRIVATE_KEYS_EVM, PRIVATE_KEYS, PROXIES, CHAIN_NAME
+from config import ACCOUNT_NAMES, PRIVATE_KEYS, PROXIES, CHAIN_NAME
 from utils.route_generator import RouteGenerator, AVAILABLE_MODULES_INFO, get_func_by_name
 from utils.tools import clean_progress_file, clean_google_progress_file, clean_gwei_file, check_google_progress_file
 from general_settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, TG_ID, TG_TOKEN, MOBILE_PROXY,
                               MOBILE_PROXY_URL_CHANGER, WALLETS_TO_WORK, TELEGRAM_NOTIFICATIONS, GLOBAL_NETWORK,
                               SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM, SHUFFLE_WALLETS, BREAK_ROUTE)
-
-
-BRIDGE_NAMES = ['bridge_rhino', 'bridge_layerswap', 'bridge_orbiter', 'bridge_across',
-                'bridge_native', 'withdraw_native_bridge', 'bridge_rhino_limiter', 'bridge_layerswap_limiter',
-                'bridge_orbiter_limiter', 'bridge_across_limiter']
 
 
 class Runner(Logger):
@@ -187,6 +182,7 @@ class Runner(Logger):
                 account_name, private_key = accounts_data
                 await route_generator.get_smart_route(str(account_name))
         except Exception as error:
+            traceback.print_exc()
             raise SoftwareException(f"Can`t generate smart route. Error: {error}")
 
     async def change_ip_proxy(self):
@@ -253,9 +249,7 @@ class Runner(Logger):
             parallel_mode: bool = False):
         message_list, result_list, used_modules, route_paths, break_flag, module_counter = [], [], [], [], False, 0
         try:
-            route_data = self.load_routes().get(str(account_name), {}).get('route')
-            if not route_data:
-                raise SoftwareException(f"No route available")
+            route_data = self.load_routes().get(str(account_name), {}).get('route', [])
 
             if GLOBAL_NETWORK == 0:
                 route_paths = [i.split()[2].split('-') for i in route_data]
@@ -275,7 +269,7 @@ class Runner(Logger):
 
             if current_step >= len(route_modules):
                 self.logger_msg(
-                    account_name, None, f"All modules in the route were completed", type_msg='warning')
+                    account_name, None, f"All modules were completed", type_msg='warning')
                 return
 
             while current_step < len(route_modules):
@@ -291,13 +285,9 @@ class Runner(Logger):
                 self.logger_msg(account_name, None, f"🚀 Launch module: {module_info[module_func][2]}\n")
 
                 module_input_data = [account_name, private_key, network, proxy]
-                if route_modules[current_step][0] in BRIDGE_NAMES:
-                    module_input_data.append({"stark_key": private_key,
-                                              "evm_key": PRIVATE_KEYS_EVM[PRIVATE_KEYS.index(private_key)]
-                                              if GLOBAL_NETWORK == 9 else private_key})
-
                 if GLOBAL_NETWORK == 0:
                     module_input_data.extend([int(i) for i in route_paths[current_step]])
+
                 try:
                     result = await module_func(*module_input_data)
                 except Exception as error:

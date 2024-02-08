@@ -9,7 +9,7 @@ from questionary import Choice, select
 from modules.interfaces import SoftwareException
 from utils.modules_runner import Runner
 from utils.route_generator import RouteGenerator
-from utils.tools import create_cex_withdrawal_list, drop_date, clean_stark_file, check_progress_file
+from utils.tools import create_cex_withdrawal_list, drop_date, check_progress_file
 
 
 def when():
@@ -57,7 +57,6 @@ def main():
             ).ask()
 
             runner = Runner()
-            clean_stark_file()
 
             if answer == 'check_proxy':
                 print()

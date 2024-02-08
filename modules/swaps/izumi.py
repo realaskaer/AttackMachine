@@ -20,13 +20,47 @@ class Izumi(DEX, Logger):
         self.router_contract = self.client.get_contract(IZUMI_CONTRACTS[self.network]['router'], IZUMI_ROUTER_ABI)
         self.quoter_contract = self.client.get_contract(IZUMI_CONTRACTS[self.network]['quoter'], IZUMI_QUOTER_ABI)
 
-    @staticmethod
-    def get_path(from_token_address: str, to_token_address: str, fee:int):
-        from_token_bytes = HexBytes(from_token_address).rjust(20, b'\0')
-        to_token_bytes = HexBytes(to_token_address).rjust(20, b'\0')
-        fee_bytes = fee.to_bytes(3, 'big')
+    def get_path(self, from_token_address: str, to_token_address: str, from_token_name:str, to_token_name:str):
 
-        return from_token_bytes + fee_bytes + to_token_bytes
+        pool_fee_info = {
+            'zkSync': {
+                "USDC/ETH": 2000,
+                "ETH/USDC": 2000,
+                "USDC/USDT": 400,
+                "USDT/USDC": 400
+            },
+            'Linea': {
+                "USDC/ETH": 3000,
+                "ETH/USDC": 3000,
+                "USDC/USDT": 500,
+                "USDT/USDC": 500
+            },
+            'Base': {
+                "USDC/ETH": 3000,
+                "ETH/USDC": 3000,
+            },
+            'Scroll': {
+                "USDC/ETH": 3000,
+                "ETH/USDC": 3000,
+                "USDC/USDT": 500,
+                "USDT/USDC": 500
+            }
+        }[self.client.network.name]
+
+        if 'USDT' not in [from_token_name, to_token_name]:
+            from_token_bytes = HexBytes(from_token_address).rjust(20, b'\0')
+            to_token_bytes = HexBytes(to_token_address).rjust(20, b'\0')
+            fee_bytes = pool_fee_info[f"{from_token_name}/{to_token_name}"].to_bytes(3, 'big')
+            return from_token_bytes + fee_bytes + to_token_bytes
+        else:
+            from_token_bytes = HexBytes(from_token_address).rjust(20, b'\0')
+            index_1 = f'{from_token_name}/USDC'
+            fee_bytes_1 = pool_fee_info[index_1].to_bytes(3, 'big')
+            middle_token_bytes = HexBytes(TOKENS_PER_CHAIN[self.network]['USDC']).rjust(20, b'\0')
+            index_2 = f'USDC/{to_token_name}'
+            fee_bytes_2 = pool_fee_info[index_2].to_bytes(3, 'big')
+            to_token_bytes = HexBytes(to_token_address).rjust(20, b'\0')
+            return from_token_bytes + fee_bytes_1 + middle_token_bytes + fee_bytes_2 + to_token_bytes
 
     async def get_min_amount_out(self, path: bytes, amount_in_wei: int):
         min_amount_out, _ = await self.quoter_contract.functions.swapAmount(
@@ -35,16 +69,6 @@ class Izumi(DEX, Logger):
         ).call()
 
         return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE))
-
-    async def get_pool_fee(self, from_token_address:str, to_token_address:str, fee:int = 400):
-        pool_address = await self.quoter_contract.functions.pool(
-            from_token_address,
-            to_token_address,
-            fee
-        ).call()
-        if pool_address != ZERO_ADDRESS:
-            return fee
-        return await self.get_pool_fee(from_token_address, to_token_address, fee=500)
 
     @helper
     @gas_checker
@@ -57,8 +81,7 @@ class Izumi(DEX, Logger):
                                                 TOKENS_PER_CHAIN[self.network][to_token_name])
 
         deadline = int(time()) + 1800
-        pool_fee = await self.get_pool_fee(from_token_address, to_token_address)
-        path = self.get_path(from_token_address, to_token_address, pool_fee)
+        path = self.get_path(from_token_address, to_token_address, from_token_name, to_token_name)
         min_amount_out = await self.get_min_amount_out(path, amount_in_wei)
 
         await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)

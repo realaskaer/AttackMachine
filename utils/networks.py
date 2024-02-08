@@ -21,17 +21,6 @@ class Network:
         return f'{self.name}'
 
 
-StarknetRPC = Network(
-    name='Starknet',
-    rpc=[
-        'https://starknet-mainnet.g.alchemy.com/v2/cUa595b4LBwHdDZ3uHSBZr7PS1NXgFCQ',
-    ],
-    chain_id=0,
-    eip1559_support=False,
-    token='ETH',
-    explorer='https://starkscan.co/',
-)
-
 zkSyncEraRPC = Network(
     name='zkSync',
     rpc=[
@@ -621,6 +610,18 @@ InEVM_RPC = Network(
     eip1559_support=False,
     token='INJ',
     explorer='https://inevm.calderaexplorer.xyz/'
+)
+
+
+RaribleRPC = Network(
+    name='Rarible',
+    rpc=[
+        ''
+    ],
+    chain_id=0,
+    eip1559_support=False,
+    token='',
+    explorer=''
 )
 
 # zkSyncLite = Network(

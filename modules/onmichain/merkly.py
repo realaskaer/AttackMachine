@@ -1,23 +1,24 @@
 import random
 
+from eth_typing import HexStr
 from web3.exceptions import Web3ValidationError
 
 from modules import Refuel, Logger
 from eth_abi import abi
 from decimal import Decimal
 
-from modules.interfaces import BlockchainException, SoftwareException, BlockchainExceptionWithoutRetry
-from settings import DST_CHAIN_MERKLY_REFUEL, DST_CHAIN_MERKLY_WORMHOLE, WORMHOLE_TOKENS_AMOUNT
+from modules.interfaces import BlockchainException, SoftwareException, BlockchainExceptionWithoutRetry, Minter
+from settings import DST_CHAIN_MERKLY_REFUEL, DST_CHAIN_MERKLY_WORMHOLE, WORMHOLE_TOKENS_AMOUNT, DST_CHAIN_MERKLY_NFT
 from utils.tools import gas_checker, helper, sleep
 from config import (
     MERKLY_CONTRACTS_PER_CHAINS,
     MERKLY_ABI,
     LAYERZERO_NETWORKS_DATA, MERKLY_NFT_WORMHOLE_INFO, MERKLY_WRAPPED_NETWORK,
-    MERKLY_TOKENS_WORMHOLE_INFO, LAYERZERO_WRAPED_NETWORKS
+    MERKLY_TOKENS_WORMHOLE_INFO, LAYERZERO_WRAPED_NETWORKS, ZERO_ADDRESS
 )
 
 
-class Merkly(Refuel, Logger):
+class Merkly(Refuel, Minter, Logger):
     def __init__(self, client):
         self.client = client
         Logger.__init__(self)
@@ -26,6 +27,17 @@ class Merkly(Refuel, Logger):
         tx_receipt = await self.client.w3.eth.get_transaction_receipt(tx_hash)
 
         return int((tx_receipt.logs[0].topics[3]).hex(), 16)
+
+    async def get_estimate_send_fee(self, contract, adapter_params, dst_chain_id, nft_id):
+        estimate_gas_bridge_fee = (await contract.functions.estimateSendFee(
+            dst_chain_id,
+            self.client.address,
+            nft_id,
+            False,
+            adapter_params
+        ).call())[0]
+
+        return estimate_gas_bridge_fee
 
     @helper
     @gas_checker
@@ -75,29 +87,23 @@ class Merkly(Refuel, Logger):
             if need_check:
                 return True
 
-            tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+            tx_result = await self.client.send_transaction(transaction, need_hash=True)
 
             result = True
-            if isinstance(tx_hash, bytes):
+            if isinstance(tx_result, bool):
+                result = tx_result
+            else:
                 if self.client.network.name != 'Polygon':
-                    result = await self.client.wait_for_l0_received(tx_hash)
-            elif isinstance(tx_hash, bool):
-                result = tx_hash
+                    result = await self.client.wait_for_l0_received(tx_result)
 
             if attack_data and attack_mode is False:
                 return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
             return result
 
-        except Web3ValidationError:
-            if not need_check:
-                raise BlockchainExceptionWithoutRetry(f'Problem to validate ABI function')
-
         except Exception as error:
             if not need_check:
                 raise BlockchainException(f'{error}')
 
-    @helper
-    @gas_checker
     async def mint(self, chain_id_from):
         onft_contract = self.client.get_contract(MERKLY_CONTRACTS_PER_CHAINS[chain_id_from]['ONFT'], MERKLY_ABI['ONFT'])
 
@@ -106,13 +112,79 @@ class Merkly(Refuel, Logger):
         self.logger_msg(
             *self.client.acc_info,
             msg=f"Mint Merkly NFT on {self.client.network.name}. "
-                f"Gas Price: {(mint_price / 10 ** 18):.5f} {self.client.network.token}")
+                f"Price: {(mint_price / 10 ** 18):.5f} {self.client.network.token}")
 
         tx_params = await self.client.prepare_transaction(value=mint_price)
 
         transaction = await onft_contract.functions.mint().build_transaction(tx_params)
 
         return await self.client.send_transaction(transaction)
+
+    @helper
+    @gas_checker
+    async def bridge(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False):
+        if not attack_mode and attack_data is None:
+            dst_chain = random.choice(DST_CHAIN_MERKLY_NFT)
+        else:
+            dst_chain = attack_data
+
+        onft_contract = self.client.get_contract(MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], MERKLY_ABI['ONFT'])
+        dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
+
+        nft_id = 1
+        if not need_check:
+            new_client = await self.client.new_client(chain_from_id)
+            await Merkly(new_client).mint(chain_from_id)
+            nft_id = await self.get_nft_id(onft_contract)
+            await sleep(self, 5, 10)
+
+            self.logger_msg(
+                *self.client.acc_info,
+                msg=f"Bridge L2Pass NFT from {self.client.network.name} to {dst_chain_name}. ID: {nft_id}")
+
+        version, gas_limit = 1, 200000
+
+        adapter_params = abi.encode(["uint16", "uint256"],
+                                    [version, gas_limit])
+
+        adapter_params = self.client.w3.to_hex(adapter_params[30:])
+
+        try:
+            send_price = await onft_contract.functions.sendPrice().call()
+
+            estimate_send_fee = await self.get_estimate_send_fee(onft_contract, adapter_params, dst_chain_id, nft_id)
+
+            tx_params = await self.client.prepare_transaction(value=int(estimate_send_fee + send_price))
+
+            transaction = await onft_contract.functions.sendFrom(
+                self.client.address,
+                dst_chain_id,
+                self.client.address,
+                nft_id,
+                self.client.address,
+                ZERO_ADDRESS,
+                adapter_params
+            ).build_transaction(tx_params)
+
+            if need_check:
+                return True
+
+            tx_result = await self.client.send_transaction(transaction, need_hash=True)
+
+            result = True
+            if isinstance(tx_result, bool):
+                result = tx_result
+            else:
+                if self.client.network.name != 'Polygon':
+                    result = await self.client.wait_for_l0_received(tx_result)
+
+            if attack_data and attack_mode is False:
+                return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+            return result
+
+        except Exception as error:
+            if not need_check:
+                raise BlockchainException(f'{error}')
 
     @helper
     @gas_checker

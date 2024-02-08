@@ -8,14 +8,7 @@ from datetime import datetime, timezone
 
 from modules.interfaces import SoftwareExceptionWithoutRetry
 from utils.tools import helper, sleep
-from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPED_ID
-from general_settings import GLOBAL_NETWORK
-from settings import (
-    OKX_WITHDRAW_NETWORK,
-    OKX_WITHDRAW_AMOUNT,
-    OKX_DEPOSIT_NETWORK,
-    OKX_DEPOSIT_AMOUNT
-)
+from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID
 
 
 class OKX(CEX, Logger):
@@ -53,22 +46,14 @@ class OKX(CEX, Logger):
         return await self.make_request(url=url, headers=headers, params=params, module_name='Token info')
 
     @helper
-    async def withdraw(self, want_balance:float = 0, multi_withdraw_data:dict = None):
-        if GLOBAL_NETWORK == 9:
-            await self.client.initialize_account(check_balance=True)
-
+    async def withdraw(self, want_balance:float = 0, withdraw_data:tuple = None):
         url = 'https://www.okx.cab/api/v5/asset/withdrawal'
 
-        if multi_withdraw_data is None:
-            network_id = OKX_WITHDRAW_NETWORK
-            amount = OKX_WITHDRAW_AMOUNT
-        else:
-            network_id = multi_withdraw_data['network']
-            amount = multi_withdraw_data['amount']
-
-        network_raw_name = OKX_NETWORKS_NAME[network_id]
+        network, amount = withdraw_data
+        network_raw_name = OKX_NETWORKS_NAME[network]
         ccy, network_name = network_raw_name.split('-')
-        dst_chain_id = CEX_WRAPED_ID[network_id]
+        dst_chain_id = CEX_WRAPPED_ID[network]
+
         withdraw_data = await self.get_currencies(ccy)
 
         network_data = {
@@ -86,7 +71,6 @@ class OKX(CEX, Logger):
             *self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name}")
 
         if network_data['can_withdraw']:
-            address = f"0x{hex(self.client.address)[2:]:0>64}" if network_id == 4 else self.client.address
             min_wd, max_wd = float(network_data['min_wd']), float(network_data['max_wd'])
 
             if min_wd <= amount <= max_wd:
@@ -95,14 +79,14 @@ class OKX(CEX, Logger):
                     "ccy": ccy,
                     "amt": amount,
                     "dest": "4",
-                    "toAddr": address,
+                    "toAddr": self.client.address,
                     "fee": network_data['min_fee'],
                     "chain": network_raw_name,
                 }
 
                 headers = await self.get_headers(method="POST", request_path=url, body=str(body))
 
-                ccy = f"{ccy}.e" if network_id in [31, 32] else ccy
+                ccy = f"{ccy}.e" if network in [30, 31] else ccy
 
                 old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
                                                                           check_balance_on_dst=True)
@@ -250,6 +234,9 @@ class OKX(CEX, Logger):
     async def wait_deposit_confirmation(self, amount:float, old_sub_balances:dict, ccy:str = 'ETH',
                                         check_time:int = 45, timeout:int = 1200):
 
+        if ccy == 'USDC.e':
+            ccy = 'USDC'
+
         self.logger_msg(*self.client.acc_info, msg=f"Start checking CEX balances")
 
         await asyncio.sleep(10)
@@ -270,11 +257,7 @@ class OKX(CEX, Logger):
         self.logger_msg(*self.client.acc_info, msg=f"Deposit does not complete in {timeout} seconds", type_msg='error')
 
     @helper
-    async def deposit(self, deposit_data:list = None):
-
-        if GLOBAL_NETWORK == 9:
-            await self.client.initialize_account()
-
+    async def deposit(self, deposit_data:tuple = None):
         try:
             with open('./data/services/cex_withdraw_list.json') as file:
                 from json import load
@@ -289,12 +272,7 @@ class OKX(CEX, Logger):
 
         info = f"{okx_wallet[:10]}....{okx_wallet[-6:]}"
 
-        if deposit_data:
-            deposit_network, deposit_amount = deposit_data
-        else:
-            deposit_network = OKX_DEPOSIT_NETWORK
-            deposit_amount = OKX_DEPOSIT_AMOUNT
-
+        deposit_network, deposit_amount = deposit_data
         network_raw_name = OKX_NETWORKS_NAME[deposit_network]
         ccy, network_name = network_raw_name.split('-')
         withdraw_data = await self.get_currencies(ccy)
@@ -303,7 +281,7 @@ class OKX(CEX, Logger):
                              for item in withdraw_data}
 
         network_data = networks_raw_data[network_raw_name]
-        ccy = f"{ccy}.e" if deposit_network in [31, 32] else ccy
+        ccy = f"{ccy}.e" if deposit_network in [30, 31] else ccy
         amount = await self.client.get_smart_amount(deposit_amount, token_name=ccy)
 
         self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to OKX wallet: {info}")
@@ -314,33 +292,21 @@ class OKX(CEX, Logger):
 
             if amount >= min_dep:
 
-                if self.client.network.name == 'Starknet':
-                    await self.client.initialize_account()
-                    amount_in_wei = int(amount * 10 ** 18)
-                    transaction = self.client.prepare_call(
-                        contract_address=TOKENS_PER_CHAIN['Starknet'][ccy],
-                        selector_name="transfer",
-                        calldata=[
-                            int(okx_wallet, 16),
-                            amount_in_wei, 0
-                        ]
-                    )
-                else:
-                    if ccy in ['USDT', 'USDC', 'USDC.e']:
-                        token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
-                        decimals = await self.client.get_decimals(ccy)
-                        amount_in_wei = int(amount * 10 ** decimals)
+                if ccy != self.client.token:
+                    token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
+                    decimals = await self.client.get_decimals(ccy)
+                    amount_in_wei = int(amount * 10 ** decimals)
 
-                        transaction = await token_contract.functions.transfer(
-                            self.client.w3.to_checksum_address(okx_wallet),
-                            amount_in_wei
-                        ).build_transaction(await self.client.prepare_transaction())
-                    else:
-                        amount_in_wei = int(amount * 10 ** 18)
-                        transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
-                            'to': self.client.w3.to_checksum_address(okx_wallet),
-                            'data': '0x'
-                        }
+                    transaction = await token_contract.functions.transfer(
+                        self.client.w3.to_checksum_address(okx_wallet),
+                        amount_in_wei
+                    ).build_transaction(await self.client.prepare_transaction())
+                else:
+                    amount_in_wei = int(amount * 10 ** 18)
+                    transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
+                        'to': self.client.w3.to_checksum_address(okx_wallet),
+                        'data': '0x'
+                    }
 
                 sub_balances = await self.get_cex_balances(ccy=ccy)
 

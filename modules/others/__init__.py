@@ -5,9 +5,6 @@ from .mailzelo import MailZero
 from .omnisea import Omnisea
 from .tevaera import Tevaera
 from .znsnameservice import ZkSyncNameService
-from .starknetid import StarknetId
-from .starkstars import StarkStars
 from .zkstars import ZkStars
 from .mintfun import MintFun
-from .cutsom_module import Custom
 from .grapedraw import GrapeDraw

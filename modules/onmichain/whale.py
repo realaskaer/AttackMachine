@@ -1,31 +1,31 @@
 import random
 
-from eth_typing import HexStr
-from modules.interfaces import BlockchainException, SoftwareException, Refuel
-from settings import DST_CHAIN_ZERIUS_NFT, DST_CHAIN_ZERIUS_REFUEL
-from config import (ZERIUS_CONTRACT_PER_CHAINS, ZERIUS_ABI, ZERO_ADDRESS, LAYERZERO_NETWORKS_DATA,
-                    LAYERZERO_WRAPED_NETWORKS)
+from eth_abi import abi
 from utils.tools import sleep, helper, gas_checker
-from eth_abi import encode
-from modules import Minter, Logger, Client
+from eth_typing import HexStr
+from modules import Refuel, Logger, RequestClient
+from modules.interfaces import BlockchainException, SoftwareException
+from settings import (
+    DST_CHAIN_WHALE_NFT,
+    DST_CHAIN_WHALE_REFUEL,
+)
+from config import (
+    WHALE_CONTRACTS_PER_CHAINS,
+    WHALE_ABI,
+    LAYERZERO_NETWORKS_DATA,
+    LAYERZERO_WRAPED_NETWORKS,
+    ZERO_ADDRESS
+)
 
 
-class Zerius(Refuel, Minter, Logger):
-    def __init__(self, client: Client):
+class Whale(Refuel, Logger, RequestClient):
+    def __init__(self, client):
         self.client = client
         Logger.__init__(self)
+        RequestClient.__init__(self, client)
 
-    async def get_nft_id(self, contract):
-        balance_nft = await contract.functions.balanceOf(self.client.address).call()
-        nft_ids = []
-        for i in range(balance_nft):
-            nft_ids.append(await contract.functions.tokenOfOwnerByIndex(self.client.address, i).call())
-        if nft_ids:
-            return nft_ids[-1]
-        return False
-
-    async def get_estimate_send_fee(self, contract,  adapter_params, dst_chain_id, nft_id):
-        estimate_send_fee = (await contract.functions.estimateSendFee(
+    async def get_estimate_send_fee(self, contract, adapter_params, dst_chain_id, nft_id):
+        estimate_gas_bridge_fee = (await contract.functions.estimateSendFee(
             dst_chain_id,
             self.client.address,
             nft_id,
@@ -33,13 +33,43 @@ class Zerius(Refuel, Minter, Logger):
             adapter_params
         ).call())[0]
 
-        return estimate_send_fee
+        return estimate_gas_bridge_fee
+
+    async def get_nft_id(self):
+        url = 'https://whale-app.com/api/user/get-nft-ids'
+
+        chain_id = {
+            'Arbitrum Nova': 42170,
+            'BNB Chain':  56,
+            'Polygon':  137,
+            'Arbitrum':  42161,
+            'Scroll':  534352,
+            'zkSync':  324,
+            'Optimism':  10,
+            'Linea':  59144,
+            'Base':  8453,
+            'Moonbeam':  1284,
+            'Avalanche':  43114,
+            'Fantom':  250,
+            'Gnosis':  100,
+        }.get(self.client.network.name, 0)
+
+        payload = {
+            'address': self.client.address,
+            'chainId': chain_id
+        }
+
+        response = await self.make_request(method='POST', url=url, json=payload)
+
+        if response:
+            return int(random.choice(list(response)))
+        return False
 
     @helper
     @gas_checker
     async def refuel(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False):
         if not attack_mode and attack_data is None:
-            dst_data = random.choice(list(DST_CHAIN_ZERIUS_REFUEL.items()))
+            dst_data = random.choice(list(DST_CHAIN_WHALE_REFUEL.items()))
         else:
             dst_data = random.choice(list(attack_data.items()))
 
@@ -48,21 +78,22 @@ class Zerius(Refuel, Minter, Logger):
 
         if not need_check:
             refuel_info = f'{dst_amount} {dst_native_name} to {dst_chain_name} from {self.client.network.name}'
-            self.logger_msg(*self.client.acc_info, msg=f'Refuel on Zerius: {refuel_info}')
+            self.logger_msg(*self.client.acc_info, msg=f'Refuel on Whale: {refuel_info}')
 
-        l2pass_contracts = ZERIUS_CONTRACT_PER_CHAINS[chain_from_id]
-        refuel_contract = self.client.get_contract(l2pass_contracts['refuel'], ZERIUS_ABI['refuel'])
+        whale_contracts = WHALE_CONTRACTS_PER_CHAINS[chain_from_id]
+
+        refuel_contract = self.client.get_contract(whale_contracts['refuel'], WHALE_ABI['refuel'])
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
-        dst_contract_address = ZERIUS_CONTRACT_PER_CHAINS[LAYERZERO_WRAPED_NETWORKS[dst_data[0]]]['refuel']
+        dst_contract_address = WHALE_CONTRACTS_PER_CHAINS[LAYERZERO_WRAPED_NETWORKS[dst_data[0]]]['refuel']
 
         gas_limit = await refuel_contract.functions.minDstGasLookup(dst_chain_id, 0).call()
 
         if gas_limit == 0 and not need_check:
             raise SoftwareException('This refuel path is not active!')
 
-        adapter_params = encode(["uint16", "uint64", "uint256"],
-                                [2, gas_limit, dst_native_gas_amount])
+        adapter_params = abi.encode(["uint16", "uint64", "uint256"],
+                                    [2, gas_limit, dst_native_gas_amount])
 
         adapter_params = self.client.w3.to_hex(adapter_params[30:]) + self.client.address[2:].lower()
 
@@ -73,13 +104,11 @@ class Zerius(Refuel, Minter, Logger):
                 adapter_params
             ).call())[0]
 
-            tx_params = await self.client.prepare_transaction(value=estimate_send_fee)
-
-            transaction = await refuel_contract.functions.refuel(
+            transaction = await refuel_contract.functions.bridgeGas(
                 dst_chain_id,
-                dst_contract_address,
+                self.client.address,
                 adapter_params
-            ).build_transaction(tx_params)
+            ).build_transaction(await self.client.prepare_transaction(value=estimate_send_fee))
 
             if need_check:
                 return True
@@ -101,60 +130,58 @@ class Zerius(Refuel, Minter, Logger):
             if not need_check:
                 raise BlockchainException(f'{error}')
 
-    async def mint(self, chain_from_id):
-        onft_contract = self.client.get_contract(ZERIUS_CONTRACT_PER_CHAINS[chain_from_id]['ONFT'], ZERIUS_ABI['ONFT'])
+    async def mint(self, chain_id_from):
+        onft_contract = self.client.get_contract(WHALE_CONTRACTS_PER_CHAINS[chain_id_from]['ONFT'], WHALE_ABI['ONFT'])
 
-        mint_price = await onft_contract.functions.mintFee().call()
+        mint_price = await onft_contract.functions.fee().call()
 
         self.logger_msg(
-            *self.client.acc_info, msg=f"Mint Zerius NFT on {self.client.network.name}. "
-                                       f"Mint Price: {(mint_price / 10 ** 18):.5f} {self.client.network.token}")
+            *self.client.acc_info,
+            msg=f"Mint Whale NFT on {self.client.network.name}. "
+                f"Gas Price: {(mint_price / 10 ** 18):.5f} {self.client.network.token}")
 
         tx_params = await self.client.prepare_transaction(value=mint_price)
 
-        transaction = await onft_contract.functions.mint(
-            '0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5'
-        ).build_transaction(tx_params)
+        transaction = await onft_contract.functions.mint().build_transaction(tx_params)
 
         return await self.client.send_transaction(transaction)
 
     @helper
     @gas_checker
     async def bridge(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False):
+
         if not attack_mode and attack_data is None:
-            dst_chain = random.choice(DST_CHAIN_ZERIUS_NFT)
+            dst_chain = random.choice(DST_CHAIN_WHALE_NFT)
         else:
             dst_chain = attack_data
 
-        onft_contract = self.client.get_contract(ZERIUS_CONTRACT_PER_CHAINS[chain_from_id]['ONFT'], ZERIUS_ABI['ONFT'])
-
+        onft_contract = self.client.get_contract(WHALE_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], WHALE_ABI['ONFT'])
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
 
         nft_id = 1
         if not need_check:
-            nft_id = await self.get_nft_id(onft_contract)
-
+            nft_id = await self.get_nft_id()
             if not nft_id:
                 new_client = await self.client.new_client(chain_from_id)
-                await Zerius(new_client).mint(chain_from_id)
-                nft_id = await self.get_nft_id(onft_contract)
+                await Whale(new_client).mint(chain_from_id)
+                nft_id = await self.get_nft_id()
                 await sleep(self, 5, 10)
 
             self.logger_msg(
                 *self.client.acc_info,
-                msg=f"Bridge Zerius NFT from {self.client.network.name} to {dst_chain_name}. ID: {nft_id}")
-        try:
-            version, gas_limit = 1, await onft_contract.functions.minDstGasLookup(dst_chain_id, 1).call()
+                msg=f"Bridge Whale NFT from {self.client.network.name} to {dst_chain_name}. ID: {nft_id}")
 
-            adapter_params = encode(["uint16", "uint256"],
-                                    [version, gas_limit])
+        try:
+            version, gas_limit = 1, 200000
+
+            adapter_params = abi.encode(["uint16", "uint256"],
+                                        [version, gas_limit])
 
             adapter_params = self.client.w3.to_hex(adapter_params[30:])
 
-            base_bridge_fee = await onft_contract.functions.bridgeFee().call()
             estimate_send_fee = await self.get_estimate_send_fee(onft_contract, adapter_params, dst_chain_id, nft_id)
 
-            tx_params = await self.client.prepare_transaction(value=estimate_send_fee + base_bridge_fee)
+            tx_params = await self.client.prepare_transaction(value=estimate_send_fee)
 
             transaction = await onft_contract.functions.sendFrom(
                 self.client.address,

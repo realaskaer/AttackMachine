@@ -5,14 +5,13 @@ import base64
 import random
 import asyncio
 
-from config import TOKENS_PER_CHAIN
-from modules import Bridge, Logger
+from config import RHINO_ABI
+from modules import Bridge, Logger, Client
 from datetime import datetime, timezone
 
-from general_settings import GLOBAL_NETWORK
-from modules.interfaces import BridgeExceptionWithoutRetry
+from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, sleep
-from eth_account.messages import encode_defunct
+from eth_account.messages import encode_defunct, encode_structured_data
 from utils.stark_signature.stark_singature import sign, pedersen_hash, EC_ORDER, private_to_stark_key
 from utils.stark_signature.eth_coder import encrypt_with_public_key, decrypt_with_private_key, get_public_key
 
@@ -40,13 +39,11 @@ REGISTER_DATA = {
 
 
 class Rhino(Bridge, Logger):
-    def __init__(self, client):
+    def __init__(self, client: Client):
         self.client = client
         Logger.__init__(self)
         Bridge.__init__(self, client)
-
         self.nonce, self.signature = None, None
-        self.evm_client = None
 
     def get_authentication_data(self):
         date = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S")
@@ -58,10 +55,10 @@ class Rhino(Bridge, Logger):
         nonse_str = f"v3-{nonce}"
         text_hex = "0x" + text.encode('utf-8').hex()
         text_encoded = encode_defunct(hexstr=text_hex)
-        signature = self.evm_client.w3.eth.account.sign_message(text_encoded,
-                                                                private_key=self.evm_client.private_key).signature
+        signature = self.client.w3.eth.account.sign_message(text_encoded,
+                                                            private_key=self.client.private_key).signature
 
-        return nonse_str, self.evm_client.w3.to_hex(signature)
+        return nonse_str, self.client.w3.to_hex(signature)
 
     def make_headers(self):
         data_to_headers = f'{{"signature":"{self.signature}","nonce":"{self.nonce}"}}'
@@ -93,10 +90,11 @@ class Rhino(Bridge, Logger):
     def create_dtk(self):
         dtk = os.urandom(32).hex()
 
-        sing_data = self.evm_client.w3.eth.account.sign_typed_data(self.evm_client.private_key,
-                                                                   full_message=REGISTER_DATA).signature
+        text_encoded = encode_structured_data(REGISTER_DATA)
+        sing_data = self.client.w3.eth.account.sign_message(text_encoded,
+                                                            private_key=self.client.private_key).signature
 
-        encryption_key = self.evm_client.w3.keccak(f"{sing_data.hex()}".encode('utf-8'))
+        encryption_key = self.client.w3.keccak(f"{sing_data.hex()}".encode('utf-8'))
 
         public_key = get_public_key(encryption_key).hex()
 
@@ -121,14 +119,14 @@ class Rhino(Bridge, Logger):
                 self.logger_msg(*self.client.acc_info, msg=f"Get bad API data", type_msg='warning')
                 await asyncio.sleep(5)
 
-    async def get_vault_id(self):
+    async def get_vault_id(self, token_name):
 
         url = "https://api.rhino.fi/v1/trading/r/getVaultId"
 
         data = {
             'nonce': self.nonce,
             'signature': self.signature,
-            'token': 'ETH'
+            'token': token_name
         }
 
         return await self.make_request(method='POST', url=url, headers=self.headers, json=data)
@@ -167,7 +165,7 @@ class Rhino(Bridge, Logger):
             "nonce": self.nonce,
             "signature": self.signature,
             "meta": {
-                "ethAddress": self.evm_client.address,
+                "ethAddress": self.client.address,
             }
         }
 
@@ -175,33 +173,34 @@ class Rhino(Bridge, Logger):
 
     async def recover_dtk(self):
         encrypted_trading_key = (await self.recover_trading_key())['encryptedTradingKey']
-        sing_data = self.evm_client.w3.eth.account.sign_typed_data(self.evm_client.private_key,
-                                                                   full_message=REGISTER_DATA).signature
-        encryption_private_key = self.evm_client.w3.keccak(f"{sing_data.hex()}".encode('utf-8')).hex()
+        text_encoded = encode_structured_data(REGISTER_DATA)
+        sing_data = self.client.w3.eth.account.sign_message(text_encoded,
+                                                            private_key=self.client.private_key).signature
+        encryption_private_key = self.client.w3.keccak(f"{sing_data.hex()}".encode('utf-8')).hex()
 
         dtk = decrypt_with_private_key(encryption_private_key, encrypted_trading_key)
 
         return json.loads(dtk)['data']
 
-    async def get_vault_id_and_stark_key(self, deversifi_address):
+    async def get_vault_id_and_stark_key(self, token_name, deversifi_address):
 
         url = "https://api.rhino.fi/v1/trading/r/vaultIdAndStarkKey"
 
         headers = self.make_headers()
 
         params = {
-            "token": 'ETH',
+            "token": token_name,
             "targetEthAddress": deversifi_address,
         }
 
         return await self.make_request(method="GET", url=url, headers=headers, params=params)
 
-    async def get_user_balance(self):
+    async def get_user_balance(self, token_name:str = 'ETH'):
 
         data = {
             "nonce": self.nonce,
             "signature": self.signature,
-            "token": "ETH",
+            "token": token_name,
             "fields": [
                 "balance",
                 "available",
@@ -236,39 +235,39 @@ class Rhino(Bridge, Logger):
         return hex(tx_signature[0]), hex(tx_signature[1])
 
     @gas_checker
-    async def deposit_to_rhino(self, amount, source_chain_info, chain_from_name:str, chain_to_name, private_keys):
-        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} ETH from {chain_from_name.capitalize()} to Rhino")
+    async def deposit_to_rhino(self, amount, token_name, token_address, source_chain_info: dict):
+        self.logger_msg(
+            *self.client.acc_info, msg=f"Deposit {amount} {token_name} from {self.client.network.name} to Rhino")
 
         if source_chain_info['enabled']:
-            source_chain_address = source_chain_info['contractAddress']
-            amount_in_wei = int(amount * 10 ** 18)
+            source_chain_address = self.client.w3.to_checksum_address(source_chain_info['contractAddress'])
 
-            if chain_from_name == 'STARKNET' and chain_to_name != 'STARKNET':
-                approve_call = self.client.get_approve_call(TOKENS_PER_CHAIN['Starknet']['ETH'],
-                                                            int(source_chain_info['contractAddress'], 16),
-                                                            amount_in_wei)
+            if token_name != self.client.token:
+                amount_in_wei = int(amount * 10 ** (await self.client.get_decimals(token_name=token_name)))
+                await self.client.check_for_approved(token_address, source_chain_address, amount_in_wei)
+                contract = self.client.get_contract(source_chain_address, RHINO_ABI['router'])
 
-                rhino_contract = await self.client.get_contract(int(source_chain_info['contractAddress'], 16))
-                deposit_call = rhino_contract.functions['deposit'].prepare(
-                    TOKENS_PER_CHAIN['Starknet']['ETH'],
-                    amount_in_wei,
-                    int(await self.get_address_for_bridge(private_keys['evm_key'], stark_key_type=False), 16)
-                )
+                transaction = await contract.functions.deposit(
+                    token_address,
+                    amount_in_wei
+                ).build_transaction(await self.client.prepare_transaction())
 
-                transaction = approve_call, deposit_call
             else:
-                transaction = [await self.client.prepare_transaction(value=amount_in_wei) | {
+                amount_in_wei = int(amount * 10 ** 18)
+                transaction = await self.client.prepare_transaction(value=amount_in_wei) | {
                     'data': "0xdb6b5246",
-                    'to': self.client.w3.to_checksum_address(source_chain_address)
-                }]
+                    'to': source_chain_address
+                }
 
-            await self.client.send_transaction(*transaction)
+            return await self.client.send_transaction(transaction)
 
-    async def withdraw_from_rhino(self, rhino_user_config, amount, chain_to_name, dst_address):
+        raise SoftwareException(f"Deposit from {self.client.network.name} is not active!")
 
+    async def withdraw_from_rhino(self, rhino_user_config, amount, token_name, chain_to_name):
+        decimals = await self.client.get_decimals(token_name) if token_name != 'ETH' else 8
         while True:
             await asyncio.sleep(4)
-            if int(amount * 10 ** 8) <= int(await self.get_user_balance()):
+            if int(amount * 10 ** decimals) <= int(await self.get_user_balance(token_name)):
                 self.logger_msg(*self.client.acc_info, msg=f"Funds have been received to Rhino", type_msg='success')
                 break
             self.logger_msg(
@@ -277,21 +276,22 @@ class Rhino(Bridge, Logger):
             await sleep(self, 90, 120)
 
         chain_name_log = chain_to_name.capitalize()
-        self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount} ETH from Rhino to {chain_name_log}")
+        self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount} {token_name} from Rhino to {chain_name_log}")
 
         url = "https://api.rhino.fi/v1/trading/bridgedWithdrawals"
 
         deversifi_address = rhino_user_config["DVF"]['deversifiAddress']
-        receiver_vault_id, receiver_public_key = (await self.get_vault_id_and_stark_key(deversifi_address)).values()
+        receiver_data = (await self.get_vault_id_and_stark_key(token_name, deversifi_address)).values()
+        receiver_vault_id, receiver_public_key = receiver_data
 
         sender_public_key = rhino_user_config['starkKeyHex']
-        sender_vault_id = await self.get_vault_id()
-        token_address = rhino_user_config['tokenRegistry']['ETH']['starkTokenId']
+        sender_vault_id = await self.get_vault_id(token_name)
+        token_address = rhino_user_config['tokenRegistry'][token_name]['starkTokenId']
 
         expiration_timestamp = int(time.time() / 3600) + 4320
         payload_nonce = random.randint(1, 2**53 - 1)
         tx_nonce = random.randint(1, 2**31 - 1)
-        amount_in_wei = int(amount * 10 ** 8)
+        amount_in_wei = int(amount * 10 ** decimals)
 
         r_signature, s_signature = await self.get_stark_signature(amount_in_wei, expiration_timestamp, tx_nonce,
                                                                   receiver_public_key,receiver_vault_id,
@@ -301,7 +301,7 @@ class Rhino(Bridge, Logger):
 
         payload = {
             "chain": chain_to_name,
-            "token": "ETH",
+            "token": token_name,
             "amount": f"{amount_in_wei}",
             "tx": {
                 "amount": amount_in_wei,
@@ -319,76 +319,41 @@ class Rhino(Bridge, Logger):
                 "expirationTimestamp": expiration_timestamp
             },
             "nonce": payload_nonce,
-            "recipientEthAddress": dst_address,
+            "recipientEthAddress": self.client.address,
             "isBridge": False,
         }
 
         await self.make_request(method='POST', url=url, headers=headers, json=payload)
-        note = 'Wait 1-2 minutes for the withdrawal complete'
-        self.logger_msg(
-            *self.client.acc_info, msg=f"Withdraw from Rhino to {chain_name_log} complete. {note}", type_msg='success')
-        await sleep(self, 60, 120)
 
-    async def bridge(
-            self, chain_from_id:int, private_keys:dict = None, bridge_data:tuple = None, need_fee:bool = False
-    ):
-        try:
-            if GLOBAL_NETWORK == 9 and chain_from_id == 9:
-                await self.client.initialize_account()
-            if GLOBAL_NETWORK == 9:
-                await self.client.initialize_account()
-                self.evm_client = await self.client.initialize_evm_client(private_keys['evm_key'], chain_from_id)
-            if GLOBAL_NETWORK != 9:
-                self.evm_client = self.client
+    async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
+        from_chain, to_chain, amount, to_chain_id, token_name, from_token_address, to_token_address = bridge_data
 
-            if bridge_data:
-                chain_from_name, chain_to_name, amount, to_chain_id = bridge_data
-            else:
-                (chain_from_name, chain_to_name,
-                 amount, to_chain_id) = await self.client.get_bridge_data(chain_from_id, 'Rhino')
+        if need_check:
+            return round(float(amount + 0.00066 if token_name == 'ETH' else 1.5), 6)
 
-            if need_fee:
-                return round(float(amount + 0.00066), 5)
+        self.nonce, self.signature = self.get_authentication_data()
+        self.logger_msg(*self.client.acc_info, msg=f"Check previous registration on Rhino")
 
-            self.nonce, self.signature = self.get_authentication_data()
-            self.logger_msg(*self.client.acc_info, msg=f"Check previous registration on Rhino")
+        rhino_user_config = await self.get_user_config()
 
+        if not rhino_user_config['isRegistered']:
+            self.logger_msg(*self.client.acc_info, msg=f"New user on Rhino, make registration")
+            await self.reg_new_acc()
+
+            self.logger_msg(*self.client.acc_info, msg=f"Successfully registered on Rhino", type_msg='success')
             rhino_user_config = await self.get_user_config()
+        else:
 
-            if not rhino_user_config['isRegistered']:
-                self.logger_msg(*self.client.acc_info, msg=f"New user on Rhino, make registration")
-                await self.reg_new_acc()
+            self.logger_msg(*self.client.acc_info, msg=f"Already registered on Rhino", type_msg='success')
 
-                self.logger_msg(*self.client.acc_info, msg=f"Successfully registered on Rhino", type_msg='success')
-                rhino_user_config = await self.get_user_config()
-            else:
+        source_chain_info = rhino_user_config['DVF']['bridgeConfigPerChain'][from_chain]
 
-                self.logger_msg(*self.client.acc_info, msg=f"Already registered on Rhino", type_msg='success')
+        old_balance_on_dst = await self.client.wait_for_receiving(
+            to_chain_id, check_balance_on_dst=True, token_address=to_token_address
+        )
 
-            _, balance, _ = await self.client.get_token_balance()
+        await self.deposit_to_rhino(amount, token_name, from_token_address, source_chain_info)
 
-            if amount < balance:
+        await self.withdraw_from_rhino(rhino_user_config, amount, token_name, to_chain)
 
-                source_chain_info = rhino_user_config['DVF']['bridgeConfigPerChain'][chain_from_name]
-
-                old_balance_on_dst = await self.client.wait_for_receiving(to_chain_id, check_balance_on_dst=True)
-
-                await self.deposit_to_rhino(amount, source_chain_info, chain_from_name, chain_to_name, private_keys)
-
-                dst_address = await self.get_address_for_bridge(private_keys['evm_key'], False)
-                if chain_to_name == 'STARKNET':
-                    dst_address = await self.get_address_for_bridge(private_keys['stark_key'], True)
-
-                await self.withdraw_from_rhino(rhino_user_config, amount, chain_to_name, dst_address)
-
-                await self.client.wait_for_receiving(to_chain_id, old_balance_on_dst)
-
-                return True
-            else:
-                self.logger_msg(
-                    *self.client.acc_info, msg=f"Insufficient balance in {self.client.network.name}", type_msg='error')
-        except Exception as error:
-            raise BridgeExceptionWithoutRetry(f"Rhino error: {error}")
-        finally:
-            await self.client.session.close()
-            await self.evm_client.session.close()
+        return await self.client.wait_for_receiving(to_chain_id, old_balance_on_dst, token_address=to_token_address)
