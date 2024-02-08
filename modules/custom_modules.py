@@ -572,13 +572,14 @@ class Custom(Logger, RequestClient):
 
                             return await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
 
-                        info = f"{min_wanted_amount:.5f}$ <= {balance - amount:.5f}$ <= {max_wanted_amount:.5f}$"
+                        hold_amount_in_usd = balance_in_usd - dep_amount_in_usd
+                        info = f"{min_wanted_amount:.2f}$ <= {hold_amount_in_usd:.2f}$ <= {max_wanted_amount:.2f}$"
                         raise SoftwareExceptionWithoutRetry(f'Account balance will be not in wanted hold amount: {info}')
 
-                    info = f"{balance:.5f}$ < {amount:.5f}$"
+                    info = f"{balance_in_usd:.2f}$ < {dep_amount_in_usd:.2f}$"
                     raise SoftwareExceptionWithoutRetry(f'Account {dep_token} balance < wanted deposit amount: {info}')
 
-                info = f"{balance:.5f}$ < {limit_amount:.5f}$"
+                info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
                 raise SoftwareExceptionWithoutRetry(f'Account {dep_token} balance < wanted limit amount: {info}')
         finally:
             await client.session.close()
@@ -638,14 +639,14 @@ class Custom(Logger, RequestClient):
 
                         return await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data)
 
-                    info = (f"{min_wanted_amount:.5f} {token_name} <= {balance - bridge_amount:.5f}"
-                            f" {token_name} <= {max_wanted_amount:.5f} {token_name}")
+                    hold_amount_in_usd = balance_in_usd - bridge_amount_in_usd
+                    info = f"{min_wanted_amount:.2f}$ <= {hold_amount_in_usd:.2f}$ <= {max_wanted_amount:.2f}$"
                     raise SoftwareExceptionWithoutRetry(f'Account balance will be not in wanted hold amount: {info}')
 
-                info = f"{balance:.5f} {token_name} < {bridge_amount:.5f} {token_name}"
-                raise SoftwareExceptionWithoutRetry(f'Account balance < wanted bridge amount: {info}')
+                info = f"{balance_in_usd:.2f}$ < {bridge_amount_in_usd:.2f}$"
+                raise SoftwareExceptionWithoutRetry(f'Account {token_name} balance < wanted bridge amount: {info}')
 
-            info = f"{balance:.5f} {token_name} < {limit_amount:.5f} {token_name}"
-            raise SoftwareExceptionWithoutRetry(f'Account balance < wanted limit amount: {info}')
+            info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
+            raise SoftwareExceptionWithoutRetry(f'Account {token_name} balance < wanted limit amount: {info}')
         finally:
             await client.session.close()
