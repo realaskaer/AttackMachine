@@ -192,7 +192,7 @@ def helper(func):
                         ContractLogicError) as err:
                     error = err
                     attempts += 1
-                    traceback.print_exc()
+
                     msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
                     if isinstance(error, asyncio.exceptions.TimeoutError):
                         error = 'Connection to RPC is not stable'
