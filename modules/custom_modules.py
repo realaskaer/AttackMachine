@@ -352,7 +352,7 @@ class Custom(Logger, RequestClient):
 
         self.logger_msg(
             *self.client.acc_info,
-            msg=f"Detected {balances[index][1]:5f} {tokens[index]} in {clients[index].network.name}",
+            msg=f"Detected {round(balances[index][1], 5)} {tokens[index]} in {clients[index].network.name}",
             type_msg='success')
 
         return clients[index], index, balances[index][1], balances_in_usd[index]
