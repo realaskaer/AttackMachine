@@ -268,7 +268,7 @@ DST_CHAIN_BUNGEE_REFUEL = {
 
 SRC_CHAIN_MERKLY_WORMHOLE = [6]   # Исходящая сеть для Merkly Wormhole
 DST_CHAIN_MERKLY_WORMHOLE = [21, 9, 28, 14]  # Входящая сеть для Merkly Wormhole
-WORMHOLE_TOKENS_AMOUNT = (8, 1)   # Кол-во токенов для минта и бриджа на Merkly через Wormhole
+WORMHOLE_TOKENS_AMOUNT = ((1, 5), 1)   # Кол-во токенов для минта и бриджа на Merkly через Wormhole
 
 '---------------------------------------------------Merkly Polyhedra---------------------------------------------------'
 
@@ -463,8 +463,8 @@ HELPERS_CONFIG = {
     
 ---------------------------------------------------WORMHOLE-------------------------------------------------------------            
 
-    mint_and_bridge_wormhole_nft     # минт и бридж NFT на Merkly через Wormhole 
-    mint_and_bridge_wormhole_token   # минт и бридж токенов на Merkly через Wormhole 
+    bridge_wormhole_nft     # минт и бридж NFT на Merkly через Wormhole 
+    bridge_wormhole_token   # минт и бридж токенов на Merkly через Wormhole 
     
 ----------------------------------------------------ZKSYNC--------------------------------------------------------------        
 

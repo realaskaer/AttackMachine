@@ -291,7 +291,7 @@ class Merkly(Refuel, Minter, Logger):
             transaction = await oft_contract.functions.bridge(
                 wormhole_id,
                 woft_contract,
-                tokens_amount_bridge,
+                int(tokens_amount_bridge * 10 ** 18),
                 0,
                 200000,
                 wormhole_id,

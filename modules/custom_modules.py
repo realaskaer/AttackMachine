@@ -527,7 +527,7 @@ class Custom(Logger, RequestClient):
                             tokens_amount_bridge = random.choice(tokens_amount_bridge)
                         if isinstance(tokens_amount_mint, tuple):
                             tokens_amount_mint = random.choice(tokens_amount_mint)
-                            
+
                         attack_data = tokens_amount_bridge, tokens_amount_mint, dst_data
 
                     action_flag = await omnichain_util(
