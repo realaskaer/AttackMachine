@@ -118,10 +118,8 @@ class Merkly(Refuel, Minter, Logger):
     @helper
     @gas_checker
     async def bridge(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False):
-        dst_chain = attack_data
-
         onft_contract = self.client.get_contract(MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], MERKLY_ABI['ONFT'])
-        dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
+        dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[attack_data]
 
         nft_id = 1
         if not need_check:
@@ -181,15 +179,14 @@ class Merkly(Refuel, Minter, Logger):
     @helper
     @gas_checker
     async def wnft_bridge(
-            self, chain_from_id, _, attack_data: dict = None, need_check:bool = False
+            self, chain_from_id, attack_mode:bool = False, attack_data: int = None, need_check:bool = False
     ):
 
         onft_contract = self.client.get_contract(
             MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['WNFT'], MERKLY_ABI['WNFT'])
 
-        dst_chain = attack_data
         _, _, mint_price, _ = MERKLY_NFT_WORMHOLE_INFO[chain_from_id]
-        dst_chain_name, wnft_contract, _, wormhole_id = MERKLY_NFT_WORMHOLE_INFO[MERKLY_WRAPPED_NETWORK[dst_chain]]
+        dst_chain_name, wnft_contract, _, wormhole_id = MERKLY_NFT_WORMHOLE_INFO[MERKLY_WRAPPED_NETWORK[attack_data]]
 
         estimate_fee = (await onft_contract.functions.quoteBridge(
             wormhole_id,
@@ -244,14 +241,13 @@ class Merkly(Refuel, Minter, Logger):
     @helper
     @gas_checker
     async def wt_bridge(
-            self, chain_from_id, _, attack_data: dict = None, need_check:bool = False
+            self, chain_from_id, attack_mode:bool = False, attack_data: tuple = None, need_check:bool = False
     ):
-        tokens_amount_bridge, tokens_amount_mint = attack_data
+        tokens_amount_bridge, tokens_amount_mint, dst_chain = attack_data
 
         oft_contract = self.client.get_contract(
             MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['WOFT'], MERKLY_ABI['WOFT'])
 
-        dst_chain = random.choice(DST_CHAIN_MERKLY_WORMHOLE)
         _, _, mint_price, _ = MERKLY_TOKENS_WORMHOLE_INFO[chain_from_id]
         dst_chain_name, woft_contract, _, wormhole_id = MERKLY_TOKENS_WORMHOLE_INFO[MERKLY_WRAPPED_NETWORK[dst_chain]]
 
@@ -262,9 +258,9 @@ class Merkly(Refuel, Minter, Logger):
         ).call())[0]
 
         if not need_check:
-            token_balance = await oft_contract.functions.balanceOf(self.client.address).call()
+            token_balance = round((await oft_contract.functions.balanceOf(self.client.address).call()) / 10 ** 18)
 
-            if token_balance > int(tokens_amount_bridge * 10 ** 18):
+            if token_balance > tokens_amount_bridge:
 
                 mint_price_in_wei = int((Decimal(f"{mint_price}") * 10 ** 18) * tokens_amount_mint)
 
@@ -314,7 +310,7 @@ class Merkly(Refuel, Minter, Logger):
     @helper
     @gas_checker
     async def pnft_bridge(
-            self, chain_from_id, _, attack_data: dict = None, need_check:bool = False
+            self, chain_from_id, attack_mode:bool = False, attack_data: dict = None, need_check:bool = False
     ):
         onft_contract = self.client.get_contract(
             MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['WNFT'], MERKLY_ABI['WNFT'])
@@ -367,7 +363,7 @@ class Merkly(Refuel, Minter, Logger):
     @helper
     @gas_checker
     async def p_refuel(
-            self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False
+            self, chain_from_id, attack_mode:bool = False, attack_data: dict = None, need_check:bool = False
     ):
         tokens_amount = WORMHOLE_TOKENS_AMOUNT
 
@@ -420,7 +416,7 @@ class Merkly(Refuel, Minter, Logger):
     @helper
     @gas_checker
     async def hnft_bridge(
-            self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False
+            self, chain_from_id, attack_mode:bool = False, attack_data: dict = None, need_check:bool = False
     ):
         tokens_amount = WORMHOLE_TOKENS_AMOUNT
 
@@ -473,7 +469,7 @@ class Merkly(Refuel, Minter, Logger):
     @helper
     @gas_checker
     async def ht_bridge(
-            self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False
+            self, chain_from_id, attack_mode:bool = False, attack_data: dict = None, need_check:bool = False
     ):
         tokens_amount = WORMHOLE_TOKENS_AMOUNT
 

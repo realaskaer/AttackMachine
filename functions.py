@@ -162,8 +162,9 @@ async def bridge_rhino(account_name, private_key, network, proxy):
 
 
 async def omnichain_util(
-        account_name, private_key, proxy, chain_from_id:int = 0, chain_to:int = 0, dapp_id:int = 0, dapp_mode:int = 0,
-        attack_mode:bool = False, google_module:bool = False, attack_data:dict | int = None, need_check:bool = False,
+        account_name, private_key, proxy, chain_from_id:int = 0, chain_to:int = 0, dapp_id:int = 0,
+        dapp_mode:int | str = 0, attack_mode:bool = False, google_module:bool = False, attack_data:dict | int = None,
+        need_check:bool = False,
 ):
 
     class_name, src_chain = {
@@ -190,12 +191,12 @@ async def omnichain_util(
         }[dapp_mode]
     else:
         func = {
-            3: worker.wnft_bridge,
-            4: worker.wt_bridge,
-            5: worker.pnft_bridge,
-            6: worker.p_refuel,
-            7: worker.hnft_bridge,
-            8: worker.ht_bridge,
+            'NFT bridge Wormhole': worker.wnft_bridge,
+            'token bridge Wormhole': worker.wt_bridge,
+            'NFT bridge Polyhedra': worker.pnft_bridge,
+            'refuel Polyhedra': worker.p_refuel,
+            'NFT bridge Hyperlane': worker.hnft_bridge,
+            'token bridge Hyperlane': worker.ht_bridge,
         }[dapp_mode]
 
     return await func(wrapped_chain_id, attack_mode=attack_mode, attack_data=attack_data, need_check=need_check)
@@ -327,12 +328,12 @@ async def refuel_zerius(account_name, private_key, network, proxy):
 
 async def bridge_wormhole_nft(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
-    return await worker.merkly_omnichain_util(dapp_id=1, dapp_mode=2)
+    return await worker.merkly_omnichain_util(dapp_mode=1, dapp_function=2)
 
 
 async def bridge_wormhole_token(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
-    return await worker.merkly_omnichain_util(dapp_id=1, dapp_mode=3)
+    return await worker.merkly_omnichain_util(dapp_mode=1, dapp_function=3)
 
 
 async def okx_withdraw(account_name, private_key, network, proxy):

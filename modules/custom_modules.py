@@ -490,37 +490,49 @@ class Custom(Logger, RequestClient):
         return result
 
     @helper
-    async def merkly_omnichain_util(self, dapp_id:int, dapp_mode:int):
+    async def merkly_omnichain_util(self, dapp_mode:int, dapp_function:int):
         from functions import omnichain_util
 
-        module_id, src_chains, dst_chains, token_amounts, refuel_data = {
-            1: (1, SRC_CHAIN_MERKLY_WORMHOLE, DST_CHAIN_MERKLY_WORMHOLE, WORMHOLE_TOKENS_AMOUNT, 0),
-            2: (2, SRC_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_POLYHEDRA, 0, DST_CHAIN_MERKLY_POLYHEDRA_REFUEL),
-            3: (3, SRC_CHAIN_MERKLY_HYPERLANE, DST_CHAIN_MERKLY_HYPERLANE, HYPERLANE_TOKENS_AMOUNT, 0),
+        module_name, src_chains, dst_chains, token_amounts, refuel_data = {
+            1: ('Wormhole', SRC_CHAIN_MERKLY_WORMHOLE, DST_CHAIN_MERKLY_WORMHOLE, WORMHOLE_TOKENS_AMOUNT, 0),
+            2: ('Polyhedra', SRC_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_POLYHEDRA, 0, DST_CHAIN_MERKLY_POLYHEDRA_REFUEL),
+            3: ('Hyperlane', SRC_CHAIN_MERKLY_HYPERLANE, DST_CHAIN_MERKLY_HYPERLANE, HYPERLANE_TOKENS_AMOUNT, 0),
         }[dapp_mode]
 
-        dst_datas, dst_amount, module_name = {
-            1: (list(refuel_data.items()), 0, 'refuel'),
-            2: (dst_chains, 0, 'NFT bridge'),
-            3: (dst_chains, token_amounts, 'tokens bridge')
-        }[dapp_mode]
+        dst_datas, module_func_name = {
+            1: (list(refuel_data.items()) if dapp_function == 1 else 0, 'refuel'),
+            2: (dst_chains, 'NFT bridge'),
+            3: (dst_chains, 'token bridge')
+        }[dapp_function]
 
         random.shuffle(src_chains)
         random.shuffle(dst_datas)
+        func_mode = f"{module_func_name} {module_name}"
 
         result = False
         action_flag = False
         for dst_data in dst_datas:
-            chain_id_to = LAYERZERO_WRAPED_NETWORKS[dst_data[0]]
+            chain_id_to = LAYERZERO_WRAPED_NETWORKS[dst_data]
             for src_chain in src_chains:
                 try:
-                    attack_data = {
-                        dst_data[0]: dst_data[1]
-                    } if dapp_mode == 1 else dst_data
+                    if dapp_function == 1:
+                        attack_data = {
+                            dst_data[0]: dst_data[1]
+                        }
+                    elif dapp_function == 2:
+                        attack_data = dst_datas
+                    else:
+                        tokens_amount_bridge, tokens_amount_mint = token_amounts
+                        if isinstance(tokens_amount_bridge, tuple):
+                            tokens_amount_bridge = random.choice(tokens_amount_bridge)
+                        if isinstance(tokens_amount_mint, tuple):
+                            tokens_amount_mint = random.choice(tokens_amount_mint)
+                            
+                        attack_data = tokens_amount_bridge, tokens_amount_mint, dst_data
 
                     action_flag = await omnichain_util(
                         self.client.account_name, self.client.private_key, self.client.proxy_init,
-                        chain_from_id=src_chain, dapp_id=module_id, dapp_mode=dapp_mode, attack_mode=True,
+                        chain_from_id=src_chain, dapp_id=2, dapp_mode=func_mode, attack_mode=True,
                         attack_data=attack_data, need_check=True
                     )
 
@@ -528,12 +540,12 @@ class Custom(Logger, RequestClient):
                         chain_id_from = LAYERZERO_WRAPED_NETWORKS[src_chain]
                         self.logger_msg(
                             *self.client.acc_info,
-                            msg=f"Detected funds to {module_name} {CHAIN_NAME[chain_id_to]} from {CHAIN_NAME[chain_id_from]}",
+                            msg=f"Detected funds to {module_func_name} {CHAIN_NAME[chain_id_to]} from {CHAIN_NAME[chain_id_from]}",
                             type_msg='success')
 
                         result = await omnichain_util(
                             self.client.account_name, self.client.private_key, self.client.proxy_init,
-                            chain_from_id=src_chain, dapp_id=module_id, dapp_mode=dapp_mode, attack_mode=True,
+                            chain_from_id=src_chain, dapp_id=2, dapp_mode=func_mode, attack_mode=True,
                             attack_data=attack_data
                         )
 
@@ -549,13 +561,13 @@ class Custom(Logger, RequestClient):
                 except Exception as error:
                     self.logger_msg(
                         *self.client.acc_info,
-                        msg=f"Exception during smart {module_name}: {error}", type_msg='warning'
+                        msg=f"Exception during smart {module_func_name}: {error}", type_msg='warning'
                     )
 
             if not result and ALL_DST_CHAINS:
                 self.logger_msg(
                     *self.client.acc_info,
-                    msg=f"Can`t {module_name} to {CHAIN_NAME[chain_id_to]} from those SRC networks\n",
+                    msg=f"Can`t {module_func_name} to {CHAIN_NAME[chain_id_to]} from those SRC networks\n",
                     type_msg='warning'
                 )
 
