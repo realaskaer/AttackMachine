@@ -107,7 +107,7 @@ class OKX(CEX, Logger):
     @helper
     async def transfer_from_subaccounts(self, ccy:str = 'ETH', amount_in_wei:int = None):
 
-        decimals = await self.client.get_decimals(token_name=ccy)
+        decimals = await self.client.get_decimals(token_name=ccy) if ccy != self.client.token else 18
         if ccy == 'USDC.e':
             ccy = 'USDC'
 
