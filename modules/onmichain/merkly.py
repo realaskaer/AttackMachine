@@ -1,14 +1,13 @@
 import random
 
 from eth_typing import HexStr
-from web3.exceptions import Web3ValidationError
 
-from modules import Refuel, Logger
+from modules import Refuel, Logger, Client
 from eth_abi import abi
 from decimal import Decimal
 
-from modules.interfaces import BlockchainException, SoftwareException, BlockchainExceptionWithoutRetry, Minter
-from settings import DST_CHAIN_MERKLY_REFUEL, DST_CHAIN_MERKLY_WORMHOLE, WORMHOLE_TOKENS_AMOUNT, DST_CHAIN_MERKLY_NFT
+from modules.interfaces import BlockchainException, SoftwareException, Minter
+from settings import DST_CHAIN_MERKLY_WORMHOLE, WORMHOLE_TOKENS_AMOUNT
 from utils.tools import gas_checker, helper, sleep
 from config import (
     MERKLY_CONTRACTS_PER_CHAINS,
@@ -19,11 +18,11 @@ from config import (
 
 
 class Merkly(Refuel, Minter, Logger):
-    def __init__(self, client):
+    def __init__(self, client: Client):
         self.client = client
         Logger.__init__(self)
 
-    async def get_nft_id(self, tx_hash: bytes):
+    async def get_nft_id(self, tx_hash: HexStr):
         tx_receipt = await self.client.w3.eth.get_transaction_receipt(tx_hash)
 
         return int((tx_receipt.logs[0].topics[3]).hex(), 16)
@@ -42,11 +41,7 @@ class Merkly(Refuel, Minter, Logger):
     @helper
     @gas_checker
     async def refuel(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False):
-        if not attack_mode and attack_data is None:
-            dst_data = random.choice(list(DST_CHAIN_MERKLY_REFUEL.items()))
-        else:
-            dst_data = random.choice(list(attack_data.items()))
-
+        dst_data = random.choice(list(attack_data.items()))
         dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
         dst_amount = self.client.round_amount(*dst_data[1])
 
@@ -118,15 +113,12 @@ class Merkly(Refuel, Minter, Logger):
 
         transaction = await onft_contract.functions.mint().build_transaction(tx_params)
 
-        return await self.client.send_transaction(transaction)
+        return await self.client.send_transaction(transaction, need_hash=True)
 
     @helper
     @gas_checker
     async def bridge(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False):
-        if not attack_mode and attack_data is None:
-            dst_chain = random.choice(DST_CHAIN_MERKLY_NFT)
-        else:
-            dst_chain = attack_data
+        dst_chain = attack_data
 
         onft_contract = self.client.get_contract(MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], MERKLY_ABI['ONFT'])
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
@@ -134,8 +126,8 @@ class Merkly(Refuel, Minter, Logger):
         nft_id = 1
         if not need_check:
             new_client = await self.client.new_client(chain_from_id)
-            await Merkly(new_client).mint(chain_from_id)
-            nft_id = await self.get_nft_id(onft_contract)
+            tx_hash = await Merkly(new_client).mint(chain_from_id)
+            nft_id = await self.get_nft_id(tx_hash)
             await sleep(self, 5, 10)
 
             self.logger_msg(
@@ -188,13 +180,147 @@ class Merkly(Refuel, Minter, Logger):
 
     @helper
     @gas_checker
-    async def mint_and_bridge_wormhole_nft(self, chain_id_from):
+    async def wnft_bridge(
+            self, chain_from_id, _, attack_data: dict = None, need_check:bool = False
+    ):
 
         onft_contract = self.client.get_contract(
-            MERKLY_CONTRACTS_PER_CHAINS[chain_id_from]['WNFT'], MERKLY_ABI['WNFT'])
+            MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['WNFT'], MERKLY_ABI['WNFT'])
+
+        dst_chain = attack_data
+        _, _, mint_price, _ = MERKLY_NFT_WORMHOLE_INFO[chain_from_id]
+        dst_chain_name, wnft_contract, _, wormhole_id = MERKLY_NFT_WORMHOLE_INFO[MERKLY_WRAPPED_NETWORK[dst_chain]]
+
+        estimate_fee = (await onft_contract.functions.quoteBridge(
+            wormhole_id,
+            0,
+            200000
+        ).call())[0]
+
+        mint_price_in_wei = int(Decimal(f"{mint_price}") * 10 ** 18)
+
+        if not need_check:
+            self.logger_msg(
+                *self.client.acc_info,
+                msg=f"Mint NFT on Merkly Wormhole. Network: {self.client.network.name}."
+                    f" Price for mint: {mint_price} {self.client.network.token}")
+
+        try:
+            transaction = await onft_contract.functions.mint(
+                1
+            ).build_transaction(await self.client.prepare_transaction(value=mint_price_in_wei))
+
+            tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+
+            nft_id = await self.get_nft_id(tx_hash)
+
+            await sleep(self, 5, 8)
+
+            self.logger_msg(
+                *self.client.acc_info,
+                msg=f"Bridge NFT on Merkly Wormhole from {self.client.network.name} -> {dst_chain_name}."
+                    f" Price for bridge: "
+                    f"{(estimate_fee / 10 ** 18):.6f} {self.client.network.token}")
+
+            transaction = await onft_contract.functions.transferNFT(
+                wormhole_id,
+                wnft_contract,
+                nft_id,
+                0,
+                200000,
+                wormhole_id,
+                self.client.address
+            ).build_transaction(await self.client.prepare_transaction(value=estimate_fee))
+
+            if need_check:
+                return True
+
+            return await self.client.send_transaction(transaction)
+
+        except Exception as error:
+            if not need_check:
+                raise BlockchainException(f'{error}')
+
+    @helper
+    @gas_checker
+    async def wt_bridge(
+            self, chain_from_id, _, attack_data: dict = None, need_check:bool = False
+    ):
+        tokens_amount_bridge, tokens_amount_mint = attack_data
+
+        oft_contract = self.client.get_contract(
+            MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['WOFT'], MERKLY_ABI['WOFT'])
 
         dst_chain = random.choice(DST_CHAIN_MERKLY_WORMHOLE)
-        _, _, mint_price, _ = MERKLY_NFT_WORMHOLE_INFO[chain_id_from]
+        _, _, mint_price, _ = MERKLY_TOKENS_WORMHOLE_INFO[chain_from_id]
+        dst_chain_name, woft_contract, _, wormhole_id = MERKLY_TOKENS_WORMHOLE_INFO[MERKLY_WRAPPED_NETWORK[dst_chain]]
+
+        estimate_fee = (await oft_contract.functions.quoteBridge(
+            wormhole_id,
+            0,
+            200000
+        ).call())[0]
+
+        if not need_check:
+            token_balance = await oft_contract.functions.balanceOf(self.client.address).call()
+
+            if token_balance > int(tokens_amount_bridge * 10 ** 18):
+
+                mint_price_in_wei = int((Decimal(f"{mint_price}") * 10 ** 18) * tokens_amount_mint)
+
+                self.logger_msg(
+                    *self.client.acc_info,
+                    msg=f"Mint {tokens_amount_mint} WMEKL on Merkly Wormhole. Network: {self.client.network.name}."
+                        f" Price for mint: {mint_price * tokens_amount_mint:.6f} {self.client.network.token}")
+
+                transaction = await oft_contract.functions.mint(
+                    self.client.address,
+                    tokens_amount_mint
+                ).build_transaction(await self.client.prepare_transaction(value=mint_price_in_wei))
+
+                await self.client.send_transaction(transaction)
+
+                await sleep(self, 5, 8)
+            else:
+                self.logger_msg(
+                    *self.client.acc_info,
+                    msg=f"Have enough WMEKL balance: {token_balance}. Network: {self.client.network.name}",
+                    type_msg='success')
+
+            self.logger_msg(
+                *self.client.acc_info,
+                msg=f"Bridge tokens on Merkly Wormhole from {self.client.network.name} -> {dst_chain_name}."
+                    f" Price for bridge: {(estimate_fee / 10 ** 18):.6f} {self.client.network.token}")
+        try:
+            transaction = await oft_contract.functions.bridge(
+                wormhole_id,
+                woft_contract,
+                tokens_amount_bridge,
+                0,
+                200000,
+                wormhole_id,
+                self.client.address
+            ).build_transaction(await self.client.prepare_transaction(value=estimate_fee))
+
+            if need_check:
+                return True
+
+            return await self.client.send_transaction(transaction)
+
+        except Exception as error:
+            if not need_check:
+                raise BlockchainException(f'{error}')
+
+    @helper
+    @gas_checker
+    async def pnft_bridge(
+            self, chain_from_id, _, attack_data: dict = None, need_check:bool = False
+    ):
+        onft_contract = self.client.get_contract(
+            MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['WNFT'], MERKLY_ABI['WNFT'])
+
+        dst_chain = attack_data
+        _, _, mint_price, _ = MERKLY_NFT_WORMHOLE_INFO[chain_from_id]
         dst_chain_name, wnft_contract, _, wormhole_id = MERKLY_NFT_WORMHOLE_INFO[MERKLY_WRAPPED_NETWORK[dst_chain]]
 
         estimate_fee = (await onft_contract.functions.quoteBridge(
@@ -240,14 +366,16 @@ class Merkly(Refuel, Minter, Logger):
 
     @helper
     @gas_checker
-    async def mint_and_bridge_wormhole_tokens(self, chain_id_from):
+    async def p_refuel(
+            self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False
+    ):
         tokens_amount = WORMHOLE_TOKENS_AMOUNT
 
         onft_contract = self.client.get_contract(
-            MERKLY_CONTRACTS_PER_CHAINS[chain_id_from]['WOFT'], MERKLY_ABI['WOFT'])
+            MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['WOFT'], MERKLY_ABI['WOFT'])
 
         dst_chain = random.choice(DST_CHAIN_MERKLY_WORMHOLE)
-        _, _, mint_price, _ = MERKLY_TOKENS_WORMHOLE_INFO[chain_id_from]
+        _, _, mint_price, _ = MERKLY_TOKENS_WORMHOLE_INFO[chain_from_id]
         dst_chain_name, woft_contract, _, wormhole_id = MERKLY_TOKENS_WORMHOLE_INFO[MERKLY_WRAPPED_NETWORK[dst_chain]]
 
         estimate_fee = (await onft_contract.functions.quoteBridge(
@@ -288,3 +416,110 @@ class Merkly(Refuel, Minter, Logger):
         ).build_transaction(await self.client.prepare_transaction(value=estimate_fee))
 
         return await self.client.send_transaction(transaction)
+
+    @helper
+    @gas_checker
+    async def hnft_bridge(
+            self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False
+    ):
+        tokens_amount = WORMHOLE_TOKENS_AMOUNT
+
+        onft_contract = self.client.get_contract(
+            MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['WOFT'], MERKLY_ABI['WOFT'])
+
+        dst_chain = random.choice(DST_CHAIN_MERKLY_WORMHOLE)
+        _, _, mint_price, _ = MERKLY_TOKENS_WORMHOLE_INFO[chain_from_id]
+        dst_chain_name, woft_contract, _, wormhole_id = MERKLY_TOKENS_WORMHOLE_INFO[MERKLY_WRAPPED_NETWORK[dst_chain]]
+
+        estimate_fee = (await onft_contract.functions.quoteBridge(
+            wormhole_id,
+            0,
+            200000
+        ).call())[0]
+
+        mint_price_in_wei = int((Decimal(f"{mint_price}") * 10 ** 18) * tokens_amount)
+
+        self.logger_msg(
+            *self.client.acc_info,
+            msg=f"Mint {tokens_amount} WMEKL on Merkly Wormhole. Network: {self.client.network.name}."
+                f" Price for mint: {mint_price * tokens_amount:.6f} {self.client.network.token}")
+
+        transaction = await onft_contract.functions.mint(
+            self.client.address,
+            tokens_amount
+        ).build_transaction(await self.client.prepare_transaction(value=mint_price_in_wei))
+
+        await self.client.send_transaction(transaction)
+
+        await sleep(self, 5, 8)
+
+        self.logger_msg(
+            *self.client.acc_info,
+            msg=f"Bridge tokens on Merkly Wormhole from {self.client.network.name} -> {dst_chain_name}."
+                f" Price for bridge: {(estimate_fee / 10 ** 18):.6f} {self.client.network.token}")
+
+        transaction = await onft_contract.functions.bridge(
+            wormhole_id,
+            woft_contract,
+            tokens_amount,
+            0,
+            200000,
+            wormhole_id,
+            self.client.address
+        ).build_transaction(await self.client.prepare_transaction(value=estimate_fee))
+
+        return await self.client.send_transaction(transaction)
+
+    @helper
+    @gas_checker
+    async def ht_bridge(
+            self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False
+    ):
+        tokens_amount = WORMHOLE_TOKENS_AMOUNT
+
+        onft_contract = self.client.get_contract(
+            MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['WOFT'], MERKLY_ABI['WOFT'])
+
+        dst_chain = random.choice(DST_CHAIN_MERKLY_WORMHOLE)
+        _, _, mint_price, _ = MERKLY_TOKENS_WORMHOLE_INFO[chain_from_id]
+        dst_chain_name, woft_contract, _, wormhole_id = MERKLY_TOKENS_WORMHOLE_INFO[MERKLY_WRAPPED_NETWORK[dst_chain]]
+
+        estimate_fee = (await onft_contract.functions.quoteBridge(
+            wormhole_id,
+            0,
+            200000
+        ).call())[0]
+
+        mint_price_in_wei = int((Decimal(f"{mint_price}") * 10 ** 18) * tokens_amount)
+
+        self.logger_msg(
+            *self.client.acc_info,
+            msg=f"Mint {tokens_amount} WMEKL on Merkly Wormhole. Network: {self.client.network.name}."
+                f" Price for mint: {mint_price * tokens_amount:.6f} {self.client.network.token}")
+
+        transaction = await onft_contract.functions.mint(
+            self.client.address,
+            tokens_amount
+        ).build_transaction(await self.client.prepare_transaction(value=mint_price_in_wei))
+
+        await self.client.send_transaction(transaction)
+
+        await sleep(self, 5, 8)
+
+        self.logger_msg(
+            *self.client.acc_info,
+            msg=f"Bridge tokens on Merkly Wormhole from {self.client.network.name} -> {dst_chain_name}."
+                f" Price for bridge: {(estimate_fee / 10 ** 18):.6f} {self.client.network.token}")
+
+        transaction = await onft_contract.functions.bridge(
+            wormhole_id,
+            woft_contract,
+            tokens_amount,
+            0,
+            200000,
+            wormhole_id,
+            self.client.address
+        ).build_transaction(await self.client.prepare_transaction(value=estimate_fee))
+
+        return await self.client.send_transaction(transaction)
+

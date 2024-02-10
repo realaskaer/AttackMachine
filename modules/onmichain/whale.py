@@ -2,13 +2,8 @@ import random
 
 from eth_abi import abi
 from utils.tools import sleep, helper, gas_checker
-from eth_typing import HexStr
 from modules import Refuel, Logger, RequestClient
 from modules.interfaces import BlockchainException, SoftwareException
-from settings import (
-    DST_CHAIN_WHALE_NFT,
-    DST_CHAIN_WHALE_REFUEL,
-)
 from config import (
     WHALE_CONTRACTS_PER_CHAINS,
     WHALE_ABI,
@@ -68,11 +63,7 @@ class Whale(Refuel, Logger, RequestClient):
     @helper
     @gas_checker
     async def refuel(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False):
-        if not attack_mode and attack_data is None:
-            dst_data = random.choice(list(DST_CHAIN_WHALE_REFUEL.items()))
-        else:
-            dst_data = random.choice(list(attack_data.items()))
-
+        dst_data = random.choice(list(attack_data.items()))
         dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
         dst_amount = self.client.round_amount(*dst_data[1])
 
@@ -149,12 +140,7 @@ class Whale(Refuel, Logger, RequestClient):
     @helper
     @gas_checker
     async def bridge(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False):
-
-        if not attack_mode and attack_data is None:
-            dst_chain = random.choice(DST_CHAIN_WHALE_NFT)
-        else:
-            dst_chain = attack_data
-
+        dst_chain = attack_data
         onft_contract = self.client.get_contract(WHALE_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], WHALE_ABI['ONFT'])
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
 

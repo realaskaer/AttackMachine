@@ -2,7 +2,7 @@ import random
 
 from modules import Refuel, Logger, Client
 from modules.interfaces import BlockchainException, SoftwareException, Minter
-from settings import DST_CHAIN_L2PASS_REFUEL, DST_CHAIN_L2PASS_NFT, L2PASS_GAS_STATION_DATA
+from settings import L2PASS_GAS_STATION_DATA
 from eth_abi import encode
 from utils.tools import gas_checker, helper, sleep
 from config import (
@@ -40,11 +40,7 @@ class L2Pass(Refuel, Minter, Logger):
     @helper
     @gas_checker
     async def refuel(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False):
-        if not attack_mode and attack_data is None:
-            dst_data = random.choice(list(DST_CHAIN_L2PASS_REFUEL.items()))
-        else:
-            dst_data = random.choice(list(attack_data.items()))
-
+        dst_data = random.choice(list(attack_data.items()))
         dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
         dst_amount = self.client.round_amount(*dst_data[1])
 
@@ -115,11 +111,7 @@ class L2Pass(Refuel, Minter, Logger):
     @helper
     @gas_checker
     async def bridge(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False):
-        if not attack_mode and attack_data is None:
-            dst_chain = random.choice(DST_CHAIN_L2PASS_NFT)
-        else:
-            dst_chain = attack_data
-
+        dst_chain = attack_data
         onft_contract = self.client.get_contract(L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], L2PASS_ABI['ONFT'])
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
 

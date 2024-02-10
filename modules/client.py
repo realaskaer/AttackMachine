@@ -31,8 +31,7 @@ from settings import (
     RHINO_BRIDGE_AMOUNT,
     ACROSS_CHAIN_ID_TO,
     ACROSS_BRIDGE_AMOUNT, WAIT_FOR_RECEIPT, RELAY_CHAIN_ID_TO, RELAY_BRIDGE_AMOUNT, OWLTO_CHAIN_ID_TO,
-    OWLTO_BRIDGE_AMOUNT, OWLTO_TOKEN_NAME, RELAY_TOKEN_NAME, ACROSS_TOKEN_NAME, ORBITER_TOKEN_NAME,
-    LAYERSWAP_TOKEN_NAME, RHINO_TOKEN_NAME,
+    OWLTO_BRIDGE_AMOUNT
 )
 
 
@@ -470,7 +469,7 @@ class Client(Logger):
                 await asyncio.sleep(poll_latency)
 
     async def get_token_price(self, token_name: str, vs_currency: str = 'usd') -> float:
-        await asyncio.sleep(2)#todo поправить на 10с
+        await asyncio.sleep(2)  # todo поправить на 10с
         url = 'https://api.coingecko.com/api/v3/simple/price'
 
         params = {'ids': f'{token_name}', 'vs_currencies': f'{vs_currency}'}

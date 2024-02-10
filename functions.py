@@ -161,7 +161,7 @@ async def bridge_rhino(account_name, private_key, network, proxy):
     return await worker.smart_bridge(dapp_id=6)
 
 
-async def layerzero_util(
+async def omnichain_util(
         account_name, private_key, proxy, chain_from_id:int = 0, chain_to:int = 0, dapp_id:int = 0, dapp_mode:int = 0,
         attack_mode:bool = False, google_module:bool = False, attack_data:dict | int = None, need_check:bool = False,
 ):
@@ -183,74 +183,84 @@ async def layerzero_util(
     network = get_network_by_chain_id(wrapped_chain_id)
     worker = class_name(get_client(account_name, private_key, network, proxy))
 
-    func = {
-        1: worker.refuel,
-        2: worker.bridge,
-    }[dapp_mode]
+    if dapp_mode in [1, 2]:
+        func = {
+            1: worker.refuel,
+            2: worker.bridge,
+        }[dapp_mode]
+    else:
+        func = {
+            3: worker.wnft_bridge,
+            4: worker.wt_bridge,
+            5: worker.pnft_bridge,
+            6: worker.p_refuel,
+            7: worker.hnft_bridge,
+            8: worker.ht_bridge,
+        }[dapp_mode]
 
     return await func(wrapped_chain_id, attack_mode=attack_mode, attack_data=attack_data, need_check=need_check)
 
 
 async def bridge_l2pass(account_name, private_key, _, proxy):
-    return await layerzero_util(account_name, private_key, proxy, dapp_id=1, dapp_mode=2)
+    return await omnichain_util(account_name, private_key, proxy, dapp_id=1, dapp_mode=2)
 
 
 async def bridge_merkly(account_name, private_key, _, proxy):
-    return await layerzero_util(account_name, private_key, proxy, dapp_id=2, dapp_mode=2)
+    return await omnichain_util(account_name, private_key, proxy, dapp_id=2, dapp_mode=2)
 
 
 async def bridge_whale(account_name, private_key, _, proxy):
-    return await layerzero_util(account_name, private_key, proxy, dapp_id=3, dapp_mode=2)
+    return await omnichain_util(account_name, private_key, proxy, dapp_id=3, dapp_mode=2)
 
 
 async def bridge_zerius(account_name, private_key, _, proxy):
-    return await layerzero_util(account_name, private_key, proxy, dapp_id=4, dapp_mode=2)
+    return await omnichain_util(account_name, private_key, proxy, dapp_id=4, dapp_mode=2)
 
 
 async def l2pass_refuel_google(account_name, private_key, _, proxy, chain_from, chain_to):
-    return await layerzero_util(
+    return await omnichain_util(
         account_name, private_key, proxy, chain_from, chain_to, dapp_id=1, dapp_mode=1, google_module=True
     )
 
 
 async def merkly_refuel_google(account_name, private_key, _, proxy, chain_from, chain_to):
-    return await layerzero_util(
+    return await omnichain_util(
         account_name, private_key, proxy, chain_from, chain_to, dapp_id=2, dapp_mode=1, google_module=True
     )
 
 
 async def whale_refuel_google(account_name, private_key, _, proxy, chain_from, chain_to):
-    return await layerzero_util(
+    return await omnichain_util(
         account_name, private_key, proxy, chain_from, chain_to, dapp_id=3, dapp_mode=1, google_module=True
     )
 
 
 async def zerius_refuel_google(account_name, private_key, _, proxy, chain_from, chain_to):
-    return await layerzero_util(
+    return await omnichain_util(
         account_name, private_key, proxy, chain_from, chain_to, dapp_id=4, dapp_mode=1, google_module=True
     )
 
 
 async def l2pass_bridge_google(account_name, private_key, _, proxy, chain_from, chain_to):
-    return await layerzero_util(
+    return await omnichain_util(
         account_name, private_key, proxy, chain_from, chain_to, dapp_id=1, dapp_mode=2, google_module=True
     )
 
 
 async def merkly_bridge_google(account_name, private_key, _, proxy, chain_from, chain_to):
-    return await layerzero_util(
+    return await omnichain_util(
         account_name, private_key, proxy, chain_from, chain_to, dapp_id=2, dapp_mode=2, google_module=True
     )
 
 
 async def whale_bridge_google(account_name, private_key, _, proxy, chain_from, chain_to):
-    return await layerzero_util(
+    return await omnichain_util(
         account_name, private_key, proxy, chain_from, chain_to, dapp_id=3, dapp_mode=2, google_module=True
     )
 
 
 async def zerius_bridge_google(account_name, private_key, _, proxy, chain_from, chain_to):
-    return await layerzero_util(
+    return await omnichain_util(
         account_name, private_key, proxy, chain_from, chain_to, dapp_id=4, dapp_mode=2, google_module=True
     )
 
@@ -295,24 +305,34 @@ async def zerius_nft_attack(account_name, private_key, network, proxy):
     return await worker.layerzero_attack(dapp_id=4, dapp_mode=2)
 
 
-async def refuel_merkly(account_name, private_key, network, proxy):
+async def refuel_l2pass(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_layerzero_util(dapp_id=1, dapp_mode=1)
 
 
-async def refuel_l2pass(account_name, private_key, network, proxy):
+async def refuel_merkly(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_layerzero_util(dapp_id=2, dapp_mode=1)
-
-
-async def refuel_zerius(account_name, private_key, network, proxy):
-    worker = Custom(get_client(account_name, private_key, network, proxy))
-    return await worker.smart_layerzero_util(dapp_id=3, dapp_mode=1)
 
 
 async def refuel_whale(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_layerzero_util(dapp_id=3, dapp_mode=1)
+
+
+async def refuel_zerius(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.smart_layerzero_util(dapp_id=4, dapp_mode=1)
+
+
+async def bridge_wormhole_nft(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.merkly_omnichain_util(dapp_id=1, dapp_mode=2)
+
+
+async def bridge_wormhole_token(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.merkly_omnichain_util(dapp_id=1, dapp_mode=3)
 
 
 async def okx_withdraw(account_name, private_key, network, proxy):
@@ -582,23 +602,6 @@ async def gas_station_l2pass(account_name, private_key, _, proxy):
 
     worker = L2Pass(get_client(account_name, private_key, network, proxy))
     return await worker.gas_station(chain_from_id)
-
-
-async def mint_and_bridge_wormhole_nft(account_name, private_key, _, proxy):
-    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_MERKLY_WORMHOLE)]
-    network = get_network_by_chain_id(chain_from_id)
-
-    worker = Merkly(get_client(account_name, private_key, network, proxy))
-    return await worker.mint_and_bridge_wormhole_nft(chain_from_id)
-
-
-async def mint_and_bridge_wormhole_token(account_name, private_key, _, proxy):
-    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_MERKLY_WORMHOLE)]
-    network = get_network_by_chain_id(chain_from_id)
-
-    worker = Merkly(get_client(account_name, private_key, network, proxy))
-    return await worker.mint_and_bridge_wormhole_tokens(chain_from_id)
-
 
 async def refuel_bungee(account_name, private_key, _, proxy):
     chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_BUNGEE)]

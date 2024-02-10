@@ -1,4 +1,5 @@
 import random
+import traceback
 
 from modules import Logger, RequestClient
 from general_settings import AMOUNT_PERCENT_WRAPS
@@ -19,7 +20,10 @@ from settings import (
     SRC_CHAIN_WHALE, DST_CHAIN_WHALE_REFUEL, DST_CHAIN_MERKLY_NFT, DST_CHAIN_L2PASS_NFT, DST_CHAIN_ZERIUS_NFT,
     DST_CHAIN_WHALE_NFT, MERKLY_ATTACK_NFT, L2PASS_ATTACK_REFUEL, MERKLY_ATTACK_REFUEL, WHALE_ATTACK_REFUEL,
     ZERIUS_ATTACK_REFUEL, L0_SEARCH_DATA, OWLTO_CHAIN_ID_FROM, ACROSS_TOKEN_NAME, ORBITER_TOKEN_NAME, OWLTO_TOKEN_NAME,
-    LAYERSWAP_TOKEN_NAME, RELAY_TOKEN_NAME, RHINO_TOKEN_NAME, OKX_DEPOSIT_DATA, BINGX_DEPOSIT_DATA
+    LAYERSWAP_TOKEN_NAME, RELAY_TOKEN_NAME, RHINO_TOKEN_NAME, OKX_DEPOSIT_DATA, BINGX_DEPOSIT_DATA,
+    SRC_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_MERKLY_POLYHEDRA, SRC_CHAIN_MERKLY_HYPERLANE, DST_CHAIN_MERKLY_WORMHOLE,
+    DST_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_HYPERLANE, WORMHOLE_TOKENS_AMOUNT, HYPERLANE_TOKENS_AMOUNT,
+    DST_CHAIN_MERKLY_POLYHEDRA_REFUEL
 )
 
 
@@ -249,7 +253,7 @@ class Custom(Logger, RequestClient):
     @helper
     @gas_checker
     async def layerzero_attack(self, dapp_id:int = None, dapp_mode:int = None):
-        from functions import layerzero_util
+        from functions import omnichain_util
 
         class_id, attack_data = {
             1: (1, (L2PASS_ATTACK_REFUEL, L2PASS_ATTACK_NFT)),
@@ -291,7 +295,7 @@ class Custom(Logger, RequestClient):
             elif dapp_mode == 2:
                 attack_data = attack_info
 
-            await layerzero_util(self.client.account_name, self.client.private_key, self.client.network,
+            await omnichain_util(self.client.account_name, self.client.private_key, self.client.network,
                                  self.client.proxy_init, chain_id_from, attack_mode=True, attack_data=attack_data,
                                  dapp_id=class_id, dapp_mode=dapp_mode)
 
@@ -408,22 +412,19 @@ class Custom(Logger, RequestClient):
 
     @helper
     async def smart_layerzero_util(self, dapp_id: int = None, dapp_mode: int = None):
-        from functions import layerzero_util
+        from functions import omnichain_util
 
-        dapp_config = {
+        class_id, src_chains, dst_tuple_data = {
             1: (1, SRC_CHAIN_L2PASS, (DST_CHAIN_L2PASS_REFUEL, DST_CHAIN_L2PASS_NFT)),
             2: (2, SRC_CHAIN_MERKLY, (DST_CHAIN_MERKLY_REFUEL, DST_CHAIN_MERKLY_NFT)),
             3: (3, SRC_CHAIN_WHALE, (DST_CHAIN_WHALE_REFUEL, DST_CHAIN_WHALE_NFT)),
             4: (4, SRC_CHAIN_ZERIUS, (DST_CHAIN_ZERIUS_REFUEL, DST_CHAIN_ZERIUS_NFT)),
         }[dapp_id]
 
-        class_id, src_chains, dst_tuple_data = dapp_config
-        dst_data, module_name = {
-            1: (dst_tuple_data[0], 'refuel'),
+        dst_datas, module_name = {
+            1: (list(dst_tuple_data[0].items()), 'refuel'),
             2: (dst_tuple_data[1], 'bridge')
         }[dapp_mode]
-
-        dst_datas = list(dst_data.items())
 
         random.shuffle(src_chains)
         random.shuffle(dst_datas)
@@ -438,10 +439,10 @@ class Custom(Logger, RequestClient):
                         dst_data[0]: dst_data[1]
                     } if dapp_mode == 1 else dst_data
 
-                    action_flag = await layerzero_util(
+                    action_flag = await omnichain_util(
                         self.client.account_name, self.client.private_key, self.client.proxy_init,
-                        chain_from_id=src_chain, dapp_id=class_id, attack_mode=True, attack_data=attack_data,
-                        need_check=True
+                        chain_from_id=src_chain, dapp_id=class_id, dapp_mode=dapp_mode, attack_mode=True,
+                        attack_data=attack_data, need_check=True
                     )
 
                     if action_flag:
@@ -451,9 +452,89 @@ class Custom(Logger, RequestClient):
                             msg=f"Detected funds to {module_name} {CHAIN_NAME[chain_id_to]} from {CHAIN_NAME[chain_id_from]}",
                             type_msg='success')
 
-                        result = await layerzero_util(
+                        result = await omnichain_util(
                             self.client.account_name, self.client.private_key, self.client.proxy_init,
-                            chain_from_id=src_chain, dapp_id=class_id, attack_mode=True, attack_data=attack_data
+                            chain_from_id=src_chain, dapp_id=class_id, dapp_mode=dapp_mode, attack_mode=True,
+                            attack_data=attack_data
+                        )
+
+                        if not ALL_DST_CHAINS:
+                            return True
+
+                        if ALL_DST_CHAINS:
+                            random.shuffle(src_chains)
+
+                            if result:
+                                break
+
+                except Exception as error:
+                    traceback.print_exc()
+                    self.logger_msg(
+                        *self.client.acc_info,
+                        msg=f"Exception during smart {module_name}: {error}", type_msg='warning'
+                    )
+
+            if not result and ALL_DST_CHAINS:
+                self.logger_msg(
+                    *self.client.acc_info,
+                    msg=f"Can`t {module_name} to {CHAIN_NAME[chain_id_to]} from those SRC networks\n",
+                    type_msg='warning'
+                )
+
+        if action_flag is False:
+            self.logger_msg(
+                *self.client.acc_info, msg=f"Can`t detect funds in all networks!", type_msg='warning')
+
+        if ALL_DST_CHAINS:
+            return True
+        return result
+
+    @helper
+    async def merkly_omnichain_util(self, dapp_id:int, dapp_mode:int):
+        from functions import omnichain_util
+
+        module_id, src_chains, dst_chains, token_amounts, refuel_data = {
+            1: (1, SRC_CHAIN_MERKLY_WORMHOLE, DST_CHAIN_MERKLY_WORMHOLE, WORMHOLE_TOKENS_AMOUNT, 0),
+            2: (2, SRC_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_POLYHEDRA, 0, DST_CHAIN_MERKLY_POLYHEDRA_REFUEL),
+            3: (3, SRC_CHAIN_MERKLY_HYPERLANE, DST_CHAIN_MERKLY_HYPERLANE, HYPERLANE_TOKENS_AMOUNT, 0),
+        }[dapp_mode]
+
+        dst_datas, dst_amount, module_name = {
+            1: (list(refuel_data.items()), 0, 'refuel'),
+            2: (dst_chains, 0, 'NFT bridge'),
+            3: (dst_chains, token_amounts, 'tokens bridge')
+        }[dapp_mode]
+
+        random.shuffle(src_chains)
+        random.shuffle(dst_datas)
+
+        result = False
+        action_flag = False
+        for dst_data in dst_datas:
+            chain_id_to = LAYERZERO_WRAPED_NETWORKS[dst_data[0]]
+            for src_chain in src_chains:
+                try:
+                    attack_data = {
+                        dst_data[0]: dst_data[1]
+                    } if dapp_mode == 1 else dst_data
+
+                    action_flag = await omnichain_util(
+                        self.client.account_name, self.client.private_key, self.client.proxy_init,
+                        chain_from_id=src_chain, dapp_id=module_id, dapp_mode=dapp_mode, attack_mode=True,
+                        attack_data=attack_data, need_check=True
+                    )
+
+                    if action_flag:
+                        chain_id_from = LAYERZERO_WRAPED_NETWORKS[src_chain]
+                        self.logger_msg(
+                            *self.client.acc_info,
+                            msg=f"Detected funds to {module_name} {CHAIN_NAME[chain_id_to]} from {CHAIN_NAME[chain_id_from]}",
+                            type_msg='success')
+
+                        result = await omnichain_util(
+                            self.client.account_name, self.client.private_key, self.client.proxy_init,
+                            chain_from_id=src_chain, dapp_id=module_id, dapp_mode=dapp_mode, attack_mode=True,
+                            attack_data=attack_data
                         )
 
                         if not ALL_DST_CHAINS:
@@ -485,6 +566,7 @@ class Custom(Logger, RequestClient):
         if ALL_DST_CHAINS:
             return True
         return result
+
 
     @helper
     async def smart_cex_withdraw(self, dapp_id:int):

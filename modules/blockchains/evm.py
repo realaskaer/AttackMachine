@@ -1,11 +1,7 @@
 import random
 
-from starknet_py.hash.selector import get_selector_from_name
-from starknet_py.net.full_node_client import FullNodeClient
-
-
 from eth_account import Account
-from modules import Blockchain, Logger, Bridge
+from modules import Blockchain, Logger, Client
 from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 from general_settings import TRANSFER_AMOUNT
@@ -323,7 +319,7 @@ class Base(Blockchain, SimpleEVM):
                 amount_in_wei,
                 100000,
                 False,
-                '0x01'
+                "0x01"
             ).build_transaction(tx_params)
 
             return await self.client.send_transaction(transaction)
@@ -356,9 +352,69 @@ class Base(Blockchain, SimpleEVM):
 
 
 class Linea(Blockchain, SimpleEVM):
-    def __init__(self, client):
+    def __init__(self, client: Client):
         SimpleEVM.__init__(self, client)
         Blockchain.__init__(self, client)
+
+    async def get_bridge_fee(self, from_l1:bool = True):
+        margin = 2
+        gas_limit = 106000
+        new_client = await self.client.new_client(4 if from_l1 else 13)
+        bridge_fee = int(margin * gas_limit * await new_client.w3.eth.gas_price)
+
+        await new_client.session.close()
+        return bridge_fee
+
+    @helper
+    @gas_checker
+    async def deposit(self):
+
+        amount = await self.client.get_smart_amount(NATIVE_BRIDGE_AMOUNT)
+        amount_in_wei = int(amount * 10 ** 18)
+
+        self.logger_msg(*self.client.acc_info, msg=f'Bridge {amount} ETH ERC20 -> Linea')
+
+        if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
+
+            bridge_fee = await self.get_bridge_fee()
+
+            tx_params = await self.client.prepare_transaction(value=amount_in_wei + bridge_fee)
+
+            transaction = await self.deposit_contract.functions.sendMessage(
+                self.client.address,
+                bridge_fee,
+                "0x"
+            ).build_transaction(tx_params)
+
+            return await self.client.send_transaction(transaction)
+
+        else:
+            raise SoftwareException('Insufficient balance!')
+
+    @helper
+    @gas_checker
+    async def withdraw(self):
+
+        amount, amount_in_wei = await self.client.check_and_get_eth(NATIVE_WITHDRAW_AMOUNT)
+
+        self.logger_msg(*self.client.acc_info, msg=f'Withdraw {amount} ETH Linea -> ERC20')
+
+        if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
+
+            bridge_fee = await self.get_bridge_fee(from_l1=False)
+
+            tx_params = await self.client.prepare_transaction(value=amount_in_wei + bridge_fee)
+
+            transaction = await self.withdraw_contract.functions.sendMessage(
+                amount_in_wei,
+                bridge_fee,
+                0
+            ).build_transaction(tx_params)
+
+            return await self.client.send_transaction(transaction)
+
+        else:
+            raise SoftwareException('Insufficient balance!')
 
 
 class ArbitrumNova(Blockchain, SimpleEVM):

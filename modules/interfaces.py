@@ -41,6 +41,10 @@ class BridgeExceptionWithoutRetry(Exception):
     pass
 
 
+class DepositExceptionWithoutRetry(Exception):
+    pass
+
+
 class Logger(ABC):
     def __init__(self):
         self.logger = logger

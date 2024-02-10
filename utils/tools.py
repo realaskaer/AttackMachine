@@ -209,6 +209,10 @@ def helper(func):
                             stop_flag = True
                             network_name = self.client.network.name
                             msg = f'Insufficient funds on {network_name}, software will stop this action\n'
+                        elif 'execution reverted' in str(error):
+                            stop_flag = True
+                            network_name = self.client.network.name
+                            msg = f'Contract execution reverted on {network_name}, software will stop this action\n'
                         else:
                             if isinstance(error, BlockchainExceptionWithoutRetry):
                                 stop_flag = True

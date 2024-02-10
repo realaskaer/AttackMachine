@@ -108,7 +108,7 @@ class BingX(CEX, Logger):
 
                 parse_params = self.parse_params(params)
 
-                ccy = f"{ccy}.e" if network_id in [30, 31] else ccy
+                ccy = f"{ccy}.e" if network_id in [29, 30] else ccy
 
                 old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
                                                                           check_balance_on_dst=True)
@@ -288,7 +288,7 @@ class BingX(CEX, Logger):
             } for item in withdraw_data
         }[network_name]
 
-        ccy = f"{ccy}.e" if deposit_network in [30, 31] else ccy
+        ccy = f"{ccy}.e" if deposit_network in [29, 30] else ccy
         amount = await self.client.get_smart_amount(deposit_amount, token_name=ccy)
 
         self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to OKX wallet: {info}")
