@@ -28,11 +28,11 @@ class Omnisea(Creator, Logger):
         uri = f'QmTuduie9dtu22GG8s{ipsf}ycPkcuCk'
         tokens_url = ""
         totap_supply = random.randrange(5000, 15000)
-        is_edition = random.choice([True, False])
-        is_sbt = random.choice([True, False])
-        is_zero_indexed = random.choice([True, False])
+        is_edition = True
+        is_sbt = True
+        is_zero_indexed = False
         royalty_amount = random.randrange(1, 5)
-        end_time = int(time.time()) + random.randrange(1000000, 2000000)
+        end_time = int(time.time()) + random.randint(1000000, 2000000)
 
         self.logger_msg(*self.client.acc_info, msg=f"Create NFT collection on Omnisea | Name: {name} Symbol: {symbol}")
 

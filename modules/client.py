@@ -293,7 +293,7 @@ class Client(Logger):
 
             if biggest_token_balance_name == 'ETH':
                 if GLOBAL_NETWORK == 11:
-                    if class_name in ['Maverick']:
+                    if class_name in ['Maverick', 'Rango']:
                         if 'USDT' in token_names_list:
                             token_names_list.remove('USDT')
                 elif GLOBAL_NETWORK == 4:

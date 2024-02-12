@@ -193,6 +193,7 @@ class Runner(Logger):
                 await self.make_request(url=MOBILE_PROXY_URL_CHANGER[random.randint(1, 2)])
 
             self.logger_msg(None, None, f'IP address changed!\n', 'success')
+            await asyncio.sleep(15)
 
         except Exception as error:
             self.logger_msg(None, None, f'Bad URL for change IP. Error: {error}', 'error')

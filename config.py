@@ -810,6 +810,9 @@ BUNGEE_CONTRACTS = {
     },
     'Avalanche':{
         'gas_refuel': '0x040993fbF458b95871Cd2D73Ee2E09F4AF6d56bB'
+    },
+    'Optimism':{
+        'gas_refuel': '0x5800249621DA520aDFdCa16da20d8A5Fc0f814d8'
     }
 }
 
@@ -1202,6 +1205,9 @@ OMNISEA_CONTRACT = {
     },
     'Linea':{
         'drop_factory'          : "0xCa68A9Acf7C6E364d23382Bcb7ad06c5B29ddc44"
+    },
+    'Base':{
+        'drop_factory'          : "0xA8be4FED3E144a121e7916A0cD31B841DbF3618B"
     }
 }
 

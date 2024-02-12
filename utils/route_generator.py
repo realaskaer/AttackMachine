@@ -136,7 +136,7 @@ AVAILABLE_MODULES_INFO = {
     okx_deposit                         : (okx_deposit, 5, 'OKX Deposit', 0, []),
     bingx_deposit                       : (bingx_deposit, 5, 'Bingx Deposit', 0, []),
     binance_deposit                     : (binance_deposit, 5, 'Binance Deposit', 0, []),
-    okx_deposit_l0                   : (okx_deposit_l0, 5, 'Smart CEX Deposit', 0, []),
+    okx_deposit_l0                      : (okx_deposit_l0, 5, 'Smart CEX Deposit', 0, []),
 }
 
 

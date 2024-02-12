@@ -1,3 +1,4 @@
+from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 from config import TOKENS_PER_CHAIN, HELP_SOFTWARE
 from general_settings import SLIPPAGE, UNLIMITED_APPROVE
@@ -45,7 +46,13 @@ class Rango(RequestClient, Logger):
              "affiliateWallets": {self.network.upper(): "0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5"}}
              if HELP_SOFTWARE else {})
 
-        return await self.make_request(method='POST', url=url, headers=headers, json=quote_payload)
+        response = await self.make_request(method='POST', url=url, headers=headers, json=quote_payload)
+
+        if response.get('result'):
+            return response
+        error = response.get('diagnosisMessages')
+        raise SoftwareException(
+            error[0] if error else f"Can`t find route for swap {amount} {from_token_name} -> {to_token_name}")
 
     async def get_swap_data(self, request_id, step_len):
 
@@ -71,13 +78,17 @@ class Rango(RequestClient, Logger):
             "step": step_len
         }
 
-        return await self.make_request(method='POST', url=url, headers=headers, json=swap_payload)
+        response = await self.make_request(method='POST', url=url, headers=headers, json=swap_payload)
+
+        if not response.get('error'):
+            return response
+        raise SoftwareException(response.get('diagnosisMessages')[0])
 
     @helper
     @gas_checker
     async def swap(self, help_deposit: bool = False, swapdata: dict = None):
         if not swapdata:
-            from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
+            from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount('Rango')
         else:
             from_token_name, to_token_name, amount, amount_in_wei = swapdata
 
