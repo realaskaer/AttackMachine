@@ -428,8 +428,8 @@ class Zora(Blockchain, SimpleEVM):
         SimpleEVM.__init__(self, client)
         Blockchain.__init__(self, client)
 
-    async def get_bridge_info(self, amount_in_wei):
-        url = 'https://api-zora.reservoir.tools/execute/call/v1'
+    async def get_bridge_info(self, amount_in_wei, chain_to_name):
+        url = f'https://api-{chain_to_name.lower()}.reservoir.tools/execute/call/v1'
 
         payload = {
             "user": self.client.address,
@@ -443,11 +443,11 @@ class Zora(Blockchain, SimpleEVM):
             "originChainId": self.client.network.chain_id
         }
 
-        data = await self.make_request(method='POST', url=url, json=payload)
+        data = (await self.make_request(method='POST', url=url, json=payload))["steps"][0]["items"][0]["data"]
 
-        contract_address = data["steps"]["items"]["data"]
-        tx_data = data["steps"]["items"]["data"]
-        value = data["steps"]["items"]["value"]
+        contract_address = data["to"]
+        tx_data = data["data"]
+        value = data["value"]
 
         return contract_address, tx_data, value
 
@@ -456,13 +456,14 @@ class Zora(Blockchain, SimpleEVM):
     async def bridge(self):
         amount = await self.client.get_smart_amount(NATIVE_BRIDGE_AMOUNT)
         amount_in_wei = int(amount * 10 ** 18)
-
-        contract_address, tx_data, value = await self.get_bridge_info(amount_in_wei)
+        chain_to_name = CHAIN_NAME[random.choice(NATIVE_CHAIN_ID_TO)]
+        contract_address, tx_data, value = await self.get_bridge_info(amount_in_wei, chain_to_name)
 
         self.logger_msg(
-            *self.client.acc_info, msg=f'Bridge {amount} from {self.network} -> {CHAIN_NAME[NATIVE_CHAIN_ID_TO]}')
+            *self.client.acc_info,
+            msg=f'Bridge {amount} from {self.client.network.name} -> {chain_to_name}')
 
-        if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
+        if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei or True:
 
             transaction = await self.client.prepare_transaction(value=value) | {
                 'to': contract_address,
