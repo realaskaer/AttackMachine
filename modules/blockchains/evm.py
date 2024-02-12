@@ -4,7 +4,7 @@ from eth_account import Account
 from modules import Blockchain, Logger, Client
 from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
-from general_settings import TRANSFER_AMOUNT
+from general_settings import TRANSFER_AMOUNT, GLOBAL_NETWORK
 from settings import (
     NATIVE_WITHDRAW_AMOUNT,
     NATIVE_BRIDGE_AMOUNT, NATIVE_CHAIN_ID_TO,
@@ -22,10 +22,10 @@ class SimpleEVM(Logger):
         self.client = client
         Logger.__init__(self)
 
-        self.network = self.client.network.name
+        self.network = CHAIN_NAME[GLOBAL_NETWORK]
         self.token_contract = self.client.get_contract(
             TOKENS_PER_CHAIN[self.client.network.name]['WETH'], WETH_ABI)
-        if self.network in ['zkSync', 'Base', 'Scroll']:
+        if self.network in ['zkSync', 'Base', 'Scroll', 'Linea']:
             self.deposit_contract = self.client.get_contract(
                 NATIVE_CONTRACTS_PER_CHAIN[self.network]['deposit'],
                 NATIVE_ABI[self.network]['deposit'])
