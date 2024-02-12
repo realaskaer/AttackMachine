@@ -285,7 +285,8 @@ class Binance(CEX, Logger):
         ccy = f"{ccy}.e" if deposit_network in [29, 30] else ccy
         amount = await self.client.get_smart_amount(deposit_amount, token_name=ccy)
 
-        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to OKX wallet: {info}")
+        self.logger_msg(
+            *self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to Binance wallet: {info}")
 
         if network_data['depositEnable']:
 

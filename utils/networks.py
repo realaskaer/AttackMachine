@@ -261,7 +261,6 @@ HarmonyRPC = Network(
     name='Harmony One',
     rpc=[
         'https://api.harmony.one',
-        'https://api.s0.t.hmny.io',
         'https://a.api.s0.t.hmny.io',
         'https://endpoints.omniatech.io/v1/harmony/mainnet-0/public',
         'https://1rpc.io/one',

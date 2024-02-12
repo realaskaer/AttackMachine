@@ -295,9 +295,10 @@ class Custom(Logger, RequestClient):
             elif dapp_mode == 2:
                 attack_data = attack_info
 
-            await omnichain_util(self.client.account_name, self.client.private_key, self.client.network,
-                                 self.client.proxy_init, chain_id_from, attack_mode=True, attack_data=attack_data,
-                                 dapp_id=class_id, dapp_mode=dapp_mode)
+            await omnichain_util(
+                self.client.account_name, self.client.private_key, self.client.proxy_init,
+                chain_id_from, attack_data=attack_data, dapp_id=class_id, dapp_mode=dapp_mode
+            )
 
             await sleep(self)
 
@@ -411,6 +412,7 @@ class Custom(Logger, RequestClient):
             await client.session.close()
 
     @helper
+    @gas_checker
     async def smart_layerzero_util(self, dapp_id: int = None, dapp_mode: int = None):
         from functions import omnichain_util
 
@@ -441,8 +443,8 @@ class Custom(Logger, RequestClient):
 
                     action_flag = await omnichain_util(
                         self.client.account_name, self.client.private_key, self.client.proxy_init,
-                        chain_from_id=src_chain, dapp_id=class_id, dapp_mode=dapp_mode, attack_mode=True,
-                        attack_data=attack_data, need_check=True
+                        chain_from_id=src_chain, dapp_id=class_id, dapp_mode=dapp_mode, attack_data=attack_data,
+                        need_check=True
                     )
 
                     if action_flag:
@@ -454,8 +456,7 @@ class Custom(Logger, RequestClient):
 
                         result = await omnichain_util(
                             self.client.account_name, self.client.private_key, self.client.proxy_init,
-                            chain_from_id=src_chain, dapp_id=class_id, dapp_mode=dapp_mode, attack_mode=True,
-                            attack_data=attack_data
+                            chain_from_id=src_chain, dapp_id=class_id, dapp_mode=dapp_mode, attack_data=attack_data
                         )
 
                         if not ALL_DST_CHAINS:
@@ -490,6 +491,7 @@ class Custom(Logger, RequestClient):
         return result
 
     @helper
+    @gas_checker
     async def merkly_omnichain_util(self, dapp_mode:int, dapp_function:int):
         from functions import omnichain_util
 
@@ -511,6 +513,7 @@ class Custom(Logger, RequestClient):
 
         result = False
         action_flag = False
+
         for dst_data in dst_datas:
             chain_id_to = LAYERZERO_WRAPED_NETWORKS[dst_data]
             for src_chain in src_chains:
@@ -520,7 +523,7 @@ class Custom(Logger, RequestClient):
                             dst_data[0]: dst_data[1]
                         }
                     elif dapp_function == 2:
-                        attack_data = dst_datas
+                        attack_data = dst_data
                     else:
                         tokens_amount_bridge, tokens_amount_mint = token_amounts
                         if isinstance(tokens_amount_bridge, tuple):
@@ -532,8 +535,8 @@ class Custom(Logger, RequestClient):
 
                     action_flag = await omnichain_util(
                         self.client.account_name, self.client.private_key, self.client.proxy_init,
-                        chain_from_id=src_chain, dapp_id=2, dapp_mode=func_mode, attack_mode=True,
-                        attack_data=attack_data, need_check=True
+                        chain_from_id=src_chain, dapp_id=2, dapp_mode=func_mode, attack_data=attack_data,
+                        need_check=True
                     )
 
                     if action_flag:
@@ -545,8 +548,7 @@ class Custom(Logger, RequestClient):
 
                         result = await omnichain_util(
                             self.client.account_name, self.client.private_key, self.client.proxy_init,
-                            chain_from_id=src_chain, dapp_id=2, dapp_mode=func_mode, attack_mode=True,
-                            attack_data=attack_data
+                            chain_from_id=src_chain, dapp_id=2, dapp_mode=func_mode, attack_data=attack_data
                         )
 
                         if not ALL_DST_CHAINS:
@@ -578,7 +580,6 @@ class Custom(Logger, RequestClient):
         if ALL_DST_CHAINS:
             return True
         return result
-
 
     @helper
     async def smart_cex_withdraw(self, dapp_id:int):

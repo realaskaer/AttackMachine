@@ -291,11 +291,11 @@ class BingX(CEX, Logger):
         ccy = f"{ccy}.e" if deposit_network in [29, 30] else ccy
         amount = await self.client.get_smart_amount(deposit_amount, token_name=ccy)
 
-        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to OKX wallet: {info}")
+        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to BingX wallet: {info}")
 
         if network_data['depositEnable']:
 
-            if ccy in ['USDT', 'USDC', 'USDC.e']:
+            if ccy != self.client.token:
                 token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
                 decimals = await self.client.get_decimals(ccy)
                 amount_in_wei = int(amount * 10 ** decimals)
@@ -311,13 +311,13 @@ class BingX(CEX, Logger):
                     'data': '0x'
                 }
 
-            #cex_balances = await self.get_cex_balances(ccy=ccy)
+            cex_balances = await self.get_cex_balances(ccy=ccy)
 
             result = await self.client.send_transaction(transaction)
 
-            #await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
+            await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
 
-            #await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
+            await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
 
             return result
         else:

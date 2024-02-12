@@ -4,7 +4,7 @@ from modules import *
 from utils.networks import *
 from config import LAYERZERO_WRAPED_NETWORKS
 from general_settings import GLOBAL_NETWORK
-from settings import (SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, SRC_CHAIN_L2PASS, SRC_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_BUNGEE,
+from settings import (SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, SRC_CHAIN_L2PASS, SRC_CHAIN_BUNGEE,
                       SRC_CHAIN_L2TELEGRAPH, NATIVE_CHAIN_ID_FROM, L2PASS_GAS_STATION_ID_FROM, SRC_CHAIN_WHALE)
 
 
@@ -163,7 +163,7 @@ async def bridge_rhino(account_name, private_key, network, proxy):
 
 async def omnichain_util(
         account_name, private_key, proxy, chain_from_id:int = 0, chain_to:int = 0, dapp_id:int = 0,
-        dapp_mode:int | str = 0, attack_mode:bool = False, google_module:bool = False, attack_data:dict | int = None,
+        dapp_mode:int | str = 0, google_mode:bool = False, attack_data:dict | int = None,
         need_check:bool = False,
 ):
 
@@ -174,7 +174,7 @@ async def omnichain_util(
         4: (Zerius, SRC_CHAIN_ZERIUS),
     }[dapp_id]
 
-    if google_module:
+    if google_mode:
         attack_data = {
             chain_to: (0.000001, 0.0000045)
         } if dapp_mode == 1 else chain_to
@@ -199,7 +199,7 @@ async def omnichain_util(
             'token bridge Hyperlane': worker.ht_bridge,
         }[dapp_mode]
 
-    return await func(wrapped_chain_id, attack_mode=attack_mode, attack_data=attack_data, need_check=need_check)
+    return await func(wrapped_chain_id, attack_data=attack_data, google_mode=google_mode, need_check=need_check)
 
 
 async def bridge_l2pass(account_name, private_key, _, proxy):
@@ -220,49 +220,49 @@ async def bridge_zerius(account_name, private_key, _, proxy):
 
 async def l2pass_refuel_google(account_name, private_key, _, proxy, chain_from, chain_to):
     return await omnichain_util(
-        account_name, private_key, proxy, chain_from, chain_to, dapp_id=1, dapp_mode=1, google_module=True
+        account_name, private_key, proxy, chain_from, chain_to, dapp_id=1, dapp_mode=1, google_mode=True
     )
 
 
 async def merkly_refuel_google(account_name, private_key, _, proxy, chain_from, chain_to):
     return await omnichain_util(
-        account_name, private_key, proxy, chain_from, chain_to, dapp_id=2, dapp_mode=1, google_module=True
+        account_name, private_key, proxy, chain_from, chain_to, dapp_id=2, dapp_mode=1, google_mode=True
     )
 
 
 async def whale_refuel_google(account_name, private_key, _, proxy, chain_from, chain_to):
     return await omnichain_util(
-        account_name, private_key, proxy, chain_from, chain_to, dapp_id=3, dapp_mode=1, google_module=True
+        account_name, private_key, proxy, chain_from, chain_to, dapp_id=3, dapp_mode=1, google_mode=True
     )
 
 
 async def zerius_refuel_google(account_name, private_key, _, proxy, chain_from, chain_to):
     return await omnichain_util(
-        account_name, private_key, proxy, chain_from, chain_to, dapp_id=4, dapp_mode=1, google_module=True
+        account_name, private_key, proxy, chain_from, chain_to, dapp_id=4, dapp_mode=1, google_mode=True
     )
 
 
 async def l2pass_bridge_google(account_name, private_key, _, proxy, chain_from, chain_to):
     return await omnichain_util(
-        account_name, private_key, proxy, chain_from, chain_to, dapp_id=1, dapp_mode=2, google_module=True
+        account_name, private_key, proxy, chain_from, chain_to, dapp_id=1, dapp_mode=2, google_mode=True
     )
 
 
 async def merkly_bridge_google(account_name, private_key, _, proxy, chain_from, chain_to):
     return await omnichain_util(
-        account_name, private_key, proxy, chain_from, chain_to, dapp_id=2, dapp_mode=2, google_module=True
+        account_name, private_key, proxy, chain_from, chain_to, dapp_id=2, dapp_mode=2, google_mode=True
     )
 
 
 async def whale_bridge_google(account_name, private_key, _, proxy, chain_from, chain_to):
     return await omnichain_util(
-        account_name, private_key, proxy, chain_from, chain_to, dapp_id=3, dapp_mode=2, google_module=True
+        account_name, private_key, proxy, chain_from, chain_to, dapp_id=3, dapp_mode=2, google_mode=True
     )
 
 
 async def zerius_bridge_google(account_name, private_key, _, proxy, chain_from, chain_to):
     return await omnichain_util(
-        account_name, private_key, proxy, chain_from, chain_to, dapp_id=4, dapp_mode=2, google_module=True
+        account_name, private_key, proxy, chain_from, chain_to, dapp_id=4, dapp_mode=2, google_mode=True
     )
 
 
@@ -334,6 +334,26 @@ async def bridge_wormhole_nft(account_name, private_key, network, proxy):
 async def bridge_wormhole_token(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.merkly_omnichain_util(dapp_mode=1, dapp_function=3)
+
+
+async def refuel_polyhedra(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.merkly_omnichain_util(dapp_mode=2, dapp_function=1)
+
+
+async def bridge_polyhedra_nft(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.merkly_omnichain_util(dapp_mode=2, dapp_function=2)
+
+
+async def bridge_hyperlane_nft(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.merkly_omnichain_util(dapp_mode=3, dapp_function=2)
+
+
+async def bridge_hyperlane_token(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.merkly_omnichain_util(dapp_mode=3, dapp_function=3)
 
 
 async def okx_withdraw(account_name, private_key, network, proxy):
@@ -771,7 +791,7 @@ async def bingx_transfer(account_name, private_key, network, proxy):
 
 
 async def bridge_zora(account_name, private_key, _, proxy):
-    network = get_network_by_chain_id(NATIVE_CHAIN_ID_FROM)
+    network = get_network_by_chain_id(random.choice(NATIVE_CHAIN_ID_FROM))
 
     worker = Zora(get_client(account_name, private_key, network, proxy))
     return await worker.bridge()

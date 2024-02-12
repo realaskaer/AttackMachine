@@ -38,8 +38,9 @@ class L2Pass(Refuel, Minter, Logger):
         return estimate_gas_bridge_fee
 
     @helper
-    @gas_checker
-    async def refuel(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False):
+    async def refuel(
+            self, chain_from_id: int, attack_data: dict, google_mode: bool = False, need_check: bool = False
+    ):
         dst_data = random.choice(list(attack_data.items()))
         dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
         dst_amount = self.client.round_amount(*dst_data[1])
@@ -81,7 +82,7 @@ class L2Pass(Refuel, Minter, Logger):
                 if self.client.network.name != 'Polygon':
                     result = await self.client.wait_for_l0_received(tx_result)
 
-            if attack_data and attack_mode is False:
+            if google_mode:
                 return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
             return result
 
@@ -109,8 +110,9 @@ class L2Pass(Refuel, Minter, Logger):
         return await self.client.send_transaction(transaction)
 
     @helper
-    @gas_checker
-    async def bridge(self, chain_from_id, attack_mode: bool = False, attack_data: dict = None, need_check:bool = False):
+    async def bridge(
+            self, chain_from_id: int, attack_data: int, google_mode: bool = False, need_check: bool = False
+    ):
         dst_chain = attack_data
         onft_contract = self.client.get_contract(L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], L2PASS_ABI['ONFT'])
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
@@ -167,7 +169,7 @@ class L2Pass(Refuel, Minter, Logger):
                 if self.client.network.name != 'Polygon':
                     result = await self.client.wait_for_l0_received(tx_result)
 
-            if attack_data and attack_mode is False:
+            if google_mode:
                 return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
             return result
 

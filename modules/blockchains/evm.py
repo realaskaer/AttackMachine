@@ -445,7 +445,7 @@ class Zora(Blockchain, SimpleEVM):
 
         data = (await self.make_request(method='POST', url=url, json=payload))["steps"][0]["items"][0]["data"]
 
-        contract_address = data["to"]
+        contract_address = self.client.w3.to_checksum_address(data["to"])
         tx_data = data["data"]
         value = data["value"]
 
@@ -463,7 +463,7 @@ class Zora(Blockchain, SimpleEVM):
             *self.client.acc_info,
             msg=f'Bridge {amount} from {self.client.network.name} -> {chain_to_name}')
 
-        if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei or True:
+        if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
             transaction = await self.client.prepare_transaction(value=value) | {
                 'to': contract_address,
