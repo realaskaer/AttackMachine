@@ -238,7 +238,7 @@ class Merkly(Refuel, Minter, Logger):
     async def wt_bridge(
             self, chain_from_id:int, attack_data:tuple, google_mode:bool = False, need_check:bool = False
     ):
-        tokens_amount_bridge, tokens_amount_mint, dst_chain = attack_data
+        tokens_amount_mint, tokens_amount_bridge, dst_chain = attack_data
 
         oft_contract = self.client.get_contract(
             MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['WOFT'], MERKLY_ABI['WOFT'])
@@ -256,7 +256,7 @@ class Merkly(Refuel, Minter, Logger):
 
         if (token_balance == 0 and need_check) or (token_balance < tokens_amount_bridge and not need_check):
 
-            mint_price_in_wei = int((Decimal(f"{mint_price}") * 10 ** 18) * tokens_amount_mint)
+            mint_price_in_wei = int(mint_price * tokens_amount_mint * 10 ** 18)
 
             self.logger_msg(
                 *self.client.acc_info,

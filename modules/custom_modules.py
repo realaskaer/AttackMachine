@@ -525,13 +525,13 @@ class Custom(Logger, RequestClient):
                     elif dapp_function == 2:
                         attack_data = dst_data
                     else:
-                        tokens_amount_bridge, tokens_amount_mint = token_amounts
+                        tokens_amount_mint, tokens_amount_bridge = token_amounts
                         if isinstance(tokens_amount_bridge, tuple):
                             tokens_amount_bridge = random.choice(tokens_amount_bridge)
                         if isinstance(tokens_amount_mint, tuple):
                             tokens_amount_mint = random.choice(tokens_amount_mint)
 
-                        attack_data = tokens_amount_bridge, tokens_amount_mint, dst_data
+                        attack_data = tokens_amount_mint, tokens_amount_bridge, dst_data
 
                     action_flag = await omnichain_util(
                         self.client.account_name, self.client.private_key, self.client.proxy_init,
@@ -640,7 +640,7 @@ class Custom(Logger, RequestClient):
 
                 networks, amount = current_data
                 if isinstance(networks, tuple):
-                    dapp_tokens = [f"{cex_config[network].split('-')[0]}{'.e' if network in [30, 31] else ''}"
+                    dapp_tokens = [f"{cex_config[network].split('-')[0]}{'.e' if network in [29, 30] else ''}"
                                    for network in networks]
                     dapp_chains = [CEX_WRAPPED_ID[chain] for chain in networks]
                 else:
@@ -663,7 +663,7 @@ class Custom(Logger, RequestClient):
                     dep_amount_in_usd = dep_amount * token_price
 
                     if balance_in_usd > dep_amount_in_usd:
-
+                        print(min_wanted_amount,(balance_in_usd - dep_amount_in_usd), max_wanted_amount)
                         if min_wanted_amount <= (balance_in_usd - dep_amount_in_usd) <= max_wanted_amount:
 
                             deposit_data = dep_network, (dep_amount, dep_amount)
@@ -674,6 +674,8 @@ class Custom(Logger, RequestClient):
                                 result_list.append(
                                     await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
                                 )
+                                await client.session.close()
+                                continue
 
                         hold_amount_in_usd = balance_in_usd - dep_amount_in_usd
                         info = f"{min_wanted_amount:.2f}$ <= {hold_amount_in_usd:.2f}$ <= {max_wanted_amount:.2f}$"
