@@ -447,7 +447,7 @@ class Zora(Blockchain, SimpleEVM):
 
         contract_address = self.client.w3.to_checksum_address(data["to"])
         tx_data = data["data"]
-        value = data["value"]
+        value = int(data["value"])
 
         return contract_address, tx_data, value
 

@@ -592,6 +592,7 @@ class Custom(Logger, RequestClient):
         }[dapp_id]
 
         random.shuffle(multi_withdraw_data)
+        result_list = []
 
         for data in multi_withdraw_data:
             current_data = data
@@ -605,7 +606,7 @@ class Custom(Logger, RequestClient):
                 raise SoftwareExceptionWithoutRetry('CEX withdrawal does not support % of the amount')
 
             try:
-                await func(self.client, withdraw_data=(network, amount))
+                result_list.append(await func(self.client, withdraw_data=(network, amount)))
 
             except Exception as error:
                 self.logger_msg(
@@ -613,7 +614,7 @@ class Custom(Logger, RequestClient):
 
             await sleep(self)
 
-        return True
+        return all(result_list)
 
     @helper
     @gas_checker
@@ -628,7 +629,9 @@ class Custom(Logger, RequestClient):
                 3: (3, BINANCE_DEPOSIT_DATA, BINANCE_NETWORKS_NAME),
             }[dapp_id]
 
+            result_list = []
             for data in multi_deposit_data:
+
                 current_data = data
                 if isinstance(data[0], list):
                     current_data = random.choice(data)
@@ -665,7 +668,12 @@ class Custom(Logger, RequestClient):
 
                             deposit_data = dep_network, (dep_amount, dep_amount)
 
-                            return await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
+                            if len(multi_deposit_data) == 1:
+                                return await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
+                            else:
+                                result_list.append(
+                                    await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
+                                )
 
                         hold_amount_in_usd = balance_in_usd - dep_amount_in_usd
                         info = f"{min_wanted_amount:.2f}$ <= {hold_amount_in_usd:.2f}$ <= {max_wanted_amount:.2f}$"
@@ -676,6 +684,7 @@ class Custom(Logger, RequestClient):
 
                 info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
                 raise SoftwareExceptionWithoutRetry(f'Account {dep_token} balance < wanted limit amount: {info}')
+            return all(result_list)
         finally:
             await client.session.close()
 
