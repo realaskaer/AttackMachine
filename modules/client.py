@@ -160,9 +160,10 @@ class Client(Logger):
 
         try:
             if check_balance_on_dst:
-                old_balance, _, _ = await client.get_token_balance(
-                    token_address=token_address if token_address else token_name
-                )
+                if token_address:
+                    old_balance, _, _ = await client.get_token_balance(token_address=token_address)
+                else:
+                    old_balance, _, _ = await client.get_token_balance(token_name)
                 return old_balance
 
             self.logger_msg(*self.acc_info, msg=f'Waiting {token_name} to receive')
@@ -171,17 +172,22 @@ class Client(Logger):
             new_eth_balance = 0
             while t < timeout:
                 try:
-                    new_eth_balance, _, _ = await client.get_token_balance(
-                        token_address=token_address if token_address else token_name
-                    )
+                    if token_address:
+                        new_eth_balance, _, _ = await client.get_token_balance(token_address=token_address)
+                    else:
+                        new_eth_balance, _, _ = await client.get_token_balance(token_name)
                 except:
                     pass
 
                 if new_eth_balance > old_balance:
-                    dicimals = await client.get_decimals(
-                        token_address=token_address if token_address else token_name
-                    ) if token_name != client.network.token else 18
-                    amount = round((new_eth_balance - old_balance) / 10 ** dicimals, 6)
+                    decimals = 18
+                    if token_name != client.network.token:
+                        if token_address:
+                            decimals = await client.get_decimals(token_address=token_address)
+                        else:
+                            decimals = await client.get_decimals(token_name)
+
+                    amount = round((new_eth_balance - old_balance) / 10 ** decimals, 6)
                     self.logger_msg(*self.acc_info, msg=f'{amount} {token_name} was received', type_msg='success')
                     return True
                 else:
