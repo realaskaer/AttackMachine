@@ -91,7 +91,7 @@ class LayerSwap(Bridge, Logger):
 
             if float(min_amount) <= amount <= float(max_amount):
 
-                amount_in_wei = int(amount * 10 ** available_for_swap[source_chain][1])
+                amount_in_wei = self.client.to_wei(amount, available_for_swap[source_chain][1])
 
                 swap_id = await self.get_swap_id(amount, *data)
                 tx_data = await self.create_tx(swap_id['swap_id'])

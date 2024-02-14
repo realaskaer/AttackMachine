@@ -23,7 +23,7 @@ from settings import (
     LAYERSWAP_TOKEN_NAME, RELAY_TOKEN_NAME, RHINO_TOKEN_NAME, OKX_DEPOSIT_DATA, BINGX_DEPOSIT_DATA,
     SRC_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_MERKLY_POLYHEDRA, SRC_CHAIN_MERKLY_HYPERLANE, DST_CHAIN_MERKLY_WORMHOLE,
     DST_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_HYPERLANE, WORMHOLE_TOKENS_AMOUNT, HYPERLANE_TOKENS_AMOUNT,
-    DST_CHAIN_MERKLY_POLYHEDRA_REFUEL
+    DST_CHAIN_MERKLY_POLYHEDRA_REFUEL, CEX_VOLUME_MODE, BRIDGE_VOLUME_MODE
 )
 
 
@@ -401,7 +401,7 @@ class Custom(Logger, RequestClient):
             native = [client.network.token, f"W{client.network.token}"]
             token_contract = random.choice([i for i in list(TOKENS_PER_CHAIN[network_name].items()) if i[0] not in native])
             amount = random.uniform(1, 10000)
-            amount_in_wei = int(amount * 10 ** await client.get_decimals(token_contract[0]))
+            amount_in_wei = self.client.to_wei(amount, await client.get_decimals(token_contract[0]))
 
             message = f"Approve {amount:.4f} {token_contract[0]} for {contract_name}"
             self.logger_msg(*client.acc_info, msg=message)
@@ -659,12 +659,16 @@ class Custom(Logger, RequestClient):
 
                 if balance_in_usd > limit_amount:
 
-                    dep_amount = await client.get_smart_amount(amount)
+                    if CEX_VOLUME_MODE:
+                        dep_amount = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
+                    else:
+                        dep_amount = await client.get_smart_amount(amount)
                     dep_amount_in_usd = dep_amount * token_price
 
                     if balance_in_usd > dep_amount_in_usd:
-                        print(min_wanted_amount,(balance_in_usd - dep_amount_in_usd), max_wanted_amount)
-                        if min_wanted_amount <= (balance_in_usd - dep_amount_in_usd) <= max_wanted_amount:
+
+                        if (min_wanted_amount <= (balance_in_usd - dep_amount_in_usd) <= max_wanted_amount
+                                or CEX_VOLUME_MODE):
 
                             deposit_data = dep_network, (dep_amount, dep_amount)
 
@@ -736,12 +740,16 @@ class Custom(Logger, RequestClient):
 
             if balance_in_usd > limit_amount:
 
-                bridge_amount = await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data, need_fee=True)
+                if BRIDGE_VOLUME_MODE:
+                    bridge_amount = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
+                else:
+                    bridge_amount = await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data, need_fee=True)
                 bridge_amount_in_usd = bridge_amount * token_price
 
                 if balance_in_usd > bridge_amount_in_usd:
 
-                    if min_wanted_amount <= (balance_in_usd - bridge_amount_in_usd) <= max_wanted_amount:
+                    if (min_wanted_amount <= (balance_in_usd - bridge_amount_in_usd) <= max_wanted_amount
+                            or BRIDGE_VOLUME_MODE):
 
                         return await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data)
 

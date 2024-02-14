@@ -144,6 +144,7 @@ class RequestClient(ABC):
                                                params=params, json=json) as response:
             try:
                 data = await response.json()
+
                 if response.status == 200:
                     return data
                 raise SoftwareException(

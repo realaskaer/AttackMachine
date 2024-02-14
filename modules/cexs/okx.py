@@ -105,9 +105,8 @@ class OKX(CEX, Logger):
             raise SoftwareExceptionWithoutRetry(f"Withdraw from {network_name} is not available")
 
     @helper
-    async def transfer_from_subaccounts(self, ccy:str = 'ETH', amount_in_wei:int = None):
+    async def transfer_from_subaccounts(self, ccy:str = 'ETH', amount:float = None):
 
-        decimals = await self.client.get_decimals(token_name=ccy) if ccy != self.client.token else 18
         if ccy == 'USDC.e':
             ccy = 'USDC'
 
@@ -115,7 +114,6 @@ class OKX(CEX, Logger):
 
         url_sub_list = "https://www.okx.cab/api/v5/users/subaccount/list"
 
-        amount = round(amount_in_wei / 10 ** decimals, 6)
         flag = True
         headers = await self.get_headers(request_path=url_sub_list)
         sub_list = await self.make_request(url=url_sub_list, headers=headers, module_name='Get subAccounts list')
@@ -297,14 +295,14 @@ class OKX(CEX, Logger):
                 if ccy != self.client.token:
                     token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
                     decimals = await self.client.get_decimals(ccy)
-                    amount_in_wei = int(amount * 10 ** decimals)
+                    amount_in_wei = self.client.to_wei(amount, decimals)
 
                     transaction = await token_contract.functions.transfer(
                         self.client.w3.to_checksum_address(okx_wallet),
                         amount_in_wei
                     ).build_transaction(await self.client.prepare_transaction())
                 else:
-                    amount_in_wei = int(amount * 10 ** 18)
+                    amount_in_wei = self.client.to_wei(amount)
                     transaction = (await self.client.prepare_transaction(value=amount_in_wei)) | {
                         'to': self.client.w3.to_checksum_address(okx_wallet),
                         'data': '0x'
@@ -316,7 +314,7 @@ class OKX(CEX, Logger):
 
                 await self.wait_deposit_confirmation(amount, sub_balances, ccy=ccy)
 
-                await self.transfer_from_subaccounts(ccy=ccy, amount_in_wei=amount_in_wei)
+                await self.transfer_from_subaccounts(ccy=ccy, amount_in_wei=amount)
 
                 await sleep(self, 5, 10)
 

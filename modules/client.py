@@ -46,7 +46,7 @@ class Client(Logger):
 
         self.proxy_init = proxy
         self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}", verify_ssl=False)
-                                     if proxy else TCPConnector(verify_ssl=False))
+        if proxy else TCPConnector(verify_ssl=False))
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
         self.rpc = random.choice(network.rpc)
         self.w3 = AsyncWeb3(AsyncHTTPProvider(self.rpc, request_kwargs=self.request_kwargs))
@@ -62,7 +62,7 @@ class Client(Logger):
         return round(random.uniform(min_amount, max_amount), decimals if decimals <= max_decimals else 6)
 
     @staticmethod
-    def get_normalize_error(error:Exception) -> Exception | str:
+    def get_normalize_error(error: Exception) -> Exception | str:
         try:
             if isinstance(error.args[0], dict):
                 error = error.args[0].get('message', error)
@@ -86,12 +86,21 @@ class Client(Logger):
                 self.account_name, None,
                 msg=f'This network has only 1 RPC, no replacement is possible', type_msg='warning')
 
-    async def get_decimals(self, token_name:str = None, token_address:str = None) -> int:
+    def to_wei(self, number: int | float | str, decimals: int = 18) -> int:
+
+        unit_name = {
+            18: 'ether',
+            6: 'mwei'
+        }[decimals]
+
+        return self.w3.to_wei(number=number, unit=unit_name)
+
+    async def get_decimals(self, token_name: str = None, token_address: str = None) -> int:
         contract_address = token_address if token_address else TOKENS_PER_CHAIN[self.network.name][token_name]
         contract = self.get_contract(contract_address)
         return await contract.functions.decimals().call()
 
-    async def get_normalize_amount(self, token_name:str, amount_in_wei:int) -> float:
+    async def get_normalize_amount(self, token_name: str, amount_in_wei: int) -> float:
         decimals = await self.get_decimals(token_name)
         return float(amount_in_wei / 10 ** decimals)
 
@@ -107,7 +116,7 @@ class Client(Logger):
         return amount
 
     async def price_impact_defender(
-            self, from_token_name:str, from_token_amount:float, to_token_name:str, to_token_amount_in_wei:int
+            self, from_token_name: str, from_token_amount: float, to_token_name: str, to_token_amount_in_wei: int
     ):
 
         to_token_amount = await self.get_normalize_amount(to_token_name, to_token_amount_in_wei)
@@ -148,13 +157,13 @@ class Client(Logger):
         amount = await self.get_smart_amount(deposit_info)
         return source_chain, destination_chain, amount, dst_chain_id
 
-    async def new_client(self, chain_id:int):
+    async def new_client(self, chain_id: int):
         from functions import get_network_by_chain_id
         return Client(self.account_name, self.private_key, get_network_by_chain_id(chain_id), self.proxy_init)
 
     async def wait_for_receiving(
             self, chain_id: int, old_balance: int = 0, token_name: str = 'ETH', sleep_time: int = 60,
-            timeout: int = 1200, check_balance_on_dst: bool = False, token_address:str = None
+            timeout: int = 1200, check_balance_on_dst: bool = False, token_address: str = None
     ) -> bool:
         client = await self.new_client(chain_id)
 
@@ -203,7 +212,7 @@ class Client(Logger):
 
     async def get_token_balance(
             self, token_name: str = 'ETH', check_symbol: bool = True, omnicheck: bool = False,
-            check_native: bool = False, bridge_check:bool = False, token_address:str = None
+            check_native: bool = False, bridge_check: bool = False, token_address: str = None
     ) -> [float, int, str]:
 
         if not check_native:
@@ -260,7 +269,7 @@ class Client(Logger):
             pass
 
         amount = await self.get_smart_amount(settings if settings else LIQUIDITY_AMOUNT)
-        amount_in_wei = int(amount * 10 ** 18)
+        amount_in_wei = self.to_wei(amount)
 
         return amount, amount_in_wei
 
@@ -326,7 +335,7 @@ class Client(Logger):
         else:
             raise SoftwareException('Insufficient balance on account!')
 
-    def get_contract(self, contract_address: str, abi:dict = ERC20_ABI) -> AsyncContract:
+    def get_contract(self, contract_address: str, abi: dict = ERC20_ABI) -> AsyncContract:
         return self.w3.eth.contract(
             address=AsyncWeb3.to_checksum_address(contract_address),
             abi=abi

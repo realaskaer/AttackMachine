@@ -298,14 +298,14 @@ class BingX(CEX, Logger):
             if ccy != self.client.token:
                 token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
                 decimals = await self.client.get_decimals(ccy)
-                amount_in_wei = int(amount * 10 ** decimals)
+                amount_in_wei = self.client.to_wei(amount, decimals)
 
                 transaction = await token_contract.functions.transfer(
                     self.client.w3.to_checksum_address(cex_wallet),
                     amount_in_wei
                 ).build_transaction(await self.client.prepare_transaction())
             else:
-                amount_in_wei = int(amount * 10 ** 18)
+                amount_in_wei = self.client.to_wei(amount)
                 transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
                     'to': self.client.w3.to_checksum_address(cex_wallet),
                     'data': '0x'

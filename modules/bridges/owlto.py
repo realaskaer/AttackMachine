@@ -92,7 +92,7 @@ class Owlto(Bridge, Logger, RequestClient):
 
         destination_code = int(to_chain_info['networkCode'])
         fee_in_wei = int(fee * 10 ** decimals)
-        amount_in_wei = int(round(amount, 6) * 10 ** decimals)
+        amount_in_wei = self.client.to_wei(round(amount, 6), decimals)
         full_amount = int(round(amount_in_wei + fee_in_wei, -2) + destination_code)
 
         if need_check:

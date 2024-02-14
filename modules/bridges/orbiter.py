@@ -43,7 +43,7 @@ class Orbiter(Bridge, Logger):
         destination_code = 9000 + to_chain['id']
         decimals = await self.client.get_decimals(token_address=from_token_address)
         fee = int(float(bridge_data['fee']) * 10 ** decimals)
-        amount_in_wei = int(amount * 10 ** decimals)
+        amount_in_wei = self.client.to_wei(amount, decimals)
         full_amount = int(round(amount_in_wei + fee, -4) + destination_code)
 
         if need_check:

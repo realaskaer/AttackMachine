@@ -6,7 +6,7 @@ from hashlib import sha256
 from modules import CEX, Logger
 from modules.interfaces import SoftwareExceptionWithoutRetry
 from utils.tools import helper
-from config import CEX_WRAPPED_ID, BINANCE_NETWORKS_NAME, TOKENS_PER_CHAIN
+from config import BINANCE_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID
 
 
 class Binance(CEX, Logger):
@@ -37,7 +37,7 @@ class Binance(CEX, Logger):
 
             return signature
         except Exception as error:
-            raise SoftwareExceptionWithoutRetry(f'Bad signature for BingX request: {error}')
+            raise SoftwareExceptionWithoutRetry(f'Bad signature for Binance request: {error}')
 
     async def get_balance(self, ccy: str):
         path = '/openApi/spot/v1/account/balance'
@@ -76,7 +76,6 @@ class Binance(CEX, Logger):
         network_raw_name = BINANCE_NETWORKS_NAME[network_id]
         ccy, network_name = network_raw_name.split('-')
         dst_chain_id = CEX_WRAPPED_ID[network_id]
-
         withdraw_data = (await self.get_currencies(ccy))[0]['networkList']
 
         amount = want_balance if want_balance else await self.client.get_smart_amount(amount)
@@ -128,7 +127,7 @@ class Binance(CEX, Logger):
             raise SoftwareExceptionWithoutRetry(f"Withdraw from {network_name} is not available")
 
     async def get_sub_list(self):
-        path = "sapi/v1/sub-account/list"
+        path = "/sapi/v1/sub-account/list"
 
         parse_params = self.parse_params()
         url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
@@ -147,8 +146,7 @@ class Binance(CEX, Logger):
         url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
 
         await asyncio.sleep(2)
-        return await self.make_request(url=url, params=params, headers=self.headers,
-                                       module_name='Get subAccount balance')
+        return await self.make_request(url=url, headers=self.headers, module_name='Get subAccount balance')
 
     async def get_main_balance(self):
         path = '/sapi/v3/asset/getUserAsset'
@@ -157,27 +155,24 @@ class Binance(CEX, Logger):
         url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
 
         await asyncio.sleep(2)
-        return await self.make_request(url=url, headers=self.headers, content_type=None,
+        return await self.make_request(method='POST', url=url, headers=self.headers, content_type=None,
                                        module_name='Get main account balance')
 
     async def transfer_from_subaccounts(self, ccy: str = 'ETH', amount: float = None):
 
-        if ccy == 'USDC.e':
-            ccy = 'USDC'
-
         self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
 
         flag = True
-        sub_list = await self.get_sub_list()
+        sub_list = (await self.get_sub_list())['subAccounts']
 
         for sub_data in sub_list:
             sub_email = sub_data['email']
-            sub_uid = sub_data['subUid']
 
-            sub_balances = await self.get_sub_balance(sub_uid)
-            sub_balance = float([balance for balance in sub_balances if balance['asset'] == ccy][0]['free'])
+            sub_balances = await self.get_sub_balance(sub_email)
+            asset_balances = [balance for balance in sub_balances['balances'] if balance['asset'] == ccy]
+            sub_balance = 0 if len(asset_balances) == 0 else float(asset_balances[0]['free'])
 
-            if sub_balance != 0.0:
+            if sub_balance == amount:
                 flag = False
                 self.logger_msg(*self.client.acc_info, msg=f'{sub_email} | subAccount balance : {sub_balance} {ccy}')
 
@@ -197,33 +192,29 @@ class Binance(CEX, Logger):
 
                 self.logger_msg(*self.client.acc_info,
                                 msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success')
+
+                break
         if flag:
             self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
         return True
 
     async def get_cex_balances(self, ccy: str = 'ETH'):
-
-        if ccy == 'USDC.e':
-            ccy = 'USDC'
-
         balances = {}
 
         main_balance = await self.get_main_balance()
 
-        available_balance = [balance for balance in main_balance['balances'] if balance['asset'] == ccy]
+        available_balance = [balance for balance in main_balance if balance['asset'] == ccy]
 
         if available_balance:
             balances['Main CEX Account'] = float(available_balance[0]['free'])
 
-        sub_list = await self.get_sub_list()
+        sub_list = (await self.get_sub_list())['subAccounts']
 
         for sub_data in sub_list:
-            sub_name = sub_data['subAccountString']
-            sub_uid = sub_data['subUid']
-
-            sub_balances = await self.get_sub_balance(sub_uid)
-
-            balances[sub_name] = float([balance for balance in sub_balances if balance['asset'] == ccy][0]['free'])
+            sub_name = sub_data['email']
+            sub_balances = await self.get_sub_balance(sub_name)
+            balances[sub_name] = float(
+                [balance for balance in sub_balances['balances'] if balance['asset'] == ccy][0]['free'])
 
             await asyncio.sleep(3)
 
@@ -231,9 +222,6 @@ class Binance(CEX, Logger):
 
     async def wait_deposit_confirmation(self, amount: float, old_balances: dict, ccy: str = 'ETH',
                                         check_time: int = 45, timeout: int = 1200):
-
-        if ccy == 'USDC.e':
-            ccy = 'USDC'
 
         self.logger_msg(*self.client.acc_info, msg=f"Start checking CEX balances")
 
@@ -293,15 +281,15 @@ class Binance(CEX, Logger):
             if ccy != self.client.token:
                 token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
                 decimals = await self.client.get_decimals(ccy)
-                amount_in_wei = int(amount * 10 ** decimals)
+                amount_in_wei = self.client.to_wei(amount, decimals)
 
                 transaction = await token_contract.functions.transfer(
                     self.client.w3.to_checksum_address(cex_wallet),
                     amount_in_wei
                 ).build_transaction(await self.client.prepare_transaction())
             else:
-                amount_in_wei = int(amount * 10 ** 18)
-                transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
+                amount_in_wei = self.client.to_wei(amount)
+                transaction = (await self.client.prepare_transaction(value=amount_in_wei)) | {
                     'to': self.client.w3.to_checksum_address(cex_wallet),
                     'data': '0x'
                 }

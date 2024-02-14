@@ -162,7 +162,7 @@ class SimpleEVM(Logger):
         native = ['ETH', 'WETH']
         token_contract = random.choice([i for i in list(TOKENS_PER_CHAIN[self.network].items()) if i[0] not in native])
         amount = random.uniform(1, 10000)
-        amount_in_wei = int(amount * 10 ** await self.client.get_decimals(token_contract[0]))
+        amount_in_wei = self.client.to_wei(amount, await self.client.get_decimals(token_contract[0]))
 
         message = f"Approve {amount:.4f} {token_contract[0]} for {contract_name}"
         self.logger_msg(*self.client.acc_info, msg=message)
@@ -183,7 +183,7 @@ class Scroll(Blockchain, SimpleEVM):
     async def deposit(self):
 
         amount = await self.client.get_smart_amount(NATIVE_BRIDGE_AMOUNT)
-        amount_in_wei = int(amount * 10 ** 18)
+        amount_in_wei = self.client.to_wei(amount)
 
         self.logger_msg(*self.client.acc_info, msg=f'Bridge {amount} ETH ERC20 -> Scroll')
 
@@ -207,7 +207,7 @@ class Scroll(Blockchain, SimpleEVM):
     @gas_checker
     async def withdraw(self):
 
-        amount, amount_in_wei = await self.client.check_and_get_eth(NATIVE_WITHDRAW_AMOUNT)
+        amount, amount_in_wei = await self.client.get_smart_amount(NATIVE_WITHDRAW_AMOUNT)
 
         self.logger_msg(*self.client.acc_info, msg=f'Withdraw {amount} ETH Scroll -> ERC20')
 
@@ -243,7 +243,7 @@ class ZkSync(Blockchain, SimpleEVM):
     async def deposit(self):
 
         amount = await self.client.get_smart_amount(NATIVE_BRIDGE_AMOUNT)
-        amount_in_wei = int(amount * 10 ** 18)
+        amount_in_wei = self.client.to_wei(amount)
 
         self.logger_msg(*self.client.acc_info, msg=f'Bridge on txSync: {amount} ETH ERC20 -> zkSync Era')
 
@@ -306,7 +306,7 @@ class Base(Blockchain, SimpleEVM):
     async def deposit(self):
 
         amount = await self.client.get_smart_amount(NATIVE_BRIDGE_AMOUNT)
-        amount_in_wei = int(amount * 10 ** 18)
+        amount_in_wei = self.client.to_wei(amount)
 
         self.logger_msg(*self.client.acc_info, msg=f'Bridge on Base Bridge: {amount} ETH ERC20 -> Base')
 
@@ -370,7 +370,7 @@ class Linea(Blockchain, SimpleEVM):
     async def deposit(self):
 
         amount = await self.client.get_smart_amount(NATIVE_BRIDGE_AMOUNT)
-        amount_in_wei = int(amount * 10 ** 18)
+        amount_in_wei = self.client.to_wei(amount)
 
         self.logger_msg(*self.client.acc_info, msg=f'Bridge {amount} ETH ERC20 -> Linea')
 
@@ -455,7 +455,7 @@ class Zora(Blockchain, SimpleEVM):
     @gas_checker
     async def bridge(self):
         amount = await self.client.get_smart_amount(NATIVE_BRIDGE_AMOUNT)
-        amount_in_wei = int(amount * 10 ** 18)
+        amount_in_wei = self.client.to_wei(amount)
         chain_to_name = CHAIN_NAME[random.choice(NATIVE_CHAIN_ID_TO)]
         contract_address, tx_data, value = await self.get_bridge_info(amount_in_wei, chain_to_name)
 

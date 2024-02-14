@@ -54,7 +54,7 @@ class Relay(Bridge, Logger):
 
             if amount <= float(max_amount):
 
-                amount_in_wei = int(amount * 10 ** 18)
+                amount_in_wei = self.client.to_wei(amount)
 
                 tx_data = await self.get_bridge_data(dest_chain_id=to_chain, amount_in_wei=amount_in_wei)
 

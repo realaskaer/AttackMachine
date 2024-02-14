@@ -243,7 +243,7 @@ class Rhino(Bridge, Logger):
             source_chain_address = self.client.w3.to_checksum_address(source_chain_info['contractAddress'])
 
             if token_name != self.client.token:
-                amount_in_wei = int(amount * 10 ** (await self.client.get_decimals(token_name=token_name)))
+                amount_in_wei = self.client.to_wei(amount, await self.client.get_decimals(token_name=token_name))
                 await self.client.check_for_approved(token_address, source_chain_address, amount_in_wei)
                 contract = self.client.get_contract(source_chain_address, RHINO_ABI['router'])
 
@@ -253,7 +253,7 @@ class Rhino(Bridge, Logger):
                 ).build_transaction(await self.client.prepare_transaction())
 
             else:
-                amount_in_wei = int(amount * 10 ** 18)
+                amount_in_wei = self.client.to_wei(amount)
                 transaction = await self.client.prepare_transaction(value=amount_in_wei) | {
                     'data': "0xdb6b5246",
                     'to': source_chain_address
@@ -291,7 +291,7 @@ class Rhino(Bridge, Logger):
         expiration_timestamp = int(time.time() / 3600) + 4320
         payload_nonce = random.randint(1, 2**53 - 1)
         tx_nonce = random.randint(1, 2**31 - 1)
-        amount_in_wei = int(amount * 10 ** decimals)
+        amount_in_wei = self.client.to_wei(amount, decimals)
 
         r_signature, s_signature = await self.get_stark_signature(amount_in_wei, expiration_timestamp, tx_nonce,
                                                                   receiver_public_key,receiver_vault_id,

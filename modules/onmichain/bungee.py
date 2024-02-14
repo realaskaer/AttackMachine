@@ -57,7 +57,7 @@ class Bungee(Refuel, Logger):
                 min_amount = round(self.client.w3.from_wei(min_amount_in_wei, 'ether') * 100000) / 100000
                 max_amount = round(self.client.w3.from_wei(max_amount_in_wei, 'ether') * 100000) / 100000
 
-                amount_in_wei = int(dst_amount * 10 ** 18)
+                amount_in_wei = self.client.to_wei(dst_amount)
 
                 if min_amount_in_wei <= amount_in_wei <= max_amount_in_wei:
 
