@@ -47,12 +47,15 @@ class OKX(CEX, Logger):
 
     @helper
     async def withdraw(self, want_balance:float = 0, withdraw_data:tuple = None):
+
         url = 'https://www.okx.cab/api/v5/asset/withdrawal'
 
         network, amount = withdraw_data
         network_raw_name = OKX_NETWORKS_NAME[network]
         ccy, network_name = network_raw_name.split('-')
         dst_chain_id = CEX_WRAPPED_ID[network]
+
+        await self.transfer_from_subs(ccy=ccy)
 
         withdraw_data = await self.get_currencies(ccy)
 
@@ -140,7 +143,7 @@ class OKX(CEX, Logger):
                 body = {
                     "ccy": ccy,
                     "type": "2",
-                    "amt": f"{amount}",
+                    "amt": f"{amount}" if amount else f"{sub_balance}",
                     "from": "6",
                     "to": "6",
                     "subAcct": sub_name
@@ -314,14 +317,17 @@ class OKX(CEX, Logger):
 
                 await self.wait_deposit_confirmation(amount, sub_balances, ccy=ccy)
 
-                await self.transfer_from_subaccounts(ccy=ccy, amount_in_wei=amount)
-
-                await sleep(self, 5, 10)
-
-                await self.transfer_from_spot_to_funding(ccy=ccy)
+                await self.transfer_from_subs(ccy=ccy, amount=amount)
 
                 return result
             else:
                 raise SoftwareExceptionWithoutRetry(f"Minimum to deposit: {min_dep} {ccy}")
         else:
             raise SoftwareExceptionWithoutRetry(f"Deposit to {network_name} is not available")
+
+    async def transfer_from_subs(self, ccy, amount: float = None):
+        await self.transfer_from_subaccounts(ccy=ccy, amount_in_wei=amount)
+
+        await sleep(self, 5, 10)
+
+        await self.transfer_from_spot_to_funding(ccy=ccy)

@@ -39,19 +39,6 @@ class Binance(CEX, Logger):
         except Exception as error:
             raise SoftwareExceptionWithoutRetry(f'Bad signature for Binance request: {error}')
 
-    async def get_balance(self, ccy: str):
-        path = '/openApi/spot/v1/account/balance'
-
-        params = {
-            'timestamp': str(int(time.time() * 1000))
-        }
-
-        parse_params = self.parse_params(params)
-
-        url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
-        data = await self.make_request(url=url, headers=self.headers, module_name='Balances Data', content_type=None)
-        return [item for item in data['balances'] if item['asset'] == ccy][0]['free']
-
     async def deposit(self):
         pass
 
@@ -76,6 +63,8 @@ class Binance(CEX, Logger):
         network_raw_name = BINANCE_NETWORKS_NAME[network_id]
         ccy, network_name = network_raw_name.split('-')
         dst_chain_id = CEX_WRAPPED_ID[network_id]
+
+        await self.transfer_from_subaccounts(ccy=ccy)
         withdraw_data = (await self.get_currencies(ccy))[0]['networkList']
 
         amount = want_balance if want_balance else await self.client.get_smart_amount(amount)
@@ -159,6 +148,8 @@ class Binance(CEX, Logger):
                                        module_name='Get main account balance')
 
     async def transfer_from_subaccounts(self, ccy: str = 'ETH', amount: float = None):
+        if ccy == 'USDC.e':
+            ccy = 'USDC'
 
         self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
 
@@ -170,14 +161,14 @@ class Binance(CEX, Logger):
 
             sub_balances = await self.get_sub_balance(sub_email)
             asset_balances = [balance for balance in sub_balances['balances'] if balance['asset'] == ccy]
-            sub_balance = 0 if len(asset_balances) == 0 else float(asset_balances[0]['free'])
+            sub_balance = 0.0 if len(asset_balances) == 0 else float(asset_balances[0]['free'])
 
-            if sub_balance == amount:
+            if sub_balance != 0.0:
                 flag = False
                 self.logger_msg(*self.client.acc_info, msg=f'{sub_email} | subAccount balance : {sub_balance} {ccy}')
 
                 params = {
-                    "amount": amount,
+                    "amount": amount if amount else sub_balance,
                     "asset": ccy,
                     "fromAccountType": "SPOT",
                     "toAccountType": "SPOT",
@@ -199,6 +190,9 @@ class Binance(CEX, Logger):
         return True
 
     async def get_cex_balances(self, ccy: str = 'ETH'):
+        if ccy == 'USDC.e':
+            ccy = 'USDC'
+
         balances = {}
 
         main_balance = await self.get_main_balance()
@@ -222,6 +216,9 @@ class Binance(CEX, Logger):
 
     async def wait_deposit_confirmation(self, amount: float, old_balances: dict, ccy: str = 'ETH',
                                         check_time: int = 45, timeout: int = 1200):
+
+        if ccy == 'USDC.e':
+            ccy = 'USDC'
 
         self.logger_msg(*self.client.acc_info, msg=f"Start checking CEX balances")
 
