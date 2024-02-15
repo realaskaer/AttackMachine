@@ -7,7 +7,7 @@ from modules import CEX, Logger
 from datetime import datetime, timezone
 
 from modules.interfaces import SoftwareExceptionWithoutRetry
-from utils.tools import helper, sleep
+from utils.tools import helper
 from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID
 
 
@@ -55,7 +55,7 @@ class OKX(CEX, Logger):
         ccy, network_name = network_raw_name.split('-')
         dst_chain_id = CEX_WRAPPED_ID[network]
 
-        await self.transfer_from_subs(ccy=ccy)
+        await self.transfer_from_subs(ccy=ccy, silent_mode=True)
 
         withdraw_data = await self.get_currencies(ccy)
 
@@ -108,12 +108,13 @@ class OKX(CEX, Logger):
             raise SoftwareExceptionWithoutRetry(f"Withdraw from {network_name} is not available")
 
     @helper
-    async def transfer_from_subaccounts(self, ccy:str = 'ETH', amount:float = None):
+    async def transfer_from_subaccounts(self, ccy:str = 'ETH', amount:float = None, silent_mode:bool = False):
 
         if ccy == 'USDC.e':
             ccy = 'USDC'
 
-        self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
+        if not silent_mode:
+            self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
 
         url_sub_list = "https://www.okx.cab/api/v5/users/subaccount/list"
 
@@ -157,12 +158,14 @@ class OKX(CEX, Logger):
 
                 self.logger_msg(*self.client.acc_info,
                                 msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success')
-        if flag:
+        if flag and not silent_mode:
             self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
         return True
 
     @helper
     async def transfer_from_spot_to_funding(self, ccy:str = 'ETH'):
+
+        await asyncio.sleep(5)
 
         if ccy == 'USDC.e':
             ccy = 'USDC'
@@ -326,9 +329,7 @@ class OKX(CEX, Logger):
         else:
             raise SoftwareExceptionWithoutRetry(f"Deposit to {network_name} is not available")
 
-    async def transfer_from_subs(self, ccy, amount: float = None):
-        await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
-
-        await sleep(self, 5, 10)
+    async def transfer_from_subs(self, ccy, amount: float = None, silent_mode:bool = False):
+        await self.transfer_from_subaccounts(ccy=ccy, amount=amount, silent_mode=silent_mode)
 
         await self.transfer_from_spot_to_funding(ccy=ccy)

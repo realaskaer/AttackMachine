@@ -64,7 +64,7 @@ class Binance(CEX, Logger):
         ccy, network_name = network_raw_name.split('-')
         dst_chain_id = CEX_WRAPPED_ID[network_id]
 
-        await self.transfer_from_subaccounts(ccy=ccy)
+        await self.transfer_from_subaccounts(ccy=ccy, silent_mode=True)
         withdraw_data = (await self.get_currencies(ccy))[0]['networkList']
 
         amount = want_balance if want_balance else await self.client.get_smart_amount(amount)
@@ -147,11 +147,12 @@ class Binance(CEX, Logger):
         return await self.make_request(method='POST', url=url, headers=self.headers, content_type=None,
                                        module_name='Get main account balance')
 
-    async def transfer_from_subaccounts(self, ccy: str = 'ETH', amount: float = None):
+    async def transfer_from_subaccounts(self, ccy: str = 'ETH', amount: float = None, silent_mode:bool = False):
         if ccy == 'USDC.e':
             ccy = 'USDC'
 
-        self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
+        if not silent_mode:
+            self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
 
         flag = True
         sub_list = (await self.get_sub_list())['subAccounts']
@@ -186,7 +187,7 @@ class Binance(CEX, Logger):
                                 msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success')
 
                 break
-        if flag:
+        if flag and not silent_mode:
             self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
         return True
 

@@ -105,8 +105,11 @@ class Client(Logger):
         return float(amount_in_wei / 10 ** decimals)
 
     async def get_smart_amount(
-            self, settings: tuple = AMOUNT_PERCENT, need_percent: bool = False, token_name: str = 'ETH'
+            self, settings: tuple = AMOUNT_PERCENT, need_percent: bool = False, token_name: str = None
     ) -> float:
+        if not token_name:
+            token_name = self.token
+
         if isinstance(settings[0], str) or need_percent:
             _, amount, _ = await self.get_token_balance(token_name)
             percent = round(random.uniform(float(settings[0]), float(settings[1])), 6) / 100
@@ -162,10 +165,12 @@ class Client(Logger):
         return Client(self.account_name, self.private_key, get_network_by_chain_id(chain_id), self.proxy_init)
 
     async def wait_for_receiving(
-            self, chain_id: int, old_balance: int = 0, token_name: str = 'ETH', sleep_time: int = 60,
+            self, chain_id: int, old_balance: int = 0, token_name: str = None, sleep_time: int = 60,
             timeout: int = 1200, check_balance_on_dst: bool = False, token_address: str = None
     ) -> bool:
         client = await self.new_client(chain_id)
+        if not token_name:
+            token_name = self.token
 
         try:
             if check_balance_on_dst:
@@ -211,9 +216,11 @@ class Client(Logger):
             await client.session.close()
 
     async def get_token_balance(
-            self, token_name: str = 'ETH', check_symbol: bool = True, omnicheck: bool = False,
+            self, token_name: str = None, check_symbol: bool = True, omnicheck: bool = False,
             check_native: bool = False, bridge_check: bool = False, token_address: str = None
     ) -> [float, int, str]:
+        if not token_name:
+            token_name = self.token
 
         if not check_native:
             if token_name != self.network.token:
