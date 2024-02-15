@@ -282,7 +282,7 @@ class Custom(Logger, RequestClient):
             attack_data_without_none.append(path)
 
         for chain_id_from, attack_info in attack_data_without_none:
-            if isinstance(attack_info, (list, tuple)):
+            if isinstance(attack_info, (list, tuple)) and dapp_mode != 1:
                 attack_info = random.choice(attack_info)
 
             chain_id_from = LAYERZERO_WRAPED_NETWORKS[chain_id_from]
