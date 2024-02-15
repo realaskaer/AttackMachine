@@ -662,7 +662,7 @@ class Custom(Logger, RequestClient):
                     if CEX_VOLUME_MODE:
                         dep_amount = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
                     else:
-                        dep_amount = await client.get_smart_amount(amount)
+                        dep_amount = await client.get_smart_amount(amount, token_name=dep_token)
                     dep_amount_in_usd = dep_amount * token_price
 
                     if balance_in_usd > dep_amount_in_usd:
