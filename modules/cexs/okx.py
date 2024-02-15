@@ -326,7 +326,7 @@ class OKX(CEX, Logger):
             raise SoftwareExceptionWithoutRetry(f"Deposit to {network_name} is not available")
 
     async def transfer_from_subs(self, ccy, amount: float = None):
-        await self.transfer_from_subaccounts(ccy=ccy, amount_in_wei=amount)
+        await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
 
         await sleep(self, 5, 10)
 
