@@ -644,7 +644,7 @@ class Custom(Logger, RequestClient):
                                    for network in networks]
                     dapp_chains = [CEX_WRAPPED_ID[chain] for chain in networks]
                 else:
-                    dapp_tokens = [cex_config[networks].split('-')[0]]
+                    dapp_tokens = [f"{cex_config[networks].split('-')[0]}{'.e' if networks in [29, 30] else ''}"]
                     dapp_chains = [CEX_WRAPPED_ID[networks]]
 
                 client, chain_index, balance, balance_data = await self.balance_searcher(
