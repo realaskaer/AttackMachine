@@ -515,7 +515,7 @@ class Custom(Logger, RequestClient):
         action_flag = False
 
         for dst_data in dst_datas:
-            chain_id_to = LAYERZERO_WRAPED_NETWORKS[dst_data]
+            chain_id_to = LAYERZERO_WRAPED_NETWORKS[dst_data if dapp_function != 1 else dst_data[0]]
             for src_chain in src_chains:
                 try:
                     if dapp_function == 1:
