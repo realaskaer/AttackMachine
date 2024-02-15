@@ -340,7 +340,10 @@ class RouteGenerator(Logger):
             if module_name is None:
                 continue
             module = get_func_by_name(module_name)
-            route.append(module.__name__)
+            if module:
+                route.append(module.__name__)
+            else:
+                raise SoftwareException(f'There is no module with the name "{module_name}" in the software.')
             if CLASSIC_WITHDRAW_DEPENDENCIES and module_name in deposit_modules:
                 withdraw_module_name = module_name.replace('deposit', 'withdraw')
                 withdraw_module = get_func_by_name(withdraw_module_name)
@@ -538,6 +541,39 @@ class RouteGenerator(Logger):
 
         self.smart_routes_json_save(account_name, smart_route_with_priority)
 
+    @staticmethod
+    def sort_classic_route(route):
+        modules_dependents = {
+            'okx_withdraw': 0,
+            'bingx_withdraw': 0,
+            'binance_withdraw': 0,
+            'make_balance_to_average': 1,
+            'bridge_rhino': 1,
+            'bridge_layerswap': 1,
+            'bridge_orbiter': 1,
+            'bridge_across': 1,
+            'bridge_owlto': 1,
+            'bridge_relay': 1,
+            'bridge_native': 1,
+            'bridge_zora': 1,
+            'collector_eth': 3,
+            'okx_deposit': 4,
+            'bingx_deposit': 4,
+            'binance_deposit': 4,
+            'okx_deposit_l0': 4,
+        }
+
+        classic_route = []
+        for module_name in route:
+            if module_name in modules_dependents:
+                classic_route.append((module_name, modules_dependents[module_name]))
+            else:
+                classic_route.append((module_name, 2))
+
+        route_with_priority = [module[0] for module in sorted(classic_route, key=lambda x: x[1])]
+
+        return route_with_priority
+
     def classic_routes_json_save(self):
         clean_progress_file()
         with open('./data/services/wallets_progress.json', 'w') as file:
@@ -546,7 +582,7 @@ class RouteGenerator(Logger):
                 if isinstance(account_name, (str, int)):
                     classic_route = self.classic_generate_route()
                     if SHUFFLE_ROUTE:
-                        random.shuffle(classic_route)
+                        classic_route = self.sort_classic_route(route=classic_route)
                     account_data = {
                         "current_step": 0,
                         "route": classic_route
@@ -560,9 +596,6 @@ class RouteGenerator(Logger):
 
     def smart_routes_json_save(self, account_name:str, route:list):
         progress_file_path = './data/services/wallets_progress.json'
-
-        if SHUFFLE_ROUTE:
-            random.shuffle(route)
 
         try:
             with open(progress_file_path, 'r+') as file:

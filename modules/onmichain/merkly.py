@@ -427,7 +427,6 @@ class Merkly(Refuel, Minter, Logger):
                 raise BlockchainException(f'{error}')
 
     @helper
-    @gas_checker
     async def hnft_bridge(
             self, chain_from_id: int, attack_data: int, google_mode: bool = False, need_check: bool = False
     ):
@@ -480,11 +479,10 @@ class Merkly(Refuel, Minter, Logger):
         return await self.client.send_transaction(transaction)
 
     @helper
-    @gas_checker
     async def ht_bridge(
             self, chain_from_id:int, attack_data:tuple, google_mode:bool = False, need_check:bool = False
     ):
-        tokens_amount_bridge, tokens_amount_mint, dst_chain = attack_data
+        tokens_amount_mint, tokens_amount_bridge, dst_chain = attack_data
         oft_contract = self.client.get_contract(MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['HOFT'], MERKLY_ABI['HOFT'])
         dst_chain_name = CHAIN_NAME[MERKLY_WRAPPED_NETWORK[dst_chain]]
         dst_chain_id = CHAIN_IDS[MERKLY_WRAPPED_NETWORK[dst_chain]]
