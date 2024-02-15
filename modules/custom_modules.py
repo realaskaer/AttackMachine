@@ -290,7 +290,7 @@ class Custom(Logger, RequestClient):
             if dapp_mode == 1:
                 chain_to_id, amount = attack_info
                 attack_data = {
-                    attack_info: (amount, round(amount * 1.1, 7))
+                    chain_to_id: (amount, round(amount * 1.1, 7))
                 }
             elif dapp_mode == 2:
                 attack_data = attack_info
