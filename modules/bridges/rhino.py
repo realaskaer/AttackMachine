@@ -291,7 +291,7 @@ class Rhino(Bridge, Logger):
         expiration_timestamp = int(time.time() / 3600) + 4320
         payload_nonce = random.randint(1, 2**53 - 1)
         tx_nonce = random.randint(1, 2**31 - 1)
-        amount_in_wei = self.client.to_wei(amount, decimals)
+        amount_in_wei = int(amount * 10 ** decimals)
 
         r_signature, s_signature = await self.get_stark_signature(amount_in_wei, expiration_timestamp, tx_nonce,
                                                                   receiver_public_key,receiver_vault_id,
