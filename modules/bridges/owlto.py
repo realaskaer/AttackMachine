@@ -11,7 +11,7 @@ class Owlto(Bridge, Logger, RequestClient):
         Bridge.__init__(self, client)
         RequestClient.__init__(self, client)
 
-    async def get_chains_info(self, chain_id:int, chain_name:int):
+    async def get_chains_info(self, from_chain_id:int, to_chain_id:str):
 
         url = 'https://owlto.finance/api/config/all-chains'
 
@@ -23,20 +23,17 @@ class Owlto(Bridge, Logger, RequestClient):
                 'networkCode': bridge_data['networkCode'],
             }
             for bridge_data in bridge_config
-            if bridge_data['networkCode'] == chain_id or bridge_data['aliasName'] == chain_name][0]
-
-        chain_id = self.client.network.chain_id
-        chain_name = self.client.network.name
+            if bridge_data['chainId'] == to_chain_id or bridge_data['aliasName'] == CHAIN_NAME_FROM_ID[to_chain_id]]
 
         from_chain_info = [
             {
                 'name': bridge_data['name'],
             }
             for bridge_data in bridge_config
-            if bridge_data['networkCode'] == chain_id or bridge_data['aliasName'] == chain_name][0]
+            if bridge_data['chainId'] == from_chain_id or bridge_data['aliasName'] == self.client.network.name]
 
         if from_chain_info and to_chain_info:
-            return from_chain_info, to_chain_info
+            return from_chain_info[0], to_chain_info[0]
         raise BridgeExceptionWithoutRetry(f'That bridge is not active!')
 
     async def get_lp_config(self, chain_id:int, token_name:str):
@@ -78,7 +75,7 @@ class Owlto(Bridge, Logger, RequestClient):
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
         from_chain, to_chain, amount, to_chain_id, token_name, _, _ = bridge_data
-
+        print(bridge_data)
         if not need_check:
             bridge_info = f'{self.client.network.name} -> {token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
             self.logger_msg(*self.client.acc_info, msg=f'Bridge on Owlto: {amount} {token_name} {bridge_info}')
