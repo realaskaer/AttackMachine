@@ -49,7 +49,7 @@ BINGX_DEPOSIT_DATA = [
 '-------------------------------------------------------Binance--------------------------------------------------------'
 
 BINANCE_WITHDRAW_DATA = [
-    [17, (1, 1.011)],
+    [8, (0.003, 0.00311)],
 ]
 
 BINANCE_DEPOSIT_DATA = [
@@ -71,20 +71,17 @@ CEX_VOLUME_MODE = False              # Если True, то софт выведе
     Количество - (0.01, 0.02)
     Процент    - ("10", "20") ⚠️ Значения в скобках
        
-     (A)Arbitrum = 1                    Polygon ZKEVM = 10 
-        Arbitrum Nova = 2            (A)zkSync Era = 11     
-     (A)Base = 3                       *Zora = 12 
+        Arbitrum = 1                    Polygon ZKEVM = 10 
+        Arbitrum Nova = 2               zkSync Era = 11     
+        Base = 3                        Zora = 12 
         Linea = 4                       Ethereum = 13
-        Manta = 5                      *Avalanche = 14
-       *Polygon = 6                     BNB Chain = 15
-     (A)Optimism = 7                 (O)Metis = 26        
-        Scroll = 8                     *OpBNB = 28
-        Starknet = 9                   *Mantle = 29
+        Manta = 5                       Avalanche = 14
+        Polygon = 6                     BNB Chain = 15
+        Optimism = 7                    Metis = 26        
+        Scroll = 8                      OpBNB = 28
+        Starknet = 9                    Mantle = 29
                                         ZKFair = 45   
     
-    * - не поддерживается в Rhino.fi
-    (A) - сети, поддерживаемые Across мостом
-    (0) - поддерживается только для Orbiter моста
     NATIVE_CHAIN_ID_FROM(TO) = [2, 4, 16] | Одна из сетей будет выбрана
     NATIVE_WITHDRAW_AMOUNT | Настройка для вывода из нативного моста (withdraw_native_bridge)
     ACROSS_TOKEN_NAME | Укажите токен для бриджа. Поддерживаются: USDT, USDC, ETH. В сетях, где есть USDC.e, будет
@@ -97,19 +94,26 @@ CEX_VOLUME_MODE = False              # Если True, то софт выведе
                             случайное значение в промежутке BRIDGE_AMOUNT_LIMITER (2 значение)
 """
 
-'----------------------------------------------------Native Bridge-----------------------------------------------------'
+'-----------------------------------------------------Native Bridge----------------------------------------------------'
 
 NATIVE_CHAIN_ID_FROM = [13]                # Исходящая сеть. 21.01.2024 Применимо только для bridge_zora
 NATIVE_CHAIN_ID_TO = [12]                  # Входящая сеть. 21.01.2024 Применимо только для bridge_zora
 NATIVE_BRIDGE_AMOUNT = (0.002, 0.002)     # (минимум, максимум) (% или кол-во)
 NATIVE_WITHDRAW_AMOUNT = (0.0001, 0.0002)   # (минимум, максимум) (% или кол-во)
 
-'-------------------------------------------------------Across---------------------------------------------------------'
+'--------------------------------------------------------Across--------------------------------------------------------'
 
 ACROSS_CHAIN_ID_FROM = [9]                # Исходящая сеть
 ACROSS_CHAIN_ID_TO = [4]                  # Входящая сеть
 ACROSS_BRIDGE_AMOUNT = (0.002, 0.002)     # (минимум, максимум) (% или кол-во)
 ACROSS_TOKEN_NAME = 'ETH'
+
+'--------------------------------------------------------Bungee--------------------------------------------------------'
+
+BUNGEE_CHAIN_ID_FROM = [7]                # Исходящая сеть
+BUNGEE_CHAIN_ID_TO = [11]                  # Входящая сеть
+BUNGEE_BRIDGE_AMOUNT = (0.002, 0.002)     # (минимум, максимум) (% или кол-во)
+BUNGEE_TOKEN_NAME = 'ETH'
 
 '-------------------------------------------------------LayerSwap------------------------------------------------------'
 
@@ -223,7 +227,7 @@ BRIDGE_VOLUME_MODE = False              # Если True, то софт выве�
             
 """
 WAIT_FOR_RECEIPT = True     # Если True, будет ждать получения средств во входящей сети перед запуском очередного модуля
-ALL_DST_CHAINS = False      # Если True, то модули refuel и bridge попытаются сделать транзакцию в каждую входящую сеть
+ALL_DST_CHAINS = False       # Если True, то модули refuel и bridge попытаются сделать транзакцию в каждую входящую сеть
 L0_SEARCH_DATA = 0          # Поиск балансов в сетях. 0 - STARGATE_CHAINS, 1 - COREDAO_CHAINS
 
 '--------------------------------------------------Stargate / CoreDAO--------------------------------------------------'
@@ -231,8 +235,8 @@ L0_SEARCH_DATA = 0          # Поиск балансов в сетях. 0 - STA
 STARGATE_CHAINS = [1, 7, 22, 31]
 STARGATE_TOKENS = ['ETH', 'ETH', 'ETH', 'ETH']
 
-COREDAO_CHAINS = [33, 11]
-COREDAO_TOKENS = ['USDC', 'USDT']
+COREDAO_CHAINS = [5, 11, 33]
+COREDAO_TOKENS = ['USDC', 'USDC', 'USDC']
 
 '--------------------------------------------------------L2Pass--------------------------------------------------------'
 
@@ -282,17 +286,17 @@ WORMHOLE_TOKENS_AMOUNT = (1, 1)   # Кол-во токенов для минта
 
 '---------------------------------------------------Merkly Polyhedra---------------------------------------------------'
 
-SRC_CHAIN_MERKLY_POLYHEDRA = [6]   # Исходящая сеть для Merkly Polyhedra
-DST_CHAIN_MERKLY_POLYHEDRA = [9]   # Входящая сеть для Merkly Polyhedra
+SRC_CHAIN_MERKLY_POLYHEDRA = [9]   # Исходящая сеть для Merkly Polyhedra
+DST_CHAIN_MERKLY_POLYHEDRA = [28]   # Входящая сеть для Merkly Polyhedra
 DST_CHAIN_MERKLY_POLYHEDRA_REFUEL = {
-     3: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
+     28: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
 }
 
 '---------------------------------------------------Merkly Hyperlane---------------------------------------------------'
 
-SRC_CHAIN_MERKLY_HYPERLANE = [6]   # Исходящая сеть для Merkly Wormhole
-DST_CHAIN_MERKLY_HYPERLANE = [9]   # Входящая сеть для Merkly Wormhole
-HYPERLANE_TOKENS_AMOUNT = (1, 1)   # Кол-во токенов для минта и бриджа на Merkly через Wormhole
+SRC_CHAIN_MERKLY_HYPERLANE = [9]   # Исходящая сеть для Merkly Hyperlane
+DST_CHAIN_MERKLY_HYPERLANE = [17, 28]   # Входящая сеть для Merkly Hyperlane
+HYPERLANE_TOKENS_AMOUNT = (1, 1)   # Кол-во токенов для минта и бриджа на Merkly через Hyperlane
 
 '------------------------------------------------------L2Telegraph-----------------------------------------------------'
 
@@ -355,10 +359,13 @@ L2PASS_GAS_STATION_DATA = [
     ZKSTARS_NFT_CONTRACTS | Укажите какие NFT ID будут участвовать в минте. Все что в скобках, будут использованы
     MINTFUN_CONTRACTS | Список контрактов для минта в выбранной сети (GLOBAL NETWORK)
     GRAPEGRAW_TICKETS_AMOUNT | Количество билетов для покупки в одной транзакции на сайте https://grapedraw.com/
+    HYPERCOMIC_NFT_ID | 1 - zkDmail Explorer, 2 - zkSync Bridger, 3 - zkSync Root, 4 - zkSync Junior, 0 - всё сразу
     
 """
 
 ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при (0) заминтит случайную новую NFT
+
+HYPERCOMIC_NFT_ID = (1, 2, 3, 4)  # при (0) заминтит все NFT в случайном порядке
 
 GRAPEDRAW_TICKETS_AMOUNT = 1
 
@@ -399,16 +406,16 @@ HELPERS_CONFIG = {
     'okx_withdraw'                        : 0,  # смотри CEX CONTROL
     'bingx_withdraw'                      : 0,  # смотри CEX CONTROL
     'binance_withdraw'                    : 0,  # смотри CEX CONTROL
-    'okx_multi_withdraw'                  : 0,  # вывод в несколько сетей. Смотри CEX CONTROL (OKX_MULTI_WITHDRAW)
-    'bingx_multi_withdraw'                : 0,  # вывод в несколько сетей. Смотри CEX CONTROL (BINGX_MULTI_WITHDRAW)
-    'binance_multi_withdraw'              : 0,  # вывод в несколько сетей. Смотри CEX CONTROL (BINANCE_MULTI_WITHDRAW)
     'collector_eth'                       : 0,  # сбор всех токенов в ETH внутри сети GLOBAL_NETWORK
     'make_balance_to_average'             : 0,  # уравнивает ваши балансы на аккаунтах (см. инструкцию к софту)
     'bridge_across'                       : 0,  # смотри BRIDGE CONTROL
-    'bridge_rhino'                        : 0,  # смотри BRIDGE CONTROL
+    'bridge_bungee'                       : 0,  # смотри BRIDGE CONTROL
     'bridge_layerswap'                    : 0,  # смотри BRIDGE CONTROL
+    'bridge_owlto'                        : 0,  # смотри BRIDGE CONTROL
     'bridge_orbiter'                      : 0,  # смотри BRIDGE CONTROL
-    'bridge_native'                       : 0,  # смотри BRIDGE CONTROL
+    'bridge_relay'                        : 0,  # смотри BRIDGE CONTROL
+    'bridge_rhino'                        : 0,  # смотри BRIDGE CONTROL
+    'bridge_native'                       : 0,  # смотри BRIDGE CONTROL (кол-во из NATIVE_DEPOSIT_AMOUNT)
     'okx_deposit'                         : 0,  # ввод средств на биржу
 }
 
@@ -422,6 +429,7 @@ HELPERS_CONFIG = {
     binance_withdraw                 # смотри CEX CONTROL
     
     bridge_across                    # смотри BRIDGE CONTROL
+    bridge_bungee                    # смотри BRIDGE CONTROL
     bridge_layerswap                 # смотри BRIDGE CONTROL
     bridge_owlto                     # смотри BRIDGE CONTROL
     bridge_orbiter                   # смотри BRIDGE CONTROL
@@ -521,6 +529,7 @@ HELPERS_CONFIG = {
     mint_domain_zns                  # 0.003 ETH domain
     mint_mailzero                    # mint бесплатной NFT на MailZero. Плата только за газ.
     mint_tevaera                     # mint 2 NFT on Tevaera. Price: 0.0003 ETH
+    mint_hypercomic                  # mint NFT за выполнение квестов на https://zk24.hypercomic.io/
     deploy_contract                  # deploy вашего контракта. Контракт находится в data/services/contract_data.json
     random_approve                   # рандомный апрув случайного токена для свапалок 
     send_message_dmail               # отправка сообщения через Dmail на рандомный Web2 адрес (почтовый ящик)

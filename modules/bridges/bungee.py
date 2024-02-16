@@ -1,21 +1,24 @@
+import json
 import random
 
 from modules import Refuel, Logger
-from modules.interfaces import SoftwareException
+from modules.interfaces import SoftwareException, Bridge, BridgeExceptionWithoutRetry
 from settings import DST_CHAIN_BUNGEE_REFUEL
 from utils.tools import gas_checker, helper
 from config import (
     BUNGEE_CONTRACTS,
     BUNGEE_REFUEL_ABI,
     BUNGEE_CHAINS_IDS,
-    LAYERZERO_NETWORKS_DATA
+    LAYERZERO_NETWORKS_DATA,
+    CHAIN_NAME_FROM_ID, ETH_MASK
 )
 
 
-class Bungee(Refuel, Logger):
+class Bungee(Refuel, Bridge, Logger):
     def __init__(self, client):
         self.client = client
         Logger.__init__(self)
+        Bridge.__init__(self, client)
 
         self.network = self.client.network.name
         self.refuel_contract = self.client.get_contract(BUNGEE_CONTRACTS[self.network]['gas_refuel'], BUNGEE_REFUEL_ABI)
@@ -80,3 +83,82 @@ class Bungee(Refuel, Logger):
                 raise SoftwareException('Destination chain refuel is not active!')
         else:
             raise SoftwareException('Source chain refuel is not active!')
+
+    async def get_quote(self, to_chain_id, from_token_address, to_token_address, amount):
+        url = 'https://api.socket.tech/v2/quote'
+
+        params = {
+            "fromChainId": self.client.chain_id,
+            "toChainId": to_chain_id,
+            "fromTokenAddress": from_token_address,
+            "toTokenAddress": to_token_address,
+            "fromAmount": amount,
+            "userAddress": self.client.address,
+            "singleTxOnly": "true",
+            "bridgeWithGas": "false",
+            "sort": "output",
+            "defaultSwapSlippage": 0.5,
+            "bridgeWithInsurance": "true",
+            "isContractCall": "false",
+            "showAutoRoutes": "false",
+        }
+
+        response = await self.make_request(url=url, params=params, headers=self.headers)
+
+        if response['success']:
+            return response['result']['routes'][0]
+        raise BridgeExceptionWithoutRetry(f'Bad request to Bungee API: {await response.text()}')
+
+    async def build_tx(self, route:dict):
+        url = 'https://api.socket.tech/v2/build-tx'
+
+        payload = {
+            'route': route
+        }
+
+        response = await self.make_request(method="POST", url=url, json=payload, headers=self.headers)
+
+        if response['success']:
+            tx_data = response['result']['txData']
+            contract_address = response['result']['txTarget']
+
+            return tx_data, contract_address
+        raise BridgeExceptionWithoutRetry(f'Bad request to Bungee API: {await response.text()}')
+
+    async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
+        from_chain, to_chain, amount, to_chain_id, token_name, from_token_address, to_token_address = bridge_data
+
+        if not need_check:
+            bridge_info = f'{self.client.network.name} -> {token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
+            self.logger_msg(*self.client.acc_info, msg=f'Bridge on Bungee: {amount} {token_name} {bridge_info}')
+
+        amount_in_wei = self.client.to_wei(amount)
+
+        if token_name == 'ETH':
+            from_token_address = ETH_MASK
+            to_token_address = ETH_MASK
+
+        if need_check:
+            return round(float(amount), 6)
+
+        route_data = await self.get_quote(to_chain, from_token_address, to_token_address, amount_in_wei)
+
+        tx_data, to_address = await self.build_tx(route_data)
+
+        transaction = await self.client.prepare_transaction(value=amount_in_wei) | {
+            'to': to_address,
+            'data': tx_data
+        }
+
+        old_balance_on_dst = await self.client.wait_for_receiving(
+            token_address=to_token_address, chain_id=to_chain_id, check_balance_on_dst=True
+        )
+
+        await self.client.send_transaction(transaction)
+
+        self.logger_msg(*self.client.acc_info,
+                        msg=f"Bridge complete. Note: wait a little for receiving funds", type_msg='success')
+
+        return await self.client.wait_for_receiving(
+            token_address=to_token_address, old_balance=old_balance_on_dst, chain_id=to_chain_id
+        )

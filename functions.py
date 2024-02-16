@@ -121,11 +121,12 @@ async def bridge_utils(current_client, dapp_id, chain_from_id, bridge_data, need
 
     class_bridge = {
         1: Across,
-        2: LayerSwap,
-        3: Orbiter,
-        4: Owlto,
-        5: Relay,
-        6: Rhino,
+        2: Bungee,
+        3: LayerSwap,
+        4: Orbiter,
+        5: Owlto,
+        6: Relay,
+        7: Rhino,
     }[dapp_id]
 
     return await class_bridge(current_client).bridge(chain_from_id, bridge_data, need_check=need_fee)
@@ -136,29 +137,34 @@ async def bridge_across(account_name, private_key, network, proxy):
     return await worker.smart_bridge(dapp_id=1)
 
 
-async def bridge_layerswap(account_name, private_key, network, proxy):
+async def bridge_bungee(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_bridge(dapp_id=2)
 
 
-async def bridge_orbiter(account_name, private_key, network, proxy):
+async def bridge_layerswap(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_bridge(dapp_id=3)
 
 
-async def bridge_owlto(account_name, private_key, network, proxy):
+async def bridge_orbiter(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_bridge(dapp_id=4)
 
 
-async def bridge_relay(account_name, private_key, network, proxy):
+async def bridge_owlto(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_bridge(dapp_id=5)
 
 
-async def bridge_rhino(account_name, private_key, network, proxy):
+async def bridge_relay(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_bridge(dapp_id=6)
+
+
+async def bridge_rhino(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.smart_bridge(dapp_id=7)
 
 
 async def omnichain_util(
@@ -624,6 +630,7 @@ async def gas_station_l2pass(account_name, private_key, _, proxy):
     worker = L2Pass(get_client(account_name, private_key, network, proxy))
     return await worker.gas_station(chain_from_id)
 
+
 async def refuel_bungee(account_name, private_key, _, proxy):
     chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_BUNGEE)]
     network = get_network_by_chain_id(chain_from_id)
@@ -729,6 +736,12 @@ async def smart_random_approve(account_name, private_key, network, proxy):
 async def mint_mintfun(account_name, private_key, network, proxy):
 
     worker = MintFun(get_client(account_name, private_key, network, proxy))
+    return await worker.mint()
+
+
+async def mint_hypercomic(account_name, private_key, network, proxy):
+
+    worker = HyperComic(get_client(account_name, private_key, network, proxy))
     return await worker.mint()
 
 

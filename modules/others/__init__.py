@@ -8,3 +8,4 @@ from .znsnameservice import ZkSyncNameService
 from .zkstars import ZkStars
 from .mintfun import MintFun
 from .grapedraw import GrapeDraw
+from .hypercomic import HyperComic

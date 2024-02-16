@@ -31,6 +31,7 @@ AVAILABLE_MODULES_INFO = {
     bridge_layerswap                    : (bridge_layerswap, 1, 'LayerSwap Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
     bridge_orbiter                      : (bridge_orbiter, 1, 'Orbiter Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
     bridge_across                       : (bridge_across, 1, 'Across Bridge', 0, [2, 3, 11, 12]),
+    bridge_bungee                       : (bridge_bungee, 1, 'Bungee Bridge', 0, [2, 3, 11, 12]),
     bridge_owlto                        : (bridge_owlto, 1, 'Owlto Bridge', 0, [2, 3, 11, 12]),
     bridge_relay                        : (bridge_relay, 1, 'Relay Bridge', 0, [2, 3, 11, 12]),
     bridge_native                       : (bridge_native, 1, 'Native Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
@@ -91,6 +92,7 @@ AVAILABLE_MODULES_INFO = {
     mint_tevaera                        : (mint_tevaera, 2, 'Tevaera ID & NFT mint', 0, [11]),
     mint_zkstars                        : (mint_zkstars, 2, 'zkStars Mint', 0, [3, 4, 8, 11, 12]),
     mint_mintfun                        : (mint_mintfun, 2, 'Mintfun Mint', 0, [3, 4, 8, 11]),
+    mint_hypercomic                     : (mint_hypercomic, 2, 'HyperComic Mint', 0, [11]),
     grapedraw_bid                       : (grapedraw_bid, 2, 'Bid Place on GrapeDraw', 0, [0]),
     deploy_contract                     : (deploy_contract, 3, 'Contract Deploy', 0, []),
     bridge_zerius                       : (bridge_zerius, 3, 'Zerius Bridge NFT', 0, []),
@@ -516,7 +518,10 @@ class RouteGenerator(Logger):
                 smart_route.append(AVAILABLE_MODULES_INFO[withdraw_rocketsam])
 
         bridge_modules = [AVAILABLE_MODULES_INFO[bridge_across] if HELPERS_CONFIG['bridge_across'] else None,
+                          AVAILABLE_MODULES_INFO[bridge_bungee] if HELPERS_CONFIG['bridge_bungee'] else None,
                           AVAILABLE_MODULES_INFO[bridge_rhino] if HELPERS_CONFIG['bridge_rhino'] else None,
+                          AVAILABLE_MODULES_INFO[bridge_relay] if HELPERS_CONFIG['bridge_relay'] else None,
+                          AVAILABLE_MODULES_INFO[bridge_owlto] if HELPERS_CONFIG['bridge_owlto'] else None,
                           AVAILABLE_MODULES_INFO[bridge_layerswap] if HELPERS_CONFIG['bridge_layerswap'] else None,
                           AVAILABLE_MODULES_INFO[bridge_orbiter] if HELPERS_CONFIG['bridge_orbiter'] else None,
                           AVAILABLE_MODULES_INFO[bridge_native] if HELPERS_CONFIG['bridge_native'] else None]

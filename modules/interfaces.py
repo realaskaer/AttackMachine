@@ -170,6 +170,10 @@ class Bridge(ABC):
                 "Accept": "application/json",
                 "Content-Type": "application/json",
             }
+        elif self.__class__.__name__ == 'Bungee':
+            self.headers = {
+                "Api-Key": "1b2fd225-062f-41aa-8c63-d1fef19945e7",
+            }
 
     @abstractmethod
     async def bridge(self, *args, **kwargs):

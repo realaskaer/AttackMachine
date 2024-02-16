@@ -26,7 +26,7 @@ from .bridges import Rhino
 from .bridges import Across
 from .bridges import Relay
 from .bridges import Owlto
-from .onmichain import Bungee
+from .bridges import Bungee
 from .onmichain import L2Telegraph
 from .onmichain import Merkly
 from .onmichain import Zerius
@@ -45,6 +45,7 @@ from .others import ZkSyncNameService
 from .others import ZkStars
 from .others import MintFun
 from .others import GrapeDraw
+from .others import HyperComic
 from .landings import EraLend
 from .landings import ZeroLend
 from .landings import ReactorFusion
