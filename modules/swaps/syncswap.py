@@ -79,7 +79,7 @@ class SyncSwap(DEX, Logger):
             },
             "domain": {
                 "name": token_name_for_permit,
-                "version": version,
+                "version": f"{version}",
                 "chainId": f"{self.client.chain_id}",
                 "verifyingContract": TOKENS_PER_CHAIN[self.client.network.name][token_name]
             },
