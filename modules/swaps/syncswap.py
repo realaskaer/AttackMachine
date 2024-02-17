@@ -80,7 +80,7 @@ class SyncSwap(DEX, Logger):
             "domain": {
                 "name": token_name_for_permit,
                 "version": f"{version}",
-                "chainId": f"{self.client.chain_id}",
+                "chainId": self.client.chain_id,
                 "verifyingContract": TOKENS_PER_CHAIN[self.client.network.name][token_name]
             },
             "primaryType": "Permit",
@@ -88,7 +88,7 @@ class SyncSwap(DEX, Logger):
                 "owner": self.client.address,
                 "spender": self.router_contract.address,
                 "value": 2 ** 256 - 1,
-                "nonce": "0",
+                "nonce": 0,
                 "deadline": int(time()) + 10800
             }
         }

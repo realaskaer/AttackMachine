@@ -138,48 +138,56 @@ class Custom(Logger, RequestClient):
 
         current_tokens = list(TOKENS_PER_CHAIN[self.client.network.name].items())[:2]
 
-        wallet_balance = {k: await self.client.get_token_balance(k, False) for k, v in current_tokens}
-        valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
-        eth_price = ETH_PRICE
+        wrapper_counter = 0
+        for _ in range(2):
+            wallet_balance = {k: await self.client.get_token_balance(k, False) for k, v in current_tokens}
+            valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
+            eth_price = ETH_PRICE
 
-        if 'ETH' in valid_wallet_balance:
-            valid_wallet_balance['ETH'] = valid_wallet_balance['ETH'] * eth_price
+            if 'ETH' in valid_wallet_balance:
+                valid_wallet_balance['ETH'] = valid_wallet_balance['ETH'] * eth_price
 
-        if 'WETH' in valid_wallet_balance:
-            valid_wallet_balance['WETH'] = valid_wallet_balance['WETH'] * eth_price
+            if 'WETH' in valid_wallet_balance:
+                valid_wallet_balance['WETH'] = valid_wallet_balance['WETH'] * eth_price
 
-        max_token = max(valid_wallet_balance, key=lambda x: valid_wallet_balance[x])
-        percent = round(random.uniform(*AMOUNT_PERCENT_WRAPS), 9) / 100 if max_token == 'ETH' else 1
-        amount_in_wei = int(wallet_balance[max_token][0] * percent)
-        amount = float(f"{amount_in_wei / 10 ** 18:.6f}")
+            max_token = max(valid_wallet_balance, key=lambda x: valid_wallet_balance[x])
 
-        if max_token == 'ETH':
-            msg = f'Wrap {amount:.6f} ETH'
-            from_token_name, to_token_name = 'ETH', 'WETH'
-        else:
-            msg = f'Unwrap {amount:.6f} WETH'
-            from_token_name, to_token_name = 'WETH', 'ETH'
+            if max_token == 'ETH' and wrapper_counter == 1:
+                continue
+            elif max_token == 'WETH' and wrapper_counter == 1:
+                self.logger_msg(*self.client.acc_info, msg=f"Current balance in WETH, running unwrap")
 
-        self.logger_msg(*self.client.acc_info, msg=msg)
+            percent = round(random.uniform(*AMOUNT_PERCENT_WRAPS), 9) / 100 if max_token == 'ETH' else 1
+            amount_in_wei = int(wallet_balance[max_token][0] * percent)
+            amount = float(f"{amount_in_wei / 10 ** 18:.6f}")
 
-        if (max_token == 'ETH' and valid_wallet_balance[max_token] > 1
-                or max_token == 'WETH' and valid_wallet_balance[max_token] != 0):
-            data = from_token_name, to_token_name, amount, amount_in_wei
-            counter = 0
-            result = False
-            while True:
-                module_func = random.choice(func)
-                try:
-                    result = await module_func(self.client.account_name, self.client.private_key,
-                                               self.client.network, self.client.proxy_init, swapdata=data)
+            if max_token == 'ETH':
+                msg = f'Wrap {amount:.6f} ETH'
+                from_token_name, to_token_name = 'ETH', 'WETH'
+            else:
+                msg = f'Unwrap {amount:.6f} WETH'
+                from_token_name, to_token_name = 'WETH', 'ETH'
 
-                except:
-                    pass
-                if result or counter == 3:
-                    break
+            self.logger_msg(*self.client.acc_info, msg=msg)
 
-        else:
-            self.logger_msg(*self.client.acc_info, msg=f"{from_token_name} balance is too low (lower 1$)")
+            if (max_token == 'ETH' and valid_wallet_balance[max_token] > 1
+                    or max_token == 'WETH' and valid_wallet_balance[max_token] != 0):
+                data = from_token_name, to_token_name, amount, amount_in_wei
+                counter = 0
+                result = False
+                while True:
+                    module_func = random.choice(func)
+                    try:
+                        result = await module_func(self.client.account_name, self.client.private_key,
+                                                   self.client.network, self.client.proxy_init, swapdata=data)
+                        wrapper_counter += 1
+                    except:
+                        pass
+                    if result or counter == 3:
+                        break
+
+            else:
+                self.logger_msg(*self.client.acc_info, msg=f"{from_token_name} balance is too low (lower 1$)")
 
         return True
 
