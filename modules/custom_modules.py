@@ -122,7 +122,7 @@ class Custom(Logger, RequestClient):
 
             self.logger_msg(*self.client.acc_info, msg=f"Not enough balance on account, start OKX withdraw module")
 
-            return await okx_withdraw_util(self.client, want_balance=need_to_withdraw)
+            return await okx_withdraw_util(self.client, want_balance=need_to_withdraw, withdraw_data=())
         raise SoftwareExceptionWithoutRetry('Account has enough tokens on balance!')
 
     @helper
@@ -209,9 +209,6 @@ class Custom(Logger, RequestClient):
             current_client = clients[index]
             from_token_name = tokens[index]
             balance_in_wei, balance, _ = balances[index]
-
-            if (balance * ETH_PRICE < 1 and from_token_name == 'ETH') or (balance < 1 and from_token_name != 'ETH'):
-                raise SoftwareException('Balance on source chain < 1$!')
 
             amount_in_wei = balance_in_wei if from_token_name != 'ETH' else int(
                 (await current_client.get_smart_amount(need_percent=True)) * 10 ** 18)
