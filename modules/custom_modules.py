@@ -197,21 +197,14 @@ class Custom(Logger, RequestClient):
 
             class_name, tokens, chains = dapp_config
 
-            clients = [await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[chain])
-                       for chain in chains]
-            balances = [await client.get_token_balance(omnicheck=True, token_name=token, check_symbol=True)
-                        for client, token in zip(clients, tokens)]
+            current_client, index, balance, balances_in_usd = self.balance_searcher(chains, tokens)
 
-            if all(balance_in_wei == 0 for balance_in_wei, _, _ in balances):
-                raise SoftwareException('Insufficient balances in all networks!')
-
-            index = balances.index(max(balances, key=lambda x: x[1] * (ETH_PRICE if x[2] == 'ETH' else 1)))
-            current_client = clients[index]
             from_token_name = tokens[index]
-            balance_in_wei, balance, _ = balances[index]
+            decimals = 18 if from_token_name == 'ETH' else await current_client.get_decimals(from_token_name)
+            balance_in_wei = self.client.to_wei(balance, decimals)
 
-            amount_in_wei = balance_in_wei if from_token_name != 'ETH' else int(
-                (await current_client.get_smart_amount(need_percent=True)) * 10 ** 18)
+            amount_in_wei = balance_in_wei if from_token_name != 'ETH' else self.client.to_wei(
+                (await current_client.get_smart_amount(need_percent=True)), decimals)
 
             dst_chain = random.choice([chain for i, chain in enumerate(chains) if i != index])
             src_chain_name = current_client.network.name
@@ -337,6 +330,9 @@ class Custom(Logger, RequestClient):
 
         balances = [await client.get_token_balance(omnicheck=omni_check, token_name=token, bridge_check=bridge_check)
                     for client, token in zip(clients, tokens)]
+
+        if all(balance_in_wei == 0 for balance_in_wei, _, _ in balances):
+            raise SoftwareException('Insufficient balances in all networks!')
 
         balances_in_usd = []
         for balance_in_wei, balance, token_name in balances:

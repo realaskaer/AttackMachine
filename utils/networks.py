@@ -35,7 +35,6 @@ zkSyncEraRPC = Network(
 ScrollRPC = Network(
     name='Scroll',
     rpc=[
-        'https://1rpc.io/scroll',
         'https://rpc.scroll.io',
         'https://scroll.blockpi.network/v1/rpc/public'
     ],

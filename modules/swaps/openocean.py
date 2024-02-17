@@ -49,7 +49,9 @@ class OpenOcean(RequestClient, Logger):
         contract_address = self.client.w3.to_checksum_address(swap_quote_data["data"]["to"])
 
         if from_token_name != "ETH":
-            await self.client.check_for_approved(from_token_address, contract_address, amount_in_wei)
+            await self.client.check_for_approved(
+                from_token_address, contract_address, amount_in_wei, unlimited_approve=True
+            )
 
         tx_params = (await self.client.prepare_transaction()) | {
             "to": contract_address,

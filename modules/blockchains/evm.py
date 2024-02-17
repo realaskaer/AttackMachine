@@ -2,7 +2,7 @@ import random
 
 from eth_account import Account
 from modules import Blockchain, Logger, Client
-from modules.interfaces import SoftwareException
+from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry
 from utils.tools import gas_checker, helper
 from general_settings import TRANSFER_AMOUNT, GLOBAL_NETWORK
 from settings import (
@@ -76,6 +76,10 @@ class SimpleEVM(Logger):
     async def transfer_eth(self):
 
         amount, amount_in_wei = await self.client.check_and_get_eth(TRANSFER_AMOUNT)
+
+        if amount > 0.0001:
+            raise SoftwareExceptionWithoutRetry(
+                'Are you sure about transferring more than 0.0001ETH to a random address?')
 
         random_address = Account.create().address
 

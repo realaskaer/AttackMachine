@@ -1,34 +1,39 @@
-from modules import DEX, Logger
+from modules import DEX, Logger, Client
 from utils.tools import gas_checker, helper
 from general_settings import SLIPPAGE
 from config import (
     AMBIENT_CONTRACT,
     AMBIENT_ABI,
-    TOKENS_PER_CHAIN, ZERO_ADDRESS
+    TOKENS_PER_CHAIN, ZERO_ADDRESS, COINGECKO_TOKEN_API_NAMES
 )
 
 
 class Ambient(DEX, Logger):
-    def __init__(self, client):
+    def __init__(self, client: Client):
         self.client = client
         Logger.__init__(self)
         self.network = self.client.network.name
         self.router_contract = self.client.get_contract(AMBIENT_CONTRACT[self.network]['router'], AMBIENT_ABI['router'])
 
-    async def get_min_amount_out(self, calldata:tuple, reserve_flags):
-        min_amount_out = await self.router_contract.functions.swap(
-            *calldata,
-            0,
-            reserve_flags
-        ).call()
+    async def get_min_amount_out(self, from_token_name, to_token_name, from_token_amount):
 
-        return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE))
+        api_names = COINGECKO_TOKEN_API_NAMES
+        amount_in_usd = (await self.client.get_token_price(api_names[from_token_name])) * from_token_amount
+        min_amount_out = (amount_in_usd / await self.client.get_token_price(api_names[to_token_name]))
+
+        decimals = 18 if to_token_name == 'ETH' else await self.client.get_decimals(to_token_name)
+
+        min_amount_out_in_wei = self.client.to_wei(min_amount_out, decimals)
+
+        return int(min_amount_out_in_wei - (min_amount_out_in_wei / 100 * SLIPPAGE))
 
     @helper
     @gas_checker
     async def swap(self):
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
-
+        amount = 0.001
+        amount_in_wei = int(amount * 10 ** 18)
+        to_token_name = 'USDC'
         self.logger_msg(*self.client.acc_info, msg=f'Swap on Ambient: {amount} {from_token_name} -> {to_token_name}')
 
         tokens_data = TOKENS_PER_CHAIN[self.network]
@@ -41,7 +46,18 @@ class Ambient(DEX, Logger):
         reserve_flags = 0
         tip = 0
 
-        calldata = (
+        min_amount_out = await self.get_min_amount_out(from_token_name, to_token_name, amount)
+
+        if from_token_name != 'ETH':
+            await self.client.check_for_approved(
+                from_token_address, AMBIENT_CONTRACT[self.network]['router'], amount_in_wei
+            )
+
+        tx_params = await self.client.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
+
+        await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
+
+        transaction = await self.router_contract.functions.swap(
             from_token_address,
             to_token_address,
             pool_idx,
@@ -50,20 +66,6 @@ class Ambient(DEX, Logger):
             amount_in_wei,
             tip,
             max_sqrt_price if from_token_name == 'ETH' else min_sqrt_price,
-        )
-
-        min_amount_out = await self.get_min_amount_out(calldata, reserve_flags)
-
-        await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
-
-        if from_token_name != 'ETH':
-            await self.client.check_for_approved(
-                from_token_address, AMBIENT_CONTRACT[self.network]['router'], amount_in_wei
-            )
-
-        tx_params = await self.client.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
-        transaction = await self.router_contract.functions.swap(
-            *calldata,
             min_amount_out,
             reserve_flags
         ).build_transaction(tx_params)

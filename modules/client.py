@@ -7,7 +7,8 @@ from aiohttp_socks import ProxyConnector
 from eth_typing import HexStr
 from web3.contract import AsyncContract
 from web3.exceptions import TransactionNotFound, TimeExhausted
-from modules.interfaces import PriceImpactException, BlockchainException, SoftwareException
+from modules.interfaces import PriceImpactException, BlockchainException, SoftwareException, \
+    SoftwareExceptionWithoutRetry
 from modules import Logger
 from utils.networks import Network
 from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, CHAIN_IDS, TOKENS_PER_CHAIN2
@@ -45,7 +46,7 @@ class Client(Logger):
         self.chain_id = network.chain_id
 
         self.proxy_init = proxy
-        self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}", verify_ssl=False)
+        self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}", verify_ssl=True)
         if proxy else TCPConnector(verify_ssl=False))
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
         self.rpc = random.choice(network.rpc)
@@ -210,7 +211,7 @@ class Client(Logger):
                     await asyncio.sleep(sleep_time)
                     t += sleep_time
                 if t > timeout:
-                    raise SoftwareException(f'{token_name} has not been received within {timeout} seconds')
+                    raise SoftwareExceptionWithoutRetry(f'{token_name} has not been received within {timeout} seconds')
         except Exception as error:
             raise SoftwareException(f'Error in <WAIT FOR RECEIVING> function. Error: {error}')
         finally:
@@ -398,16 +399,18 @@ class Client(Logger):
         except Exception as error:
             raise BlockchainException(f'{self.get_normalize_error(error)}')
 
-    async def make_approve(self, token_address: str, spender_address: str, amount_in_wei: int) -> bool:
+    async def make_approve(
+            self, token_address: str, spender_address: str, amount_in_wei: int, unlimited_approve:bool
+    ) -> bool:
         transaction = await self.get_contract(token_address).functions.approve(
             spender_address,
-            amount=2 ** 256 - 1 if UNLIMITED_APPROVE else amount_in_wei
+            amount=2 ** 256 - 1 if unlimited_approve else amount_in_wei
         ).build_transaction(await self.prepare_transaction())
 
         return await self.send_transaction(transaction)
 
-    async def check_for_approved(self, token_address: str, spender_address: str,
-                                 amount_in_wei: int, without_bal_check: bool = False) -> bool:
+    async def check_for_approved(self, token_address: str, spender_address: str, amount_in_wei: int,
+                                 without_bal_check: bool = False, unlimited_approve:bool = UNLIMITED_APPROVE) -> bool:
         try:
             contract = self.get_contract(token_address)
 
@@ -428,7 +431,7 @@ class Client(Logger):
                 self.logger_msg(*self.acc_info, msg=f'Already approved')
                 return False
 
-            result = await self.make_approve(token_address, spender_address, amount_in_wei)
+            result = await self.make_approve(token_address, spender_address, amount_in_wei, unlimited_approve)
 
             await sleep(random.randint(5, 9))
             return result

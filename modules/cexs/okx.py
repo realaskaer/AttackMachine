@@ -261,7 +261,7 @@ class OKX(CEX, Logger):
                 self.logger_msg(*self.client.acc_info, msg=f"Deposit still in progress...", type_msg='warning')
                 await asyncio.sleep(check_time)
 
-        self.logger_msg(*self.client.acc_info, msg=f"Deposit does not complete in {timeout} seconds", type_msg='error')
+        raise SoftwareExceptionWithoutRetry(f"Deposit does not complete in {timeout} seconds")
 
     @helper
     async def deposit(self, deposit_data:tuple = None):

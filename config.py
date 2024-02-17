@@ -2759,7 +2759,13 @@ COINGECKO_TOKEN_API_NAMES = {
      'XPLA': 'xpla',
      'BEAM': 'beam-2',
      'INJ': 'injective-protocol',
-     'ETH ': 'ethereum',
+     'DAI': 'dai',
+     'USDT': 'tether',
+     'USDC': 'usd-coin',
+     'USDC.e': 'bridged-usdc-polygon-pos-bridge',
+     'BUSD': 'binance-usd',
+     'WETH': 'ethereum',
+     'USDbC': 'bridged-usd-coin-base'
 }
 
 LAYERZERO_NETWORKS_DATA = {
