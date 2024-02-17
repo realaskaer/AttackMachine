@@ -44,7 +44,6 @@ class Ambient(DEX, Logger):
         calldata = (
             from_token_address,
             to_token_address,
-            self.client.address,
             pool_idx,
             True if from_token_name == 'ETH' else False,
             True if from_token_name == 'ETH' else False,
