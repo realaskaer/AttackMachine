@@ -1,7 +1,8 @@
+import copy
 import random
 import traceback
 
-from modules import Logger, RequestClient
+from modules import Logger, RequestClient, Client
 from general_settings import AMOUNT_PERCENT_WRAPS
 from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry
 from utils.tools import helper, gas_checker, sleep
@@ -28,7 +29,7 @@ from settings import (
 
 
 class Custom(Logger, RequestClient):
-    def __init__(self, client):
+    def __init__(self, client: Client):
         self.client = client
         Logger.__init__(self)
         RequestClient.__init__(self, client)
@@ -230,7 +231,11 @@ class Custom(Logger, RequestClient):
             swapdata = (src_chain_name, dst_chain_name, dst_chain_id,
                         from_token_name, to_token_name, amount, amount_in_wei)
 
-            return await class_name(current_client).bridge(swapdata=swapdata)
+            result = await class_name(current_client).bridge(swapdata=swapdata)
+
+            await current_client.session.close()
+
+            return result
         finally:
             for client in clients:
                 await client.session.close()
@@ -586,16 +591,18 @@ class Custom(Logger, RequestClient):
     async def smart_cex_withdraw(self, dapp_id:int):
         from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util
 
-        func, multi_withdraw_data = {
+        func, withdraw_data = {
             1: (okx_withdraw_util, OKX_WITHDRAW_DATA),
             2: (bingx_withdraw_util, BINGX_WITHDRAW_DATA),
             3: (binance_withdraw_util, BINANCE_WITHDRAW_DATA)
         }[dapp_id]
 
-        random.shuffle(multi_withdraw_data)
+        withdraw_data_copy = copy.deepcopy(withdraw_data)
+
+        random.shuffle(withdraw_data_copy)
         result_list = []
 
-        for data in multi_withdraw_data:
+        for data in withdraw_data_copy:
             current_data = data
             if isinstance(data[0], list):
                 current_data = random.choice(data)
@@ -603,6 +610,7 @@ class Custom(Logger, RequestClient):
                     continue
 
             network, amount = current_data
+
             if isinstance(amount[0], str):
                 raise SoftwareExceptionWithoutRetry('CEX withdrawal does not support % of the amount')
 
@@ -624,14 +632,16 @@ class Custom(Logger, RequestClient):
         try:
             from functions import cex_deposit_util
 
-            class_id, multi_deposit_data, cex_config = {
+            class_id, deposit_data, cex_config = {
                 1: (1, OKX_DEPOSIT_DATA, OKX_NETWORKS_NAME),
                 2: (2, BINGX_DEPOSIT_DATA, BINGX_NETWORKS_NAME),
                 3: (3, BINANCE_DEPOSIT_DATA, BINANCE_NETWORKS_NAME),
             }[dapp_id]
 
+            deposit_data_copy = copy.deepcopy(deposit_data)
+
             result_list = []
-            for data in multi_deposit_data:
+            for data in deposit_data_copy:
 
                 current_data = data
                 if isinstance(data[0], list):
@@ -661,10 +671,11 @@ class Custom(Logger, RequestClient):
                 if balance_in_usd >= limit_amount:
 
                     if CEX_VOLUME_MODE:
-                        dep_amount = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
+                        dep_amount_in_usd = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
+                        dep_amount = round(dep_amount_in_usd / token_price, 6)
                     else:
                         dep_amount = await client.get_smart_amount(amount, token_name=dep_token)
-                    dep_amount_in_usd = dep_amount * token_price
+                        dep_amount_in_usd = dep_amount * token_price
 
                     if balance_in_usd >= dep_amount_in_usd:
 
@@ -673,7 +684,7 @@ class Custom(Logger, RequestClient):
 
                             deposit_data = dep_network, (dep_amount, dep_amount)
 
-                            if len(multi_deposit_data) == 1:
+                            if len(deposit_data_copy) == 1:
                                 return await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
                             else:
                                 result_list.append(
@@ -743,10 +754,14 @@ class Custom(Logger, RequestClient):
             if balance_in_usd >= limit_amount:
 
                 if BRIDGE_VOLUME_MODE:
-                    bridge_amount = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
+                    bridge_amount_in_usd = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
+                    bridge_amount = round(bridge_amount_in_usd / token_price, 6)
                 else:
                     bridge_amount = await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data, need_fee=True)
-                bridge_amount_in_usd = bridge_amount * token_price
+                    bridge_amount_in_usd = bridge_amount * token_price
+
+                bridge_data = (source_chain_name, destination_chain, bridge_amount,
+                               dst_chain_id, token_name, from_token_addr, to_token_addr)
 
                 if balance_in_usd >= bridge_amount_in_usd:
 

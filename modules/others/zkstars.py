@@ -13,7 +13,7 @@ class ZkStars(Minter, Logger):
 
     async def get_new_nft_id(self):
         for contract_id, contract_address in list(ZKSTARS_CONTRACTS[self.network].items()):
-            if contract_id in ZKSTARS_NFT_CONTRACTS or ZKSTARS_NFT_CONTRACTS == 0:
+            if ZKSTARS_NFT_CONTRACTS == 0 or contract_id in ZKSTARS_NFT_CONTRACTS:
                 nft_contract = self.client.get_contract(contract_address=contract_address, abi=ZKSTARS_ABI)
                 if not (await nft_contract.functions.balanceOf(self.client.address).call()):
                     return nft_contract, contract_id
