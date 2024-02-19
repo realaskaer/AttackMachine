@@ -56,7 +56,7 @@ class HyperComic(Minter, Logger, RequestClient):
             4: (9, '0x761cCCE4a16A670Db9527b1A17eCa4216507946f', 'zkSync Junior'),
         }
 
-        mint_ids = list(HYPERCOMIC_NFT_ID if HYPERCOMIC_NFT_ID != 0 else (1, 2, 3, 4))
+        mint_ids = list(HYPERCOMIC_NFT_ID if HYPERCOMIC_NFT_ID != 0 else [random.choice([1, 2, 3, 4])])
 
         random.shuffle(mint_ids)
 
