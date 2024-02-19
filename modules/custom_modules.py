@@ -442,6 +442,7 @@ class Custom(Logger, RequestClient):
         for dst_data in dst_datas:
             chain_name_to = CHAIN_NAME[LAYERZERO_WRAPED_NETWORKS[dst_data if dapp_mode == 2 else dst_data[0]]]
             for src_chain in src_chains:
+                chain_from_id = LAYERSWAP_CHAIN_ID_FROM[src_chain]
                 try:
                     attack_data = {
                         dst_data[0]: dst_data[1]
@@ -449,7 +450,7 @@ class Custom(Logger, RequestClient):
 
                     action_flag = await omnichain_util(
                         self.client.account_name, self.client.private_key, self.client.proxy_init,
-                        chain_from_id=src_chain, dapp_id=class_id, dapp_mode=dapp_mode, attack_data=attack_data,
+                        chain_from_id=chain_from_id, dapp_id=class_id, dapp_mode=dapp_mode, attack_data=attack_data,
                         need_check=True
                     )
 
@@ -462,7 +463,7 @@ class Custom(Logger, RequestClient):
 
                         result = await omnichain_util(
                             self.client.account_name, self.client.private_key, self.client.proxy_init,
-                            chain_from_id=src_chain, dapp_id=class_id, dapp_mode=dapp_mode, attack_data=attack_data
+                            chain_from_id=chain_from_id, dapp_id=class_id, dapp_mode=dapp_mode, attack_data=attack_data
                         )
 
                         if not ALL_DST_CHAINS:
