@@ -197,31 +197,35 @@ async def omnichain_util(
         }[dapp_mode]
     else:
         func = {
-            'NFT bridge Wormhole': worker.wnft_bridge,
-            'token bridge Wormhole': worker.wt_bridge,
-            'NFT bridge Polyhedra': worker.pnft_bridge,
+            'bridge NFT Wormhole': worker.wnft_bridge,
+            'bridge Token Wormhole': worker.wt_bridge,
+            'bridge NFT Polyhedra': worker.pnft_bridge,
             'refuel Polyhedra': worker.p_refuel,
-            'NFT bridge Hyperlane': worker.hnft_bridge,
-            'token bridge Hyperlane': worker.ht_bridge,
+            'bridge NFT Hyperlane': worker.hnft_bridge,
+            'bridge Token Hyperlane': worker.ht_bridge,
         }[dapp_mode]
 
     return await func(wrapped_chain_id, attack_data=attack_data, google_mode=google_mode, need_check=need_check)
 
 
-async def bridge_l2pass(account_name, private_key, _, proxy):
-    return await omnichain_util(account_name, private_key, proxy, dapp_id=1, dapp_mode=2)
+async def bridge_l2pass(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.smart_layerzero_util(dapp_id=1, dapp_mode=2)
 
 
-async def bridge_merkly(account_name, private_key, _, proxy):
-    return await omnichain_util(account_name, private_key, proxy, dapp_id=2, dapp_mode=2)
+async def bridge_merkly(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.smart_layerzero_util(dapp_id=2, dapp_mode=2)
 
 
-async def bridge_whale(account_name, private_key, _, proxy):
-    return await omnichain_util(account_name, private_key, proxy, dapp_id=3, dapp_mode=2)
+async def bridge_whale(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.smart_layerzero_util(dapp_id=3, dapp_mode=2)
 
 
-async def bridge_zerius(account_name, private_key, _, proxy):
-    return await omnichain_util(account_name, private_key, proxy, dapp_id=4, dapp_mode=2)
+async def bridge_zerius(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.smart_layerzero_util(dapp_id=4, dapp_mode=2)
 
 
 async def l2pass_refuel_google(account_name, private_key, _, proxy, chain_from, chain_to):

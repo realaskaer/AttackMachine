@@ -206,7 +206,7 @@ class Custom(Logger, RequestClient):
 
             class_name, tokens, chains = dapp_config
 
-            current_client, index, balance, balances_in_usd = self.balance_searcher(chains, tokens)
+            current_client, index, balance, balances_in_usd = await self.balance_searcher(chains, tokens)
 
             from_token_name = tokens[index]
             decimals = 18 if from_token_name == 'ETH' else await current_client.get_decimals(from_token_name)
@@ -431,7 +431,7 @@ class Custom(Logger, RequestClient):
 
         dst_datas, module_name = {
             1: (list(dst_tuple_data[0].items()), 'refuel'),
-            2: (dst_tuple_data[1], 'bridge')
+            2: (dst_tuple_data[1], 'bridge NFT')
         }[dapp_mode]
 
         random.shuffle(src_chains)
@@ -440,7 +440,7 @@ class Custom(Logger, RequestClient):
         result = False
         action_flag = False
         for dst_data in dst_datas:
-            chain_id_to = LAYERZERO_WRAPED_NETWORKS[dst_data[0]]
+            chain_name_to = CHAIN_NAME[LAYERZERO_WRAPED_NETWORKS[dst_data if dapp_mode == 2 else dst_data[0]]]
             for src_chain in src_chains:
                 try:
                     attack_data = {
@@ -454,10 +454,10 @@ class Custom(Logger, RequestClient):
                     )
 
                     if action_flag:
-                        chain_id_from = LAYERZERO_WRAPED_NETWORKS[src_chain]
+                        chain_name_from = CHAIN_NAME[LAYERZERO_WRAPED_NETWORKS[src_chain]]
                         self.logger_msg(
                             *self.client.acc_info,
-                            msg=f"Detected funds to {module_name} {CHAIN_NAME[chain_id_to]} from {CHAIN_NAME[chain_id_from]}",
+                            msg=f"Detected funds to {module_name} into {chain_name_to} from {chain_name_from}",
                             type_msg='success')
 
                         result = await omnichain_util(
@@ -481,10 +481,10 @@ class Custom(Logger, RequestClient):
                         msg=f"Exception during smart {module_name}: {error}", type_msg='warning'
                     )
 
-            if not result and ALL_DST_CHAINS:
+            if not result:
                 self.logger_msg(
                     *self.client.acc_info,
-                    msg=f"Can`t {module_name} to {CHAIN_NAME[chain_id_to]} from those SRC networks\n",
+                    msg=f"Can`t {module_name} into {chain_name_to} from those SRC networks\n",
                     type_msg='warning'
                 )
 
@@ -509,8 +509,8 @@ class Custom(Logger, RequestClient):
 
         dst_datas, module_func_name = {
             1: (list(refuel_data.items()) if dapp_function == 1 else 0, 'refuel'),
-            2: (dst_chains, 'NFT bridge'),
-            3: (dst_chains, 'token bridge')
+            2: (dst_chains, 'bridge NFT'),
+            3: (dst_chains, 'bridge Token')
         }[dapp_function]
 
         random.shuffle(src_chains)
@@ -521,7 +521,7 @@ class Custom(Logger, RequestClient):
         action_flag = False
 
         for dst_data in dst_datas:
-            chain_id_to = LAYERZERO_WRAPED_NETWORKS[dst_data if dapp_function != 1 else dst_data[0]]
+            chain_name_to = CHAIN_NAME[LAYERZERO_WRAPED_NETWORKS[dst_data if dapp_function != 1 else dst_data[0]]]
             for src_chain in src_chains:
                 try:
                     if dapp_function == 1:
@@ -546,10 +546,10 @@ class Custom(Logger, RequestClient):
                     )
 
                     if action_flag:
-                        chain_id_from = LAYERZERO_WRAPED_NETWORKS[src_chain]
+                        chain_name_from = CHAIN_NAME[LAYERZERO_WRAPED_NETWORKS[src_chain]]
                         self.logger_msg(
                             *self.client.acc_info,
-                            msg=f"Detected funds to {module_func_name} {CHAIN_NAME[chain_id_to]} from {CHAIN_NAME[chain_id_from]}",
+                            msg=f"Detected funds to {module_func_name} into {chain_name_to} from {chain_name_from}",
                             type_msg='success')
 
                         result = await omnichain_util(
@@ -575,7 +575,7 @@ class Custom(Logger, RequestClient):
             if not result and ALL_DST_CHAINS:
                 self.logger_msg(
                     *self.client.acc_info,
-                    msg=f"Can`t {module_func_name} to {CHAIN_NAME[chain_id_to]} from those SRC networks\n",
+                    msg=f"Can`t {module_func_name} into {chain_name_to} from those SRC networks\n",
                     type_msg='warning'
                 )
 

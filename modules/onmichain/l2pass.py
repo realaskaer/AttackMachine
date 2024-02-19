@@ -117,20 +117,19 @@ class L2Pass(Refuel, Minter, Logger):
         onft_contract = self.client.get_contract(L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], L2PASS_ABI['ONFT'])
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
 
-        nft_id = 1
         if not need_check:
             nft_id = await self.get_nft_id(onft_contract)
 
             if not nft_id:
-                new_client = await self.client.new_client(chain_from_id)
-                await L2Pass(new_client).mint(chain_from_id)
+                await self.mint(chain_from_id)
                 nft_id = await self.get_nft_id(onft_contract)
-                await new_client.session.close()
                 await sleep(self, 5, 10)
 
             self.logger_msg(
                 *self.client.acc_info,
                 msg=f"Bridge L2Pass NFT from {self.client.network.name} to {dst_chain_name}. ID: {nft_id}")
+        else:
+            nft_id = await onft_contract.functions.nextMintId().call()
 
         version, gas_limit = 1, 200000
 
@@ -144,6 +143,11 @@ class L2Pass(Refuel, Minter, Logger):
 
             estimate_send_fee = await self.get_estimate_send_fee(onft_contract, adapter_params, dst_chain_id, nft_id)
             value = int(estimate_send_fee + send_price)
+
+            if need_check:
+                if await self.client.w3.eth.get_balance(self.client.address) > value:
+                    return True
+                return False
 
             tx_params = await self.client.prepare_transaction(value=value)
 

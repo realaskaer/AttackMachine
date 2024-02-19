@@ -6,7 +6,7 @@ from eth_abi import abi
 from decimal import Decimal
 
 from modules.interfaces import BlockchainException, SoftwareException, Minter
-from utils.tools import gas_checker, helper, sleep
+from utils.tools import helper, sleep
 from config import (
     MERKLY_CONTRACTS_PER_CHAINS,
     MERKLY_ABI,
@@ -119,7 +119,6 @@ class Merkly(Refuel, Minter, Logger):
         onft_contract = self.client.get_contract(MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], MERKLY_ABI['ONFT'])
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[attack_data]
 
-        nft_id = 1
         if not need_check:
             tx_hash = await self.mint(chain_from_id, onft_contract)
             nft_id = await self.get_nft_id(tx_hash)
@@ -128,6 +127,8 @@ class Merkly(Refuel, Minter, Logger):
             self.logger_msg(
                 *self.client.acc_info,
                 msg=f"Bridge Merkly NFT from {self.client.network.name} to {dst_chain_name}. ID: {nft_id}")
+        else:
+            nft_id = await onft_contract.functions.nextMintId().call()
 
         version, gas_limit = 1, 200000
 
@@ -139,7 +140,12 @@ class Merkly(Refuel, Minter, Logger):
         try:
             estimate_send_fee = await self.get_estimate_send_fee(onft_contract, adapter_params, dst_chain_id, nft_id)
 
-            tx_params = await self.client.prepare_transaction(value=int(estimate_send_fee))
+            if need_check:
+                if await self.client.w3.eth.get_balance(self.client.address) > estimate_send_fee:
+                    return True
+                return False
+
+            tx_params = await self.client.prepare_transaction(value=estimate_send_fee)
 
             transaction = await onft_contract.functions.sendFrom(
                 self.client.address,
@@ -150,9 +156,6 @@ class Merkly(Refuel, Minter, Logger):
                 ZERO_ADDRESS,
                 adapter_params
             ).build_transaction(tx_params)
-
-            if need_check:
-                return True
 
             tx_result = await self.client.send_transaction(transaction, need_hash=True)
 

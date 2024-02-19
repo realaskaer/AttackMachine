@@ -18,6 +18,7 @@ from config import (
     LAYERZERO_NETWORKS_DATA, L2TELEGRAPH_ADD_VALUE,
 )
 
+
 class L2Telegraph(Messenger, Logger):
     def __init__(self, client):
         self.client = client

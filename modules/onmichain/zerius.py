@@ -122,19 +122,20 @@ class Zerius(Refuel, Minter, Logger):
 
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
 
-        nft_id = 1
         if not need_check:
             nft_id = await self.get_nft_id(onft_contract)
 
             if not nft_id:
-                new_client = await self.client.new_client(chain_from_id)
-                await Zerius(new_client).mint(chain_from_id)
+                await self.mint(chain_from_id)
                 nft_id = await self.get_nft_id(onft_contract)
                 await sleep(self, 5, 10)
 
             self.logger_msg(
                 *self.client.acc_info,
                 msg=f"Bridge Zerius NFT from {self.client.network.name} to {dst_chain_name}. ID: {nft_id}")
+        else:
+            nft_id = await onft_contract.functions.startMintId().call()
+
         try:
             version, gas_limit = 1, await onft_contract.functions.minDstGasLookup(dst_chain_id, 1).call()
 
@@ -145,8 +146,14 @@ class Zerius(Refuel, Minter, Logger):
 
             base_bridge_fee = await onft_contract.functions.bridgeFee().call()
             estimate_send_fee = await self.get_estimate_send_fee(onft_contract, adapter_params, dst_chain_id, nft_id)
+            value = int(estimate_send_fee + base_bridge_fee)
 
-            tx_params = await self.client.prepare_transaction(value=estimate_send_fee + base_bridge_fee)
+            if need_check:
+                if await self.client.w3.eth.get_balance(self.client.address) > value:
+                    return True
+                return False
+
+            tx_params = await self.client.prepare_transaction(value=value)
 
             transaction = await onft_contract.functions.sendFrom(
                 self.client.address,
@@ -157,9 +164,6 @@ class Zerius(Refuel, Minter, Logger):
                 ZERO_ADDRESS,
                 adapter_params
             ).build_transaction(tx_params)
-
-            if need_check:
-                return True
 
             tx_result = await self.client.send_transaction(transaction, need_hash=True)
 

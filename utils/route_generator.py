@@ -96,6 +96,7 @@ AVAILABLE_MODULES_INFO = {
     grapedraw_bid                       : (grapedraw_bid, 2, 'Bid Place on GrapeDraw', 0, [0]),
     deploy_contract                     : (deploy_contract, 3, 'Contract Deploy', 0, []),
     bridge_zerius                       : (bridge_zerius, 3, 'Zerius Bridge NFT', 0, []),
+    bridge_merkly                       : (bridge_merkly, 3, 'Merkly Bridge NFT', 0, []),
     bridge_l2pass                       : (bridge_l2pass, 3, 'L2Pass Bridge NFT', 0, []),
     bridge_whale                        : (bridge_whale, 3, 'Whale Bridge NFT', 0, []),
     refuel_bungee                       : (refuel_bungee, 3, 'Bungee Refuel', 0, []),

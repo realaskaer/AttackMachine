@@ -124,7 +124,6 @@ class Whale(Refuel, Logger, RequestClient):
 
     async def mint(self, chain_id_from):
         onft_contract = self.client.get_contract(WHALE_CONTRACTS_PER_CHAINS[chain_id_from]['ONFT'], WHALE_ABI['ONFT'])
-
         mint_price = await onft_contract.functions.fee().call()
 
         self.logger_msg(
@@ -146,18 +145,18 @@ class Whale(Refuel, Logger, RequestClient):
         onft_contract = self.client.get_contract(WHALE_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], WHALE_ABI['ONFT'])
         dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
 
-        nft_id = 1
         if not need_check:
             nft_id = await self.get_nft_id()
             if not nft_id:
-                new_client = await self.client.new_client(chain_from_id)
-                await Whale(new_client).mint(chain_from_id)
+                await self.mint(chain_from_id)
                 nft_id = await self.get_nft_id()
                 await sleep(self, 5, 10)
 
             self.logger_msg(
                 *self.client.acc_info,
                 msg=f"Bridge Whale NFT from {self.client.network.name} to {dst_chain_name}. ID: {nft_id}")
+        else:
+            nft_id = await onft_contract.functions.nextMintId().call()
 
         try:
             version, gas_limit = 1, 200000
@@ -168,6 +167,11 @@ class Whale(Refuel, Logger, RequestClient):
             adapter_params = self.client.w3.to_hex(adapter_params[30:])
 
             estimate_send_fee = await self.get_estimate_send_fee(onft_contract, adapter_params, dst_chain_id, nft_id)
+
+            if need_check:
+                if await self.client.w3.eth.get_balance(self.client.address) > estimate_send_fee:
+                    return True
+                return False
 
             tx_params = await self.client.prepare_transaction(value=estimate_send_fee)
 
@@ -180,9 +184,6 @@ class Whale(Refuel, Logger, RequestClient):
                 ZERO_ADDRESS,
                 adapter_params
             ).build_transaction(tx_params)
-
-            if need_check:
-                return True
 
             tx_result = await self.client.send_transaction(transaction, need_hash=True)
 
