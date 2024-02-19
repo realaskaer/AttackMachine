@@ -31,9 +31,7 @@ class Ambient(DEX, Logger):
     @gas_checker
     async def swap(self):
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
-        amount = 0.001
-        amount_in_wei = int(amount * 10 ** 18)
-        to_token_name = 'USDC'
+
         self.logger_msg(*self.client.acc_info, msg=f'Swap on Ambient: {amount} {from_token_name} -> {to_token_name}')
 
         tokens_data = TOKENS_PER_CHAIN[self.network]
