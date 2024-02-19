@@ -28,7 +28,7 @@
 
 OKX_WITHDRAW_DATA = [
     [[17, (1, 1.1)], [18, (1, 1.1)]],  # Пример установки двух сетей, софт выберет одну.
-    [3, (0.001, 0.002)],
+    [3, (0.0004, 0.00041)],
 ]
 
 OKX_DEPOSIT_DATA = [
@@ -131,10 +131,10 @@ ORBITER_TOKEN_NAME = 'USDC'
 
 '--------------------------------------------------------Owlto---------------------------------------------------------'
 
-OWLTO_CHAIN_ID_FROM = [7, 3, 5]         # Исходящая сеть
-OWLTO_CHAIN_ID_TO = [6]                   # Входящая сеть
-OWLTO_BRIDGE_AMOUNT = (8, 8)      # (минимум, максимум) (% или кол-во)
-OWLTO_TOKEN_NAME = 'USDC'
+OWLTO_CHAIN_ID_FROM = [11]         # Исходящая сеть
+OWLTO_CHAIN_ID_TO = [4]                   # Входящая сеть
+OWLTO_BRIDGE_AMOUNT = (0.002, 0.003)      # (минимум, максимум) (% или кол-во)
+OWLTO_TOKEN_NAME = 'ETH'
 
 '--------------------------------------------------------Relay---------------------------------------------------------'
 
@@ -232,24 +232,24 @@ L0_SEARCH_DATA = 0          # Поиск балансов в сетях. 0 - STA
 
 '--------------------------------------------------Stargate / CoreDAO--------------------------------------------------'
 
-STARGATE_CHAINS = [1, 7, 22, 31]
-STARGATE_TOKENS = ['ETH', 'ETH', 'ETH', 'ETH']
+STARGATE_CHAINS = [7, 31]
+STARGATE_TOKENS = ['ETH', 'ETH']
 
 COREDAO_CHAINS = [5, 11, 33]
 COREDAO_TOKENS = ['USDC', 'USDC', 'USDC']
 
 '--------------------------------------------------------L2Pass--------------------------------------------------------'
 
-SRC_CHAIN_L2PASS = [1]          # Исходящая сеть для L2Pass
-DST_CHAIN_L2PASS_NFT = [42]     # Входящая сеть для L2Pass Mint NFT
+SRC_CHAIN_L2PASS = [35]          # Исходящая сеть для L2Pass
+DST_CHAIN_L2PASS_NFT = [7]     # Входящая сеть для L2Pass Mint NFT
 DST_CHAIN_L2PASS_REFUEL = {
     42: (0.0005, 0.0005),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
 }
 
 '--------------------------------------------------------Merkly--------------------------------------------------------'
 
-SRC_CHAIN_MERKLY = [43]         # Исходящая сеть для Merkly
-DST_CHAIN_MERKLY_NFT = [35, 43]     # Входящая сеть для Merkly Mint NFT
+SRC_CHAIN_MERKLY = [35]         # Исходящая сеть для Merkly
+DST_CHAIN_MERKLY_NFT = [43]     # Входящая сеть для Merkly Mint NFT
 DST_CHAIN_MERKLY_REFUEL = {
      3: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
      20: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
@@ -257,16 +257,16 @@ DST_CHAIN_MERKLY_REFUEL = {
 
 '--------------------------------------------------------Whale---------------------------------------------------------'
 
-SRC_CHAIN_WHALE = [33]          # Исходящая сеть для Whale
-DST_CHAIN_WHALE_NFT = [28]     # Входящая сеть для Whale Mint NFT
+SRC_CHAIN_WHALE = [35]          # Исходящая сеть для Whale
+DST_CHAIN_WHALE_NFT = [7]     # Входящая сеть для Whale Mint NFT
 DST_CHAIN_WHALE_REFUEL = {
     42: (0.0005, 0.0005),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
 }
 
 '-------------------------------------------------------Zerius---------------------------------------------------------'
 
-SRC_CHAIN_ZERIUS = [1]          # Исходящая сеть для Zerius
-DST_CHAIN_ZERIUS_NFT = [4]      # Входящая сеть для Zerius Mint NFT
+SRC_CHAIN_ZERIUS = [35]          # Исходящая сеть для Zerius
+DST_CHAIN_ZERIUS_NFT = [7]      # Входящая сеть для Zerius Mint NFT
 DST_CHAIN_ZERIUS_REFUEL = {
     1: (0.0001, 0.0002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
 }
@@ -363,9 +363,9 @@ L2PASS_GAS_STATION_DATA = [
     
 """
 
-ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при (0) заминтит случайную новую NFT
+ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при 0 заминтит случайную новую NFT
 
-HYPERCOMIC_NFT_ID = (1, 2, 3, 4)  # при (0) заминтит все NFT в случайном порядке
+HYPERCOMIC_NFT_ID = (1, 2, 3, 4)  # при 0 заминтит все NFT в случайном порядке
 
 GRAPEDRAW_TICKETS_AMOUNT = 1
 
@@ -388,7 +388,7 @@ MINTFUN_CONTRACTS = [
 """
 
 DMAIL_IN_ROUTES = False        # True или False | Включает Dmail в маршрут
-TRANSFER_IN_ROUTES = False     # True или False | Включает трансферы в маршрут
+TRANSFER_IN_ROUTES = False     # True или False | Включает трансферы (на свой или рандомный адрес) в маршрут
 COLLATERAL_IN_ROUTES = False   # True или False | Включает случайное вкл/выкл страховки в маршрут
 
 DMAIL_COUNT = (1, 1)          # (минимум, максимум) дополнительных транзакций для Dmail
@@ -522,7 +522,8 @@ HELPERS_CONFIG = {
     swap_woofi                       
     swap_zkswap                 
     wrap_eth                         # wrap/unwrap ETH через офф. контракт токена WETH. (кол-во из LIQUIDITY_AMOUNT)
-    grapedraw_bid                    # создание ставки на GrapeDraw. см. GRAPEDRAW_TICKETS_AMOUNT
+    grapedraw_bid                    # создание ставки на GrapeDraw https://grapedraw.com. см. GRAPEDRAW_TICKETS_AMOUNT 
+    vote_rubyscore                   # голосование на RubyScore https://rubyscore.io 
     create_omnisea                   # создание новой NFT коллекции. Все параметры будут рандомными
     create_safe                      # создает сейф в сети GLOBAL_NETWORK
     mint_domain_ens                  # 0.003 ETH domain
@@ -566,6 +567,7 @@ HELPERS_CONFIG = {
     mint_mintfun
     mint_zkstars
     deploy_contract
+    vote_rubyscore
     random_approve
     transfer_eth                     
     transfer_eth_to_myself
@@ -590,6 +592,7 @@ HELPERS_CONFIG = {
     create_omnisea
     mint_zkstars
     deploy_contract
+    vote_rubyscore
     random_approve
     transfer_eth                     
     transfer_eth_to_myself
@@ -599,6 +602,7 @@ HELPERS_CONFIG = {
 
 ---------------------------------------------------------SCROLL---------------------------------------------------------        
     
+    swap_rango
     swap_ambient
     swap_syncswap
     swap_spacefi
@@ -612,6 +616,7 @@ HELPERS_CONFIG = {
     create_omnisea
     mint_zkstars
     deploy_contract
+    vote_rubyscore
     random_approve
     transfer_eth                     
     transfer_eth_to_myself   

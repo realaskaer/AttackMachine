@@ -46,6 +46,7 @@ from .others import ZkStars
 from .others import MintFun
 from .others import GrapeDraw
 from .others import HyperComic
+from .others import RubyScore
 from .landings import EraLend
 from .landings import ZeroLend
 from .landings import ReactorFusion

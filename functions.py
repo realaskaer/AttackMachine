@@ -812,3 +812,8 @@ async def bridge_zora(account_name, private_key, _, proxy):
 
     worker = Zora(get_client(account_name, private_key, network, proxy))
     return await worker.bridge()
+
+
+async def vote_rubyscore(account_name, private_key, network, proxy):
+    worker = RubyScore(get_client(account_name, private_key, network, proxy))
+    return await worker.vote()

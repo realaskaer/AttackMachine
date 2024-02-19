@@ -9,3 +9,4 @@ from .zkstars import ZkStars
 from .mintfun import MintFun
 from .grapedraw import GrapeDraw
 from .hypercomic import HyperComic
+from .rubyscore import RubyScore
