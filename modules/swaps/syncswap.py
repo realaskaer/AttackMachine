@@ -34,6 +34,8 @@ class SyncSwap(DEX, Logger):
             'USDC': ("USD Coin" if self.client.network.name == "Scroll" else 'USDC', 2)
         }[token_name]
 
+        deadline = int(time()) + 10800
+
         permit_data = {
             "types": {
                 "Permit": [
@@ -89,7 +91,7 @@ class SyncSwap(DEX, Logger):
                 "spender": self.router_contract.address,
                 "value": 2 ** 256 - 1,
                 "nonce": 0,
-                "deadline": int(time()) + 10800
+                "deadline": deadline
             }
         }
 
@@ -97,7 +99,7 @@ class SyncSwap(DEX, Logger):
         sing_data = self.client.w3.eth.account.sign_message(text_encoded,
                                                             private_key=self.client.private_key)
 
-        return sing_data.v, hex(sing_data.r), hex(sing_data.s)
+        return deadline, sing_data.v, hex(sing_data.r), hex(sing_data.s)
 
     async def get_min_amount_out(self, pool_address: str, from_token_address: str, amount_in_wei: int):
         pool_contract = self.client.get_contract(pool_address, SYNCSWAP_CLASSIC_POOL_ABI)
@@ -157,8 +159,7 @@ class SyncSwap(DEX, Logger):
                 deadline,
                 [
                     from_token_address,
-                    2 * 256 - 1,
-                    deadline,
+                    2 ** 256 - 1,
                     *(await self.get_swap_permit(from_token_name))
                 ]
             ).build_transaction(tx_params)
