@@ -3,7 +3,7 @@ import random
 from modules import Minter, Logger, RequestClient, Client
 from config import HYPERCOMIC_ABI
 from modules.interfaces import SoftwareException
-from utils.tools import helper, gas_checker
+from utils.tools import helper, gas_checker, sleep
 from settings import HYPERCOMIC_NFT_ID
 
 
@@ -83,6 +83,8 @@ class HyperComic(Minter, Logger, RequestClient):
                 ).build_transaction(await self.client.prepare_transaction(value=120000000000000))
 
                 result_list.append(await self.client.send_transaction(transaction))
+
+                await sleep(self)
             except Exception as error:
                 raise SoftwareException(f'Can`t mint {nft_name}. Error: {error}')
 
