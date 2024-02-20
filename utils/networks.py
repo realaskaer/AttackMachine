@@ -344,7 +344,7 @@ ConfluxRPC = Network(
     chain_id=1030,
     eip1559_support=False,
     token='CFX',
-    explorer='https://www.confluxscan.net/'
+    explorer='https://evm.confluxscan.io/'
 )
 
 OrderlyRPC = Network(
