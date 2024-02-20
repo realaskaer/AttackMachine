@@ -47,7 +47,7 @@ class Client(Logger):
 
         self.proxy_init = proxy
         self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}", verify_ssl=False)
-        if proxy else TCPConnector(verify_ssl=False))
+                                     if proxy else TCPConnector(verify_ssl=False))
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
         self.rpc = random.choice(network.rpc)
         self.w3 = AsyncWeb3(AsyncHTTPProvider(self.rpc, request_kwargs=self.request_kwargs))
@@ -495,7 +495,7 @@ class Client(Logger):
                 await asyncio.sleep(poll_latency)
 
     async def get_token_price(self, token_name: str, vs_currency: str = 'usd') -> float:
-        await asyncio.sleep(2)  # todo поправить на 10с
+        await asyncio.sleep(5)  # todo поправить на 10с
         url = 'https://api.coingecko.com/api/v3/simple/price'
 
         params = {'ids': f'{token_name}', 'vs_currencies': f'{vs_currency}'}

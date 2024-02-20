@@ -29,7 +29,7 @@ class OpenOcean(RequestClient, Logger):
 
     @helper
     @gas_checker
-    async def swap(self, help_deposit: bool = False, swapdata: dict = None):
+    async def swap(self, help_deposit: bool = False, swapdata: tuple = None):
         if not swapdata:
             from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
         else:

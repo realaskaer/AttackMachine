@@ -113,8 +113,11 @@ class SyncSwap(DEX, Logger):
 
     @helper
     @gas_checker
-    async def swap(self):
-        from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
+    async def swap(self, swapdata: tuple = None):
+        if swapdata:
+            from_token_name, to_token_name, amount, amount_in_wei = swapdata
+        else:
+            from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
         self.logger_msg(*self.client.acc_info, msg=f'Swap on SyncSwap: {amount} {from_token_name} -> {to_token_name}')
 

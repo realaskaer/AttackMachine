@@ -35,15 +35,15 @@ class Custom(Logger, RequestClient):
         RequestClient.__init__(self, client)
 
     async def collect_eth_util(self):
-        from functions import swap_odos, swap_oneinch, swap_openocean, swap_xyfinance, swap_rango
+        from functions import swap_odos, swap_oneinch, swap_rango, swap_izumi, swap_syncswap
 
         self.logger_msg(*self.client.acc_info, msg=f"Started collecting tokens in ETH")
 
         func = {
-            'Base': [swap_rango, swap_odos, swap_oneinch, swap_openocean, swap_xyfinance],
-            'Linea': [swap_rango, swap_openocean, swap_xyfinance],
-            'Scroll': [swap_rango, swap_openocean, swap_xyfinance],
-            'zkSync': [swap_rango, swap_openocean, swap_xyfinance, swap_odos, swap_oneinch]
+            'Base': [swap_rango, swap_izumi, swap_odos, swap_oneinch],
+            'Linea': [swap_izumi, swap_syncswap],
+            'Scroll': [swap_izumi, swap_syncswap],
+            'zkSync': [swap_rango, swap_izumi, swap_syncswap, swap_odos, swap_oneinch]
         }[self.client.network.name]
 
         wallet_balance = {k: await self.client.get_token_balance(k, False)
@@ -128,13 +128,13 @@ class Custom(Logger, RequestClient):
 
     @helper
     async def wraps_abuser(self):
-        from functions import swap_odos, swap_oneinch, swap_xyfinance, swap_rango
+        from functions import swap_odos, swap_oneinch, swap_xyfinance
 
         func = {
-            'Base': [swap_rango, swap_odos, swap_oneinch, swap_xyfinance],
-            'Linea': [swap_rango, swap_xyfinance],
-            'Scroll': [swap_rango, swap_xyfinance],
-            'zkSync': [swap_rango, swap_xyfinance, swap_odos, swap_oneinch]
+            'Base': [swap_odos, swap_oneinch, swap_xyfinance],
+            'Linea': [swap_xyfinance],
+            'Scroll': [swap_xyfinance],
+            'zkSync': [swap_xyfinance, swap_odos, swap_oneinch]
         }[self.client.network.name]
 
         current_tokens = list(TOKENS_PER_CHAIN[self.client.network.name].items())[:2]
