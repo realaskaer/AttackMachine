@@ -131,13 +131,17 @@ class Custom(Logger, RequestClient):
             self.logger_msg(*self.client.acc_info, msg=f"Not enough balance on account, launch OKX withdraw module")
 
             return await okx_withdraw_util(self.client, withdraw_data=(okx_network, need_to_withdraw))
-        else:
-            fee = random.uniform(0.5, 1)
-            need_to_deposit = float(f"{(sum_balance_in_usd - wanted_amount_in_usd) / eth_price - fee:.6f}")
+        
+        self.logger_msg(*self.client.acc_info, msg=f"Account have enough ETH balance", type_msg='success')
 
-            self.logger_msg(*self.client.acc_info, msg=f"ETH balance on account is too much, launch OKX deposit module")
-
-            return await okx_deposit_util(self.client, deposit_data=(okx_network, need_to_deposit))
+        return True
+        # else:
+        #     fee = random.uniform(0.5, 1)
+        #     need_to_deposit = float(f"{(sum_balance_in_usd - wanted_amount_in_usd) / eth_price - fee:.6f}")
+        #
+        #     self.logger_msg(*self.client.acc_info, msg=f"ETH balance on account is too much, launch OKX deposit module")
+        #
+        #     return await okx_deposit_util(self.client, deposit_data=(okx_network, need_to_deposit))
 
     @helper
     async def wraps_abuser(self):
@@ -299,6 +303,8 @@ class Custom(Logger, RequestClient):
 
         return await swap_woofi(self.client.account_name, self.client.private_key,
                                 self.client.network, self.client.proxy_init, swapdata=data)
+
+    async def custom_swap_1inch()
 
     @helper
     @gas_checker
