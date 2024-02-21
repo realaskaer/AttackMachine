@@ -570,13 +570,16 @@ class RouteGenerator(Logger):
             'okx_deposit_l0': 4,
         }
 
+        new_route = []
         classic_route = []
         for module_name in route:
             if module_name in modules_dependents:
                 classic_route.append((module_name, modules_dependents[module_name]))
             else:
-                classic_route.append((module_name, 2))
+                new_route.append((module_name, 2))
 
+        random.shuffle(new_route)
+        classic_route.extend(new_route)
         route_with_priority = [module[0] for module in sorted(classic_route, key=lambda x: x[1])]
 
         return route_with_priority

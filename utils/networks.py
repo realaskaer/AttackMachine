@@ -75,7 +75,6 @@ OptimismRPC = Network(
 PolygonRPC = Network(
     name='Polygon',
     rpc=[
-        'https://rpc.ankr.com/polygon',
         'https://polygon-rpc.com',
     ],
     chain_id=137,

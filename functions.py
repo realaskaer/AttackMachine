@@ -386,9 +386,9 @@ async def swap_woofi(account_name, private_key, network, proxy, **kwargs):
     return await worker.swap(**kwargs)
 
 
-async def swap_syncswap(account_name, private_key, network, proxy):
+async def swap_syncswap(account_name, private_key, network, proxy, **kwargs):
     worker = SyncSwap(get_client(account_name, private_key, network, proxy))
-    return await worker.swap()
+    return await worker.swap(**kwargs)
 
 
 async def add_liquidity_syncswap(account_name, private_key, network, proxy):
@@ -502,9 +502,9 @@ async def swap_oneinch(account_name, private_key, network, proxy, **kwargs):
     return await worker.swap(**kwargs)
 
 
-async def swap_izumi(account_name, private_key, network, proxy):
+async def swap_izumi(account_name, private_key, network, proxy, **kwargs):
     worker = Izumi(get_client(account_name, private_key, network, proxy))
-    return await worker.swap()
+    return await worker.swap(**kwargs)
 
 
 async def swap_ambient(account_name, private_key, network, proxy):

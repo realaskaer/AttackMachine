@@ -24,7 +24,8 @@ from settings import (
     LAYERSWAP_TOKEN_NAME, RELAY_TOKEN_NAME, RHINO_TOKEN_NAME, OKX_DEPOSIT_DATA, BINGX_DEPOSIT_DATA,
     SRC_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_MERKLY_POLYHEDRA, SRC_CHAIN_MERKLY_HYPERLANE, DST_CHAIN_MERKLY_WORMHOLE,
     DST_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_HYPERLANE, WORMHOLE_TOKENS_AMOUNT, HYPERLANE_TOKENS_AMOUNT,
-    DST_CHAIN_MERKLY_POLYHEDRA_REFUEL, CEX_VOLUME_MODE, BRIDGE_VOLUME_MODE, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME
+    DST_CHAIN_MERKLY_POLYHEDRA_REFUEL, CEX_VOLUME_MODE, BRIDGE_VOLUME_MODE, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME,
+    L0_BRIDGE_COUNT
 )
 
 
@@ -195,49 +196,84 @@ class Custom(Logger, RequestClient):
     @helper
     @gas_checker
     async def smart_bridge_l0(self, dapp_id:int = None):
-        clients = []
-        try:
-            from functions import Stargate, CoreDAO
+        from functions import Stargate, CoreDAO
 
-            dapp_config = {
-                1: (Stargate, STARGATE_TOKENS, STARGATE_CHAINS),
-                2: (CoreDAO, COREDAO_TOKENS, COREDAO_CHAINS)
-            }[dapp_id]
+        dapp_config = {
+            1: (Stargate, STARGATE_TOKENS, STARGATE_CHAINS),
+            2: (CoreDAO, COREDAO_TOKENS, COREDAO_CHAINS)
+        }[dapp_id]
 
-            class_name, tokens, chains = dapp_config
+        class_name, tokens, chains = dapp_config
 
-            current_client, index, balance, balance_in_wei, balances_in_usd = await self.balance_searcher(
-                chains, tokens, omni_check=True
-            )
+        start_chain = None
+        used_chains = []
+        result_list = []
+        for bridge_count in range(L0_BRIDGE_COUNT):
+            clients = []
+            try:
+                current_client, index, balance, balance_in_wei, balances_in_usd = await self.balance_searcher(
+                    chains, tokens, omni_check=True
+                )
 
-            from_token_name = tokens[index]
-            dst_chain = random.choice([chain for i, chain in enumerate(chains) if i != index])
-            src_chain_name = current_client.network.name
-            dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
-            to_token_name = tokens[chains.index(dst_chain)]
+                from_token_name = tokens[index]
 
-            if from_token_name != 'ETH':
-                contract = current_client.get_contract(TOKENS_PER_CHAIN2[current_client.network.name][from_token_name])
-                decimals = await contract.functions.decimals().call()
-            else:
-                decimals = 18
+                if dapp_id == 1:
 
-            amount_in_wei = balance_in_wei if from_token_name != 'ETH' else self.client.to_wei(
-                (await current_client.get_smart_amount(need_percent=True)), decimals)
+                    if not start_chain:
+                        start_chain = chains[index]
+                        used_chains.append(start_chain)
 
-            amount = f"{amount_in_wei / 10 ** decimals:.4f}"
+                    if L0_BRIDGE_COUNT > len(chains) and bridge_count + 1 > len(chains):
+                        dst_chain = random.choice([chain for i, chain in enumerate(chains) if i != index])
+                    else:
+                        dst_chain = random.choice([
+                            chain for i, chain in enumerate(chains) if i != index and chain not in used_chains
+                        ])
+                    used_chains.append(dst_chain)
 
-            swapdata = (src_chain_name, dst_chain_name, dst_chain_id,
-                        from_token_name, to_token_name, amount, amount_in_wei)
+                else:
+                    if not start_chain:
+                        start_chain = chains[index]
+                        used_chains.append(start_chain)
 
-            result = await class_name(current_client).bridge(swapdata=swapdata)
+                    if start_chain == 11:
+                        if len(chains) > 2:
+                            dst_chain = chains[-1]
+                        else:
+                            dst_chain = random.choice([
+                                chain for i, chain in enumerate(chains) if i != index and chain != 11
+                            ])
+                    else:
+                        dst_chain = 11
 
-            await current_client.session.close()
+                src_chain_name = current_client.network.name
+                dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
+                to_token_name = tokens[chains.index(dst_chain)]
 
-            return result
-        finally:
-            for client in clients:
-                await client.session.close()
+                if from_token_name != 'ETH':
+                    contract = current_client.get_contract(TOKENS_PER_CHAIN2[current_client.network.name][from_token_name])
+                    decimals = await contract.functions.decimals().call()
+                else:
+                    decimals = 18
+
+                amount_in_wei = balance_in_wei if from_token_name != 'ETH' else self.client.to_wei(
+                    (await current_client.get_smart_amount(need_percent=True)), decimals)
+
+                amount = f"{amount_in_wei / 10 ** decimals:.4f}"
+
+                swapdata = (src_chain_name, dst_chain_name, dst_chain_id,
+                            from_token_name, to_token_name, amount, amount_in_wei)
+
+                result_list.append(await class_name(current_client).bridge(swapdata=swapdata))
+
+                if current_client:
+                    await current_client.session.close()
+
+            finally:
+                for client in clients:
+                    await client.session.close()
+
+        return all(result_list)
 
     @helper
     async def swap_bridged_usdc(self):
@@ -412,7 +448,8 @@ class Custom(Logger, RequestClient):
             return await client.check_for_approved(token_contract[1], approve_contract, amount_in_wei,
                                                    without_bal_check=True)
         finally:
-            await client.session.close()
+            if client:
+                await client.session.close()
 
     @helper
     @gas_checker
@@ -701,7 +738,8 @@ class Custom(Logger, RequestClient):
                 raise SoftwareExceptionWithoutRetry(f'Account {dep_token} balance < wanted limit amount: {info}')
             return all(result_list)
         finally:
-            await client.session.close()
+            if client:
+                await client.session.close()
 
     @helper
     @gas_checker
@@ -777,4 +815,5 @@ class Custom(Logger, RequestClient):
             info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
             raise SoftwareExceptionWithoutRetry(f'Account {token_name} balance < wanted limit amount: {info}')
         finally:
-            await client.session.close()
+            if client:
+                await client.session.close()
