@@ -130,7 +130,8 @@ class Custom(Logger, RequestClient):
 
             self.logger_msg(*self.client.acc_info, msg=f"Not enough balance on account, launch OKX withdraw module")
 
-            return await okx_withdraw_util(self.client, withdraw_data=(okx_network, need_to_withdraw))
+            return await okx_withdraw_util(
+                self.client, withdraw_data=(okx_network, (need_to_withdraw, need_to_withdraw)))
 
         self.logger_msg(*self.client.acc_info, msg=f"Account have enough ETH balance", type_msg='success')
 
