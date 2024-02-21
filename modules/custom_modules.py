@@ -206,7 +206,9 @@ class Custom(Logger, RequestClient):
 
             class_name, tokens, chains = dapp_config
 
-            current_client, index, balance, balances_in_usd = await self.balance_searcher(chains, tokens)
+            current_client, index, balance, balances_in_usd = await self.balance_searcher(
+                chains, tokens, omni_check=True
+            )
 
             from_token_name = tokens[index]
             decimals = 18 if from_token_name == 'ETH' else await current_client.get_decimals(from_token_name)
