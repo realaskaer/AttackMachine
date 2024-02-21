@@ -25,7 +25,7 @@ from settings import (
     SRC_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_MERKLY_POLYHEDRA, SRC_CHAIN_MERKLY_HYPERLANE, DST_CHAIN_MERKLY_WORMHOLE,
     DST_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_HYPERLANE, WORMHOLE_TOKENS_AMOUNT, HYPERLANE_TOKENS_AMOUNT,
     DST_CHAIN_MERKLY_POLYHEDRA_REFUEL, CEX_VOLUME_MODE, BRIDGE_VOLUME_MODE, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME,
-    L0_BRIDGE_COUNT
+    L0_BRIDGE_COUNT, CUSTOM_SWAP_DATA
 )
 
 
@@ -100,7 +100,7 @@ class Custom(Logger, RequestClient):
 
     @helper
     async def balance_average(self):
-        from functions import okx_withdraw_util, okx_deposit_util
+        from functions import okx_withdraw_util #, okx_deposit_util
 
         self.logger_msg(*self.client.acc_info, msg=f"Stark check all balance to make average")
 
@@ -131,7 +131,7 @@ class Custom(Logger, RequestClient):
             self.logger_msg(*self.client.acc_info, msg=f"Not enough balance on account, launch OKX withdraw module")
 
             return await okx_withdraw_util(self.client, withdraw_data=(okx_network, need_to_withdraw))
-        
+
         self.logger_msg(*self.client.acc_info, msg=f"Account have enough ETH balance", type_msg='success')
 
         return True
@@ -304,7 +304,29 @@ class Custom(Logger, RequestClient):
         return await swap_woofi(self.client.account_name, self.client.private_key,
                                 self.client.network, self.client.proxy_init, swapdata=data)
 
-    async def custom_swap_1inch()
+    @gas_checker
+    @helper
+    async def custom_swap_1inch(self):
+        from functions import swap_oneinch, swap_xyfinance, swap_odos, swap_sushiswap
+
+        func = {
+            'Arbitrum': [swap_oneinch, swap_odos],
+            'Arbitrum Nova': [swap_sushiswap],
+            'Base': [swap_odos, swap_oneinch, swap_xyfinance],
+            'Linea': [swap_xyfinance],
+            'Scroll': [swap_xyfinance],
+            'zkSync': [swap_xyfinance, swap_odos, swap_oneinch],
+            'Optimism': [swap_oneinch, swap_odos],
+            'Polygon ZKEVM': [swap_xyfinance],
+            'BNB Chain': [swap_oneinch],
+            'Manta': [swap_xyfinance],
+            'Polygon': [swap_oneinch],
+            #'Zora': [swap_oneinch],
+        }[self.client.network.name]
+
+        from_token_name, to_token_name, amount_tuple, _ = CUSTOM_SWAP_DATA
+
+
 
     @helper
     @gas_checker
