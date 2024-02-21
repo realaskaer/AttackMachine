@@ -206,17 +206,11 @@ class Custom(Logger, RequestClient):
 
             class_name, tokens, chains = dapp_config
 
-            current_client, index, balance, balances_in_usd = await self.balance_searcher(
+            current_client, index, balance, balance_in_wei, balances_in_usd = await self.balance_searcher(
                 chains, tokens, omni_check=True
             )
 
             from_token_name = tokens[index]
-            decimals = 18 if from_token_name == 'ETH' else await current_client.get_decimals(from_token_name)
-            balance_in_wei = self.client.to_wei(balance, decimals)
-
-            amount_in_wei = balance_in_wei if from_token_name != 'ETH' else self.client.to_wei(
-                (await current_client.get_smart_amount(need_percent=True)), decimals)
-
             dst_chain = random.choice([chain for i, chain in enumerate(chains) if i != index])
             src_chain_name = current_client.network.name
             dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
@@ -227,6 +221,9 @@ class Custom(Logger, RequestClient):
                 decimals = await contract.functions.decimals().call()
             else:
                 decimals = 18
+
+            amount_in_wei = balance_in_wei if from_token_name != 'ETH' else self.client.to_wei(
+                (await current_client.get_smart_amount(need_percent=True)), decimals)
 
             amount = f"{amount_in_wei / 10 ** decimals:.4f}"
 
@@ -323,7 +320,7 @@ class Custom(Logger, RequestClient):
             3: BINANCE_DEPOSIT_DATA,
         }[dapp_id]
 
-        client, index, _, _ = await self.balance_searcher(search_chains, search_tokens)
+        client, index, _, _, _ = await self.balance_searcher(search_chains, search_tokens)
 
         dep_chain = search_chains[index]
         dep_token = search_tokens[index]
@@ -366,7 +363,7 @@ class Custom(Logger, RequestClient):
             msg=f"Detected {round(balances[index][1], 5)} {tokens[index]} in {clients[index].network.name}",
             type_msg='success')
 
-        return clients[index], index, balances[index][1], balances_in_usd[index]
+        return clients[index], index, balances[index][1], balances[index][0], balances_in_usd[index]
 
     @helper
     @gas_checker
@@ -392,7 +389,7 @@ class Custom(Logger, RequestClient):
                 "XYfinance": XYFINANCE_CONTRACTS,
             }
 
-            client, index, _, _ = await self.balance_searcher(STARGATE_CHAINS, STARGATE_TOKENS)
+            client, index, _, _, _ = await self.balance_searcher(STARGATE_CHAINS, STARGATE_TOKENS)
 
             network_name = client.network.name
 
@@ -658,7 +655,7 @@ class Custom(Logger, RequestClient):
                     dapp_tokens = [f"{cex_config[networks].split('-')[0]}{'.e' if networks in [29, 30] else ''}"]
                     dapp_chains = [CEX_WRAPPED_ID[networks]]
 
-                client, chain_index, balance, balance_data = await self.balance_searcher(
+                client, chain_index, balance, _, balance_data = await self.balance_searcher(
                     chains=dapp_chains, tokens=dapp_tokens, omni_check=False,
                 )
 
@@ -725,7 +722,7 @@ class Custom(Logger, RequestClient):
 
             dapp_tokens = [dapp_token for _ in dapp_chains]
 
-            client, chain_index, balance, balance_data = await self.balance_searcher(
+            client, chain_index, balance, _, balance_data = await self.balance_searcher(
                 chains=dapp_chains, tokens=dapp_tokens, omni_check=False, bridge_check=True
             )
 
