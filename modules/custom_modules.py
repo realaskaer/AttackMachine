@@ -106,9 +106,9 @@ class Custom(Logger, RequestClient):
 
         amount = CEX_BALANCE_WANTED
         okx_network = {
-            3: 4,
+            3: 6,
             4: 5,
-            11: 6
+            11: 4
         }[GLOBAL_NETWORK]
 
         wanted_amount_in_usd = float(f'{amount * ETH_PRICE:.2f}')
