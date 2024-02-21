@@ -27,8 +27,7 @@
 '--------------------------------------------------------OKX-----------------------------------------------------------'
 
 OKX_WITHDRAW_DATA = [
-    [[17, (1, 1.1)], [18, (1, 1.1)]],  # Пример установки двух сетей, софт выберет одну.
-    [3, (0.0004, 0.00041)],
+    [[2, (0.48, 0.5)], [3, (0.48, 0.5)]],  # Пример установки двух сетей, софт выберет одну.
 ]
 
 OKX_DEPOSIT_DATA = [
@@ -53,7 +52,7 @@ BINANCE_WITHDRAW_DATA = [
 ]
 
 BINANCE_DEPOSIT_DATA = [
-    [17, (1, 1.011)],
+    [3, (0.001, 0.001)]
 ]
 
 '-------------------------------------------------------Control--------------------------------------------------------'
@@ -232,11 +231,13 @@ L0_SEARCH_DATA = 0          # Поиск балансов в сетях. 0 - STA
 
 '--------------------------------------------------Stargate / CoreDAO--------------------------------------------------'
 
-STARGATE_CHAINS = [7, 31]
-STARGATE_TOKENS = ['ETH', 'ETH']
+STARGATE_CHAINS = [1, 7, 22, 31]
+STARGATE_TOKENS = ['ETH', 'ETH', 'ETH', 'ETH']
 
 COREDAO_CHAINS = [5, 11, 33]
 COREDAO_TOKENS = ['USDC', 'USDC', 'USDC']
+
+L0_BRIDGE_COUNT = 4
 
 '--------------------------------------------------------L2Pass--------------------------------------------------------'
 
@@ -319,7 +320,8 @@ MERKLY_ATTACK_REFUEL = [
 ]
 
 WHALE_ATTACK_REFUEL = [
-    [33, 5, 0.0001],
+    [28, 17, 0.00001],
+    [29, 20, 0.00001],
 ]
 
 ZERIUS_ATTACK_REFUEL = [
@@ -359,7 +361,7 @@ L2PASS_GAS_STATION_DATA = [
     ZKSTARS_NFT_CONTRACTS | Укажите какие NFT ID будут участвовать в минте. Все что в скобках, будут использованы
     MINTFUN_CONTRACTS | Список контрактов для минта в выбранной сети (GLOBAL NETWORK)
     GRAPEGRAW_TICKETS_AMOUNT | Количество билетов для покупки в одной транзакции на сайте https://grapedraw.com/
-    HYPERCOMIC_NFT_ID | 1 - zkDmail Explorer, 2 - zkSync Bridger, 3 - zkSync Root, 4 - zkSync Junior, 0 - всё сразу
+    HYPERCOMIC_NFT_ID | 1 - zkDmail Explorer, 2 - zkSync Bridger, 3 - zkSync Root, 4 - zkSync Junior, 0 - рандомный
     
 """
 
