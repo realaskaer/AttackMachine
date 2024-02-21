@@ -46,7 +46,7 @@ class OKX(CEX, Logger):
         return await self.make_request(url=url, headers=headers, params=params, module_name='Token info')
 
     @helper
-    async def withdraw(self, want_balance:float = 0, withdraw_data:tuple = None):
+    async def withdraw(self, withdraw_data:tuple = None):
 
         url = 'https://www.okx.cab/api/v5/asset/withdrawal'
 

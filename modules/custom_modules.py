@@ -3,7 +3,7 @@ import random
 import traceback
 
 from modules import Logger, RequestClient, Client
-from general_settings import AMOUNT_PERCENT_WRAPS
+from general_settings import AMOUNT_PERCENT_WRAPS, GLOBAL_NETWORK
 from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry
 from utils.tools import helper, gas_checker, sleep
 from config import (
@@ -100,11 +100,17 @@ class Custom(Logger, RequestClient):
 
     @helper
     async def balance_average(self):
-        from functions import okx_withdraw_util
+        from functions import okx_withdraw_util, okx_deposit_util
 
         self.logger_msg(*self.client.acc_info, msg=f"Stark check all balance to make average")
 
         amount = CEX_BALANCE_WANTED
+        okx_network = {
+            3: 4,
+            4: 5,
+            11: 6
+        }[GLOBAL_NETWORK]
+
         wanted_amount_in_usd = float(f'{amount * ETH_PRICE:.2f}')
 
         wallet_balance = {k: await self.client.get_token_balance(k, False)
@@ -122,10 +128,16 @@ class Custom(Logger, RequestClient):
         if wanted_amount_in_usd > sum_balance_in_usd:
             need_to_withdraw = float(f"{(wanted_amount_in_usd - sum_balance_in_usd) / eth_price:.6f}")
 
-            self.logger_msg(*self.client.acc_info, msg=f"Not enough balance on account, start OKX withdraw module")
+            self.logger_msg(*self.client.acc_info, msg=f"Not enough balance on account, launch OKX withdraw module")
 
-            return await okx_withdraw_util(self.client, want_balance=need_to_withdraw, withdraw_data=())
-        raise SoftwareExceptionWithoutRetry('Account has enough tokens on balance!')
+            return await okx_withdraw_util(self.client, withdraw_data=(okx_network, need_to_withdraw))
+        else:
+            fee = random.uniform(0.5, 1)
+            need_to_deposit = float(f"{(sum_balance_in_usd - wanted_amount_in_usd) / eth_price - fee:.6f}")
+
+            self.logger_msg(*self.client.acc_info, msg=f"ETH balance on account is too much, launch OKX deposit module")
+
+            return await okx_deposit_util(self.client, deposit_data=(okx_network, need_to_deposit))
 
     @helper
     async def wraps_abuser(self):
