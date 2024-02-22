@@ -674,9 +674,9 @@ async def create_safe(account_name, private_key, network, proxy):
     return await worker.create()
 
 
-async def swap_uniswap(account_name, private_key, network, proxy):
+async def swap_uniswap(account_name, private_key, network, proxy, **kwargs):
     worker = Uniswap(get_client(account_name, private_key, network, proxy))
-    return await worker.swap()
+    return await worker.swap(**kwargs)
 
 
 async def swap_sushiswap(account_name, private_key, network, proxy):
@@ -772,7 +772,8 @@ async def bridge_coredao(account_name, private_key, network, proxy):
     return await worker.smart_bridge_l0(dapp_id=2)
 
 
-async def swap_bridged_usdc(account_name, private_key, network, proxy):
+async def swap_bridged_usdc(account_name, private_key, _, proxy):
+    network = PolygonRPC
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.swap_bridged_usdc()
 

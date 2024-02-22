@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import hmac
 import json
 import time
@@ -16,13 +17,8 @@ class Bitget(CEX, Logger):
     def __init__(self, client):
         self.client = client
         Logger.__init__(self)
-        CEX.__init__(self, client, 'BingX')
-
+        CEX.__init__(self, client, 'Bitget')
         self.api_url = "https://api.bitget.com"
-        self.headers = {
-            "Content-Type": "application/json",
-            "X-BX-APIKEY": self.api_key,
-        }
 
     @staticmethod
     def parse_params(params: dict | None = None):
@@ -35,19 +31,19 @@ class Bitget(CEX, Logger):
 
     def get_headers(self, method:str, api_path:str, params:dict = None, payload:dict | str = None):
         try:
-            timestamp = int(time.time() * 1000)
+            timestamp = f"{int(time.time() * 1000)}"
             if method == 'GET':
                 api_path = f"{api_path}{self.parse_params(params)}"
             message = f"{timestamp}{method}{api_path}{json.dumps(payload) if payload else ''}"
 
             secret_key_bytes = self.api_secret.encode('utf-8')
-            signature = hmac.new(secret_key_bytes, message.encode('utf-8'), sha256).hexdigest()
+            signature = hmac.new(secret_key_bytes, message.encode('utf-8'), sha256).digest()
 
             return {
                 "ACCESS-KEY": self.api_key,
-                "ACCESS-SIGN": signature,
+                "ACCESS-SIGN": f"{base64.b64encode(signature)}",
                 "ACCESS-PASSPHRASE": BITGET_API_PASSPHRAS,
-                "ACCESS-TIMESTAMP": f"{int(time.time() * 1000)}",
+                "ACCESS-TIMESTAMP": timestamp,
                 "locale": "en-US",
                 "Content-Type": "application/json"
             }
@@ -104,7 +100,7 @@ class Bitget(CEX, Logger):
 
                 payload = {
                     "address": self.client.address,
-                    "size": amount,
+                    "size": f"{amount}",
                     "coin": ccy,
                     "transferType": 'on_chain',
                     "chain": network_name,
@@ -112,8 +108,13 @@ class Bitget(CEX, Logger):
 
                 ccy = f"{ccy}.e" if network_id in [29, 30] else ccy
 
-                old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
-                                                                          check_balance_on_dst=True)
+                omnicheck = False
+                if ccy in ['USDV', 'STG']:
+                    omnicheck = True
+
+                old_balance_on_dst = await self.client.wait_for_receiving(
+                    dst_chain_id, token_name=ccy, omnicheck=omnicheck, check_balance_on_dst=True
+                )
 
                 url = f"{self.api_url}{path}"
                 headers = self.get_headers('POST', path, payload=payload)
@@ -122,7 +123,9 @@ class Bitget(CEX, Logger):
                 self.logger_msg(*self.client.acc_info,
                                 msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success')
 
-                await self.client.wait_for_receiving(dst_chain_id, old_balance_on_dst, token_name=ccy)
+                await self.client.wait_for_receiving(
+                    dst_chain_id, old_balance_on_dst, omnicheck=omnicheck, token_name=ccy
+                )
 
                 return True
             else:
@@ -133,17 +136,17 @@ class Bitget(CEX, Logger):
     async def get_sub_balances(self):
         path = "/api/v2/spot/account/subaccount-assets"
 
+        await asyncio.sleep(2)
         url = f"{self.api_url}{path}"
         headers = self.get_headers('GET', path)
-        await asyncio.sleep(2)
         return await self.make_request(url=url, headers=headers, module_name='Get subAccounts balances')
 
     async def get_main_info(self):
         path = '/api/v2/spot/account/info'
 
+        await asyncio.sleep(2)
         url = f"{self.api_url}{path}"
         headers = self.get_headers('GET', path)
-        await asyncio.sleep(2)
         return await self.make_request(url=url, headers=headers, module_name='Get main account info')
 
     async def get_main_balance(self, ccy):
@@ -223,8 +226,9 @@ class Bitget(CEX, Logger):
 
         return balances
 
-    async def wait_deposit_confirmation(self, amount: float, old_balances: dict, ccy: str = 'ETH',
-                                        check_time: int = 45, timeout: int = 1200):
+    async def wait_deposit_confirmation(
+            self, amount: float, old_balances: dict, ccy: str = 'ETH', check_time: int = 45
+    ):
 
         if ccy == 'USDC.e':
             ccy = 'USDC'
@@ -232,8 +236,7 @@ class Bitget(CEX, Logger):
         self.logger_msg(*self.client.acc_info, msg=f"Start checking CEX balances")
 
         await asyncio.sleep(10)
-        total_time = 0
-        while total_time < timeout:
+        while True:
             new_sub_balances = await self.get_cex_balances(ccy=ccy)
             for acc_name, acc_balance in new_sub_balances.items():
 
@@ -243,11 +246,8 @@ class Bitget(CEX, Logger):
                 else:
                     continue
             else:
-                total_time += check_time
                 self.logger_msg(*self.client.acc_info, msg=f"Deposit still in progress...", type_msg='warning')
                 await asyncio.sleep(check_time)
-
-        self.logger_msg(*self.client.acc_info, msg=f"Deposit does not complete in {timeout} seconds", type_msg='error')
 
     @helper
     async def deposit(self, deposit_data:tuple = None):

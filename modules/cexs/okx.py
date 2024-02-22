@@ -238,8 +238,9 @@ class OKX(CEX, Logger):
 
         return balances
 
-    async def wait_deposit_confirmation(self, amount:float, old_sub_balances:dict, ccy:str = 'ETH',
-                                        check_time:int = 45, timeout:int = 1200):
+    async def wait_deposit_confirmation(
+            self, amount:float, old_sub_balances:dict, ccy:str = 'ETH', check_time:int = 45
+    ):
 
         if ccy == 'USDC.e':
             ccy = 'USDC'
@@ -247,8 +248,7 @@ class OKX(CEX, Logger):
         self.logger_msg(*self.client.acc_info, msg=f"Start checking CEX balances")
 
         await asyncio.sleep(10)
-        total_time = 0
-        while total_time < timeout:
+        while True:
             new_sub_balances = await self.get_cex_balances(ccy=ccy)
             for sub_name, sub_balance in new_sub_balances.items():
                 if sub_balance > old_sub_balances[sub_name]:
@@ -257,11 +257,8 @@ class OKX(CEX, Logger):
                 else:
                     continue
             else:
-                total_time += check_time
                 self.logger_msg(*self.client.acc_info, msg=f"Deposit still in progress...", type_msg='warning')
                 await asyncio.sleep(check_time)
-
-        raise SoftwareExceptionWithoutRetry(f"Deposit does not complete in {timeout} seconds")
 
     @helper
     async def deposit(self, deposit_data:tuple = None):

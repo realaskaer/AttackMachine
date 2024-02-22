@@ -99,7 +99,6 @@ class Binance(CEX, Logger):
                                                                           check_balance_on_dst=True)
 
                 parse_params = self.parse_params(params)
-
                 url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
 
                 await self.make_request(method='POST', url=url, headers=self.headers, module_name='Withdraw')
@@ -131,19 +130,17 @@ class Binance(CEX, Logger):
             "email": sub_email
         }
 
+        await asyncio.sleep(2)
         parse_params = self.parse_params(params)
         url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
-
-        await asyncio.sleep(2)
         return await self.make_request(url=url, headers=self.headers, module_name='Get subAccount balance')
 
     async def get_main_balance(self):
         path = '/sapi/v3/asset/getUserAsset'
 
+        await asyncio.sleep(2)
         parse_params = self.parse_params()
         url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
-
-        await asyncio.sleep(2)
         return await self.make_request(method='POST', url=url, headers=self.headers, content_type=None,
                                        module_name='Get main account balance')
 
@@ -181,7 +178,23 @@ class Binance(CEX, Logger):
                 parse_params = self.parse_params(params)
 
                 url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
-                await self.make_request(method="POST", url=url, headers=self.headers, module_name='SubAccount transfer')
+                while True:
+                    try:
+                        await self.make_request(
+                            method="POST", url=url, headers=self.headers, module_name='SubAccount transfer'
+                        )
+
+                        break
+                    except Exception as error:
+                        if 'not reached the required block confirmations' in str(error):
+                            self.logger_msg(
+                                *self.client.acc_info,
+                                msg=f"Deposit not reached the required block confirmations. Will try again in 1 min...",
+                                type_msg='warning'
+                            )
+                            await asyncio.sleep(60)
+                        else:
+                            raise error
 
                 self.logger_msg(*self.client.acc_info,
                                 msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success')
@@ -203,21 +216,28 @@ class Binance(CEX, Logger):
 
         if available_balance:
             balances['Main CEX Account'] = float(available_balance[0]['free'])
+        else:
+            balances['Main CEX Account'] = 0
 
         sub_list = (await self.get_sub_list())['subAccounts']
 
         for sub_data in sub_list:
             sub_name = sub_data['email']
             sub_balances = await self.get_sub_balance(sub_name)
-            balances[sub_name] = float(
-                [balance for balance in sub_balances['balances'] if balance['asset'] == ccy][0]['free'])
+
+            if sub_balances['balances']:
+                balances[sub_name] = float(
+                    [balance for balance in sub_balances['balances'] if balance['asset'] == ccy][0]['free'])
+            else:
+                balances[sub_name] = 0
 
             await asyncio.sleep(3)
 
         return balances
 
-    async def wait_deposit_confirmation(self, amount: float, old_balances: dict, ccy: str = 'ETH',
-                                        check_time: int = 45, timeout: int = 1200):
+    async def wait_deposit_confirmation(
+            self, amount: float, old_balances: dict, ccy: str = 'ETH', check_time: int = 45
+    ):
 
         if ccy == 'USDC.e':
             ccy = 'USDC'
@@ -225,8 +245,7 @@ class Binance(CEX, Logger):
         self.logger_msg(*self.client.acc_info, msg=f"Start checking CEX balances")
 
         await asyncio.sleep(10)
-        total_time = 0
-        while total_time < timeout:
+        while True:
             new_sub_balances = await self.get_cex_balances(ccy=ccy)
             for acc_name, acc_balance in new_sub_balances.items():
 
@@ -236,15 +255,11 @@ class Binance(CEX, Logger):
                 else:
                     continue
             else:
-                total_time += check_time
                 self.logger_msg(*self.client.acc_info, msg=f"Deposit still in progress...", type_msg='warning')
                 await asyncio.sleep(check_time)
 
-        self.logger_msg(*self.client.acc_info, msg=f"Deposit does not complete in {timeout} seconds", type_msg='error')
-
     @helper
     async def deposit(self, deposit_data: tuple = None):
-
         try:
             with open('./data/services/cex_withdraw_list.json') as file:
                 from json import load

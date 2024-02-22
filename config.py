@@ -614,6 +614,10 @@ UNISWAP_CONTRACTS = {
     'Base': {
         "router": "0x2626664c2603336E57B271c5C0b26F421741e481",
         "quoter": "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a",
+    },
+    'Polygon': {
+        "router": "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
+        "quoter": "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
     }
 }
 
@@ -2307,48 +2311,60 @@ ORBITER_CHAINS_INFO = {
 
 TOKENS_PER_CHAIN2 = {
     'Ethereum': {
-        'ETH': '',
         'USDC': '0xdAC17F958D2ee523a2206206994597C13D831ec7',
         'USDT': '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        'STG': '0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6',
+        'USDV': '0x0E573Ce2736Dd9637A0b21058352e1667925C7a8',
     },
     'BNB Chain': {
         'USDT': '0x55d398326f99059fF775485246999027B3197955',
         'USDC': '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+        'STG': '0xB0D502E938ed5f4df2E681fE6E419ff29631d62b',
+        'USDV': '0x323665443CEf804A3b5206103304BD4872EA4253',
     },
     'Avalanche': {
         'USDC': '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
         'USDT': '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',
+        'STG': '0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
+        'USDV': '0x323665443CEf804A3b5206103304BD4872EA4253',
     },
     'Polygon': {
         'USDC': '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
         'USDT': '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
+        'STG': '0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
+        'USDV': '0x323665443CEf804A3b5206103304BD4872EA4253',
     },
     'Arbitrum': {
         'USDC': '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
         'USDT': '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
-        'ETH': '',
+        'STG': '0x6694340fc020c5E6B96567843da2df01b2CE1eb6',
+        'USDV': '0x323665443CEf804A3b5206103304BD4872EA4253',
     },
     'Optimism':{
         'USDT': '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
         'USDC': '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
-        'ETH': '',
+        'STG': '0x296F55F8Fb28E498B858d0BcDA06D955B2Cb3f97',
+        'USDV': '0x323665443CEf804A3b5206103304BD4872EA4253',
     },
     'Fantom':{
-        'USDC': '0x28a92dde19D9989F39A49905d7C9C2FAc7799bDf'
+        'USDC': '0x28a92dde19D9989F39A49905d7C9C2FAc7799bDf',
+        'STG': '0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
     },
     'Base':{
         'USDC': '0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA',
-        'ETH': ''
+        'STG': '0xE3B53AF74a4BF62Ae5511055290838050bf764Df',
     },
     'Linea':{
-        'ETH': ''
+        'STG': '0x808d7c71ad2ba3FA531b068a2417C63106BC0949'
     },
     'Kava':{
         'USDT': '0x919C1c267BC06a7039e03fcc2eF738525769109c',
+        'STG': '0x83c30eb8bc9ad7C56532895840039E62659896ea',
     },
     'Mantle':{
         'USDC': '0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9',
         'USDT': '0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE',
+        'STG': '0x8731d54E9D02c286767d56ac03e8037C07e01e98',
     },
     "CoreDAO":{
         "USDC": '0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9',
@@ -2770,7 +2786,9 @@ CEX_WRAPPED_ID = {
      29                         : 7,
      30                         : 6,
      31                         : 15,
-     32                         : 1,
+     32                         : 13,
+     33                         : 1,
+     34                         : 15,
 }
 
 LAYERZERO_WRAPED_NETWORKS = {

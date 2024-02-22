@@ -99,7 +99,7 @@ class CEX(ABC):
         elif class_name == 'Binance':
             self.api_key = BINANCE_API_KEY
             self.api_secret = BINANCE_API_SECRET
-        elif class_name == 'BitGet':
+        elif class_name == 'Bitget':
             self.api_key = BITGET_API_KEY
             self.api_secret = BITGET_API_SECRET
         else:

@@ -237,30 +237,56 @@ class Custom(Logger, RequestClient):
 
                 if dapp_id == 1:
 
-                    if not start_chain:
-                        start_chain = chains[index]
+                    if any([isinstance(path, tuple) for path in chains]):
+                        tuple_chains = chains[1]
+                        if not isinstance(tuple_chains, tuple) and not isinstance(chains[0], int) and len(chains) != 2:
+                            raise SoftwareExceptionWithoutRetry(
+                                'This mode on Stargate Bridges support only "[chain, (chain, chain)]" format')
+                        if bridge_count == 0:
+                            dst_chain = tuple_chains[0]
+                        elif bridge_count + 1 == L0_BRIDGE_COUNT:
+                            dst_chain = chains[0]
+                        else:
+                            dst_chain = [chain for chain in tuple_chains if chain != chains[index]]
+                    else:
+                        if not start_chain:
+                            start_chain = chains[index]
                         used_chains.append(start_chain)
 
-                    if L0_BRIDGE_COUNT > len(chains) and bridge_count + 1 > len(chains):
-                        dst_chain = random.choice([chain for i, chain in enumerate(chains) if i != index])
-                    else:
-                        dst_chain = random.choice([
-                            chain for i, chain in enumerate(chains) if i != index and chain not in used_chains
-                        ])
-                    used_chains.append(dst_chain)
+                        if len(used_chains) >= len(chains):
+                            dst_chain = random.choice([chain for chain in chains if chain != chains[index]])
+                        else:
+                            available_chains = [chain for chain in chains if chain not in used_chains]
+                            dst_chain = random.choice(available_chains)
+
+                        used_chains.append(dst_chain)
 
                 else:
-                    dst_chain = chains[-1] if chains[index] == 11 and len(chains) > 2 else 11
-                    if chains[index] == 11 and len(chains) <= 2:
-                        dst_chain = random.choice(
-                            [chain for i, chain in enumerate(chains) if i != index and chain != 11])
+                    if chains[index] == 11:
+                        if len(chains) == 2:
+                            dst_chain = random.choice([chain for chain in chains if chain != 11])
+                        elif len(chains) == 3:
+                            if 11 in [chains[0], chains[-1]] and chains[1] != 11:
+                                raise SoftwareExceptionWithoutRetry(
+                                    'This mode on CoreDAO bridges support only "[chain, 11(CoreDAO), chain]" format')
+                            dst_chain = chains[-1]
+                            if len(used_chains) == 2:
+                                dst_chain = chains[0]
+                                used_chains = []
+                        else:
+                            raise SoftwareExceptionWithoutRetry('CoreDAO bridges support only 2 or 3 chains in list')
+                    else:
+                        dst_chain = 11
+
+                    used_chains.append(dst_chain)
 
                 src_chain_name = current_client.network.name
                 dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
                 to_token_name = tokens[chains.index(dst_chain)]
 
                 if from_token_name != 'ETH':
-                    contract = current_client.get_contract(TOKENS_PER_CHAIN2[current_client.network.name][from_token_name])
+                    contract = current_client.get_contract(
+                        TOKENS_PER_CHAIN2[current_client.network.name][from_token_name])
                     decimals = await contract.functions.decimals().call()
                 else:
                     decimals = 18
@@ -286,15 +312,15 @@ class Custom(Logger, RequestClient):
 
     @helper
     async def swap_bridged_usdc(self):
-        from functions import swap_oneinch
+        from functions import swap_uniswap
 
-        amount_in_wei, amount, _ = await self.client.get_token_balance('USDC')
+        amount_in_wei, amount, _ = await self.client.get_token_balance('USDC.e')
         data = 'USDC.e', 'USDC', amount, amount_in_wei
 
         if amount_in_wei == 0:
             raise SoftwareException("Insufficient USDC balances")
 
-        return await swap_oneinch(self.client.account_name, self.client.private_key,
+        return await swap_uniswap(self.client.account_name, self.client.private_key,
                                   self.client.network, self.client.proxy_init, swapdata=data)
 
     @gas_checker
@@ -646,7 +672,7 @@ class Custom(Logger, RequestClient):
         random.shuffle(withdraw_data_copy)
         result_list = []
 
-        for data in withdraw_data_copy:
+        for index, data in enumerate(withdraw_data_copy, 1):
             current_data = data
             if isinstance(data[0], list):
                 current_data = random.choice(data)
@@ -665,7 +691,8 @@ class Custom(Logger, RequestClient):
                 self.logger_msg(
                     *self.client.acc_info, msg=f"Withdraw from CEX failed. Error: {error}", type_msg='error')
 
-            await sleep(self)
+            if index != len(withdraw_data_copy):
+                await sleep(self)
 
         return all(result_list)
 

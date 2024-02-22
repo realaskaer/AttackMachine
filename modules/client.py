@@ -96,8 +96,11 @@ class Client(Logger):
 
         return self.w3.to_wei(number=number, unit=unit_name)
 
-    async def get_decimals(self, token_name: str = None, token_address: str = None) -> int:
-        contract_address = token_address if token_address else TOKENS_PER_CHAIN[self.network.name][token_name]
+    async def get_decimals(self, token_name: str = None, token_address: str = None, omnicheck:bool = False) -> int:
+        if omnicheck:
+            contract_address = token_address if token_address else TOKENS_PER_CHAIN2[self.network.name][token_name]
+        else:
+            contract_address = token_address if token_address else TOKENS_PER_CHAIN[self.network.name][token_name]
         contract = self.get_contract(contract_address)
         return await contract.functions.decimals().call()
 
@@ -168,7 +171,7 @@ class Client(Logger):
 
     async def wait_for_receiving(
             self, chain_id: int, old_balance: int = 0, token_name: str = None, sleep_time: int = 60,
-            timeout: int = 1200, check_balance_on_dst: bool = False, token_address: str = None
+            check_balance_on_dst: bool = False, token_address: str = None, omnicheck:bool = False
     ) -> bool:
         client = await self.new_client(chain_id)
         if not token_name:
@@ -177,21 +180,21 @@ class Client(Logger):
         try:
             if check_balance_on_dst:
                 if token_address:
-                    old_balance, _, _ = await client.get_token_balance(token_address=token_address)
+                    old_balance, _, _ = await client.get_token_balance(token_address=token_address, omnicheck=omnicheck)
                 else:
-                    old_balance, _, _ = await client.get_token_balance(token_name)
+                    old_balance, _, _ = await client.get_token_balance(token_name, omnicheck=omnicheck)
                 return old_balance
 
             self.logger_msg(*self.acc_info, msg=f'Waiting {token_name} to receive')
 
-            t = 0
             new_eth_balance = 0
-            while t < timeout:
+            while True:
                 try:
                     if token_address:
-                        new_eth_balance, _, _ = await client.get_token_balance(token_address=token_address)
+                        new_eth_balance, _, _ = await client.get_token_balance(
+                            token_address=token_address, omnicheck=omnicheck)
                     else:
-                        new_eth_balance, _, _ = await client.get_token_balance(token_name)
+                        new_eth_balance, _, _ = await client.get_token_balance(token_name, omnicheck=omnicheck)
                 except:
                     pass
 
@@ -199,9 +202,9 @@ class Client(Logger):
                     decimals = 18
                     if token_name != client.network.token:
                         if token_address:
-                            decimals = await client.get_decimals(token_address=token_address)
+                            decimals = await client.get_decimals(token_address=token_address, omnicheck=omnicheck)
                         else:
-                            decimals = await client.get_decimals(token_name)
+                            decimals = await client.get_decimals(token_name, omnicheck=omnicheck)
 
                     amount = round((new_eth_balance - old_balance) / 10 ** decimals, 6)
                     self.logger_msg(*self.acc_info, msg=f'{amount} {token_name} was received', type_msg='success')
@@ -209,9 +212,7 @@ class Client(Logger):
                 else:
                     self.logger_msg(*self.acc_info, msg=f'Still waiting {token_name} to receive...', type_msg='warning')
                     await asyncio.sleep(sleep_time)
-                    t += sleep_time
-                if t > timeout:
-                    raise SoftwareExceptionWithoutRetry(f'{token_name} has not been received within {timeout} seconds')
+
         except Exception as error:
             raise SoftwareException(f'Error in <WAIT FOR RECEIVING> function. Error: {error}')
         finally:
