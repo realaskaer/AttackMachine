@@ -224,6 +224,7 @@ class Client(Logger):
         if not token_name:
             token_name = self.token
 
+        await asyncio.sleep(3)
         if not check_native:
             if token_name != self.network.token:
                 if token_address:

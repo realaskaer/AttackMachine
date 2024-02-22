@@ -271,7 +271,7 @@ class Runner(Logger):
             if current_step >= len(route_modules):
                 self.logger_msg(
                     account_name, None, f"All modules were completed", type_msg='warning')
-                return
+                return False
 
             while current_step < len(route_modules):
                 module_counter += 1
@@ -352,6 +352,7 @@ class Runner(Logger):
             else:
                 self.logger_msg(account_name, None, f"Wait for other wallets in stream!\n", 'info')
 
+            return True
         except Exception as error:
             self.logger_msg(account_name, None, f"Error during the route! Error: {error}\n", 'error')
             if smart_route_type:
@@ -406,10 +407,10 @@ class Runner(Logger):
                 clean_progress_file()
                 await self.generate_smart_routes(route_generator, (account_name, private_key))
 
-            await self.run_account_modules(account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK),
-                                           self.get_proxy_for_account(account_name), smart_route_type, index=1)
+            result = await self.run_account_modules(account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK),
+                                                    self.get_proxy_for_account(account_name), smart_route_type, index=1)
 
-            if len(accounts_data) > 1:
+            if len(accounts_data) > 1 and result:
                 await self.smart_sleep(account_name, account_number=1, accounts_delay=True)
 
             if smart_route_type:

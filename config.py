@@ -583,6 +583,15 @@ ODOS_CONTRACTS = {
     },
     'Base': {
         "router": '0x19cEeAd7105607Cd444F5ad10dd51356436095a1'
+    },
+    'BNB Chain': {
+        "router": '0x89b8AA89FDd0507a99d334CBe3C808fAFC7d850E'
+    },
+    'Avalanche': {
+        "router": '0x88de50B233052e4Fb783d4F6db78Cc34fEa3e9FC'
+    },
+    'Polygon': {
+        "router": '0x4E3288c9ca110bCC82bf38F09A7b425c095d92Bf'
     }
 }
 
@@ -639,6 +648,15 @@ XYFINANCE_CONTRACTS = {
     },
     'Scroll':{
         "router"                : '0x22bf2A9fcAab9dc96526097318f459eF74277042'
+    },
+    'Avalanche':{
+        "router"                : '0xa0c0F962DECD78D7CDE5707895603CBA74C02989'
+    },
+    'Polygon':{
+        "router"                : '0xa1fB1F1E5382844Ee2D1BD69Ef07D5A6Abcbd388'
+    },
+    'BNB Chain':{
+        "router"                : '0xDF921bc47aa6eCdB278f8C259D6a7Fef5702f1A9'
     }
 }
 
@@ -660,6 +678,15 @@ OPENOCEAN_CONTRACTS = {
     },
     'Scroll':{
         "router"                : '0x6352a56caadC4F1E25CD6c75970Fa768A3304e64'
+    },
+    'Polygon':{
+        "router"                : '0x6352a56caadC4F1E25CD6c75970Fa768A3304e64'
+    },
+    'BNB Chain':{
+        "router"                : '0x6352a56caadC4F1E25CD6c75970Fa768A3304e64'
+    },
+    'Avalanche':{
+        "router"                : '0x6352a56caadC4F1E25CD6c75970Fa768A3304e64'
     }
 }
 
@@ -679,6 +706,15 @@ ONEINCH_CONTRACTS = {
         "router"                : '0x6e2B76966cbD9cF4cC2Fa0D76d24d5241E0ABC2F'
     },
     'Base':{
+        "router"                : '0x1111111254EEB25477B68fb85Ed929f73A960582'
+    },
+    'Polygon':{
+        "router"                : '0x1111111254EEB25477B68fb85Ed929f73A960582'
+    },
+    'BNB Chain':{
+        "router"                : '0x1111111254fb6c44bAC0beD2854e76F90643097d'
+    },
+    'Avalanche':{
         "router"                : '0x1111111254EEB25477B68fb85Ed929f73A960582'
     }
 }

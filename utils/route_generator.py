@@ -141,7 +141,7 @@ AVAILABLE_MODULES_INFO = {
     okx_deposit                         : (okx_deposit, 5, 'OKX Deposit', 0, []),
     bingx_deposit                       : (bingx_deposit, 5, 'Bingx Deposit', 0, []),
     binance_deposit                     : (binance_deposit, 5, 'Binance Deposit', 0, []),
-    bitger_deposit                      : (bitger_deposit, 5, 'BitGet Deposit', 0, []),
+    bitget_deposit                      : (bitget_deposit, 5, 'BitGet Deposit', 0, []),
 }
 
 
@@ -537,7 +537,11 @@ class RouteGenerator(Logger):
         smart_route.append(AVAILABLE_MODULES_INFO[okx_withdraw] if HELPERS_CONFIG['okx_withdraw'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[bingx_withdraw] if HELPERS_CONFIG['bingx_withdraw'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[binance_withdraw] if HELPERS_CONFIG['binance_withdraw'] else None)
+        smart_route.append(AVAILABLE_MODULES_INFO[bitget_withdraw] if HELPERS_CONFIG['bitget_withdraw'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[okx_deposit] if HELPERS_CONFIG['okx_deposit'] else None)
+        smart_route.append(AVAILABLE_MODULES_INFO[bingx_deposit] if HELPERS_CONFIG['bingx_deposit'] else None)
+        smart_route.append(AVAILABLE_MODULES_INFO[binance_deposit] if HELPERS_CONFIG['binance_deposit'] else None)
+        smart_route.append(AVAILABLE_MODULES_INFO[bitget_deposit] if HELPERS_CONFIG['bitget_deposit'] else None)
         smart_route.append(AVAILABLE_MODULES_INFO[collector_eth] if HELPERS_CONFIG['collector_eth'] else None)
         smart_route.append(
             AVAILABLE_MODULES_INFO[make_balance_to_average] if HELPERS_CONFIG['make_balance_to_average'] else None)

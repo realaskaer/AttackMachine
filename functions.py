@@ -102,7 +102,7 @@ async def binance_deposit(account_name, private_key, network, proxy):
     return await worker.smart_cex_deposit(dapp_id=3)
 
 
-async def bitger_deposit(account_name, private_key, network, proxy):
+async def bitget_deposit(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_cex_deposit(dapp_id=4)
 

@@ -250,19 +250,10 @@ class Custom(Logger, RequestClient):
                     used_chains.append(dst_chain)
 
                 else:
-                    if not start_chain:
-                        start_chain = chains[index]
-                        used_chains.append(start_chain)
-
-                    if start_chain == 11:
-                        if len(chains) > 2:
-                            dst_chain = chains[-1]
-                        else:
-                            dst_chain = random.choice([
-                                chain for i, chain in enumerate(chains) if i != index and chain != 11
-                            ])
-                    else:
-                        dst_chain = 11
+                    dst_chain = chains[-1] if chains[index] == 11 and len(chains) > 2 else 11
+                    if chains[index] == 11 and len(chains) <= 2:
+                        dst_chain = random.choice(
+                            [chain for i, chain in enumerate(chains) if i != index and chain != 11])
 
                 src_chain_name = current_client.network.name
                 dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
@@ -295,7 +286,7 @@ class Custom(Logger, RequestClient):
 
     @helper
     async def swap_bridged_usdc(self):
-        from functions import swap_woofi
+        from functions import swap_oneinch
 
         amount_in_wei, amount, _ = await self.client.get_token_balance('USDC')
         data = 'USDC.e', 'USDC', amount, amount_in_wei
@@ -303,8 +294,8 @@ class Custom(Logger, RequestClient):
         if amount_in_wei == 0:
             raise SoftwareException("Insufficient USDC balances")
 
-        return await swap_woofi(self.client.account_name, self.client.private_key,
-                                self.client.network, self.client.proxy_init, swapdata=data)
+        return await swap_oneinch(self.client.account_name, self.client.private_key,
+                                  self.client.network, self.client.proxy_init, swapdata=data)
 
     @gas_checker
     @helper
@@ -382,35 +373,6 @@ class Custom(Logger, RequestClient):
 
         return True
 
-    @helper
-    async def smart_cex_deposit_l0(self, dapp_id:int = None):
-        from functions import cex_deposit_util
-        from config import OKX_DEPOSIT_L0_DATA
-
-        search_chains, search_tokens = {
-            1: (STARGATE_CHAINS, STARGATE_TOKENS),
-            2: (COREDAO_CHAINS, COREDAO_TOKENS)
-        }[L0_SEARCH_DATA]
-
-        deposit_amount = {
-            1: OKX_DEPOSIT_DATA,
-            2: BINGX_DEPOSIT_DATA,
-            3: BINANCE_DEPOSIT_DATA,
-        }[dapp_id]
-
-        client, index, _, _, _ = await self.balance_searcher(search_chains, search_tokens)
-
-        dep_chain = search_chains[index]
-        dep_token = search_tokens[index]
-        amount = await client.get_smart_amount(deposit_amount, token_name=dep_token)
-        deposit_data = OKX_DEPOSIT_L0_DATA[dep_chain][dep_token], (amount, amount)
-
-        result = await cex_deposit_util(self.client, dapp_id=dapp_id, deposit_data=deposit_data)
-
-        await client.session.close()
-
-        return result
-
     async def balance_searcher(self, chains, tokens, omni_check:bool = True, bridge_check:bool = False):
 
         clients = [await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[chain] if omni_check else chain)
@@ -467,7 +429,12 @@ class Custom(Logger, RequestClient):
                 "XYfinance": XYFINANCE_CONTRACTS,
             }
 
-            client, index, _, _, _ = await self.balance_searcher(STARGATE_CHAINS, STARGATE_TOKENS)
+            chains, tokens = {
+                0: (STARGATE_CHAINS, STARGATE_TOKENS),
+                1: (COREDAO_CHAINS, COREDAO_TOKENS),
+            }[L0_SEARCH_DATA]
+
+            client, index, _, _, _ = await self.balance_searcher(chains, tokens, omni_check=True)
 
             network_name = client.network.name
 
