@@ -93,6 +93,11 @@ OKX_API_KEY = ""
 OKX_API_SECRET = ""
 OKX_API_PASSPHRAS = ""
 
+# BITGET API KEYS https://www.okx.com/ru/account/my-api
+BITGET_API_KEY = ""
+BITGET_API_SECRET = ""
+BITGET_API_PASSPHRAS = ""
+
 # BINGX API KEYS https://bingx.com/ru-ru/account/api/
 BINGX_API_KEY = ""
 BINGX_API_SECRET = ""

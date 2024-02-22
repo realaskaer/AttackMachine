@@ -55,3 +55,4 @@ from .landings import LayerBank
 from .cexs import OKX
 from .cexs import BingX
 from .cexs import Binance
+from .cexs import Bitget

@@ -7,8 +7,8 @@
     3  - ETH-Optimism             12 - MOVR-Moonriver       21 - USDT-Optimism          30 - USDC-Polygon (Bridged)
     4  - ETH-zkSync Era           13 - METIS-Metis          22 - USDT-Polygon           31 - USDC-BSC
     5  - ETH-Linea                14 - CORE-CORE            23 - USDT-BSC               32 - USDC-ERC20
-    6  - ETH-Base                 15 - CFX-CFX_EVM          24 - USDT-ERC20
-    7  - AVAX-Avalanche C-Chain   16 - KLAY-Klaytn          25 - USDC-Arbitrum One
+    6  - ETH-Base                 15 - CFX-CFX_EVM          24 - USDT-ERC20             33 - STG-Arbitrum One
+    7  - AVAX-Avalanche C-Chain   16 - KLAY-Klaytn          25 - USDC-Arbitrum One      34 - USDV-BSC
     8  - BNB-BSC                  17 - FTM-Fantom           26 - USDC-Avalanche C-Chain
     9  - BNB-OPBNB                18 - MATIC-Polygon        27 - USDC-Optimism
 
@@ -55,10 +55,20 @@ BINANCE_DEPOSIT_DATA = [
     [3, (0.001, 0.001)]
 ]
 
+'--------------------------------------------------------BitGet--------------------------------------------------------'
+
+BITGET_WITHDRAW_DATA = [
+    [8, (0.003, 0.00311)],
+]
+
+BITGET_DEPOSIT_DATA = [
+    [3, (0.001, 0.001)]
+]
+
 '-------------------------------------------------------Control--------------------------------------------------------'
 
 CEX_DEPOSIT_LIMITER = 1, (1, 10000)  # (Ограничитель баланса, (мин. сумма, макс. сумма для остатка на балансе))
-CEX_BALANCE_WANTED = 0.01            # Необходимый баланс на аккаунтах для уравнителя (make_balance_to_average)
+CEX_BALANCE_WANTED = (0.01, 0.02)    # Необходимый баланс на аккаунтах для уравнителя (make_balance_to_average)
 CEX_VOLUME_MODE = False              # Если True, то софт выведет на биржу 100% баланса (без учета комиссии)
 
 """
@@ -277,7 +287,7 @@ DST_CHAIN_ZERIUS_REFUEL = {
 
 SRC_CHAIN_BUNGEE = [43]          # Исходящая сеть для Bungee
 DST_CHAIN_BUNGEE_REFUEL = {
-    17: (0.00005, 0.00006),  # Chain ID: (минимум, максимум) в нативном токене исходящей сети (кол-во)
+    5: (0.0003, 0.00031),  # Chain ID: (минимум, максимум) в нативном токене исходящей сети (кол-во)
 }
 
 '---------------------------------------------------Merkly Wormhole----------------------------------------------------'
@@ -432,6 +442,7 @@ HELPERS_CONFIG = {
     okx_withdraw                     # смотри CEX CONTROL
     bingx_withdraw                   # смотри CEX CONTROL
     binance_withdraw                 # смотри CEX CONTROL
+    bitget_withdraw                  # смотри CEX CONTROL
     
     bridge_across                    # смотри BRIDGE CONTROL
     bridge_bungee                    # смотри BRIDGE CONTROL
@@ -445,6 +456,7 @@ HELPERS_CONFIG = {
     okx_deposit                      # ввод средств на биржу + сбор средств на субАккаунтов на основной счет
     bingx_deposit                    # ввод средств на биржу 
     binance_deposit                  # ввод средств на биржу + сбор средств на субАккаунтов на основной счет
+    bitget_deposit                   # ввод средств на биржу + сбор средств на субАккаунтов на основной счет
     
     collector_eth                    # сбор всех токенов на аккаунте в ETH
     make_balance_to_average          # уравнивает ваши балансы на аккаунтах (см. CEX_BALANCE_WANTED) 

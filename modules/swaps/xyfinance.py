@@ -58,8 +58,9 @@ class XYfinance(RequestClient, Logger):
 
         token_data = TOKENS_PER_CHAIN[self.network]
 
-        from_token_address = ETH_MASK if from_token_name == "ETH" else token_data[from_token_name]
-        to_token_address = ETH_MASK if to_token_name == "ETH" else token_data[to_token_name]
+        chain_token_name = self.client.token
+        from_token_address = ETH_MASK if from_token_name == chain_token_name else token_data[from_token_name]
+        to_token_address = ETH_MASK if to_token_name == chain_token_name else token_data[to_token_name]
 
         quote_data = await self.get_quote(from_token_address, to_token_address, amount_in_wei)
 

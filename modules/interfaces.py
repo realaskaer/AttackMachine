@@ -8,7 +8,7 @@ from config import CHAIN_NAME
 
 from general_settings import (LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS,
                               OKX_API_SECRET, GLOBAL_NETWORK, BINGX_API_KEY, BINGX_API_SECRET, BINANCE_API_KEY,
-                              BINANCE_API_SECRET)
+                              BINANCE_API_SECRET, BITGET_API_SECRET, BITGET_API_KEY)
 
 
 def get_user_agent():
@@ -99,6 +99,9 @@ class CEX(ABC):
         elif class_name == 'Binance':
             self.api_key = BINANCE_API_KEY
             self.api_secret = BINANCE_API_SECRET
+        elif class_name == 'BitGet':
+            self.api_key = BITGET_API_KEY
+            self.api_secret = BITGET_API_SECRET
         else:
             raise SoftwareException('CEX don`t available now')
 
@@ -117,7 +120,6 @@ class CEX(ABC):
         async with ClientSession() as session:
             async with session.request(method=method, url=url, headers=headers, data=data, json=json,
                                        params=params) as response:
-
                 data: dict = await response.json(content_type=content_type)
 
                 if self.class_name == 'Binance' and response.status in [200, 201]:

@@ -26,6 +26,7 @@ AVAILABLE_MODULES_INFO = {
     okx_withdraw                        : (okx_withdraw, -3, 'OKX Withdraw', 0, []),
     bingx_withdraw                      : (bingx_withdraw, -3, 'BingX Withdraw', 0, []),
     binance_withdraw                    : (binance_withdraw, -3, 'Binance Withdraw', 0, []),
+    bitget_withdraw                     : (bitget_withdraw, -3, 'Bitget Withdraw', 0, []),
     make_balance_to_average             : (make_balance_to_average, -2, 'Check and make wanted balance', 0, []),
     bridge_rhino                        : (bridge_rhino, 1, 'Rhino Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
     bridge_layerswap                    : (bridge_layerswap, 1, 'LayerSwap Bridge', 0, [2, 3, 4, 8, 9, 11, 12]),
@@ -140,7 +141,7 @@ AVAILABLE_MODULES_INFO = {
     okx_deposit                         : (okx_deposit, 5, 'OKX Deposit', 0, []),
     bingx_deposit                       : (bingx_deposit, 5, 'Bingx Deposit', 0, []),
     binance_deposit                     : (binance_deposit, 5, 'Binance Deposit', 0, []),
-    okx_deposit_l0                      : (okx_deposit_l0, 5, 'Smart CEX Deposit', 0, []),
+    bitger_deposit                      : (bitger_deposit, 5, 'BitGet Deposit', 0, []),
 }
 
 

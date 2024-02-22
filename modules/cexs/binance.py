@@ -56,7 +56,7 @@ class Binance(CEX, Logger):
         return [item for item in data if item['coin'] == ccy]
 
     @helper
-    async def withdraw(self, want_balance:float = 0, withdraw_data:tuple = None, transfer_mode:bool = False):
+    async def withdraw(self, withdraw_data:tuple = None, transfer_mode:bool = False):
         path = '/sapi/v1/capital/withdraw/apply'
 
         network_id, amount = withdraw_data
@@ -67,7 +67,7 @@ class Binance(CEX, Logger):
         await self.transfer_from_subaccounts(ccy=ccy, silent_mode=True)
         withdraw_data = (await self.get_currencies(ccy))[0]['networkList']
 
-        amount = want_balance if want_balance else await self.client.get_smart_amount(amount)
+        amount = await self.client.get_smart_amount(amount)
 
         network_data = {
             item['network']: {
@@ -244,6 +244,8 @@ class Binance(CEX, Logger):
 
     @helper
     async def deposit(self, deposit_data: tuple = None):
+        await self.convert_tokens(30, 'USDC', 1100)
+        return
         try:
             with open('./data/services/cex_withdraw_list.json') as file:
                 from json import load
@@ -301,6 +303,76 @@ class Binance(CEX, Logger):
 
             await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
 
+            if deposit_network in [29, 30]:
+                await self.convert_tokens(deposit_network, 'USDC', amount=amount)
+
             return result
         else:
             raise SoftwareExceptionWithoutRetry(f"Deposit to {network_name} is not available")
+
+    async def get_converts_list(self, from_token_name, to_token_name):
+        path = '/sapi/v1/convert/exchangeInfo'
+
+        params = {
+            #'fromAsset': from_token_name,
+            'toAsset': to_token_name,
+        }
+
+        parse_params = self.parse_params(params=params)
+        url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
+
+        await asyncio.sleep(5)
+        return await self.make_request(url=url, headers=self.headers, module_name='Get Tokens Convert List')
+
+    async def get_convert_id(self, from_token_name, to_token_name, amount):
+        path = '/sapi/v1/convert/getQuote'
+
+        params = {
+            'fromAsset': from_token_name,
+            'toAsset': to_token_name,
+            'fromAmount': amount,
+        }
+
+        parse_params = self.parse_params(params=params)
+        url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
+
+        await asyncio.sleep(5)
+        response = await self.make_request(
+            method="POST", url=url, headers=self.headers, module_name='Prepare Tokens Convert')
+        print(response)
+        quote_id = response.get('quoteId')
+        if quote_id:
+            return quote_id
+        raise SoftwareExceptionWithoutRetry('Can`t generate quoteId to convert this pair!')
+
+    async def accept_convert_id(self, quote_id):
+        path = '/sapi/v1/convert/acceptQuote'
+
+        params = {
+            'quoteId': quote_id,
+        }
+
+        parse_params = self.parse_params(params=params)
+        url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
+
+        await asyncio.sleep(5)
+        response = await self.make_request(method="POST", url=url, headers=self.headers, module_name='Tokens Convert')
+        print(response)
+        if response['orderStatus'] == 'SUCCESS':
+            return response
+        raise SoftwareExceptionWithoutRetry('Can`t accept this quoteId!')
+
+    async def convert_tokens(self, network_id, to_token_name, amount):
+        #from_token_name_cex = await self.get_converts_list(from_token_name, to_token_name)
+
+        from_token_name_cex = {
+            29: 'MATICUSDCE',
+            30: 'MATICUSDCE'
+        }[network_id]
+
+        quote_id = await self.get_convert_id(from_token_name_cex, to_token_name, amount)
+        response = await self.accept_convert_id(quote_id)
+        to_amount = response['toAmount']
+
+        self.logger_msg(
+            *self.client.acc_info, msg=f"Converted {amount} {from_token_name_cex} -> {to_amount} {to_token_name}")

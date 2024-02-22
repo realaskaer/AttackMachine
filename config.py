@@ -2665,6 +2665,43 @@ BINANCE_NETWORKS_NAME = {
     32                      : 'USDC-ETH',
 }
 
+BITGET_NETWORKS_NAME = {
+    1                       : "ETH-ETH",
+    2                       : "ETH-ArbitrumOne",
+    3                       : "ETH-Optimism",
+    4                       : "ETH-zkSyncEra",
+    # 5                     : "ETH-LINEA",
+    # 6                     : "ETH-BASE",
+    7                       : 'AVAX-C-Chain',
+    8                       : 'BNB-BEP20',
+    # 9                     : 'BNB-OPBNB',
+    10                      : 'CELO-CELO',
+    11                      : 'GLMR-Moonbeam',
+    12                      : 'MOVR-MOVR',
+    13                      : 'METIS-MetisToken',
+    14                      : 'CORE-CoreDAO',
+    15                      : 'CFX-CFX',
+    16                      : 'KLAY-Klaytn',
+    17                      : 'FTM-Fantom',
+    18                      : 'MATIC-Polygon',
+    19                      : 'USDT-ArbitrumOne',
+    20                      : 'USDT-C-Chain',
+    21                      : 'USDT-Optimism',
+    22                      : 'USDT-Polygon',
+    23                      : 'USDT-BEP20',
+    24                      : 'USDT-ERC20',
+    25                      : 'USDC-ArbitrumOne',
+    26                      : 'USDC-C-Chain',
+    27                      : 'USDC-OPTIMISM',
+    28                      : 'USDC-POLYGON',
+    # 29                      : 'USDC-Optimism (Bridged)',
+    # 30                      : 'USDC-Polygon (Bridged)',
+    31                      : 'USDC-ERC20',
+    32                      : 'USDC-ERC20',
+    33                      : 'STG-ArbitrumOne',
+    34                      : 'USDV-BEP20'
+}
+
 CEX_WRAPPED_ID = {
      1                          : 13,
      2                          : 1,

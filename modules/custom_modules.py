@@ -9,7 +9,7 @@ from utils.tools import helper, gas_checker, sleep
 from config import (
     ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA,
     TOKENS_PER_CHAIN2, CHAIN_NAME, OKX_NETWORKS_NAME, BINGX_NETWORKS_NAME, BINANCE_NETWORKS_NAME, CEX_WRAPPED_ID,
-    COINGECKO_TOKEN_API_NAMES
+    COINGECKO_TOKEN_API_NAMES, BITGET_NETWORKS_NAME
 )
 from settings import (
     CEX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, L2PASS_ATTACK_NFT, ZERIUS_ATTACK_NFT,
@@ -25,7 +25,7 @@ from settings import (
     SRC_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_MERKLY_POLYHEDRA, SRC_CHAIN_MERKLY_HYPERLANE, DST_CHAIN_MERKLY_WORMHOLE,
     DST_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_HYPERLANE, WORMHOLE_TOKENS_AMOUNT, HYPERLANE_TOKENS_AMOUNT,
     DST_CHAIN_MERKLY_POLYHEDRA_REFUEL, CEX_VOLUME_MODE, BRIDGE_VOLUME_MODE, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME,
-    L0_BRIDGE_COUNT, CUSTOM_SWAP_DATA
+    L0_BRIDGE_COUNT, CUSTOM_SWAP_DATA, BITGET_DEPOSIT_DATA, BITGET_WITHDRAW_DATA
 )
 
 
@@ -111,6 +111,7 @@ class Custom(Logger, RequestClient):
             11: 4
         }[GLOBAL_NETWORK]
 
+        amount = self.client.round_amount(*amount)
         wanted_amount_in_usd = float(f'{amount * ETH_PRICE:.2f}')
 
         wallet_balance = {k: await self.client.get_token_balance(k, False)
@@ -297,7 +298,7 @@ class Custom(Logger, RequestClient):
         from functions import swap_woofi
 
         amount_in_wei, amount, _ = await self.client.get_token_balance('USDC')
-        data = 'USDC', 'USDC.e', amount, amount_in_wei
+        data = 'USDC.e', 'USDC', amount, amount_in_wei
 
         if amount_in_wei == 0:
             raise SoftwareException("Insufficient USDC balances")
@@ -664,12 +665,13 @@ class Custom(Logger, RequestClient):
 
     @helper
     async def smart_cex_withdraw(self, dapp_id:int):
-        from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util
+        from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util, bitget_withdraw_util
 
         func, withdraw_data = {
             1: (okx_withdraw_util, OKX_WITHDRAW_DATA),
             2: (bingx_withdraw_util, BINGX_WITHDRAW_DATA),
-            3: (binance_withdraw_util, BINANCE_WITHDRAW_DATA)
+            3: (binance_withdraw_util, BINANCE_WITHDRAW_DATA),
+            4: (bitget_withdraw_util, BITGET_WITHDRAW_DATA)
         }[dapp_id]
 
         withdraw_data_copy = copy.deepcopy(withdraw_data)
@@ -711,6 +713,7 @@ class Custom(Logger, RequestClient):
                 1: (1, OKX_DEPOSIT_DATA, OKX_NETWORKS_NAME),
                 2: (2, BINGX_DEPOSIT_DATA, BINGX_NETWORKS_NAME),
                 3: (3, BINANCE_DEPOSIT_DATA, BINANCE_NETWORKS_NAME),
+                4: (4, BITGET_DEPOSIT_DATA, BITGET_NETWORKS_NAME),
             }[dapp_id]
 
             deposit_data_copy = copy.deepcopy(deposit_data)

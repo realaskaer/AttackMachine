@@ -102,19 +102,9 @@ async def binance_deposit(account_name, private_key, network, proxy):
     return await worker.smart_cex_deposit(dapp_id=3)
 
 
-async def okx_deposit_l0(account_name, private_key, network, proxy):
+async def bitger_deposit(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
-    return await worker.smart_cex_deposit_l0(dapp_id=1)
-
-
-async def bingx_deposit_l0(account_name, private_key, network, proxy):
-    worker = Custom(get_client(account_name, private_key, network, proxy))
-    return await worker.smart_cex_deposit_l0(dapp_id=2)
-
-
-async def binance_deposit_l0(account_name, private_key, network, proxy):
-    worker = Custom(get_client(account_name, private_key, network, proxy))
-    return await worker.smart_cex_deposit_l0(dapp_id=3)
+    return await worker.smart_cex_deposit(dapp_id=4)
 
 
 async def bridge_utils(current_client, dapp_id, chain_from_id, bridge_data, need_fee=False):
@@ -379,6 +369,11 @@ async def bingx_withdraw(account_name, private_key, network, proxy):
 async def binance_withdraw(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_cex_withdraw(dapp_id=3)
+
+
+async def bitget_withdraw(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.smart_cex_withdraw(dapp_id=4)
 
 
 async def swap_woofi(account_name, private_key, network, proxy, **kwargs):
@@ -799,6 +794,11 @@ async def bingx_withdraw_util(current_client, **kwargs):
 
 async def binance_withdraw_util(current_client, **kwargs):
     worker = Binance(current_client)
+    return await worker.withdraw(**kwargs)
+
+
+async def bitget_withdraw_util(current_client, **kwargs):
+    worker = Bitget(current_client)
     return await worker.withdraw(**kwargs)
 
 
