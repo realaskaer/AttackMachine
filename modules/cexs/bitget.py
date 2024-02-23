@@ -317,14 +317,14 @@ class Bitget(CEX, Logger):
                     'data': '0x'
                 }
 
-            cex_balances = {'Main CEX Account': 0,'2420732139': 0}#await self.get_cex_balances(ccy=ccy)
+            cex_balances = await self.get_cex_balances(ccy=ccy)
 
-            #result = await self.client.send_transaction(transaction)
+            result = await self.client.send_transaction(transaction)
 
-            #await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
+            await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
 
             await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
 
-            #return result
+            return result
         else:
             raise SoftwareExceptionWithoutRetry(f"Deposit to {network_name} is not available")
