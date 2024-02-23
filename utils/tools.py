@@ -15,7 +15,7 @@ from utils.networks import *
 from datetime import datetime, timedelta
 from web3.exceptions import TimeExhausted, ContractLogicError
 from web3 import AsyncWeb3, AsyncHTTPProvider
-from aiohttp import ClientSession, TCPConnector
+from aiohttp import ClientSession, TCPConnector, ClientResponseError
 from msoffcrypto.exceptions import DecryptionError, InvalidKeyError
 
 from general_settings import (
@@ -190,7 +190,7 @@ def helper(func):
                     return await func(self, *args, **kwargs)
                 except (PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
                         BlockchainExceptionWithoutRetry, asyncio.exceptions.TimeoutError, TimeExhausted, ValueError,
-                        ContractLogicError) as err:
+                        ContractLogicError, ClientResponseError) as err:
                     error = err
                     attempts += 1
 

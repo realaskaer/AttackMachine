@@ -3,6 +3,7 @@ from eth_abi import abi
 from config import STARGATE_ABI, STARGATE_CONTRACTS, STARGATE_POOLS_ID, TOKENS_PER_CHAIN2, USDV_ABI, ZERO_ADDRESS, \
     STG_ABI, L0_ENDPOINT_ABI, STARGATE_STG_CONFIG_CHECKERS
 from modules import Logger, Client
+from utils.tools import helper
 
 
 class Stargate(Logger):
@@ -13,6 +14,7 @@ class Stargate(Logger):
         # bridge_contract = self.client.get_contract(contracts['bridge'], STARGATE_ABI['bridge'])
         # factory_contract = self.client.get_contract(contracts['factory'], STARGATE_ABI['factory'])
 
+    @helper
     async def bridge(self, swapdata:dict):
 
         src_chain_name, dst_chain_name, dst_chain_id, from_token_name, to_token_name, amount, amount_in_wei = swapdata

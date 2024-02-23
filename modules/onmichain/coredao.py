@@ -1,16 +1,18 @@
 import asyncio
 
 from config import ZERO_ADDRESS, COREDAO_CONTRACS, COREDAO_TOKENS_CONTRACS, COREDAO_ABI
-from modules import Logger
+from modules import Logger, Client
 from modules.interfaces import SoftwareException
+from utils.tools import helper
 
 
 class CoreDAO(Logger):
-    def __init__(self, client):
+    def __init__(self, client: Client):
         self.client = client
         Logger.__init__(self)
         self.network = self.client.network.name
 
+    @helper
     async def bridge(self, swapdata: dict):
 
         src_chain_name, dst_chain_name, dst_chain_id, from_token_name, to_token_name, amount, amount_in_wei = swapdata

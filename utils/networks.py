@@ -400,8 +400,7 @@ AstarRPC = Network(
 KavaRPC = Network(
     name='Kava',
     rpc=[
-        'https://kava-evm.publicnode.com',
-        'https://kava-pokt.nodies.app',
+        #'https://kava-pokt.nodies.app',
         'https://evm.kava.io',
     ],
     chain_id=2222,
