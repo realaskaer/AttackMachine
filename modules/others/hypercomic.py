@@ -54,19 +54,28 @@ class HyperComic(Minter, Logger, RequestClient):
             2: (7, '0x02E1eb4547A6869da1e416cfd5916C213655aA24', 'zkSync Bridger'),
             3: (8, '0x9f5417Dc26622A4804Aa4852dfBf75Db6f8c6F9F', 'zkSync Root'),
             4: (9, '0x761cCCE4a16A670Db9527b1A17eCa4216507946f', 'zkSync Junior'),
+            5: (10, '0xDc5401279A735FF9F3fAb1d73d51d520dC1D8fDF', 'zkSync Exhibit'),
+            6: (11, '0x8Cc9502fd26222aB38A25eEe76ae4C7493A3Fa2A', 'zkSync Charge'),
+            7: (12, '0xeE8020254c67547ceE7FF8dF15DDbc1FFA0c477A', 'zkSync Volume'),
+            8: (13, '0x3F332B469Fbc7A580B00b11Df384bdBebbd65588', 'zkSync Bird'),
         }
 
-        mint_ids = list(HYPERCOMIC_NFT_ID if HYPERCOMIC_NFT_ID != 0 else [random.choice([1, 2, 3, 4])])
+        mint_ids = list(mint_info.keys()) if HYPERCOMIC_NFT_ID == 0 else [HYPERCOMIC_NFT_ID]
 
         random.shuffle(mint_ids)
 
         result_list = []
-        for mint_id in mint_ids:
-            nft_id = mint_info[mint_id][0]
-            contract_address = mint_info[mint_id][1]
-            nft_name = mint_info[mint_id][2]
-            try:
 
+        if mint_ids[0] == 0 and len(mint_ids) == 1:
+            minted_any = True
+        elif mint_ids[0] == 0 and len(mint_ids) != 1:
+            raise SoftwareException('Software support only HYPERCOMIC_NFT_ID = 0, if you want a random mint!')
+        else:
+            minted_any = False
+
+        for mint_id in mint_ids:
+            nft_id, contract_address, nft_name = mint_info[mint_id]
+            try:
                 calldata = await self.get_tx_data(nft_id)
 
                 if calldata == 'notEnough':
@@ -82,10 +91,18 @@ class HyperComic(Minter, Logger, RequestClient):
                     calldata.strip()
                 ).build_transaction(await self.client.prepare_transaction(value=120000000000000))
 
-                result_list.append(await self.client.send_transaction(transaction))
+                result = await self.client.send_transaction(transaction)
+                result_list.append(result)
+
+                if minted_any:
+                    break
 
                 await sleep(self)
+
             except Exception as error:
-                raise SoftwareException(f'Can`t mint {nft_name}. Error: {error}')
+                self.logger_msg(*self.client.acc_info, msg=f"Can't mint {nft_name}. Error: {error}")
+
+        if minted_any and result_list[0] is False:
+            self.logger_msg(*self.client.acc_info, msg="Failed to mint any available NFT", type_msg='error')
 
         return all(result_list)
