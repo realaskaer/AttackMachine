@@ -81,7 +81,8 @@ async def cex_deposit_util(current_client, dapp_id:int, deposit_data:tuple):
     class_name = {
         1: OKX,
         2: BingX,
-        3: Binance
+        3: Binance,
+        4: Bitget
     }[dapp_id]
 
     return await class_name(current_client).deposit(deposit_data=deposit_data)
