@@ -277,6 +277,12 @@ def gas_checker(func):
                         account_number = random.randint(1, ACCOUNTS_IN_STREAM)
                         sleep_duration = tuple(x * account_number for x in SLEEP_TIME_STREAM)
                         await sleep(self, *sleep_duration)
+                    elif flag:
+                        self.logger_msg(
+                            self.client.account_name, None, f"Sleep for normalize gas cost on contracts",
+                            type_msg='warning'
+                        )
+                        await sleep(self, 20, 40)
                     return await func(self, *args, **kwargs)
 
                 else:

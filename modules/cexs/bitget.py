@@ -8,7 +8,7 @@ from hashlib import sha256
 
 from general_settings import BITGET_API_PASSPHRAS
 from modules import CEX, Logger
-from modules.interfaces import SoftwareExceptionWithoutRetry
+from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException
 from utils.tools import helper
 from config import CEX_WRAPPED_ID, TOKENS_PER_CHAIN, BITGET_NETWORKS_NAME, TOKENS_PER_CHAIN2
 
@@ -213,10 +213,10 @@ class Bitget(CEX, Logger):
 
         main_balances = await self.get_main_balance(ccy)
 
-        available_balance = [balance for balance in main_balances if balance['coin'] == ccy]
+        ccy_balance = [balance for balance in main_balances if balance['coin'] == ccy]
 
-        if available_balance:
-            balances['Main CEX Account'] = float(available_balance[0]['available'])
+        if ccy_balance:
+            balances['Main CEX Account'] = float(ccy_balance[0]['available'])
         else:
             balances['Main CEX Account'] = 0
 
@@ -225,10 +225,10 @@ class Bitget(CEX, Logger):
         for sub_data in sub_list:
             sub_name = sub_data['userId']
             sub_balances = sub_data['assetsList']
+            ccy_sub_balance = [balance for balance in sub_balances if balance['coin'] == ccy]
 
-            if sub_balances:
-                balances[sub_name] = float(
-                    [balance for balance in sub_balances if balance['coin'] == ccy][0]['available'])
+            if ccy_sub_balance:
+                balances[sub_name] = float(ccy_sub_balance[0]['available'])
             else:
                 balances[sub_name] = 0
 
@@ -292,7 +292,7 @@ class Bitget(CEX, Logger):
         if ccy in ['USDV', 'STG']:
             omnicheck = True
 
-        amount = await self.client.get_smart_amount(deposit_amount, token_name=ccy)
+        amount = await self.client.get_smart_amount(deposit_amount, token_name=ccy, omnicheck=omnicheck)
 
         self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to Bitget wallet: {info}")
 
@@ -321,9 +321,12 @@ class Bitget(CEX, Logger):
 
             result = await self.client.send_transaction(transaction)
 
-            await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
+            if result:
+                await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
 
-            await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
+                await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
+            else:
+                raise SoftwareException('Transaction not sent, trying again')
 
             return result
         else:

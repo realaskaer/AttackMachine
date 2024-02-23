@@ -4,7 +4,7 @@ import time
 
 from hashlib import sha256
 from modules import CEX, Logger
-from modules.interfaces import SoftwareExceptionWithoutRetry
+from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException
 from utils.tools import helper
 from config import CEX_WRAPPED_ID, BINGX_NETWORKS_NAME, TOKENS_PER_CHAIN
 
@@ -214,10 +214,10 @@ class BingX(CEX, Logger):
 
                 main_balance = await self.get_main_balance()
 
-                available_balance = [balance for balance in main_balance['balances'] if balance['asset'] == ccy]
+                ccy_balance = [balance for balance in main_balance['balances'] if balance['asset'] == ccy]
 
-                if available_balance:
-                    balances['Main CEX Account'] = float(available_balance[0]['free'])
+                if ccy_balance:
+                    balances['Main CEX Account'] = float(ccy_balance[0]['free'])
                 else:
                     balances['Main CEX Account'] = 0
 
@@ -227,10 +227,10 @@ class BingX(CEX, Logger):
                     sub_name = sub_data['subAccountString']
                     sub_uid = sub_data['subUid']
                     sub_balances = await self.get_sub_balance(sub_uid)
+                    ccy_syb_balance = [balance for balance in sub_balances['balances'] if balance['asset'] == ccy]
 
-                    if sub_balances['balances']:
-                        balances[sub_name] = float(
-                            [balance for balance in sub_balances['balances'] if balance['asset'] == ccy][0]['free'])
+                    if ccy_syb_balance:
+                        balances[sub_name] = float(ccy_syb_balance[0]['free'])
                     else:
                         balances[sub_name] = 0
 
@@ -326,9 +326,12 @@ class BingX(CEX, Logger):
 
             result = await self.client.send_transaction(transaction)
 
-            await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
+            if result:
+                await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
 
-            await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
+                await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
+            else:
+                raise SoftwareException('Transaction not sent, trying again')
 
             return result
         else:

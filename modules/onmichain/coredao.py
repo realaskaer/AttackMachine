@@ -3,7 +3,7 @@ import asyncio
 from config import ZERO_ADDRESS, COREDAO_CONTRACS, COREDAO_TOKENS_CONTRACS, COREDAO_ABI
 from modules import Logger, Client
 from modules.interfaces import SoftwareException
-from utils.tools import helper
+from utils.tools import helper, gas_checker
 
 
 class CoreDAO(Logger):
@@ -13,6 +13,7 @@ class CoreDAO(Logger):
         self.network = self.client.network.name
 
     @helper
+    @gas_checker
     async def bridge(self, swapdata: dict):
 
         src_chain_name, dst_chain_name, dst_chain_id, from_token_name, to_token_name, amount, amount_in_wei = swapdata

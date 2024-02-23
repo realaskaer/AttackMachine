@@ -3,7 +3,7 @@ from eth_abi import abi
 from config import STARGATE_ABI, STARGATE_CONTRACTS, STARGATE_POOLS_ID, TOKENS_PER_CHAIN2, USDV_ABI, ZERO_ADDRESS, \
     STG_ABI, L0_ENDPOINT_ABI, STARGATE_STG_CONFIG_CHECKERS
 from modules import Logger, Client
-from utils.tools import helper
+from utils.tools import helper, gas_checker
 
 
 class Stargate(Logger):
@@ -11,10 +11,10 @@ class Stargate(Logger):
         self.client = client
         Logger.__init__(self)
         self.network = self.client.network.name
-        # bridge_contract = self.client.get_contract(contracts['bridge'], STARGATE_ABI['bridge'])
         # factory_contract = self.client.get_contract(contracts['factory'], STARGATE_ABI['factory'])
 
     @helper
+    @gas_checker
     async def bridge(self, swapdata:dict):
 
         src_chain_name, dst_chain_name, dst_chain_id, from_token_name, to_token_name, amount, amount_in_wei = swapdata
@@ -30,7 +30,7 @@ class Stargate(Logger):
         if from_token_name == 'STG':
             stg_contract = self.client.get_contract(TOKENS_PER_CHAIN2[self.network]['STG'], STG_ABI)
             config_checker = self.client.get_contract(
-                STARGATE_STG_CONFIG_CHECKERS[self.network],STARGATE_ABI['configer'])
+                STARGATE_STG_CONFIG_CHECKERS[self.network], STARGATE_ABI['configer'])
 
             _, base_gas, _ = await config_checker.functions.dstConfigLookup(
                 dst_chain_id,
@@ -57,7 +57,7 @@ class Stargate(Logger):
                 amount_in_wei,
                 ZERO_ADDRESS,
                 adapter_params
-            ).build_transaction(await self.client.prepare_transaction(value=estimate_fee))
+            ).build_transaction(await self.client.prepare_transaction(value=int(estimate_fee * 1.05)))
 
         elif from_token_name == 'USDV':
             router_contract = self.client.get_contract(TOKENS_PER_CHAIN2[self.network]['USDV'], USDV_ABI)

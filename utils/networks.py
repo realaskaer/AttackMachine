@@ -78,7 +78,7 @@ PolygonRPC = Network(
         'https://polygon-rpc.com',
     ],
     chain_id=137,
-    eip1559_support=True,
+    eip1559_support=False,
     token='MATIC',
     explorer='https://polygonscan.com/',
 )
@@ -87,13 +87,10 @@ PolygonRPC = Network(
 AvalancheRPC = Network(
     name='Avalanche',
     rpc=[
-        'https://rpc.ankr.com/avalanche/',
-        'https://1rpc.io/avax/c',
-        'https://avax.meowrpc.com',
         'https://avalanche.drpc.org'
     ],
     chain_id=43114,
-    eip1559_support=False,
+    eip1559_support=True,
     token='AVAX',
     explorer='https://snowtrace.io/',
 )
@@ -180,7 +177,6 @@ BSC_RPC = Network(
     name='BNB Chain',
     rpc=[
         'https://rpc.ankr.com/bsc',
-        'https://bscrpc.com',
     ],
     chain_id=56,
     eip1559_support=False,
@@ -427,7 +423,7 @@ FantomRPC = Network(
         'https://rpc.ankr.com/fantom',
     ],
     chain_id=250,
-    eip1559_support=True,
+    eip1559_support=False,
     token='FTM',
     explorer='https://ftmscan.com/'
 )

@@ -6,7 +6,7 @@ from hashlib import sha256
 from modules import CEX, Logger
 from datetime import datetime, timezone
 
-from modules.interfaces import SoftwareExceptionWithoutRetry
+from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException
 from utils.tools import helper
 from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID
 
@@ -217,7 +217,6 @@ class OKX(CEX, Logger):
         url_balance = f"https://www.okx.cab/api/v5/asset/balances?ccy={ccy}"
 
         headers = await self.get_headers(request_path=url_balance)
-
         balance = (await self.make_request(url=url_balance, headers=headers, module_name='Get Account balance'))
 
         if balance:
@@ -312,13 +311,16 @@ class OKX(CEX, Logger):
                         'data': '0x'
                     }
 
-                sub_balances = await self.get_cex_balances(ccy=ccy)
+                cex_balances = await self.get_cex_balances(ccy=ccy)
 
                 result = await self.client.send_transaction(transaction)
 
-                await self.wait_deposit_confirmation(amount, sub_balances, ccy=ccy)
+                if result:
+                    await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
 
-                await self.transfer_from_subs(ccy=ccy, amount=amount)
+                    await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
+                else:
+                    raise SoftwareException('Transaction not sent, trying again')
 
                 return result
             else:

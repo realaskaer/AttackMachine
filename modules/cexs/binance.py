@@ -4,7 +4,7 @@ import time
 
 from hashlib import sha256
 from modules import CEX, Logger
-from modules.interfaces import SoftwareExceptionWithoutRetry
+from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException
 from utils.tools import helper
 from config import BINANCE_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID
 
@@ -212,10 +212,10 @@ class Binance(CEX, Logger):
 
         main_balance = await self.get_main_balance()
 
-        available_balance = [balance for balance in main_balance if balance['asset'] == ccy]
+        ccy_balance = [balance for balance in main_balance if balance['asset'] == ccy]
 
-        if available_balance:
-            balances['Main CEX Account'] = float(available_balance[0]['free'])
+        if ccy_balance:
+            balances['Main CEX Account'] = float(ccy_balance[0]['free'])
         else:
             balances['Main CEX Account'] = 0
 
@@ -224,10 +224,10 @@ class Binance(CEX, Logger):
         for sub_data in sub_list:
             sub_name = sub_data['email']
             sub_balances = await self.get_sub_balance(sub_name)
+            ccy_sub_balance = [balance for balance in sub_balances['balances'] if balance['asset'] == ccy]
 
-            if sub_balances['balances']:
-                balances[sub_name] = float(
-                    [balance for balance in sub_balances['balances'] if balance['asset'] == ccy][0]['free'])
+            if ccy_sub_balance:
+                balances[sub_name] = float(ccy_sub_balance[0]['free'])
             else:
                 balances[sub_name] = 0
 
@@ -313,9 +313,12 @@ class Binance(CEX, Logger):
 
             result = await self.client.send_transaction(transaction)
 
-            await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
+            if result:
+                await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
 
-            await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
+                await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
+            else:
+                raise SoftwareException('Transaction not sent, trying again')
 
             # if deposit_network in [29, 30]:
             #     await self.convert_tokens(deposit_network, 'USDC', amount=amount)

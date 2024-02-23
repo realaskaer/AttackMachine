@@ -212,7 +212,6 @@ class Custom(Logger, RequestClient):
         return True
 
     @helper
-    @gas_checker
     async def smart_bridge_l0(self, dapp_id:int = None):
         from functions import Stargate, CoreDAO
 
@@ -223,6 +222,16 @@ class Custom(Logger, RequestClient):
 
         class_name, tokens, chains = dapp_config
 
+        converted_chains = copy.deepcopy(chains)
+        if any([isinstance(item, tuple) for item in chains]):
+            new_chains = []
+            for item in chains:
+                if isinstance(item, tuple):
+                    new_chains.extend(item)
+                else:
+                    new_chains.append(item)
+            converted_chains = new_chains
+
         start_chain = None
         used_chains = []
         result_list = []
@@ -230,7 +239,7 @@ class Custom(Logger, RequestClient):
             clients = []
             try:
                 current_client, index, balance, balance_in_wei, balances_in_usd = await self.balance_searcher(
-                    chains, tokens, omni_check=True
+                    converted_chains, tokens, omni_check=True
                 )
 
                 from_token_name = tokens[index]
@@ -242,36 +251,41 @@ class Custom(Logger, RequestClient):
                         if not isinstance(tuple_chains, tuple) and not isinstance(chains[0], int) and len(chains) != 2:
                             raise SoftwareExceptionWithoutRetry(
                                 'This mode on Stargate Bridges support only "[chain, (chain, chain)]" format')
-                        if bridge_count == 0:
+                        if bridge_count + 1 == L0_BRIDGE_COUNT:
+                            dst_chain = converted_chains[0]
+                        elif converted_chains[index] == tuple_chains[1]:
                             dst_chain = tuple_chains[0]
-                        elif bridge_count + 1 == L0_BRIDGE_COUNT:
-                            dst_chain = chains[0]
+                        elif converted_chains[index] == tuple_chains[0]:
+                            dst_chain = tuple_chains[1]
+                        elif converted_chains[index] == converted_chains[0]:
+                            dst_chain = tuple_chains[0]
                         else:
-                            dst_chain = [chain for chain in tuple_chains if chain != chains[index]]
+                            dst_chain = [chain for chain in tuple_chains if chain != converted_chains[index]]
                     else:
                         if not start_chain:
-                            start_chain = chains[index]
+                            start_chain = converted_chains[index]
                         used_chains.append(start_chain)
 
                         if len(used_chains) >= len(chains):
-                            dst_chain = random.choice([chain for chain in chains if chain != chains[index]])
+                            dst_chain = random.choice(
+                                [chain for chain in converted_chains if chain != converted_chains[index]])
                         else:
-                            available_chains = [chain for chain in chains if chain not in used_chains]
+                            available_chains = [chain for chain in converted_chains if chain not in used_chains]
                             dst_chain = random.choice(available_chains)
 
                         used_chains.append(dst_chain)
 
                 else:
-                    if chains[index] == 11:
-                        if len(chains) == 2:
-                            dst_chain = random.choice([chain for chain in chains if chain != 11])
-                        elif len(chains) == 3:
-                            if 11 in [chains[0], chains[-1]] and chains[1] != 11:
+                    if converted_chains[index] == 11:
+                        if len(converted_chains) == 2:
+                            dst_chain = random.choice([chain for chain in converted_chains if chain != 11])
+                        elif len(converted_chains) == 3:
+                            if 11 in [converted_chains[0], converted_chains[-1]] and converted_chains[1] != 11:
                                 raise SoftwareExceptionWithoutRetry(
                                     'This mode on CoreDAO bridges support only "[chain, 11(CoreDAO), chain]" format')
-                            dst_chain = chains[-1]
+                            dst_chain = converted_chains[-1]
                             if len(used_chains) == 2:
-                                dst_chain = chains[0]
+                                dst_chain = converted_chains[0]
                                 used_chains = []
                         else:
                             raise SoftwareExceptionWithoutRetry('CoreDAO bridges support only 2 or 3 chains in list')
@@ -282,7 +296,7 @@ class Custom(Logger, RequestClient):
 
                 src_chain_name = current_client.network.name
                 dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
-                to_token_name = tokens[chains.index(dst_chain)]
+                to_token_name = tokens[converted_chains.index(dst_chain)]
 
                 if from_token_name != 'ETH':
                     contract = current_client.get_contract(
@@ -407,7 +421,8 @@ class Custom(Logger, RequestClient):
                        for chain in chains]
 
             balances = [await client.get_token_balance(
-                omnicheck=omni_check if token not in ['USDV', 'STG'] else True, token_name=token, bridge_check=bridge_check
+                omnicheck=omni_check if token not in ['USDV', 'STG'] else True, token_name=token,
+                bridge_check=bridge_check
             )
                         for client, token in zip(clients, tokens)]
 
@@ -744,6 +759,11 @@ class Custom(Logger, RequestClient):
 
                 balance_in_usd, token_price = balance_data
                 dep_token = dapp_tokens[chain_index]
+
+                omnicheck = False
+                if dep_token in ['USDV', 'STG']:
+                    omnicheck = True
+
                 dep_network = networks if isinstance(networks, int) else networks[chain_index]
                 limit_amount, wanted_to_hold_amount = CEX_DEPOSIT_LIMITER
                 min_wanted_amount, max_wanted_amount = min(wanted_to_hold_amount), max(wanted_to_hold_amount)
@@ -754,7 +774,7 @@ class Custom(Logger, RequestClient):
                         dep_amount_in_usd = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
                         dep_amount = round(dep_amount_in_usd / token_price, 6)
                     else:
-                        dep_amount = await client.get_smart_amount(amount, token_name=dep_token)
+                        dep_amount = await client.get_smart_amount(amount, token_name=dep_token, omnicheck=omnicheck)
                         dep_amount_in_usd = dep_amount * token_price
 
                     if balance_in_usd >= dep_amount_in_usd:

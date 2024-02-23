@@ -945,8 +945,8 @@ WHALE_CONTRACTS_PER_CHAINS = {
         'refuel'                : '0x06a2ce74Bc6021851157a003A97D9D8f900543D1'
     },
     12: {
-        'ONFT'                  : '',
-        'refuel'                : ''
+        'ONFT'                  : '0x82d5a068ba58ad31c419275474333B8696B3641d',
+        'refuel'                : '0xeDc03C234882FA785e7084B2C7E13BC8b7B6a4e3'
     },
     13: {
         'ONFT'                  : '',
@@ -965,8 +965,8 @@ WHALE_CONTRACTS_PER_CHAINS = {
         'refuel'                : '0xb3dd9b6Cd0f14f921E21094c213de746ceE4a2bC'
     },
     17: {
-        'ONFT'                  : '',
-        'refuel'                : ''
+        'ONFT'                  : '0x36314E3fd0Ff6243e971814613fe73A78f29085E',
+        'refuel'                : '0xeDc03C234882FA785e7084B2C7E13BC8b7B6a4e3'
     },
     18: {
         'ONFT'                  : '',
@@ -981,8 +981,8 @@ WHALE_CONTRACTS_PER_CHAINS = {
         'refuel'                : '0x21b3035F2e1C43DF018f2810A321F62f14554209'
     },
     21: {
-        'ONFT'                  : '',
-        'refuel'                : ''
+        'ONFT'                  : '0x82d5a068ba58ad31c419275474333B8696B3641d',
+        'refuel'                : '0xeDc03C234882FA785e7084B2C7E13BC8b7B6a4e3'
     },
     22: {
         'ONFT'                  : '',
@@ -1001,40 +1001,40 @@ WHALE_CONTRACTS_PER_CHAINS = {
         'refuel'                : ''
     },
     26: {
-        'ONFT'                  : '',
-        'refuel'                : ''
+        'ONFT'                  : '0x82d5a068ba58ad31c419275474333B8696B3641d',
+        'refuel'                : '0xeDc03C234882FA785e7084B2C7E13BC8b7B6a4e3'
     },
     27: {
         'ONFT'                  : '',
         'refuel'                : ''
     },
     28: {
-        'refuel'                : '',
-        'endpoint'              : ''
+        'ONFT'                  : '0x9aeAa45d415fFE75dC4Ba50658584479bAf110Ec',
+        'refuel'                : '0x84f4c0A290B5607fee0f2A1CDe5348540fecF6A1'
     },
     29: {
-        'refuel'                : '',
-        'endpoint'              : ''
+        'ONFT'                  : '0x84f4c0A290B5607fee0f2A1CDe5348540fecF6A1',
+        'refuel'                : '0xeDc03C234882FA785e7084B2C7E13BC8b7B6a4e3'
     },
     30: {
-        'refuel'                : '',
-        'endpoint'              : ''
+        'ONFT'                  : '0xeDc03C234882FA785e7084B2C7E13BC8b7B6a4e3',
+        'refuel'                : '0x82d5a068ba58ad31c419275474333B8696B3641d'
     },
     31: {
-        'refuel'                : '',
-        'ONFT'              : ''
+        'ONFT'                  : '0xa0d013b84FBAeFF5AbFc92A412a44572382dCA08',
+        'refuel'                : '0xBcB4bc8fe7faba16C8A06186aB1703709a24C6bf'
     },
     32: {
-        'refuel'                : '',
-        'endpoint'              : ''
+        'ONFT'                  : '0xBcEe7fB1B98ea4e38Eb52c2E026134d54273ED44',
+        'refuel'                : '0x82d5a068ba58ad31c419275474333B8696B3641d'
     },
     33: {
-        'refuel'                : '0x82d5a068ba58ad31c419275474333B8696B3641d',
-        'ONFT'                  : '0xb30b4ff71d44C544eDb7A06aceb0008ADa040c78'
+        'ONFT'                  : '0x82d5a068ba58ad31c419275474333B8696B3641d',
+        'refuel'                : '0xb30b4ff71d44C544eDb7A06aceb0008ADa040c78'
     },
     34: {
-        'refuel'                : '',
-        'endpoint'              : ''
+        'ONFT'                : '',
+        'refuel'              : ''
     },
     35: {
         'refuel'                : '',
@@ -1045,24 +1045,24 @@ WHALE_CONTRACTS_PER_CHAINS = {
         'endpoint'              : ''
     },
     37: {
-        'refuel'                : '',
-        'endpoint'              : ''
+        'ONFT'                : '0x82d5a068ba58ad31c419275474333B8696B3641d',
+        'refuel'              : '0xeDc03C234882FA785e7084B2C7E13BC8b7B6a4e3'
     },
     38: {
         'refuel'                : '',
         'endpoint'              : ''
     },
     39: {
-        'refuel'                : '',
-        'endpoint'              : ''
+        'ONFT'                : '0xfdcac2c2091b3ce88203fb2defb8c9f98edcb904',
+        'refuel'              : '0xf9481cc0d342a0d4d533f77d334a24dfbf1d719d'
     },
     40: {
         'refuel'                : '',
         'endpoint'              : ''
     },
     41: {
-        'refuel'                : '',
-        'endpoint'              : ''
+        'ONFT'                : '0x84f4c0A290B5607fee0f2A1CDe5348540fecF6A1',
+        'refuel'              : '0x84f4c0A290B5607fee0f2A1CDe5348540fecF6A1'
     },
     42: {
         'refuel'                : '',

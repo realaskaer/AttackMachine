@@ -7,8 +7,7 @@ from aiohttp_socks import ProxyConnector
 from eth_typing import HexStr
 from web3.contract import AsyncContract
 from web3.exceptions import TransactionNotFound, TimeExhausted
-from modules.interfaces import PriceImpactException, BlockchainException, SoftwareException, \
-    SoftwareExceptionWithoutRetry
+from modules.interfaces import PriceImpactException, BlockchainException, SoftwareException
 from modules import Logger
 from utils.networks import Network
 from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, CHAIN_IDS, TOKENS_PER_CHAIN2
@@ -109,13 +108,14 @@ class Client(Logger):
         return float(amount_in_wei / 10 ** decimals)
 
     async def get_smart_amount(
-            self, settings: tuple = AMOUNT_PERCENT, need_percent: bool = False, token_name: str = None
+            self, settings: tuple = AMOUNT_PERCENT, need_percent: bool = False, token_name: str = None,
+            omnicheck:bool = False,
     ) -> float:
         if not token_name:
             token_name = self.token
 
         if isinstance(settings[0], str) or need_percent:
-            _, amount, _ = await self.get_token_balance(token_name)
+            _, amount, _ = await self.get_token_balance(token_name, omnicheck=omnicheck)
             percent = round(random.uniform(float(settings[0]), float(settings[1])), 6) / 100
             amount = round(amount * percent, 6)
         else:
@@ -382,10 +382,6 @@ class Client(Logger):
 
                 base_fee = await self.w3.eth.gas_price
                 max_priority_fee_per_gas = await self.get_priotiry_fee()
-
-                if self.network.name == 'Fantom':
-                    max_priority_fee_per_gas = int(base_fee / 4)
-
                 max_fee_per_gas = base_fee + max_priority_fee_per_gas
 
                 tx_params['maxPriorityFeePerGas'] = max_priority_fee_per_gas
@@ -393,7 +389,7 @@ class Client(Logger):
                 tx_params['type'] = '0x2'
             else:
                 if self.network.name == 'BNB Chain':
-                    tx_params['gasPrice'] = self.w3.to_wei(round(random.uniform(1.2, 1.5), 1), 'gwei')
+                    tx_params['gasPrice'] = self.w3.to_wei(round(random.uniform(1.4, 1.5), 1), 'gwei')
                 else:
                     tx_params['gasPrice'] = await self.w3.eth.gas_price
 
