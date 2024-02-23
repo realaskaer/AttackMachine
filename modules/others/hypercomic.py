@@ -60,7 +60,7 @@ class HyperComic(Minter, Logger, RequestClient):
             8: (13, '0x3F332B469Fbc7A580B00b11Df384bdBebbd65588', 'zkSync Bird'),
         }
 
-        mint_ids = list(mint_info.keys()) if HYPERCOMIC_NFT_ID == 0 else [HYPERCOMIC_NFT_ID]
+        mint_ids = list(mint_info.keys()) if HYPERCOMIC_NFT_ID != 0 else [HYPERCOMIC_NFT_ID]
 
         random.shuffle(mint_ids)
 
