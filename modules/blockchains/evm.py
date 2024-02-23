@@ -23,8 +23,7 @@ class SimpleEVM(Logger):
         Logger.__init__(self)
 
         self.network = CHAIN_NAME[GLOBAL_NETWORK]
-        self.token_contract = self.client.get_contract(
-            TOKENS_PER_CHAIN[self.client.network.name]['WETH'], WETH_ABI)
+        self.token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.network]['WETH'], WETH_ABI)
         if self.network in ['zkSync', 'Base', 'Scroll', 'Linea']:
             self.deposit_contract = self.client.get_contract(
                 NATIVE_CONTRACTS_PER_CHAIN[self.network]['deposit'],
@@ -239,8 +238,6 @@ class ZkSync(Blockchain, SimpleEVM):
                                                          NATIVE_ABI['zkSync']['deposit'])
         self.withdraw_contract = self.client.get_contract(NATIVE_CONTRACTS_PER_CHAIN['zkSync']['withdraw'],
                                                           NATIVE_ABI['zkSync']['withdraw'])
-        self.token_contract = self.client.get_contract(TOKENS_PER_CHAIN['zkSync']['WETH'],
-                                                       WETH_ABI)
 
     @helper
     @gas_checker
