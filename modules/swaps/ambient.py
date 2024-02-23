@@ -36,7 +36,7 @@ class Ambient(DEX, Logger):
 
         tokens_data = TOKENS_PER_CHAIN[self.network]
 
-        from_token_address = ZERO_ADDRESS
+        from_token_address = tokens_data[from_token_name]
         to_token_address = tokens_data[to_token_name]
         max_sqrt_price = 21267430153580247136652501917186561137
         min_sqrt_price = 65537
@@ -56,8 +56,8 @@ class Ambient(DEX, Logger):
         await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
 
         transaction = await self.router_contract.functions.swap(
-            from_token_address,
-            to_token_address,
+            ZERO_ADDRESS,
+            to_token_address if from_token_name == 'ETH' else from_token_address,
             pool_idx,
             True if from_token_name == 'ETH' else False,
             True if from_token_name == 'ETH' else False,
