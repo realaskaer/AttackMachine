@@ -10,7 +10,7 @@ from general_settings import BITGET_API_PASSPHRAS
 from modules import CEX, Logger
 from modules.interfaces import SoftwareExceptionWithoutRetry
 from utils.tools import helper
-from config import CEX_WRAPPED_ID, TOKENS_PER_CHAIN, BITGET_NETWORKS_NAME
+from config import CEX_WRAPPED_ID, TOKENS_PER_CHAIN, BITGET_NETWORKS_NAME, TOKENS_PER_CHAIN2
 
 
 class Bitget(CEX, Logger):
@@ -29,19 +29,22 @@ class Bitget(CEX, Logger):
             params_str = ''
         return params_str
 
-    def get_headers(self, method:str, api_path:str, params:dict = None, payload:dict | str = None):
+    def get_headers(self, method:str, api_path:str, params:dict = None, payload:dict | str = ""):
         try:
             timestamp = f"{int(time.time() * 1000)}"
             if method == 'GET':
                 api_path = f"{api_path}{self.parse_params(params)}"
-            message = f"{timestamp}{method}{api_path}{json.dumps(payload) if payload else ''}"
+                prehash_string = timestamp + method.upper() + api_path
+            else:
+                prehash_string = timestamp + method.upper() + api_path + json.dumps(payload)
 
-            secret_key_bytes = self.api_secret.encode('utf-8')
-            signature = hmac.new(secret_key_bytes, message.encode('utf-8'), sha256).digest()
+            secret_key_bytes = self.api_secret.encode('utf8')
+            signature = hmac.new(secret_key_bytes, prehash_string.encode('utf8'), sha256).digest()
+            encoded_signature = base64.standard_b64encode(signature).decode('utf8')
 
             return {
                 "ACCESS-KEY": self.api_key,
-                "ACCESS-SIGN": f"{base64.b64encode(signature)}",
+                "ACCESS-SIGN": encoded_signature,
                 "ACCESS-PASSPHRASE": BITGET_API_PASSPHRAS,
                 "ACCESS-TIMESTAMP": timestamp,
                 "locale": "en-US",
@@ -99,11 +102,11 @@ class Bitget(CEX, Logger):
             if min_wd <= amount:
 
                 payload = {
-                    "address": self.client.address,
-                    "size": f"{amount}",
                     "coin": ccy,
-                    "transferType": 'on_chain',
+                    "address": self.client.address.lower(),
                     "chain": network_name,
+                    "size": f"{amount}",
+                    "transferType": 'on_chain',
                 }
 
                 ccy = f"{ccy}.e" if network_id in [29, 30] else ccy
@@ -118,7 +121,7 @@ class Bitget(CEX, Logger):
 
                 url = f"{self.api_url}{path}"
                 headers = self.get_headers('POST', path, payload=payload)
-                await self.make_request(method='POST', url=url, headers=headers, module_name='Withdraw')
+                await self.make_request(method='POST', url=url, headers=headers, json=payload, module_name='Withdraw')
 
                 self.logger_msg(*self.client.acc_info,
                                 msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success')
@@ -158,8 +161,7 @@ class Bitget(CEX, Logger):
 
         url = f"{self.api_url}{path}"
         headers = self.get_headers('GET', path, params=params)
-        data = await self.make_request(url=url, params=params, headers=headers, module_name='Main account balance')
-        return data[0]['available']
+        return await self.make_request(url=url, params=params, headers=headers, module_name='Main account balance')
 
     async def transfer_from_subaccounts(self, ccy: str = 'ETH', amount: float = None):
 
@@ -182,18 +184,19 @@ class Bitget(CEX, Logger):
                 self.logger_msg(*self.client.acc_info, msg=f'{sub_id} | subAccount balance : {sub_balance} {ccy}')
 
                 payload = {
-                    "amount": amount,
-                    "coin": ccy,
                     "fromType": "spot",
                     "toType": "spot",
-                    "fromUserId": sub_id,
-                    "toUserId": main_id,
+                    "amount": f"{amount}",
+                    "coin": f"{ccy}",
+                    "fromUserId": f"{sub_id}",
+                    "toUserId": f"{main_id}",
                 }
 
                 path = "/api/v2/spot/wallet/subaccount-transfer"
                 url = f"{self.api_url}{path}"
                 headers = self.get_headers('POST', path, payload=payload)
-                await self.make_request(method="POST", url=url, headers=headers, module_name='SubAccount transfer')
+                await self.make_request(
+                    method="POST", url=url, json=payload, headers=headers, module_name='SubAccount transfer')
 
                 self.logger_msg(*self.client.acc_info,
                                 msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success')
@@ -214,13 +217,20 @@ class Bitget(CEX, Logger):
 
         if available_balance:
             balances['Main CEX Account'] = float(available_balance[0]['available'])
+        else:
+            balances['Main CEX Account'] = 0
 
         sub_list = await self.get_sub_balances()
 
         for sub_data in sub_list:
             sub_name = sub_data['userId']
             sub_balances = sub_data['assetsList']
-            balances[sub_name] = float([balance for balance in sub_balances if balance['coin'] == ccy][0]['available'])
+
+            if sub_balances:
+                balances[sub_name] = float(
+                    [balance for balance in sub_balances if balance['coin'] == ccy][0]['available'])
+            else:
+                balances[sub_name] = 0
 
             await asyncio.sleep(3)
 
@@ -277,15 +287,23 @@ class Bitget(CEX, Logger):
         }[network_name]
 
         ccy = f"{ccy}.e" if deposit_network in [29, 30] else ccy
+
+        omnicheck = False
+        if ccy in ['USDV', 'STG']:
+            omnicheck = True
+
         amount = await self.client.get_smart_amount(deposit_amount, token_name=ccy)
 
-        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to BingX wallet: {info}")
+        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to Bitget wallet: {info}")
 
         if network_data['depositEnable']:
 
             if ccy != self.client.token:
-                token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
-                decimals = await self.client.get_decimals(ccy)
+                if omnicheck:
+                    token_contract = self.client.get_contract(TOKENS_PER_CHAIN2[self.client.network.name][ccy])
+                else:
+                    token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
+                decimals = await self.client.get_decimals(ccy, omnicheck=omnicheck)
                 amount_in_wei = self.client.to_wei(amount, decimals)
 
                 transaction = await token_contract.functions.transfer(
@@ -299,14 +317,14 @@ class Bitget(CEX, Logger):
                     'data': '0x'
                 }
 
-            cex_balances = await self.get_cex_balances(ccy=ccy)
+            cex_balances = {'Main CEX Account': 0,'2420732139': 0}#await self.get_cex_balances(ccy=ccy)
 
-            result = await self.client.send_transaction(transaction)
+            #result = await self.client.send_transaction(transaction)
 
-            await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
+            #await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
 
             await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
 
-            return result
+            #return result
         else:
             raise SoftwareExceptionWithoutRetry(f"Deposit to {network_name} is not available")

@@ -205,32 +205,49 @@ class BingX(CEX, Logger):
         return True
 
     async def get_cex_balances(self, ccy: str = 'ETH'):
+        while True:
+            try:
+                if ccy == 'USDC.e':
+                    ccy = 'USDC'
 
-        if ccy == 'USDC.e':
-            ccy = 'USDC'
+                balances = {}
 
-        balances = {}
+                main_balance = await self.get_main_balance()
 
-        main_balance = await self.get_main_balance()
+                available_balance = [balance for balance in main_balance['balances'] if balance['asset'] == ccy]
 
-        available_balance = [balance for balance in main_balance['balances'] if balance['asset'] == ccy]
+                if available_balance:
+                    balances['Main CEX Account'] = float(available_balance[0]['free'])
+                else:
+                    balances['Main CEX Account'] = 0
 
-        if available_balance:
-            balances['Main CEX Account'] = float(available_balance[0]['free'])
+                sub_list = (await self.get_sub_list())['subAccounts']
 
-        sub_list = await self.get_sub_list()
+                for sub_data in sub_list:
+                    sub_name = sub_data['subAccountString']
+                    sub_uid = sub_data['subUid']
+                    sub_balances = await self.get_sub_balance(sub_uid)
 
-        for sub_data in sub_list:
-            sub_name = sub_data['subAccountString']
-            sub_uid = sub_data['subUid']
+                    if sub_balances['balances']:
+                        balances[sub_name] = float(
+                            [balance for balance in sub_balances['balances'] if balance['asset'] == ccy][0]['free'])
+                    else:
+                        balances[sub_name] = 0
 
-            sub_balances = await self.get_sub_balance(sub_uid)
+                    await asyncio.sleep(3)
 
-            balances[sub_name] = float([balance for balance in sub_balances if balance['asset'] == ccy][0]['free'])
+                return balances
+            except Exception as error:
+                if '-1021 Msg: Timestamp for' in str(error):
+                    self.logger_msg(
+                        *self.client.acc_info,
+                        msg=f"Bad timestamp for request. Will try again in 10 second...",
+                        type_msg='warning'
+                    )
+                    await asyncio.sleep(10)
+                else:
+                    raise error
 
-            await asyncio.sleep(3)
-
-        return balances
 
     async def wait_deposit_confirmation(
             self, amount: float, old_balances: dict, ccy: str = 'ETH', check_time: int = 45

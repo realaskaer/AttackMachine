@@ -400,36 +400,44 @@ class Custom(Logger, RequestClient):
         return True
 
     async def balance_searcher(self, chains, tokens, omni_check:bool = True, bridge_check:bool = False):
+        index = 0
+        clients = []
+        try:
+            clients = [await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[chain] if omni_check else chain)
+                       for chain in chains]
 
-        clients = [await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[chain] if omni_check else chain)
-                   for chain in chains]
+            balances = [await client.get_token_balance(
+                omnicheck=omni_check if token not in ['USDV', 'STG'] else True, token_name=token, bridge_check=bridge_check
+            )
+                        for client, token in zip(clients, tokens)]
 
-        balances = [await client.get_token_balance(omnicheck=omni_check, token_name=token, bridge_check=bridge_check)
-                    for client, token in zip(clients, tokens)]
+            if all(balance_in_wei == 0 for balance_in_wei, _, _ in balances):
+                raise SoftwareException('Insufficient balances in all networks!')
 
-        if all(balance_in_wei == 0 for balance_in_wei, _, _ in balances):
-            raise SoftwareException('Insufficient balances in all networks!')
+            balances_in_usd = []
+            for balance_in_wei, balance, token_name in balances:
+                token_price = 1
+                if 'USD' not in token_name:
+                    token_price = await self.client.get_token_price(COINGECKO_TOKEN_API_NAMES[token_name])
+                balance_in_usd = balance * token_price
+                balances_in_usd.append([balance_in_usd, token_price])
 
-        balances_in_usd = []
-        for balance_in_wei, balance, token_name in balances:
-            token_price = 1
-            if 'USD' not in token_name:
-                token_price = await self.client.get_token_price(COINGECKO_TOKEN_API_NAMES[token_name])
-            balance_in_usd = balance * token_price
-            balances_in_usd.append([balance_in_usd, token_price])
+            index = balances_in_usd.index(max(balances_in_usd, key=lambda x: x[0]))
 
-        index = balances_in_usd.index(max(balances_in_usd, key=lambda x: x[0]))
+            for index_client, client in enumerate(clients):
+                if index_client != index:
+                    await client.session.close()
 
-        for index_client, client in enumerate(clients):
-            if index_client != index:
-                await client.session.close()
+            self.logger_msg(
+                *self.client.acc_info,
+                msg=f"Detected {round(balances[index][1], 5)} {tokens[index]} in {clients[index].network.name}",
+                type_msg='success')
 
-        self.logger_msg(
-            *self.client.acc_info,
-            msg=f"Detected {round(balances[index][1], 5)} {tokens[index]} in {clients[index].network.name}",
-            type_msg='success')
-
-        return clients[index], index, balances[index][1], balances[index][0], balances_in_usd[index]
+            return clients[index], index, balances[index][1], balances[index][0], balances_in_usd[index]
+        finally:
+            for index_client, client in enumerate(clients):
+                if index_client != index:
+                    await client.session.close()
 
     @helper
     @gas_checker

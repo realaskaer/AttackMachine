@@ -183,6 +183,7 @@ def helper(func):
 
         attempts = 0
         stop_flag = False
+        no_sleep_flag = False
         try:
             while attempts <= MAXIMUM_RETRY:
                 try:
@@ -194,7 +195,12 @@ def helper(func):
                     attempts += 1
 
                     msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
-                    if isinstance(error, asyncio.exceptions.TimeoutError):
+                    if 'rate limit' in str(error):
+                        msg = f'Rate limit exceeded. Will try again in 1 min...'
+                        await asyncio.sleep(60)
+                        no_sleep_flag = True
+
+                    elif isinstance(error, asyncio.exceptions.TimeoutError):
                         error = 'Connection to RPC is not stable'
                         await self.client.change_rpc()
                         msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
@@ -213,6 +219,7 @@ def helper(func):
                             stop_flag = True
                             network_name = self.client.network.name
                             msg = f'Contract execution reverted on {network_name}, software will stop this action\n'
+
                         else:
                             if isinstance(error, BlockchainExceptionWithoutRetry):
                                 stop_flag = True
@@ -232,7 +239,8 @@ def helper(func):
                         self.logger_msg(self.client.account_name,
                                         None, msg=f"Tries are over, software will stop module\n", type_msg='error')
                     else:
-                        await sleep(self, *SLEEP_TIME_RETRY)
+                        if not no_sleep_flag:
+                            await sleep(self, *SLEEP_TIME_RETRY)
 
                 except Exception as error:
                     msg = f'Unknown Error. Description: {error}'

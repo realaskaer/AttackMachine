@@ -17,7 +17,7 @@ class CoreDAO(Logger):
 
         self.logger_msg(
             *self.client.acc_info,
-            msg=f'Bridge {amount} {from_token_name} {src_chain_name} to {to_token_name} {dst_chain_name} on CoreDAO')
+            msg=f'Bridge {amount} {from_token_name} from {src_chain_name} to {to_token_name} {dst_chain_name}')
 
         token_address = COREDAO_TOKENS_CONTRACS[self.network][from_token_name]
         refund_address, zro_payment_address = self.client.address, ZERO_ADDRESS
