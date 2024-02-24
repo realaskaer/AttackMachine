@@ -138,7 +138,7 @@ class BingX(CEX, Logger):
         await asyncio.sleep(2)
         parse_params = self.parse_params(params)
         url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
-        return await self.make_request(url=url, params=params, headers=self.headers, module_name='Get subAccounts list')
+        return await self.make_request(url=url, headers=self.headers, module_name='Get subAccounts list')
 
     async def get_sub_balance(self, sub_uid):
         path = '/openApi/subAccount/v1/assets'
@@ -150,8 +150,7 @@ class BingX(CEX, Logger):
         await asyncio.sleep(2)
         parse_params = self.parse_params(params)
         url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
-        return await self.make_request(url=url, params=params, headers=self.headers,
-                                       module_name='Get subAccount balance')
+        return await self.make_request(url=url, headers=self.headers, module_name='Get subAccount balance')
 
     async def get_main_balance(self):
         path = '/openApi/spot/v1/account/balance'
@@ -170,35 +169,39 @@ class BingX(CEX, Logger):
         self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
 
         flag = True
-        sub_list = await self.get_sub_list()
+        sub_list = (await self.get_sub_list())['result']
 
         for sub_data in sub_list:
             sub_name = sub_data['subAccountString']
             sub_uid = sub_data['subUid']
 
             sub_balances = await self.get_sub_balance(sub_uid)
-            sub_balance = float([balance for balance in sub_balances if balance['asset'] == ccy][0]['free'])
 
-            if sub_balance != 0.0:
-                flag = False
-                self.logger_msg(*self.client.acc_info, msg=f'{sub_name} | subAccount balance : {sub_balance} {ccy}')
+            if sub_balances:
+                sub_balance = float(
+                    [balance for balance in sub_balances['balances'] if balance['asset'] == ccy][0]['free'])
 
-                params = {
-                    "amount": amount,
-                    "coin": ccy,
-                    "userAccount": sub_uid,
-                    "userAccountType": 1,
-                    "walletType": 1
-                }
+                if sub_balance != 0.0:
+                    flag = False
+                    self.logger_msg(*self.client.acc_info, msg=f'{sub_name} | subAccount balance : {sub_balance} {ccy}')
 
-                path = "/openApi/wallets/v1/capital/subAccountInnerTransfer/apply"
-                parse_params = self.parse_params(params)
+                    params = {
+                        "amount": amount,
+                        "coin": ccy,
+                        "userAccount": sub_uid,
+                        "userAccountType": 1,
+                        "walletType": 1
+                    }
 
-                url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
-                await self.make_request(method="POST", url=url, headers=self.headers, module_name='SubAccount transfer')
+                    path = "/openApi/wallets/v1/capital/subAccountInnerTransfer/apply"
+                    parse_params = self.parse_params(params)
 
-                self.logger_msg(*self.client.acc_info,
-                                msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success')
+                    url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
+                    await self.make_request(
+                        method="POST", url=url, headers=self.headers, module_name='SubAccount transfer')
+
+                    self.logger_msg(*self.client.acc_info,
+                                    msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success')
         if flag:
             self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
         return True
@@ -213,23 +216,29 @@ class BingX(CEX, Logger):
 
                 main_balance = await self.get_main_balance()
 
-                ccy_balance = [balance for balance in main_balance['balances'] if balance['asset'] == ccy]
+                if main_balance:
+                    ccy_balance = [balance for balance in main_balance['balances'] if balance['asset'] == ccy]
 
-                if ccy_balance:
-                    balances['Main CEX Account'] = float(ccy_balance[0]['free'])
+                    if ccy_balance:
+                        balances['Main CEX Account'] = float(ccy_balance[0]['free'])
+                    else:
+                        balances['Main CEX Account'] = 0
                 else:
                     balances['Main CEX Account'] = 0
 
-                sub_list = (await self.get_sub_list())['subAccounts']
+                sub_list = (await self.get_sub_list())['result']
 
                 for sub_data in sub_list:
                     sub_name = sub_data['subAccountString']
                     sub_uid = sub_data['subUid']
                     sub_balances = await self.get_sub_balance(sub_uid)
-                    ccy_syb_balance = [balance for balance in sub_balances['balances'] if balance['asset'] == ccy]
+                    if sub_balances:
+                        ccy_syb_balance = [balance for balance in sub_balances['balances'] if balance['asset'] == ccy]
 
-                    if ccy_syb_balance:
-                        balances[sub_name] = float(ccy_syb_balance[0]['free'])
+                        if ccy_syb_balance:
+                            balances[sub_name] = float(ccy_syb_balance[0]['free'])
+                        else:
+                            balances[sub_name] = 0
                     else:
                         balances[sub_name] = 0
 
@@ -321,11 +330,11 @@ class BingX(CEX, Logger):
                 }
 
             cex_balances = await self.get_cex_balances(ccy=ccy)
-
-            result = await self.client.send_transaction(transaction)
+            print(123)
+            result = True#await self.client.send_transaction(transaction)
 
             if result:
-                await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
+                #await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
 
                 await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
             else:
