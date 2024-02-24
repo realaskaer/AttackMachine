@@ -251,27 +251,19 @@ class Client(Logger):
         amount_in_wei = await self.w3.eth.get_balance(self.address)
         return amount_in_wei, amount_in_wei / 10 ** 18, self.network.token
 
-    async def check_and_get_eth(
-            self, settings: tuple = None, bridge_mode: bool = False, initial_chain_id: int = 0
-    ) -> [float, int]:
-        from functions import swap_odos, swap_oneinch, swap_openocean, swap_xyfinance, swap_rango
+    async def check_and_get_eth(self, settings: tuple = None) -> [float, int]:
+        from functions import swap_odos, swap_oneinch, swap_izumi, swap_syncswap, swap_rango
 
         try:
             func = {
-                3: [swap_odos, swap_oneinch, swap_openocean, swap_xyfinance],
-                4: [swap_rango, swap_openocean, swap_xyfinance],
-                6: [swap_oneinch],
-                8: [swap_openocean, swap_xyfinance],
-                11: [swap_openocean, swap_xyfinance, swap_rango, swap_odos, swap_oneinch]
-            }[GLOBAL_NETWORK]
+                'Base': [swap_rango, swap_izumi, swap_odos, swap_oneinch],
+                'Linea': [swap_izumi, swap_syncswap],
+                'Scroll': [swap_izumi, swap_syncswap],
+                'zkSync': [swap_rango, swap_izumi, swap_syncswap, swap_odos, swap_oneinch]
+            }[self.network.name]
 
             module_func = random.choice(func)
-
-            data = True
-            if bridge_mode and initial_chain_id in [2, 3, 4, 8, 9, 11, 12]:
-                data = await self.get_auto_amount(token_name_search='ETH')
-            elif not bridge_mode:
-                data = await self.get_auto_amount(token_name_search='ETH')
+            data = await self.get_auto_amount(token_name_search='ETH')
 
             if data is False:
                 self.logger_msg(*self.acc_info, msg=f'Not enough ETH! Launching swap module', type_msg='warning')
