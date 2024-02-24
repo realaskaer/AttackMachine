@@ -330,11 +330,11 @@ class BingX(CEX, Logger):
                 }
 
             cex_balances = await self.get_cex_balances(ccy=ccy)
-            print(123)
-            result = True#await self.client.send_transaction(transaction)
+
+            result = await self.client.send_transaction(transaction)
 
             if result:
-                #await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
+                await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
 
                 await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
             else:
