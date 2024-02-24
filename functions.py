@@ -819,3 +819,8 @@ async def bridge_zora(account_name, private_key, _, proxy):
 async def vote_rubyscore(account_name, private_key, network, proxy):
     worker = RubyScore(get_client(account_name, private_key, network, proxy))
     return await worker.vote()
+
+
+async def smart_stake_stg(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.smart_stake_stg()

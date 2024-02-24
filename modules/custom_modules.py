@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import random
 import traceback
@@ -25,7 +26,7 @@ from settings import (
     SRC_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_MERKLY_POLYHEDRA, SRC_CHAIN_MERKLY_HYPERLANE, DST_CHAIN_MERKLY_WORMHOLE,
     DST_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_HYPERLANE, WORMHOLE_TOKENS_AMOUNT, HYPERLANE_TOKENS_AMOUNT,
     DST_CHAIN_MERKLY_POLYHEDRA_REFUEL, CEX_VOLUME_MODE, BRIDGE_VOLUME_MODE, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME,
-    L0_BRIDGE_COUNT, CUSTOM_SWAP_DATA, BITGET_DEPOSIT_DATA, BITGET_WITHDRAW_DATA
+    L0_BRIDGE_COUNT, CUSTOM_SWAP_DATA, BITGET_DEPOSIT_DATA, BITGET_WITHDRAW_DATA, STG_STAKE_CONFIG
 )
 
 
@@ -236,91 +237,87 @@ class Custom(Logger, RequestClient):
         used_chains = []
         result_list = []
         for bridge_count in range(L0_BRIDGE_COUNT):
-            clients = []
-            try:
-                current_client, index, balance, balance_in_wei, balances_in_usd = await self.balance_searcher(
-                    converted_chains, tokens, omni_check=True
-                )
+            current_client, index, balance, balance_in_wei, balances_in_usd = await self.balance_searcher(
+                converted_chains, tokens, omni_check=True
+            )
 
-                from_token_name = tokens[index]
+            from_token_name = tokens[index]
 
-                if dapp_id == 1:
+            if dapp_id == 1:
 
-                    if any([isinstance(path, tuple) for path in chains]):
-                        tuple_chains = chains[1]
-                        if not isinstance(tuple_chains, tuple) and not isinstance(chains[0], int) and len(chains) != 2:
-                            raise SoftwareExceptionWithoutRetry(
-                                'This mode on Stargate Bridges support only "[chain, (chain, chain)]" format')
-                        if bridge_count + 1 == L0_BRIDGE_COUNT:
-                            dst_chain = converted_chains[0]
-                        elif converted_chains[index] == tuple_chains[1]:
-                            dst_chain = tuple_chains[0]
-                        elif converted_chains[index] == tuple_chains[0]:
-                            dst_chain = tuple_chains[1]
-                        elif converted_chains[index] == converted_chains[0]:
-                            dst_chain = tuple_chains[0]
-                        else:
-                            dst_chain = [chain for chain in tuple_chains if chain != converted_chains[index]]
+                if any([isinstance(path, tuple) for path in chains]):
+                    tuple_chains = chains[1]
+                    if not isinstance(tuple_chains, tuple) and not isinstance(chains[0], int) and len(chains) != 2:
+                        raise SoftwareExceptionWithoutRetry(
+                            'This mode on Stargate Bridges support only "[chain, (chain, chain)]" format')
+                    if bridge_count + 1 == L0_BRIDGE_COUNT:
+                        dst_chain = converted_chains[0]
+                    elif converted_chains[index] == tuple_chains[1]:
+                        dst_chain = tuple_chains[0]
+                    elif converted_chains[index] == tuple_chains[0]:
+                        dst_chain = tuple_chains[1]
+                    elif converted_chains[index] == converted_chains[0]:
+                        dst_chain = tuple_chains[0]
                     else:
-                        if not start_chain:
-                            start_chain = converted_chains[index]
-                        used_chains.append(start_chain)
-
-                        if len(used_chains) >= len(chains):
-                            dst_chain = random.choice(
-                                [chain for chain in converted_chains if chain != converted_chains[index]])
-                        else:
-                            available_chains = [chain for chain in converted_chains if chain not in used_chains]
-                            dst_chain = random.choice(available_chains)
-
-                        used_chains.append(dst_chain)
-
+                        dst_chain = [chain for chain in tuple_chains if chain != converted_chains[index]]
                 else:
-                    if converted_chains[index] == 11:
-                        if len(converted_chains) == 2:
-                            dst_chain = random.choice([chain for chain in converted_chains if chain != 11])
-                        elif len(converted_chains) == 3:
-                            if 11 in [converted_chains[0], converted_chains[-1]] and converted_chains[1] != 11:
-                                raise SoftwareExceptionWithoutRetry(
-                                    'This mode on CoreDAO bridges support only "[chain, 11(CoreDAO), chain]" format')
-                            dst_chain = converted_chains[-1]
-                            if len(used_chains) == 2:
-                                dst_chain = converted_chains[0]
-                                used_chains = []
-                        else:
-                            raise SoftwareExceptionWithoutRetry('CoreDAO bridges support only 2 or 3 chains in list')
+                    if not start_chain:
+                        start_chain = converted_chains[index]
+                    used_chains.append(start_chain)
+
+                    if len(used_chains) >= len(chains):
+                        dst_chain = random.choice(
+                            [chain for chain in converted_chains if chain != converted_chains[index]])
                     else:
-                        dst_chain = 11
+                        available_chains = [chain for chain in converted_chains if chain not in used_chains]
+                        dst_chain = random.choice(available_chains)
 
                     used_chains.append(dst_chain)
 
-                src_chain_name = current_client.network.name
-                dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
-                to_token_name = tokens[converted_chains.index(dst_chain)]
-
-                if from_token_name != 'ETH':
-                    contract = current_client.get_contract(
-                        TOKENS_PER_CHAIN2[current_client.network.name][from_token_name])
-                    decimals = await contract.functions.decimals().call()
+            else:
+                if converted_chains[index] == 11:
+                    if len(converted_chains) == 2:
+                        dst_chain = random.choice([chain for chain in converted_chains if chain != 11])
+                    elif len(converted_chains) == 3:
+                        if 11 in [converted_chains[0], converted_chains[-1]] and converted_chains[1] != 11:
+                            raise SoftwareExceptionWithoutRetry(
+                                'This mode on CoreDAO bridges support only "[chain, 11(CoreDAO), chain]" format')
+                        dst_chain = converted_chains[-1]
+                        if len(used_chains) == 2:
+                            dst_chain = converted_chains[0]
+                            used_chains = []
+                    else:
+                        raise SoftwareExceptionWithoutRetry('CoreDAO bridges support only 2 or 3 chains in list')
                 else:
-                    decimals = 18
+                    dst_chain = 11
 
-                amount_in_wei = balance_in_wei if from_token_name != 'ETH' else self.client.to_wei(
-                    (await current_client.get_smart_amount(need_percent=True)), decimals)
+                used_chains.append(dst_chain)
 
-                amount = f"{amount_in_wei / 10 ** decimals:.4f}"
+            src_chain_name = current_client.network.name
+            dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
+            to_token_name = tokens[converted_chains.index(dst_chain)]
 
-                swapdata = (src_chain_name, dst_chain_name, dst_chain_id,
-                            from_token_name, to_token_name, amount, amount_in_wei)
+            if from_token_name != 'ETH':
+                contract = current_client.get_contract(
+                    TOKENS_PER_CHAIN2[current_client.network.name][from_token_name])
+                decimals = await contract.functions.decimals().call()
+            else:
+                decimals = 18
 
-                result_list.append(await class_name(current_client).bridge(swapdata=swapdata))
+            amount_in_wei = balance_in_wei if from_token_name != 'ETH' else self.client.to_wei(
+                (await current_client.get_smart_amount(need_percent=True)), decimals)
 
-                if current_client:
-                    await current_client.session.close()
+            amount = f"{amount_in_wei / 10 ** decimals:.4f}"
 
-            finally:
-                for client in clients:
-                    await client.session.close()
+            swapdata = (src_chain_name, dst_chain_name, dst_chain_id,
+                        from_token_name, to_token_name, amount, amount_in_wei)
+
+            result_list.append(await class_name(current_client).bridge(swapdata=swapdata))
+
+            if current_client:
+                await current_client.session.close()
+
+            await sleep(self)
 
         return all(result_list)
 
@@ -416,98 +413,129 @@ class Custom(Logger, RequestClient):
     async def balance_searcher(self, chains, tokens, omni_check:bool = True, bridge_check:bool = False):
         index = 0
         clients = []
-        try:
-            clients = [await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[chain] if omni_check else chain)
-                       for chain in chains]
+        while True:
+            try:
+                clients = [await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[chain] if omni_check else chain)
+                           for chain in chains]
 
-            balances = [await client.get_token_balance(
-                omnicheck=omni_check if token not in ['USDV', 'STG'] else True, token_name=token,
-                bridge_check=bridge_check
-            )
-                        for client, token in zip(clients, tokens)]
+                balances = [await client.get_token_balance(
+                    omnicheck=omni_check if token not in ['USDV', 'STG'] else True, token_name=token,
+                    bridge_check=bridge_check
+                )
+                            for client, token in zip(clients, tokens)]
 
-            if all(balance_in_wei == 0 for balance_in_wei, _, _ in balances):
-                raise SoftwareException('Insufficient balances in all networks!')
+                if all(balance_in_wei == 0 for balance_in_wei, _, _ in balances):
+                    raise SoftwareException('Insufficient balances in all networks!')
 
-            balances_in_usd = []
-            for balance_in_wei, balance, token_name in balances:
-                token_price = 1
-                if 'USD' not in token_name:
-                    token_price = await self.client.get_token_price(COINGECKO_TOKEN_API_NAMES[token_name])
-                balance_in_usd = balance * token_price
-                balances_in_usd.append([balance_in_usd, token_price])
+                balances_in_usd = []
+                for balance_in_wei, balance, token_name in balances:
+                    token_price = 1
+                    if 'USD' not in token_name:
+                        token_price = await self.client.get_token_price(COINGECKO_TOKEN_API_NAMES[token_name])
+                    balance_in_usd = balance * token_price
+                    balances_in_usd.append([balance_in_usd, token_price])
 
-            index = balances_in_usd.index(max(balances_in_usd, key=lambda x: x[0]))
+                index = balances_in_usd.index(max(balances_in_usd, key=lambda x: x[0]))
 
-            for index_client, client in enumerate(clients):
-                if index_client != index:
-                    await client.session.close()
+                for index_client, client in enumerate(clients):
+                    if index_client != index:
+                        await client.session.close()
 
-            self.logger_msg(
-                *self.client.acc_info,
-                msg=f"Detected {round(balances[index][1], 5)} {tokens[index]} in {clients[index].network.name}",
-                type_msg='success')
+                self.logger_msg(
+                    *self.client.acc_info,
+                    msg=f"Detected {round(balances[index][1], 5)} {tokens[index]} in {clients[index].network.name}",
+                    type_msg='success'
+                )
 
-            return clients[index], index, balances[index][1], balances[index][0], balances_in_usd[index]
-        finally:
-            for index_client, client in enumerate(clients):
-                if index_client != index:
-                    await client.session.close()
+                return clients[index], index, balances[index][1], balances[index][0], balances_in_usd[index]
+
+            except asyncio.exceptions.TimeoutError:
+                self.logger_msg(
+                    *self.client.acc_info,
+                    msg=f"Connection to RPC is not stable. Will try again in 1 min...",
+                    type_msg='warning'
+                )
+                await asyncio.sleep(60)
+            finally:
+                for index_client, client in enumerate(clients):
+                    if index_client != index:
+                        await client.session.close()
+
+    @helper
+    @gas_checker
+    async def smart_stake_stg(self):
+        from functions import Stargate
+        chains = STARGATE_CHAINS
+        tokens = ['STG' for _ in range(len(chains))]
+
+        current_client, index, balance, balance_in_wei, balances_in_usd = await self.balance_searcher(
+            chains, tokens, omni_check=True
+        )
+
+        stake_amount = round(await current_client.get_smart_amount(STG_STAKE_CONFIG[1]), 2)
+        stake_amount_in_wei = current_client.to_wei(stake_amount, 18)
+        lock_time = int((STG_STAKE_CONFIG[0] * 30))
+        if lock_time == 0:
+            raise SoftwareExceptionWithoutRetry('STG_STAKE_CONFIG[0] can`t be zero')
+        stakedata = stake_amount, stake_amount_in_wei, lock_time
+
+        return await Stargate(current_client).stake_stg(stakedata=stakedata)
 
     @helper
     @gas_checker
     async def smart_random_approve(self):
-        client = None
-        try:
-            from config import (IZUMI_CONTRACTS, MAVERICK_CONTRACTS, RANGO_CONTRACTS, ODOS_CONTRACTS, ONEINCH_CONTRACTS,
-                                OPENOCEAN_CONTRACTS, PANCAKE_CONTRACTS, SUSHISWAP_CONTRACTS,
-                                UNISWAP_CONTRACTS, STARGATE_CONTRACTS, WOOFI_CONTRACTS, XYFINANCE_CONTRACTS, TOKENS_PER_CHAIN)
+        while True:
+            client = None
+            try:
+                from config import (IZUMI_CONTRACTS, MAVERICK_CONTRACTS, RANGO_CONTRACTS, ODOS_CONTRACTS, ONEINCH_CONTRACTS,
+                                    OPENOCEAN_CONTRACTS, PANCAKE_CONTRACTS, SUSHISWAP_CONTRACTS,
+                                    UNISWAP_CONTRACTS, STARGATE_CONTRACTS, WOOFI_CONTRACTS, XYFINANCE_CONTRACTS, TOKENS_PER_CHAIN)
 
-            all_contracts = {
-                "Rango.Exchange": RANGO_CONTRACTS,
-                "Maverick": MAVERICK_CONTRACTS,
-                "SushiSwap": SUSHISWAP_CONTRACTS,
-                "Uniswap": UNISWAP_CONTRACTS,
-                "Stargate": STARGATE_CONTRACTS,
-                "PancakeSwap": PANCAKE_CONTRACTS,
-                "WooFi": WOOFI_CONTRACTS,
-                "iZumi": IZUMI_CONTRACTS,
-                "ODOS": ODOS_CONTRACTS,
-                "1inch": ONEINCH_CONTRACTS,
-                "OpenOcean": OPENOCEAN_CONTRACTS,
-                "XYfinance": XYFINANCE_CONTRACTS,
-            }
+                all_contracts = {
+                    "Rango.Exchange": RANGO_CONTRACTS,
+                    "Maverick": MAVERICK_CONTRACTS,
+                    "SushiSwap": SUSHISWAP_CONTRACTS,
+                    "Uniswap": UNISWAP_CONTRACTS,
+                    "Stargate": STARGATE_CONTRACTS,
+                    "PancakeSwap": PANCAKE_CONTRACTS,
+                    "WooFi": WOOFI_CONTRACTS,
+                    "iZumi": IZUMI_CONTRACTS,
+                    "ODOS": ODOS_CONTRACTS,
+                    "1inch": ONEINCH_CONTRACTS,
+                    "OpenOcean": OPENOCEAN_CONTRACTS,
+                    "XYfinance": XYFINANCE_CONTRACTS,
+                }
 
-            chains, tokens = {
-                0: (STARGATE_CHAINS, STARGATE_TOKENS),
-                1: (COREDAO_CHAINS, COREDAO_TOKENS),
-            }[L0_SEARCH_DATA]
+                chains, tokens = {
+                    0: (STARGATE_CHAINS, STARGATE_TOKENS),
+                    1: (COREDAO_CHAINS, COREDAO_TOKENS),
+                }[L0_SEARCH_DATA]
 
-            client, index, _, _, _ = await self.balance_searcher(chains, tokens, omni_check=True)
+                client, index, _, _, _ = await self.balance_searcher(chains, tokens, omni_check=True)
 
-            network_name = client.network.name
+                network_name = client.network.name
 
-            all_network_contracts = {
-                name: contracts[network_name]['router']
-                for name, contracts in all_contracts.items()
-                if contracts.get(network_name)
-            }
+                all_network_contracts = {
+                    name: contracts[network_name]['router']
+                    for name, contracts in all_contracts.items()
+                    if contracts.get(network_name)
+                }
 
-            approve_contracts = [(k, v) for k, v in all_network_contracts.items()]
-            contract_name, approve_contract = random.choice(approve_contracts)
-            native = [client.network.token, f"W{client.network.token}"]
-            token_contract = random.choice([i for i in list(TOKENS_PER_CHAIN[network_name].items()) if i[0] not in native])
-            amount = random.uniform(1, 10000)
-            amount_in_wei = self.client.to_wei(amount, await client.get_decimals(token_contract[0]))
+                approve_contracts = [(k, v) for k, v in all_network_contracts.items()]
+                contract_name, approve_contract = random.choice(approve_contracts)
+                native = [client.network.token, f"W{client.network.token}"]
+                token_contract = random.choice([i for i in list(TOKENS_PER_CHAIN[network_name].items()) if i[0] not in native])
+                amount = random.uniform(1, 1000)
+                amount_in_wei = self.client.to_wei(amount, await client.get_decimals(token_contract[0]))
 
-            message = f"Approve {amount:.4f} {token_contract[0]} for {contract_name}"
-            self.logger_msg(*client.acc_info, msg=message)
+                message = f"Approve {amount:.4f} {token_contract[0]} for {contract_name}"
+                self.logger_msg(*client.acc_info, msg=message)
 
-            return await client.check_for_approved(token_contract[1], approve_contract, amount_in_wei,
-                                                   without_bal_check=True)
-        finally:
-            if client:
-                await client.session.close()
+                return await client.check_for_approved(token_contract[1], approve_contract, amount_in_wei,
+                                                       without_bal_check=True)
+            finally:
+                if client:
+                    await client.session.close()
 
     @helper
     @gas_checker
@@ -772,6 +800,9 @@ class Custom(Logger, RequestClient):
 
                     if CEX_VOLUME_MODE:
                         dep_amount_in_usd = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
+                        if dep_amount_in_usd < 0:
+                            raise SoftwareExceptionWithoutRetry(
+                                'You can`t deposit amount < 0$. Check CEX_DEPOSIT_LIMITER')
                         dep_amount = round(dep_amount_in_usd / token_price, 6)
                     else:
                         dep_amount = await client.get_smart_amount(amount, token_name=dep_token, omnicheck=omnicheck)
@@ -856,6 +887,8 @@ class Custom(Logger, RequestClient):
 
                 if BRIDGE_VOLUME_MODE:
                     bridge_amount_in_usd = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
+                    if bridge_amount_in_usd < 0:
+                        raise SoftwareExceptionWithoutRetry('You can`t bridge amount < 0$. Check BRIDGE_AMOUNT_LIMITER')
                     bridge_amount = round(bridge_amount_in_usd / token_price, 6)
                 else:
                     bridge_amount = await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data, need_fee=True)

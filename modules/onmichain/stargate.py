@@ -1,7 +1,9 @@
+import time
+
 from eth_abi import abi
 
 from config import STARGATE_ABI, STARGATE_CONTRACTS, STARGATE_POOLS_ID, TOKENS_PER_CHAIN2, USDV_ABI, ZERO_ADDRESS, \
-    STG_ABI, L0_ENDPOINT_ABI, STARGATE_STG_CONFIG_CHECKERS
+    STG_ABI, L0_ENDPOINT_ABI, STARGATE_STG_CONFIG_CHECKERS, VESTG_ADDRESS, VESTG_ABI
 from modules import Logger, Client
 from utils.tools import helper, gas_checker
 
@@ -150,3 +152,24 @@ class Stargate(Logger):
         tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
         return await self.client.wait_for_l0_received(tx_hash)
+
+    @helper
+    async def stake_stg(self, stakedata:tuple):
+        stake_amount, stake_amount_in_wei, lock_time = stakedata
+
+        self.logger_msg(
+            *self.client.acc_info, msg=f'Stake {stake_amount} STG on {self.client.network.name} for {lock_time} days')
+
+        stg_contract_address = TOKENS_PER_CHAIN2[self.network]['STG']
+        vestg_contract_address = VESTG_ADDRESS[self.network]
+        vestg_contract = self.client.get_contract(vestg_contract_address, VESTG_ABI)
+        deadline = int(int(time.time()) + (lock_time * 24 * 60 * 60))
+
+        await self.client.check_for_approved(stg_contract_address, vestg_contract_address, stake_amount_in_wei)
+
+        transaction = await vestg_contract.functions.create_lock(
+            stake_amount_in_wei,
+            deadline
+        ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transaction)

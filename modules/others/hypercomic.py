@@ -1,3 +1,4 @@
+import asyncio
 import random
 
 from modules import Minter, Logger, RequestClient, Client
@@ -60,18 +61,18 @@ class HyperComic(Minter, Logger, RequestClient):
             8: (13, '0x3F332B469Fbc7A580B00b11Df384bdBebbd65588', 'zkSync Bird'),
         }
 
-        mint_ids = list(mint_info.keys()) if HYPERCOMIC_NFT_ID != 0 else [HYPERCOMIC_NFT_ID]
+        mint_ids = list(HYPERCOMIC_NFT_ID) if HYPERCOMIC_NFT_ID != 0 else list(mint_info.keys())
 
         random.shuffle(mint_ids)
 
         result_list = []
 
-        if mint_ids[0] == 0 and len(mint_ids) == 1:
+        if HYPERCOMIC_NFT_ID == 0:
             minted_any = True
-        elif mint_ids[0] == 0 and len(mint_ids) != 1:
-            raise SoftwareException('Software support only HYPERCOMIC_NFT_ID = 0, if you want a random mint!')
-        else:
+        elif isinstance(HYPERCOMIC_NFT_ID, tuple):
             minted_any = False
+        else:
+            raise SoftwareException('HYPERCOMIC_NFT_ID can only be 0 or (1, 2, 3...)')
 
         for mint_id in mint_ids:
             nft_id, contract_address, nft_name = mint_info[mint_id]
@@ -81,6 +82,7 @@ class HyperComic(Minter, Logger, RequestClient):
                 if calldata == 'notEnough':
                     self.logger_msg(
                         *self.client.acc_info, msg=f"Not eligible for mint {nft_name} NFT.", type_msg='warning')
+                    await asyncio.sleep(10)
                     continue
 
                 contract = self.client.get_contract(contract_address, HYPERCOMIC_ABI)
@@ -100,7 +102,9 @@ class HyperComic(Minter, Logger, RequestClient):
                 await sleep(self)
 
             except Exception as error:
+                print(error.args)
                 self.logger_msg(*self.client.acc_info, msg=f"Can't mint {nft_name}. Error: {error}")
+                await asyncio.sleep(10)
 
         if minted_any and result_list[0] is False:
             self.logger_msg(*self.client.acc_info, msg="Failed to mint any available NFT", type_msg='error')

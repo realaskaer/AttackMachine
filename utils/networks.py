@@ -48,7 +48,6 @@ ArbitrumRPC = Network(
     name='Arbitrum',
     rpc=[
         'https://rpc.ankr.com/arbitrum/',
-        'https://1rpc.io/arb',
         'https://arb1.arbitrum.io/rpc'
     ],
     chain_id=42161,

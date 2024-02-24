@@ -14,13 +14,13 @@ from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, CHAIN_IDS, TOKENS_PER
 from web3 import AsyncHTTPProvider, AsyncWeb3
 from config import RHINO_CHAIN_INFO, ORBITER_CHAINS_INFO, LAYERSWAP_CHAIN_NAME
 from general_settings import (
-    GAS_MULTIPLIER,
+    GAS_LIMIT_MULTIPLIER,
     UNLIMITED_APPROVE,
     AMOUNT_PERCENT,
     MIN_BALANCE,
     LIQUIDITY_AMOUNT,
     PRICE_IMPACT,
-    GLOBAL_NETWORK,
+    GLOBAL_NETWORK, GAS_PRICE_MULTIPLIER,
 )
 from settings import (
     ORBITER_CHAIN_ID_TO,
@@ -373,7 +373,7 @@ class Client(Logger):
             if self.network.eip1559_support:
 
                 base_fee = await self.w3.eth.gas_price
-                max_priority_fee_per_gas = await self.get_priotiry_fee()
+                max_priority_fee_per_gas = int(await self.get_priotiry_fee() * GAS_PRICE_MULTIPLIER)
                 max_fee_per_gas = base_fee + max_priority_fee_per_gas
 
                 tx_params['maxPriorityFeePerGas'] = max_priority_fee_per_gas
@@ -383,7 +383,7 @@ class Client(Logger):
                 if self.network.name == 'BNB Chain':
                     tx_params['gasPrice'] = self.w3.to_wei(round(random.uniform(1.4, 1.5), 1), 'gwei')
                 else:
-                    tx_params['gasPrice'] = await self.w3.eth.gas_price
+                    tx_params['gasPrice'] = int(await self.w3.eth.gas_price * GAS_PRICE_MULTIPLIER)
 
             return tx_params
         except Exception as error:
@@ -434,7 +434,7 @@ class Client(Logger):
     ) -> bool | HexStr:
         try:
             if not without_gas:
-                transaction['gas'] = int((await self.w3.eth.estimate_gas(transaction)) * GAS_MULTIPLIER)
+                transaction['gas'] = int((await self.w3.eth.estimate_gas(transaction)) * GAS_LIMIT_MULTIPLIER)
         except Exception as error:
             raise BlockchainException(f'{self.get_normalize_error(error)}')
 
@@ -464,8 +464,9 @@ class Client(Logger):
                 elif status is None:
                     await asyncio.sleep(poll_latency)
                 else:
-                    self.logger_msg(*self.acc_info, msg=f'Transaction failed: {self.explorer}tx/{tx_hash}',
-                                    type_msg='error')
+                    self.logger_msg(
+                        *self.acc_info, msg=f'Transaction failed: {self.explorer}tx/{tx_hash}', type_msg='error'
+                    )
                     return False
             except TransactionNotFound:
                 if total_time > timeout:
@@ -473,8 +474,9 @@ class Client(Logger):
                         self.logger_msg(
                             *self.acc_info,
                             msg=f'Transaction was sent and tried to be confirmed, but not finished yet',
-                            type_msg='warning')
-                        return True
+                            type_msg='warning'
+                        )
+                        return False
                     raise TimeExhausted(f"Transaction is not in the chain after {timeout} seconds")
                 total_time += poll_latency
                 await asyncio.sleep(poll_latency)

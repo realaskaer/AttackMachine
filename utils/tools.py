@@ -177,7 +177,7 @@ def helper(func):
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
         from modules.interfaces import (
-            PriceImpactException,BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
+            PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
             BlockchainExceptionWithoutRetry
         )
 
@@ -205,30 +205,15 @@ def helper(func):
                         await self.client.change_rpc()
                         msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
 
-                    elif isinstance(error, SoftwareExceptionWithoutRetry):
+                    elif isinstance(error, (SoftwareExceptionWithoutRetry, BlockchainExceptionWithoutRetry)):
                         stop_flag = True
                         msg = f'{error}'
 
-                    elif isinstance(error, (BlockchainException, BlockchainExceptionWithoutRetry)):
-
-                        if any([i in str(error) for i in ['insufficient funds', 'gas required']]):
-                            stop_flag = True
-                            network_name = self.client.network.name
-                            msg = f'Insufficient funds on {network_name}, software will stop this action\n'
-                        elif 'execution reverted' in str(error):
-                            stop_flag = True
-                            network_name = self.client.network.name
-                            msg = f'Contract execution reverted on {network_name}, software will stop this action\n'
-
-                        else:
-                            if isinstance(error, BlockchainExceptionWithoutRetry):
-                                stop_flag = True
-                                msg = f'{error}'
-
-                            self.logger_msg(
-                                self.client.account_name,
-                                None, msg=f'Maybe problem with node: {self.client.rpc}', type_msg='warning')
-                            await self.client.change_rpc()
+                    elif isinstance(error, BlockchainException):
+                        self.logger_msg(
+                            self.client.account_name,
+                            None, msg=f'Maybe problem with node: {self.client.rpc}', type_msg='warning')
+                        await self.client.change_rpc()
 
                     self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
 
@@ -277,12 +262,6 @@ def gas_checker(func):
                         account_number = random.randint(1, ACCOUNTS_IN_STREAM)
                         sleep_duration = tuple(x * account_number for x in SLEEP_TIME_STREAM)
                         await sleep(self, *sleep_duration)
-                    elif flag:
-                        self.logger_msg(
-                            self.client.account_name, None, f"Sleep for normalize gas cost on contracts",
-                            type_msg='warning'
-                        )
-                        await sleep(self, 20, 40)
                     return await func(self, *args, **kwargs)
 
                 else:
@@ -295,6 +274,7 @@ def gas_checker(func):
 
                     await asyncio.sleep(SLEEP_TIME_GAS)
         return await func(self, *args, **kwargs)
+
     return wrapper
 
 

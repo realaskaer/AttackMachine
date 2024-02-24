@@ -121,10 +121,12 @@ class Bitget(CEX, Logger):
 
                 url = f"{self.api_url}{path}"
                 headers = self.get_headers('POST', path, payload=payload)
-                await self.make_request(method='POST', url=url, headers=headers, json=payload, module_name='Withdraw')
+                await self.make_request(
+                    method='POST', url=url, headers=headers, json=payload, module_name='Withdraw')
 
                 self.logger_msg(*self.client.acc_info,
-                                msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success')
+                                msg=f"Withdraw complete. Note: wait a little for receiving funds",
+                                type_msg='success')
 
                 await self.client.wait_for_receiving(
                     dst_chain_id, old_balance_on_dst, omnicheck=omnicheck, token_name=ccy

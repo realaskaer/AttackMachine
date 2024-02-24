@@ -1,3 +1,5 @@
+import asyncio
+
 from aiohttp import ClientSession
 from loguru import logger
 from sys import stderr
@@ -117,21 +119,39 @@ class CEX(ABC):
                            headers:dict = None, json:dict = None, module_name:str = 'Request',
                            content_type:str | None = "application/json"):
 
-        async with ClientSession() as session:
-            async with session.request(method=method, url=url, headers=headers, data=data, json=json,
-                                       params=params) as response:
-                data: dict = await response.json(content_type=content_type)
+        insf_balance_code = {
+            'BingX': [100437],
+            'Binance': [4026],
+            'Bitget': [43012, 13004],
+            'OKX': [58350],
+        }[self.class_name]
 
-                if self.class_name == 'Binance' and response.status in [200, 201]:
-                    return data
+        while True:
+            async with ClientSession() as session:
+                async with session.request(method=method, url=url, headers=headers, data=data, json=json,
+                                           params=params) as response:
+                    data: dict = await response.json(content_type=content_type)
 
-                if int(data.get('code')) != 0:
-                    message = data.get('msg') or data.get('desc') or 'Unknown error'
-                    error = f"Error code: {data['code']} Msg: {message}"
-                    raise SoftwareException(f"Bad request to {self.class_name}({module_name}): {error}")
+                    if self.class_name == 'Binance' and response.status in [200, 201]:
+                        return data
 
-                # self.logger.success(f"{self.info} {module_name}")
-                return data['data']
+                    if int(data.get('code')) != 0:
+                        message = data.get('msg') or data.get('desc') or 'Unknown error'
+                        code = int(data['code'])
+                        if code in insf_balance_code:
+                            self.client.logger_msg(
+                                *self.client.acc_info,
+                                msg=f"Your CEX balance < your want withdraw amount. Will try again in 10 min...",
+                                type_msg='warning'
+                            )
+                            await asyncio.sleep(600)
+                            continue
+
+                        error = f"Error code: {data['code']} Msg: {message}"
+                        raise SoftwareException(f"Bad request to {self.class_name}({module_name}): {error}")
+
+                    # self.logger.success(f"{self.info} {module_name}")
+                    return data['data']
 
 
 class RequestClient(ABC):

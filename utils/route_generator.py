@@ -50,6 +50,7 @@ AVAILABLE_MODULES_INFO = {
     enable_collateral_eralend           : (enable_collateral_eralend, 2, 'Enable EraLend Collateral', 1, [11]),
     enable_collateral_reactorfusion     : (enable_collateral_reactorfusion, 2, 'Enable ReactorFusion Collateral', 1, [11]),
     enable_collateral_layerbank         : (enable_collateral_layerbank, 2, 'Enable LayerBank Collateral', 1, [4, 8]),
+    smart_stake_stg                     : (smart_stake_stg, 2, 'Stake STG on Stargate', 0, [0]),
     bridge_stargate                     : (bridge_stargate, 2, 'Stargate Bridge', 0, [0]),
     bridge_coredao                      : (bridge_coredao, 2, 'CoreDAO Bridge', 0, [0]),
     swap_ambient                        : (swap_ambient, 2, 'Ambient Swap', 1, [3, 4, 8, 11]),

@@ -2,7 +2,7 @@ from modules import Bridge, Logger
 from modules.interfaces import BridgeExceptionWithoutRetry
 from utils.tools import helper, gas_checker
 from config import TOKENS_PER_CHAIN, ACROSS_ABI, CHAIN_NAME_FROM_ID, ACROSS_CONTRACT
-from general_settings import GLOBAL_NETWORK, GAS_MULTIPLIER
+from general_settings import GLOBAL_NETWORK, GAS_LIMIT_MULTIPLIER
 
 
 class Across(Bridge, Logger):
@@ -103,7 +103,7 @@ class Across(Bridge, Logger):
                 ).build_transaction(await self.client.prepare_transaction(value=value))
 
                 transaction['data'] += 'd00dfeeddeadbeef000000a679c2fb345ddefbae3c42bee92c0fb7a5'
-                transaction['gas'] = int(transaction['gas'] * GAS_MULTIPLIER)
+                transaction['gas'] = int(transaction['gas'] * GAS_LIMIT_MULTIPLIER)
 
                 old_balance_on_dst = await self.client.wait_for_receiving(
                     token_address=to_token_address, chain_id=to_chain_id, check_balance_on_dst=True
