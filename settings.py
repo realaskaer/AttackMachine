@@ -505,6 +505,7 @@ HELPERS_CONFIG = {
     refuel_zerius                    # смотри OMNI-CHAIN CONTROL
     refuel_bungee                    # смотри OMNI-CHAIN CONTROL
     
+    smart_stake_stg                  # стейк на Stargate. STG_STAKE_CONFIG. См. OMNI-CHAIN CONTROLE
     bridge_stargate                  # бриджи на Stargate. STARGATE_CHAINS, STARGATE_TOKENS. См. OMNI-CHAIN CONTROLE
     bridge_coredao                   # бриджи на CoreDAO. COREDAO_CHAINS, COREDAO_TOKENS. См. OMNI-CHAIN CONTROLE
     smart_random_approve             # рандомный апрув для сети с наибольшим балансом из L0_SEARCH_DATA 
