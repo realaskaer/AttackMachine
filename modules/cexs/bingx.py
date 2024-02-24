@@ -135,10 +135,9 @@ class BingX(CEX, Logger):
             "limit": 100,
         }
 
+        await asyncio.sleep(2)
         parse_params = self.parse_params(params)
         url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
-
-        await asyncio.sleep(2)
         return await self.make_request(url=url, params=params, headers=self.headers, module_name='Get subAccounts list')
 
     async def get_sub_balance(self, sub_uid):
@@ -247,7 +246,6 @@ class BingX(CEX, Logger):
                     await asyncio.sleep(10)
                 else:
                     raise error
-
 
     async def wait_deposit_confirmation(
             self, amount: float, old_balances: dict, ccy: str = 'ETH', check_time: int = 45
