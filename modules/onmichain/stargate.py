@@ -106,7 +106,6 @@ class Stargate(Logger):
             router_contract = self.client.get_contract(contracts['router'], STARGATE_ABI['router'])
             scr_pool_id = STARGATE_POOLS_ID[self.network][from_token_name]
             dst_pool_id = STARGATE_POOLS_ID[dst_chain_name][to_token_name]
-            token_address = TOKENS_PER_CHAIN2[self.network][from_token_name]
             function_type = 1
 
             estimate_fee = (await router_contract.functions.quoteLayerZeroFee(
@@ -131,6 +130,7 @@ class Stargate(Logger):
                     min_amount_out
                 ).build_transaction(await self.client.prepare_transaction(value=estimate_fee + amount_in_wei))
             else:
+                token_address = TOKENS_PER_CHAIN2[self.network][from_token_name]
                 await self.client.check_for_approved(token_address, contracts['router'], amount_in_wei)
 
                 transaction = await router_contract.functions.swap(
