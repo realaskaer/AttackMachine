@@ -200,30 +200,31 @@ class Binance(CEX, Logger):
 
     @helper
     async def withdraw(self, withdraw_data:tuple = None, transfer_mode:bool = False):
+        path = '/sapi/v1/capital/withdraw/apply'
+
+        network_id, amount = withdraw_data
+        network_raw_name = BINANCE_NETWORKS_NAME[network_id]
+        ccy, network_name = network_raw_name.split('-')
+        dst_chain_id = CEX_WRAPPED_ID[network_id]
+
+        await self.transfer_from_subaccounts(ccy=ccy, silent_mode=True)
+        withdraw_raw_data = (await self.get_currencies(ccy))[0]['networkList']
+
+        amount = await self.client.round_amount(amount)
+
+        network_data = {
+            item['network']: {
+                'withdrawEnable': item['withdrawEnable'],
+                'withdrawFee': item['withdrawFee'],
+                'withdrawMin': item['withdrawMin'],
+                'withdrawMax': item['withdrawMax']
+            } for item in withdraw_raw_data
+        }[network_name]
+
+        self.logger_msg(
+            *self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
+
         while True:
-            path = '/sapi/v1/capital/withdraw/apply'
-
-            network_id, amount = withdraw_data
-            network_raw_name = BINANCE_NETWORKS_NAME[network_id]
-            ccy, network_name = network_raw_name.split('-')
-            dst_chain_id = CEX_WRAPPED_ID[network_id]
-
-            await self.transfer_from_subaccounts(ccy=ccy, silent_mode=True)
-            withdraw_raw_data = (await self.get_currencies(ccy))[0]['networkList']
-
-            amount = await self.client.get_smart_amount(amount)
-
-            network_data = {
-                item['network']: {
-                    'withdrawEnable': item['withdrawEnable'],
-                    'withdrawFee': item['withdrawFee'],
-                    'withdrawMin': item['withdrawMin'],
-                    'withdrawMax': item['withdrawMax']
-                } for item in withdraw_raw_data
-            }[network_name]
-
-            self.logger_msg(
-                *self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
 
             if network_data['withdrawEnable']:
                 min_wd, max_wd = float(network_data['withdrawMin']), float(network_data['withdrawMax'])

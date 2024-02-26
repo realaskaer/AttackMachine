@@ -207,24 +207,25 @@ class Bitget(CEX, Logger):
 
     @helper
     async def withdraw(self, withdraw_data:tuple = None):
+        path = '/api/v2/spot/wallet/withdrawal'
+
+        network_id, amount = withdraw_data
+        network_raw_name = BITGET_NETWORKS_NAME[network_id]
+        ccy, network_name = network_raw_name.split('-')
+        dst_chain_id = CEX_WRAPPED_ID[network_id]
+        withdraw_raw_data = (await self.get_currencies(ccy))[0]['chains']
+
+        network_data = {
+            item['chain']: {
+                'withdrawEnable': item['withdrawable'],
+                'withdrawFee': item['withdrawFee'],
+                'withdrawMin': item['minWithdrawAmount'],
+            } for item in withdraw_raw_data
+        }[network_name]
+
+        amount = await self.client.round_amount(amount)
+
         while True:
-            path = '/api/v2/spot/wallet/withdrawal'
-
-            network_id, amount = withdraw_data
-            network_raw_name = BITGET_NETWORKS_NAME[network_id]
-            ccy, network_name = network_raw_name.split('-')
-            dst_chain_id = CEX_WRAPPED_ID[network_id]
-            withdraw_raw_data = (await self.get_currencies(ccy))[0]['chains']
-
-            network_data = {
-                item['chain']: {
-                    'withdrawEnable': item['withdrawable'],
-                    'withdrawFee': item['withdrawFee'],
-                    'withdrawMin': item['minWithdrawAmount'],
-                } for item in withdraw_raw_data
-            }[network_name]
-
-            amount = await self.client.get_smart_amount(amount)
 
             self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
 

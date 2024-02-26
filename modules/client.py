@@ -57,6 +57,8 @@ class Client(Logger):
 
     @staticmethod
     def round_amount(min_amount: float, max_amount: float) -> float:
+        if not isinstance(min_amount, float | int) or not isinstance(max_amount, float | int):
+            raise SoftwareException('This setting does not support % amounts')
         decimals = max(len(str(min_amount)) - 1, len(str(max_amount)) - 1) + 1
         max_decimals = 6
         return round(random.uniform(min_amount, max_amount), decimals if decimals <= max_decimals else 6)

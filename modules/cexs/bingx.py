@@ -219,33 +219,34 @@ class BingX(CEX, Logger):
                 await asyncio.sleep(check_time)
 
     @helper
-    async def withdraw(self, want_balance:float = 0, withdraw_data:tuple = None, transfer_mode:bool = False):
+    async def withdraw(self, withdraw_data:tuple = None, transfer_mode:bool = False):
+        path = '/openApi/wallets/v1/capital/withdraw/apply'
+
+        network_id, amount = withdraw_data
+        network_raw_name = BINGX_NETWORKS_NAME[network_id]
+        ccy, network_name = network_raw_name.split('-')
+        dst_chain_id = CEX_WRAPPED_ID[network_id]
+
+        withdraw_raw_data = (await self.get_currencies(ccy))[0]['networkList']
+
+        network_data = {
+            item['network']: {
+                'withdrawEnable': item['withdrawEnable'],
+                'withdrawFee': item['withdrawFee'],
+                'withdrawMin': item['withdrawMin'],
+                'withdrawMax': item['withdrawMax']
+            } for item in withdraw_raw_data
+        }[network_name]
+
+        if transfer_mode:
+            amount = await self.get_balance(ccy)
+        else:
+            amount = await self.client.round_amount(amount)
+
+        self.logger_msg(
+            *self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
+
         while True:
-            path = '/openApi/wallets/v1/capital/withdraw/apply'
-
-            network_id, amount = withdraw_data
-            network_raw_name = BINGX_NETWORKS_NAME[network_id]
-            ccy, network_name = network_raw_name.split('-')
-            dst_chain_id = CEX_WRAPPED_ID[network_id]
-
-            withdraw_raw_data = (await self.get_currencies(ccy))[0]['networkList']
-
-            network_data = {
-                item['network']: {
-                    'withdrawEnable': item['withdrawEnable'],
-                    'withdrawFee': item['withdrawFee'],
-                    'withdrawMin': item['withdrawMin'],
-                    'withdrawMax': item['withdrawMax']
-                } for item in withdraw_raw_data
-            }[network_name]
-
-            if transfer_mode:
-                amount = await self.get_balance(ccy)
-            else:
-                amount = want_balance if want_balance else await self.client.get_smart_amount(amount)
-
-            self.logger_msg(
-                *self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
 
             if network_data['withdrawEnable']:
                 min_wd, max_wd = float(network_data['withdrawMin']), float(network_data['withdrawMax'])
