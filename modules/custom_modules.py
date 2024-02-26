@@ -813,9 +813,12 @@ class Custom(Logger, RequestClient):
                 if balance_in_usd >= limit_amount:
 
                     dep_amount = await client.get_smart_amount(amount, token_name=dep_token, omnicheck=omnicheck)
-                    if balance_in_usd - dep_amount * token_price < 0.5:
-                        dep_amount -= round(random.uniform(0.5, 0.7) / token_price, 5)
-                    dep_amount_in_usd = dep_amount * token_price
+                    hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
+                    total_dep_amount = round(dep_amount - hold_balance, 6)
+                    if balance_in_usd - total_dep_amount * token_price < 0.5:
+                        total_dep_amount -= round(random.uniform(0.5, 0.7) / token_price, 5)
+
+                    dep_amount_in_usd = total_dep_amount * token_price
 
                     if balance_in_usd >= dep_amount_in_usd:
 
@@ -897,14 +900,12 @@ class Custom(Logger, RequestClient):
             if balance_in_usd >= limit_amount:
 
                 bridge_fee = await bridge_utils(client, bridge_app_id, chain_from_id, fee_bridge_data, need_fee=True)
+                hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
+                bridge_amount = round(amount - bridge_fee - hold_balance, 6)
 
-                if from_token_name != "ETH":
-                    bridge_amount = amount - bridge_fee
-                else:
-                    bridge_amount = amount - bridge_fee
-                    if balance_in_usd - bridge_amount * token_price < 0.5:
-                        bridge_amount -= round(random.uniform(0.5, 0.7) / token_price, 5)
-                        
+                if balance_in_usd - bridge_amount * token_price < 0.5:
+                    bridge_amount -= round(random.uniform(0.5, 0.7) / token_price, 5)
+
                 bridge_amount_in_usd = bridge_amount * token_price
 
                 bridge_data = (source_chain_name, destination_chain, bridge_amount, dst_chain_id,
