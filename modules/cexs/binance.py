@@ -210,7 +210,7 @@ class Binance(CEX, Logger):
         await self.transfer_from_subaccounts(ccy=ccy, silent_mode=True)
         withdraw_raw_data = (await self.get_currencies(ccy))[0]['networkList']
 
-        amount = await self.client.round_amount(amount)
+        amount = self.client.round_amount(*amount)
 
         network_data = {
             item['network']: {

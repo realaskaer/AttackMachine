@@ -241,7 +241,7 @@ class BingX(CEX, Logger):
         if transfer_mode:
             amount = await self.get_balance(ccy)
         else:
-            amount = await self.client.round_amount(amount)
+            amount = self.client.round_amount(*amount)
 
         self.logger_msg(
             *self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")

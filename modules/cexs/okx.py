@@ -219,7 +219,7 @@ class OKX(CEX, Logger):
             } for item in withdraw_raw_data
         }[network_raw_name]
 
-        amount = await self.client.round_amount(amount)
+        amount = self.client.round_amount(*amount)
 
         self.logger_msg(
             *self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name}")

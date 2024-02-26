@@ -223,7 +223,7 @@ class Bitget(CEX, Logger):
             } for item in withdraw_raw_data
         }[network_name]
 
-        amount = await self.client.round_amount(amount)
+        amount = self.client.round_amount(*amount)
 
         while True:
 
