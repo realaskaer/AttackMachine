@@ -10,7 +10,7 @@ from modules import Bridge, Logger, Client
 from datetime import datetime, timezone
 
 from modules.interfaces import SoftwareException
-from utils.tools import gas_checker, sleep
+from utils.tools import gas_checker, sleep, helper
 from eth_account.messages import encode_defunct, encode_structured_data
 from utils.stark_signature.stark_singature import sign, pedersen_hash, EC_ORDER, private_to_stark_key
 from utils.stark_signature.eth_coder import encrypt_with_public_key, decrypt_with_private_key, get_public_key
@@ -234,7 +234,6 @@ class Rhino(Bridge, Logger):
         tx_signature = sign(msg_hash=msg_hash, priv_key=stark_dtk_private_key)
         return hex(tx_signature[0]), hex(tx_signature[1])
 
-    @gas_checker
     async def deposit_to_rhino(self, amount, token_name, token_address, source_chain_info: dict):
         self.logger_msg(
             *self.client.acc_info, msg=f"Deposit {amount} {token_name} from {self.client.network.name} to Rhino")
@@ -326,10 +325,11 @@ class Rhino(Bridge, Logger):
         await self.make_request(method='POST', url=url, headers=headers, json=payload)
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
-        from_chain, to_chain, amount, to_chain_id, token_name, from_token_address, to_token_address = bridge_data
+        (from_chain, to_chain, amount, to_chain_id, from_token_name,
+         to_token_name, from_token_address, to_token_address) = bridge_data
 
         if need_check:
-            return round(float(amount + 0.00066 if token_name == 'ETH' else 1.5), 6)
+            return 0
 
         self.nonce, self.signature = self.get_authentication_data()
         self.logger_msg(*self.client.acc_info, msg=f"Check previous registration on Rhino")
@@ -349,11 +349,13 @@ class Rhino(Bridge, Logger):
         source_chain_info = rhino_user_config['DVF']['bridgeConfigPerChain'][from_chain]
 
         old_balance_on_dst = await self.client.wait_for_receiving(
-            to_chain_id, check_balance_on_dst=True, token_address=to_token_address
+            to_chain_id, check_balance_on_dst=True, token_name=to_token_name, token_address=to_token_address
         )
 
-        await self.deposit_to_rhino(amount, token_name, from_token_address, source_chain_info)
+        await self.deposit_to_rhino(amount, from_token_name, from_token_address, source_chain_info)
 
-        await self.withdraw_from_rhino(rhino_user_config, amount, token_name, to_chain)
+        await self.withdraw_from_rhino(rhino_user_config, amount, to_token_name, to_chain)
 
-        return await self.client.wait_for_receiving(to_chain_id, old_balance_on_dst, token_address=to_token_address)
+        return await self.client.wait_for_receiving(
+            to_chain_id, old_balance_on_dst, token_name=to_token_name, token_address=to_token_address
+        )

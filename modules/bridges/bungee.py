@@ -1,9 +1,8 @@
-import json
 import random
 
 from modules import Refuel, Logger
 from modules.interfaces import SoftwareException, Bridge, BridgeExceptionWithoutRetry
-from settings import DST_CHAIN_BUNGEE_REFUEL
+from settings import DST_CHAIN_BUNGEE_REFUEL, BUNGEE_ROUTE_TYPE
 from utils.tools import gas_checker, helper
 from config import (
     BUNGEE_CONTRACTS,
@@ -87,26 +86,76 @@ class Bungee(Refuel, Bridge, Logger):
     async def get_quote(self, to_chain_id, from_token_address, to_token_address, amount):
         url = 'https://api.socket.tech/v2/quote'
 
+        wanted_route = {
+            1: 'across',
+            2: 'cctp',
+            3: 'celer',
+            4: 'connext',
+            5: 'stargate',
+            6: 'symbiosis',
+            7: 'synapse',
+            8: 'hyphen',
+            9: 'hop',
+            0: 'refuel-bridge'
+        }.get(BUNGEE_ROUTE_TYPE, False)
+
         params = {
-            "fromChainId": self.client.chain_id,
-            "toChainId": to_chain_id,
-            "fromTokenAddress": from_token_address,
-            "toTokenAddress": to_token_address,
-            "fromAmount": amount,
-            "userAddress": self.client.address,
-            "singleTxOnly": "true",
-            "bridgeWithGas": "false",
-            "sort": "output",
-            "defaultSwapSlippage": 0.5,
-            "bridgeWithInsurance": "true",
-            "isContractCall": "false",
-            "showAutoRoutes": "false",
-        }
+                "fromChainId": self.client.chain_id,
+                "toChainId": to_chain_id,
+                "fromTokenAddress": from_token_address,
+                "toTokenAddress": to_token_address,
+                "fromAmount": amount,
+                "userAddress": self.client.address,
+                "singleTxOnly": "true",
+                "bridgeWithGas": "false",
+                "sort": "output",
+                "defaultSwapSlippage": 0.5,
+                "bridgeWithInsurance": "true",
+                "isContractCall": "false",
+                "showAutoRoutes": "false",
+            }
 
         response = await self.make_request(url=url, params=params, headers=self.headers)
-
+        final_route = None
         if response['success']:
-            return response['result']['routes'][0]
+            all_routes = response['result']['routes']
+
+            if wanted_route:
+                for route in all_routes:
+                    if route['usedBridgeNames'][0] == wanted_route:
+                        final_route = route
+
+            if final_route:
+                self.logger_msg(
+                    *self.client.acc_info,
+                    msg=f'Successfully found {wanted_route.capitalize()} route. Initialize bridge...',
+                    type_msg='success'
+                )
+            else:
+                self.logger_msg(
+                    *self.client.acc_info,
+                    msg=f'Will take {all_routes[0]["usedBridgeNames"][0].capitalize()} route. Initialize bridge...',
+                )
+                final_route = all_routes[0]
+
+            if final_route['extraData']:
+                rewards = final_route['extraData'].get('rewards')
+                if rewards:
+                    for reward in rewards:
+                        amount_in_wei = int(reward['amount'])
+                        decimals = int(reward['asset']['decimals'])
+                        amount = round(amount_in_wei / 10 ** decimals, 3)
+                        symbol = reward['asset']['symbol']
+                        amount_in_usd = round(float(reward['amountInUsd']), 2)
+                        chain_name = f"{CHAIN_NAME_FROM_ID[int(reward['chainId'])]} chain"
+
+                        self.logger_msg(
+                            *self.client.acc_info,
+                            msg=f'This TX will be rewarded with {amount} {symbol} ({amount_in_usd}$) in {chain_name}',
+                            type_msg='success'
+                        )
+            return final_route
+
         raise BridgeExceptionWithoutRetry(f'Bad request to Bungee API: {await response.text()}')
 
     async def build_tx(self, route:dict):
@@ -126,24 +175,28 @@ class Bungee(Refuel, Bridge, Logger):
         raise BridgeExceptionWithoutRetry(f'Bad request to Bungee API: {await response.text()}')
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
-        from_chain, to_chain, amount, to_chain_id, token_name, from_token_address, to_token_address = bridge_data
-
-        if not need_check:
-            bridge_info = f'{self.client.network.name} -> {token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
-            self.logger_msg(*self.client.acc_info, msg=f'Bridge on Bungee: {amount} {token_name} {bridge_info}')
-
-        amount_in_wei = self.client.to_wei(amount)
-
-        if token_name == 'ETH':
-            from_token_address = ETH_MASK
-            to_token_address = ETH_MASK
+        (from_chain, to_chain, amount, to_chain_id, from_token_name,
+         to_token_name, from_token_address, to_token_address) = bridge_data
 
         if need_check:
-            return round(float(amount), 6)
+            return 0
+
+        bridge_info = f'{self.client.network.name} -> {to_token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
+        self.logger_msg(*self.client.acc_info, msg=f'Bridge on Bungee: {amount} {from_token_name} {bridge_info}')
+
+        decimals = await self.client.get_decimals(token_address=from_token_address)
+        amount_in_wei = self.client.to_wei(amount, decimals=decimals)
+
+        if from_token_address == 'ETH':
+            from_token_address = ETH_MASK
+        if to_token_name == 'ETH':
+            to_token_address = ETH_MASK
 
         route_data = await self.get_quote(to_chain, from_token_address, to_token_address, amount_in_wei)
-
         tx_data, to_address = await self.build_tx(route_data)
+
+        if from_token_name != self.client.token:
+            await self.client.check_for_approved(from_token_address, to_address, amount_in_wei)
 
         transaction = await self.client.prepare_transaction(value=amount_in_wei) | {
             'to': to_address,
@@ -151,7 +204,7 @@ class Bungee(Refuel, Bridge, Logger):
         }
 
         old_balance_on_dst = await self.client.wait_for_receiving(
-            token_address=to_token_address, chain_id=to_chain_id, check_balance_on_dst=True
+            token_address=to_token_address, token_name=to_token_name, chain_id=to_chain_id, check_balance_on_dst=True
         )
 
         await self.client.send_transaction(transaction)
@@ -160,5 +213,6 @@ class Bungee(Refuel, Bridge, Logger):
                         msg=f"Bridge complete. Note: wait a little for receiving funds", type_msg='success')
 
         return await self.client.wait_for_receiving(
-            token_address=to_token_address, old_balance=old_balance_on_dst, chain_id=to_chain_id
+            token_address=to_token_address, token_name=to_token_name, old_balance=old_balance_on_dst,
+            chain_id=to_chain_id
         )

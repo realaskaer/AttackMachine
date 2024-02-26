@@ -114,10 +114,11 @@ async def bridge_utils(current_client, dapp_id, chain_from_id, bridge_data, need
         1: Across,
         2: Bungee,
         3: LayerSwap,
-        4: Orbiter,
-        5: Owlto,
-        6: Relay,
-        7: Rhino,
+        4: Nitro,
+        5: Orbiter,
+        6: Owlto,
+        7: Relay,
+        8: Rhino,
     }[dapp_id]
 
     return await class_bridge(current_client).bridge(chain_from_id, bridge_data, need_check=need_fee)
@@ -138,24 +139,29 @@ async def bridge_layerswap(account_name, private_key, network, proxy):
     return await worker.smart_bridge(dapp_id=3)
 
 
-async def bridge_orbiter(account_name, private_key, network, proxy):
+async def bridge_nitro(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_bridge(dapp_id=4)
 
 
-async def bridge_owlto(account_name, private_key, network, proxy):
+async def bridge_orbiter(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_bridge(dapp_id=5)
 
 
-async def bridge_relay(account_name, private_key, network, proxy):
+async def bridge_owlto(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_bridge(dapp_id=6)
 
 
-async def bridge_rhino(account_name, private_key, network, proxy):
+async def bridge_relay(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_bridge(dapp_id=7)
+
+
+async def bridge_rhino(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.smart_bridge(dapp_id=8)
 
 
 async def omnichain_util(
@@ -505,6 +511,16 @@ async def swap_izumi(account_name, private_key, network, proxy, **kwargs):
 
 async def swap_ambient(account_name, private_key, network, proxy):
     worker = Ambient(get_client(account_name, private_key, network, proxy))
+    return await worker.swap()
+
+
+async def swap_zebra(account_name, private_key, network, proxy):
+    worker = Zebra(get_client(account_name, private_key, network, proxy))
+    return await worker.swap()
+
+
+async def swap_skydrome(account_name, private_key, network, proxy):
+    worker = Skydrome(get_client(account_name, private_key, network, proxy))
     return await worker.swap()
 
 

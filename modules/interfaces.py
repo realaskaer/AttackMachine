@@ -39,6 +39,10 @@ class SoftwareExceptionWithoutRetry(Exception):
     pass
 
 
+class SoftwareExceptionWithRetries(Exception):
+    pass
+
+
 class BridgeExceptionWithoutRetry(Exception):
     pass
 

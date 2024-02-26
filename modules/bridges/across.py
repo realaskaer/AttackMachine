@@ -1,8 +1,7 @@
 from modules import Bridge, Logger
 from modules.interfaces import BridgeExceptionWithoutRetry
-from utils.tools import helper, gas_checker
 from config import TOKENS_PER_CHAIN, ACROSS_ABI, CHAIN_NAME_FROM_ID, ACROSS_CONTRACT
-from general_settings import GLOBAL_NETWORK, GAS_LIMIT_MULTIPLIER
+from general_settings import GAS_LIMIT_MULTIPLIER
 
 
 class Across(Bridge, Logger):
@@ -53,7 +52,7 @@ class Across(Bridge, Logger):
         return await self.make_request(url=url, params=params)
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
-        from_chain, to_chain, amount, to_chain_id, token_name, from_token_address, to_token_address = bridge_data
+        from_chain, to_chain, amount, to_chain_id, token_name, _, from_token_address, to_token_address = bridge_data
 
         if not need_check:
             bridge_info = f'{self.client.network.name} -> {token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
@@ -72,7 +71,7 @@ class Across(Bridge, Logger):
                 )
 
                 if need_check:
-                    return round(float(amount + relay_gas_fee_total / 10 ** 18), 6)
+                    return round(float(relay_gas_fee_total / 10 ** 18), 6)
 
                 data = [
                     self.client.address,

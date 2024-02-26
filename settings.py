@@ -2,15 +2,15 @@
 ----------------------------------------------------CEX CONTROL---------------------------------------------------------
     Выберите сети/суммы для вывода и ввода с CEX. Не забудьте вставить API ключи в general_settings.py.
 
-    1  - ETH-ERC20                10 - CELO-CELO            19 - USDT-Arbitrum One      28 - USDC-Polygon
-    2  - ETH-Arbitrum One         11 - GLMR-Moonbeam        20 - USDT-Avalanche         29 - USDC-Optimism (Bridged)
-    3  - ETH-Optimism             12 - MOVR-Moonriver       21 - USDT-Optimism          30 - USDC-Polygon (Bridged)
-    4  - ETH-zkSync Era           13 - METIS-Metis          22 - USDT-Polygon           31 - USDC-BSC
-    5  - ETH-Linea                14 - CORE-CORE            23 - USDT-BSC               32 - USDC-ERC20
-    6  - ETH-Base                 15 - CFX-CFX_EVM          24 - USDT-ERC20             33 - STG-Arbitrum One
-    7  - AVAX-Avalanche C-Chain   16 - KLAY-Klaytn          25 - USDC-Arbitrum One      34 - USDV-BSC
-    8  - BNB-BSC                  17 - FTM-Fantom           26 - USDC-Avalanche C-Chain
-    9  - BNB-OPBNB                18 - MATIC-Polygon        27 - USDC-Optimism
+    1  - ETH-ERC20                10 - CELO-CELO           19 - USDT-Arbitrum One       28 - USDC-Polygon
+    2  - ETH-Arbitrum One         11 - GLMR-Moonbeam       20 - USDT-Avalanche          29 - USDC-Optimism (Bridged)
+    3  - ETH-Optimism             12 - MOVR-Moonriver      21 - USDT-Optimism           30 - USDC-Polygon (Bridged)
+    4  - ETH-zkSync Era           13 - METIS-Metis         22 - USDT-Polygon            31 - USDC-BSC
+    5  - ETH-Linea                14 - CORE-CORE           23 - USDT-BSC                32 - USDC-ERC20
+    6  - ETH-Base                 15 - CFX-CFX_EVM         24 - USDT-ERC20              33 - STG-Arbitrum One
+    7  - AVAX-Avalanche C-Chain   16 - KLAY-Klaytn         25 - USDC-Arbitrum One       34 - USDV-BSC
+    8  - BNB-BSC                  17 - FTM-Fantom          26 - USDC-Avalanche C-Chain  35 - ARB-Arbitrum One
+    9  - BNB-OPBNB                18 - MATIC-Polygon       27 - USDC-Optimism
 
     OKX_WITHDRAW_DATA | Каждый список - один модуль для вывода из биржи. Примеры работы указаны ниже
                         Для каждого вывода указывайте [сеть вывода, (мин и макс сумма)].
@@ -20,9 +20,9 @@
                           2 значение - это мин. и макс. сумма, которая должна остаться на балансе после вывода.
 
     CEX_BALANCE_WANTED | Софт выведет средства с биржи таким образом, чтобы уровнять баланс аккаунта к этой настройке.
-                         Модуль (make_balance_to_average). Указывать в токенах, которые собираетесь заводить на кошельки
-    CEX_VOLUME_MODE | При включении данной функции, софт будет депать весь баланс на биржу и оставлять на аккаунте
-                        случайное значение в промежутке CEX_DEPOSIT_LIMITER (2 значение)
+                         Модуль (make_balance_to_average). Указывать в ETH, для сети в GLOBAL_NETWORK
+                         1 значение - биржа для вывода
+                         2 значение - это мин. и макс. сумма, которая должна остаться на балансе после вывода.
 """
 '--------------------------------------------------------OKX-----------------------------------------------------------'
 
@@ -69,8 +69,7 @@ BITGET_DEPOSIT_DATA = [
 '-------------------------------------------------------Control--------------------------------------------------------'
 
 CEX_DEPOSIT_LIMITER = 1, (0, 10000)  # (Ограничитель баланса, (мин. сумма, макс. сумма для остатка на балансе))
-CEX_BALANCE_WANTED = (0.01, 0.02)    # Необходимый баланс на аккаунтах для уравнителя (make_balance_to_average)
-CEX_VOLUME_MODE = False              # Если True, то софт выведет на биржу 100% баланса (без учета комиссии)
+CEX_BALANCE_WANTED = 1, (0.01, 0.02)    # Необходимый баланс на аккаунтах для уравнителя (make_balance_to_average)
 
 """
 -----------------------------------------------------BRIDGE CONTROL-----------------------------------------------------
@@ -94,22 +93,26 @@ CEX_VOLUME_MODE = False              # Если True, то софт выведе
     
     NATIVE_CHAIN_ID_FROM(TO) = [2, 4, 16] | Одна из сетей будет выбрана
     NATIVE_WITHDRAW_AMOUNT | Настройка для вывода из нативного моста (withdraw_native_bridge)
-    ACROSS_TOKEN_NAME | Укажите токен для бриджа. Поддерживаются: USDT, USDC, ETH. В сетях, где есть USDC.e, будет
-                        использоваться именно USDC.e, вместо обычного USDC
+    ACROSS_TOKEN_NAME | Укажите токен для бриджа. Поддерживаются: ETH, BNB, MATIC, USDC, USDC.e (Bridged), USDT. 
+                        Если у бриджа указано 2 токена в скобках см. BUNGEE_TOKEN_NAME, то бридж сможет делать бриджи
+                        между разными токенами. Справа от параметра, для каждого бриджа указаны доступные токены.
+                        
     BRIDGE_AMOUNT_LIMITER | Настройка лимитных бриджей. Указывать в $USD
                             1 значение - это минимальный баланс на аккаунте, чтобы софт начал процесс бриджа
                             2 значение - это мин. и макс. сумма, которая должна остаться на балансе после бриджа
                             
-    BRIDGE_VOLUME_MODE | При включении данной функции, софт будет бриджить весь баланс и оставлять на аккаунте 
-                            случайное значение в промежутке BRIDGE_AMOUNT_LIMITER (2 значение)
+    BUNGEE_ROUTE_TYPE | Установка своего роута для совершения транзакции, по умолчанию - 0 (Socket). 
+                        1 - Across    4 - Connext      7 - Synapse
+                        2 - CCTP      5 - Stargate     8 - Hyphen
+                        3 - Celer     6 - Symbiosis    9 - Hop 
 """
 
 '-----------------------------------------------------Native Bridge----------------------------------------------------'
 
 NATIVE_CHAIN_ID_FROM = [13]                # Исходящая сеть. 21.01.2024 Применимо только для bridge_zora
 NATIVE_CHAIN_ID_TO = [12]                  # Входящая сеть. 21.01.2024 Применимо только для bridge_zora
-NATIVE_BRIDGE_AMOUNT = (0.002, 0.002)     # (минимум, максимум) (% или кол-во)
-NATIVE_WITHDRAW_AMOUNT = (0.0001, 0.0002)   # (минимум, максимум) (% или кол-во)
+NATIVE_BRIDGE_AMOUNT = (0.002, 0.002)      # (минимум, максимум) (% или кол-во)
+NATIVE_WITHDRAW_AMOUNT = (0.0001, 0.0002)  # (минимум, максимум) (% или кол-во)
 
 '--------------------------------------------------------Across--------------------------------------------------------'
 
@@ -120,50 +123,57 @@ ACROSS_TOKEN_NAME = 'ETH'
 
 '--------------------------------------------------------Bungee--------------------------------------------------------'
 
-BUNGEE_CHAIN_ID_FROM = [7]                # Исходящая сеть
-BUNGEE_CHAIN_ID_TO = [11]                  # Входящая сеть
-BUNGEE_BRIDGE_AMOUNT = (0.002, 0.002)     # (минимум, максимум) (% или кол-во)
-BUNGEE_TOKEN_NAME = 'ETH'
+BUNGEE_CHAIN_ID_FROM = [6]                  # Исходящая сеть
+BUNGEE_CHAIN_ID_TO = [1]                    # Входящая сеть
+BUNGEE_BRIDGE_AMOUNT = (9, 9)               # (минимум, максимум) (% или кол-во)
+BUNGEE_TOKEN_NAME = ('USDC.e', 'ETH')       # ETH, BNB, MATIC, USDC, USDC.e, USDT
+BUNGEE_ROUTE_TYPE = 4                       # см. BUNGEE_ROUTE_TYPE
 
 '-------------------------------------------------------LayerSwap------------------------------------------------------'
 
-LAYERSWAP_CHAIN_ID_FROM = [1]               # Исходящая сеть
-LAYERSWAP_CHAIN_ID_TO = [4]                 # Входящая сеть
-LAYERSWAP_BRIDGE_AMOUNT = (0.002, 0.002)    # (минимум, максимум) (% или кол-во)
-LAYERSWAP_TOKEN_NAME = 'ETH'
+LAYERSWAP_CHAIN_ID_FROM = [11]               # Исходящая сеть
+LAYERSWAP_CHAIN_ID_TO = [7]                  # Входящая сеть
+LAYERSWAP_BRIDGE_AMOUNT = (0.001, 0.001)     # (минимум, максимум) (% или кол-во)
+LAYERSWAP_TOKEN_NAME = ('USDC.e', 'ETH')     # ETH, USDC, USDC.e
+
+'-------------------------------------------------------LayerSwap------------------------------------------------------'
+
+NITRO_CHAIN_ID_FROM = [1]                   # Исходящая сеть
+NITRO_CHAIN_ID_TO = [11]                    # Входящая сеть
+NITRO_BRIDGE_AMOUNT = (0.001, 0.001)        # (минимум, максимум) (% или кол-во)
+NITRO_TOKEN_NAME = ('ETH', 'USDC')          # ETH, USDC, USDT
 
 '-------------------------------------------------------Orbiter--------------------------------------------------------'
 
-ORBITER_CHAIN_ID_FROM = [7, 3, 5]       # Исходящая сеть
-ORBITER_CHAIN_ID_TO = [6]                 # Входящая сеть
-ORBITER_BRIDGE_AMOUNT = (8, 9)    # (минимум, максимум) (% или кол-во)
+ORBITER_CHAIN_ID_FROM = [7, 3, 5]           # Исходящая сеть
+ORBITER_CHAIN_ID_TO = [6]                   # Входящая сеть
+ORBITER_BRIDGE_AMOUNT = (8, 9)              # (минимум, максимум) (% или кол-во)
 ORBITER_TOKEN_NAME = 'USDC'
 
 '--------------------------------------------------------Owlto---------------------------------------------------------'
 
-OWLTO_CHAIN_ID_FROM = [11]         # Исходящая сеть
-OWLTO_CHAIN_ID_TO = [4]                   # Входящая сеть
-OWLTO_BRIDGE_AMOUNT = (0.002, 0.003)      # (минимум, максимум) (% или кол-во)
+OWLTO_CHAIN_ID_FROM = [11]                 # Исходящая сеть
+OWLTO_CHAIN_ID_TO = [4]                    # Входящая сеть
+OWLTO_BRIDGE_AMOUNT = (0.002, 0.003)       # (минимум, максимум) (% или кол-во)
 OWLTO_TOKEN_NAME = 'ETH'
 
 '--------------------------------------------------------Relay---------------------------------------------------------'
 
-RELAY_CHAIN_ID_FROM = [9]                # Исходящая сеть
-RELAY_CHAIN_ID_TO = [4]                  # Входящая сеть
-RELAY_BRIDGE_AMOUNT = (0.002, 0.002)     # (минимум, максимум) (% или кол-во)
+RELAY_CHAIN_ID_FROM = [11]                # Исходящая сеть
+RELAY_CHAIN_ID_TO = [7]                   # Входящая сеть
+RELAY_BRIDGE_AMOUNT = (0.001, 0.001)      # (минимум, максимум) (% или кол-во)
 RELAY_TOKEN_NAME = 'ETH'
 
 '--------------------------------------------------------Rhino---------------------------------------------------------'
 
 RHINO_CHAIN_ID_FROM = [7]                # Исходящая сеть
 RHINO_CHAIN_ID_TO = [11]                 # Входящая сеть
-RHINO_BRIDGE_AMOUNT = (1, 1.8)     # (минимум, максимум) (% или кол-во)
-RHINO_TOKEN_NAME = 'USDC'
+RHINO_BRIDGE_AMOUNT = (1, 1.8)           # (минимум, максимум) (% или кол-во)
+RHINO_TOKEN_NAME = ('USDC', 'ETH')       # ETH, BNB, MATIC, USDC, USDT
 
 '-------------------------------------------------------Control--------------------------------------------------------'
 
-BRIDGE_AMOUNT_LIMITER = 1, (0.1, 10000)  # (Ограничитель баланса, (мин. сумма, макс. сумма для остатка на балансе))
-BRIDGE_VOLUME_MODE = False              # Если True, то софт выведет на биржу 100% баланса (без учета комиссии)
+BRIDGE_AMOUNT_LIMITER = 1, (0, 10000)  # (Ограничитель баланса, (мин. сумма, макс. сумма для остатка на балансе))
 
 """
 ---------------------------------------------OMNI-CHAIN CONTROL---------------------------------------------------------
@@ -577,6 +587,7 @@ HELPERS_CONFIG = {
     mint_mailzero                    # mint бесплатной NFT на MailZero. Плата только за газ.
     mint_tevaera                     # mint 2 NFT on Tevaera. Price: 0.0003 ETH
     mint_hypercomic                  # mint NFT за выполнение квестов на https://zk24.hypercomic.io/
+    mint_zkstars                     # mint NFT на сайте https://zkstars.io. Price: 0.0001 ETH
     deploy_contract                  # deploy вашего контракта. Контракт находится в data/services/contract_data.json
     random_approve                   # рандомный апрув случайного токена для свапалок 
     send_message_dmail               # отправка сообщения через Dmail на рандомный Web2 адрес (почтовый ящик)
@@ -650,6 +661,8 @@ HELPERS_CONFIG = {
     
     swap_rango
     swap_ambient
+    swap_zebra
+    swap_skydrome
     swap_syncswap
     swap_spacefi
     swap_izumi

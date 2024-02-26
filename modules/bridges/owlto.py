@@ -3,7 +3,6 @@ from modules.interfaces import BridgeExceptionWithoutRetry, SoftwareExceptionWit
 from config import CHAIN_NAME_FROM_ID
 from web3 import AsyncWeb3
 
-
 class Owlto(Bridge, Logger, RequestClient):
     def __init__(self, client):
         self.client = client
@@ -74,8 +73,7 @@ class Owlto(Bridge, Logger, RequestClient):
         return float((await self.make_request(url=url, params=params))['msg'])
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
-        from_chain, to_chain, amount, to_chain_id, token_name, _, _ = bridge_data
-        print(bridge_data)
+        from_chain, to_chain, amount, to_chain_id, token_name, _, _, _ = bridge_data
         if not need_check:
             bridge_info = f'{self.client.network.name} -> {token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
             self.logger_msg(*self.client.acc_info, msg=f'Bridge on Owlto: {amount} {token_name} {bridge_info}')
@@ -87,14 +85,13 @@ class Owlto(Bridge, Logger, RequestClient):
 
         fee = await self.get_tx_fee(from_chain_info['name'], to_chain_info['name'], amount, token_name)
 
+        if need_check:
+            return round(fee, 6)
+
         destination_code = int(to_chain_info['networkCode'])
         fee_in_wei = int(fee * 10 ** decimals)
         amount_in_wei = self.client.to_wei(round(amount, 6), decimals)
         full_amount = int(round(amount_in_wei + fee_in_wei, -2) + destination_code)
-
-        if need_check:
-            print(round(float(full_amount / 10 ** decimals), 6))
-            return round(float(full_amount / 10 ** decimals), 6)
 
         if token_name != self.client.network.token:
             contract = self.client.get_contract(from_token_address)

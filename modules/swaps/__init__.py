@@ -16,3 +16,5 @@ from .zkswap import ZkSwap
 from .uniswap import Uniswap
 from .sushiswap import SushiSwap
 from .ambient import Ambient
+from .skydrome import Skydrome
+from .zebra import Zebra

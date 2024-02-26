@@ -76,67 +76,73 @@ class Bitget(CEX, Logger):
 
     @helper
     async def withdraw(self, withdraw_data:tuple = None):
-        path = '/api/v2/spot/wallet/withdrawal'
+        while True:
+            path = '/api/v2/spot/wallet/withdrawal'
 
-        network_id, amount = withdraw_data
-        network_raw_name = BITGET_NETWORKS_NAME[network_id]
-        ccy, network_name = network_raw_name.split('-')
-        dst_chain_id = CEX_WRAPPED_ID[network_id]
-        withdraw_data = (await self.get_currencies(ccy))[0]['chains']
+            network_id, amount = withdraw_data
+            network_raw_name = BITGET_NETWORKS_NAME[network_id]
+            ccy, network_name = network_raw_name.split('-')
+            dst_chain_id = CEX_WRAPPED_ID[network_id]
+            withdraw_data = (await self.get_currencies(ccy))[0]['chains']
 
-        network_data = {
-            item['chain']: {
-                'withdrawEnable': item['withdrawable'],
-                'withdrawFee': item['withdrawFee'],
-                'withdrawMin': item['minWithdrawAmount'],
-            } for item in withdraw_data
-        }[network_name]
+            network_data = {
+                item['chain']: {
+                    'withdrawEnable': item['withdrawable'],
+                    'withdrawFee': item['withdrawFee'],
+                    'withdrawMin': item['minWithdrawAmount'],
+                } for item in withdraw_data
+            }[network_name]
 
-        amount = await self.client.get_smart_amount(amount)
+            amount = await self.client.get_smart_amount(amount)
 
-        self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
+            self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
 
-        if network_data['withdrawEnable']:
-            min_wd = float(network_data['withdrawMin'])
+            if network_data['withdrawEnable']:
+                min_wd = float(network_data['withdrawMin'])
 
-            if min_wd <= amount:
+                if min_wd <= amount:
 
-                payload = {
-                    "coin": ccy,
-                    "address": self.client.address.lower(),
-                    "chain": network_name,
-                    "size": f"{amount}",
-                    "transferType": 'on_chain',
-                }
+                    payload = {
+                        "coin": ccy,
+                        "address": self.client.address.lower(),
+                        "chain": network_name,
+                        "size": f"{amount}",
+                        "transferType": 'on_chain',
+                    }
 
-                ccy = f"{ccy}.e" if network_id in [29, 30] else ccy
+                    ccy = f"{ccy}.e" if network_id in [29, 30] else ccy
 
-                omnicheck = False
-                if ccy in ['USDV', 'STG']:
-                    omnicheck = True
+                    omnicheck = False
+                    if ccy in ['USDV', 'STG']:
+                        omnicheck = True
 
-                old_balance_on_dst = await self.client.wait_for_receiving(
-                    dst_chain_id, token_name=ccy, omnicheck=omnicheck, check_balance_on_dst=True
-                )
+                    old_balance_on_dst = await self.client.wait_for_receiving(
+                        dst_chain_id, token_name=ccy, omnicheck=omnicheck, check_balance_on_dst=True
+                    )
 
-                url = f"{self.api_url}{path}"
-                headers = self.get_headers('POST', path, payload=payload)
-                await self.make_request(
-                    method='POST', url=url, headers=headers, json=payload, module_name='Withdraw')
+                    url = f"{self.api_url}{path}"
+                    headers = self.get_headers('POST', path, payload=payload)
+                    await self.make_request(
+                        method='POST', url=url, headers=headers, json=payload, module_name='Withdraw')
 
-                self.logger_msg(*self.client.acc_info,
-                                msg=f"Withdraw complete. Note: wait a little for receiving funds",
-                                type_msg='success')
+                    self.logger_msg(*self.client.acc_info,
+                                    msg=f"Withdraw complete. Note: wait a little for receiving funds",
+                                    type_msg='success')
 
-                await self.client.wait_for_receiving(
-                    dst_chain_id, old_balance_on_dst, omnicheck=omnicheck, token_name=ccy
-                )
+                    await self.client.wait_for_receiving(
+                        dst_chain_id, old_balance_on_dst, omnicheck=omnicheck, token_name=ccy
+                    )
 
-                return True
+                    return True
+                else:
+                    raise SoftwareExceptionWithoutRetry(f"Limit range for withdraw: more than {min_wd:.5f} {ccy}")
             else:
-                raise SoftwareExceptionWithoutRetry(f"Limit range for withdraw: more than {min_wd:.5f} {ccy}")
-        else:
-            raise SoftwareExceptionWithoutRetry(f"Withdraw from {network_name} is not available")
+                self.logger_msg(
+                    *self.client.acc_info,
+                    msg=f"Withdraw from {network_name} is not active now. Will try again in 1 min...",
+                    type_msg='warning'
+                )
+                await asyncio.sleep(60)
 
     async def get_sub_balances(self):
         path = "/api/v2/spot/account/subaccount-assets"
@@ -179,29 +185,36 @@ class Bitget(CEX, Logger):
         for sub_data in sub_list:
             sub_id = sub_data['userId']
             sub_balances = sub_data['assetsList']
-            sub_balance = float([balance for balance in sub_balances if balance['coin'] == ccy][0]['available'])
+            ccy_sub_balance = [balance for balance in sub_balances if balance['coin'] == ccy]
 
-            if sub_balance != 0.0:
-                flag = False
-                self.logger_msg(*self.client.acc_info, msg=f'{sub_id} | subAccount balance : {sub_balance} {ccy}')
+            if ccy_sub_balance:
+                ccy_sub_balance = float(ccy_sub_balance[0]['available'])
 
-                payload = {
-                    "fromType": "spot",
-                    "toType": "spot",
-                    "amount": f"{amount}",
-                    "coin": f"{ccy}",
-                    "fromUserId": f"{sub_id}",
-                    "toUserId": f"{main_id}",
-                }
+                if ccy_sub_balance != 0.0:
+                    flag = False
+                    self.logger_msg(
+                        *self.client.acc_info, msg=f'{sub_id} | subAccount balance : {ccy_sub_balance} {ccy}')
 
-                path = "/api/v2/spot/wallet/subaccount-transfer"
-                url = f"{self.api_url}{path}"
-                headers = self.get_headers('POST', path, payload=payload)
-                await self.make_request(
-                    method="POST", url=url, json=payload, headers=headers, module_name='SubAccount transfer')
+                    if ccy_sub_balance < amount:
+                        amount = ccy_sub_balance
 
-                self.logger_msg(*self.client.acc_info,
-                                msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success')
+                    payload = {
+                        "fromType": "spot",
+                        "toType": "spot",
+                        "amount": f"{amount}",
+                        "coin": f"{ccy}",
+                        "fromUserId": f"{sub_id}",
+                        "toUserId": f"{main_id}",
+                    }
+
+                    path = "/api/v2/spot/wallet/subaccount-transfer"
+                    url = f"{self.api_url}{path}"
+                    headers = self.get_headers('POST', path, payload=payload)
+                    await self.make_request(
+                        method="POST", url=url, json=payload, headers=headers, module_name='SubAccount transfer')
+
+                    self.logger_msg(*self.client.acc_info,
+                                    msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success')
         if flag:
             self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
         return True
@@ -251,7 +264,8 @@ class Bitget(CEX, Logger):
         while True:
             new_sub_balances = await self.get_cex_balances(ccy=ccy)
             for acc_name, acc_balance in new_sub_balances.items():
-
+                if acc_name not in old_balances:
+                    old_balances[acc_name] = 0
                 if acc_balance > old_balances[acc_name]:
                     self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} complete", type_msg='success')
                     return True

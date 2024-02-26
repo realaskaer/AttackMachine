@@ -33,12 +33,12 @@ class Orbiter(Bridge, Logger):
         raise BridgeExceptionWithoutRetry(f'That bridge is not active!')
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
-        from_chain, to_chain, amount, to_chain_id, token_name, from_token_address, to_token_address = bridge_data
+        from_chain, to_chain, amount, to_chain_id, token_name, _, from_token_address, to_token_address = bridge_data
 
         if not need_check:
             bridge_info = f'{amount} {token_name} from {from_chain["name"]} to {to_chain["name"]}'
             self.logger_msg(*self.client.acc_info, msg=f'Bridge on Orbiter: {bridge_info}')
-
+        print(bridge_data)
         bridge_data = self.get_maker_data(from_chain['id'], to_chain['id'], token_name)
         destination_code = 9000 + to_chain['id']
         decimals = await self.client.get_decimals(token_address=from_token_address)
@@ -47,7 +47,7 @@ class Orbiter(Bridge, Logger):
         full_amount = int(round(amount_in_wei + fee, -4) + destination_code)
 
         if need_check:
-            return round(float(full_amount / 10 ** decimals), 6)
+            return round(float(fee / 10 ** decimals), 6)
 
         min_price, max_price = bridge_data['min_amount'], bridge_data['max_amount']
 

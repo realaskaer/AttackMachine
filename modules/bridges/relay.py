@@ -1,6 +1,7 @@
 from config import CHAIN_NAME_FROM_ID
 from modules import Bridge, Logger
-from modules.interfaces import SoftwareException
+from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry
+from utils.tools import helper
 
 
 class Relay(Bridge, Logger):
@@ -34,13 +35,19 @@ class Relay(Bridge, Logger):
                 }
             ],
             "originChainId": self.client.network.chain_id,
-            "destinationChainId": dest_chain_id
+            "destinationChainId": dest_chain_id,
+            "source": "relay.link"
         }
 
         return await self.make_request(method='POST', url=url, json=payload)
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
-        from_chain, to_chain, amount, to_chain_id, token_name, _, to_token_address = bridge_data
+        from_chain, to_chain, amount, to_chain_id, token_name, _, _, to_token_address = bridge_data
+
+        supported_chains = [42161, 42170, 8453, 10, 324, 1]
+        if from_chain not in supported_chains or to_chain not in supported_chains:
+            raise SoftwareExceptionWithoutRetry(
+                f'Bridge from {self.client.network.name} to {CHAIN_NAME_FROM_ID[to_chain]} is not exist')
 
         if not need_check:
             bridge_info = f'{self.client.network.name} -> {token_name} {CHAIN_NAME_FROM_ID[to_chain]}'

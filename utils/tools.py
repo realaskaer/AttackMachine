@@ -178,14 +178,15 @@ def helper(func):
     async def wrapper(self, *args, **kwargs):
         from modules.interfaces import (
             PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
-            BlockchainExceptionWithoutRetry
+            BlockchainExceptionWithoutRetry, SoftwareExceptionWithRetries
         )
 
         attempts = 0
         stop_flag = False
+        infinity_flag = False
         no_sleep_flag = False
         try:
-            while attempts <= MAXIMUM_RETRY:
+            while attempts <= MAXIMUM_RETRY and not infinity_flag:
                 try:
                     return await func(self, *args, **kwargs)
                 except (PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
@@ -195,9 +196,17 @@ def helper(func):
                     attempts += 1
 
                     msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
+
                     if 'rate limit' in str(error):
                         msg = f'Rate limit exceeded. Will try again in 1 min...'
                         await asyncio.sleep(60)
+                        no_sleep_flag = True
+
+                    elif isinstance(error, SoftwareExceptionWithRetries):
+                        msg_action = f"Software cannot continue, awaiting operator's action. Will try again in 1 min..."
+                        self.logger_msg(self.client.account_name, None, msg=msg_action, type_msg='warning')
+                        await asyncio.sleep(60)
+                        infinity_flag = True
                         no_sleep_flag = True
 
                     elif isinstance(error, asyncio.exceptions.TimeoutError):
@@ -220,7 +229,7 @@ def helper(func):
                     if stop_flag:
                         break
 
-                    if attempts > MAXIMUM_RETRY:
+                    if attempts > MAXIMUM_RETRY and not infinity_flag:
                         self.logger_msg(self.client.account_name,
                                         None, msg=f"Tries are over, software will stop module\n", type_msg='error')
                     else:

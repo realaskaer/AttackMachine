@@ -31,7 +31,7 @@ from settings import (
     RHINO_BRIDGE_AMOUNT,
     ACROSS_CHAIN_ID_TO,
     ACROSS_BRIDGE_AMOUNT, WAIT_FOR_RECEIPT, RELAY_CHAIN_ID_TO, RELAY_BRIDGE_AMOUNT, OWLTO_CHAIN_ID_TO,
-    OWLTO_BRIDGE_AMOUNT, BUNGEE_CHAIN_ID_TO, BUNGEE_BRIDGE_AMOUNT
+    OWLTO_BRIDGE_AMOUNT, BUNGEE_CHAIN_ID_TO, BUNGEE_BRIDGE_AMOUNT, NITRO_CHAIN_ID_TO, NITRO_BRIDGE_AMOUNT
 )
 
 
@@ -152,10 +152,11 @@ class Client(Logger):
             1: (CHAIN_IDS, ACROSS_CHAIN_ID_TO, ACROSS_BRIDGE_AMOUNT),
             2: (CHAIN_IDS, BUNGEE_CHAIN_ID_TO, BUNGEE_BRIDGE_AMOUNT),
             3: (LAYERSWAP_CHAIN_NAME, LAYERSWAP_CHAIN_ID_TO, LAYERSWAP_BRIDGE_AMOUNT),
-            4: (ORBITER_CHAINS_INFO, ORBITER_CHAIN_ID_TO, ORBITER_BRIDGE_AMOUNT),
-            5: (CHAIN_IDS, OWLTO_CHAIN_ID_TO, OWLTO_BRIDGE_AMOUNT),
-            6: (CHAIN_IDS, RELAY_CHAIN_ID_TO, RELAY_BRIDGE_AMOUNT),
-            7: (RHINO_CHAIN_INFO, RHINO_CHAIN_ID_TO, RHINO_BRIDGE_AMOUNT),
+            4: (CHAIN_IDS, NITRO_CHAIN_ID_TO, NITRO_BRIDGE_AMOUNT),
+            5: (ORBITER_CHAINS_INFO, ORBITER_CHAIN_ID_TO, ORBITER_BRIDGE_AMOUNT),
+            6: (CHAIN_IDS, OWLTO_CHAIN_ID_TO, OWLTO_BRIDGE_AMOUNT),
+            7: (CHAIN_IDS, RELAY_CHAIN_ID_TO, RELAY_BRIDGE_AMOUNT),
+            8: (RHINO_CHAIN_INFO, RHINO_CHAIN_ID_TO, RHINO_BRIDGE_AMOUNT),
         }[dapp_id]
 
         source_chain = bridge_config[chain_from_id]
@@ -180,9 +181,12 @@ class Client(Logger):
         try:
             if check_balance_on_dst:
                 if token_address:
-                    old_balance, _, _ = await client.get_token_balance(token_address=token_address, omnicheck=omnicheck)
+                    old_balance, _, _ = await client.get_token_balance(
+                        token_name=token_name, token_address=token_address, omnicheck=omnicheck
+                    )
                 else:
                     old_balance, _, _ = await client.get_token_balance(token_name, omnicheck=omnicheck)
+                print(old_balance)
                 return old_balance
 
             self.logger_msg(*self.acc_info, msg=f'Waiting {token_name} to receive')
@@ -192,7 +196,8 @@ class Client(Logger):
                 try:
                     if token_address:
                         new_eth_balance, _, _ = await client.get_token_balance(
-                            token_address=token_address, omnicheck=omnicheck)
+                            token_name=token_name, token_address=token_address, omnicheck=omnicheck
+                        )
                     else:
                         new_eth_balance, _, _ = await client.get_token_balance(token_name, omnicheck=omnicheck)
                 except:
@@ -220,7 +225,7 @@ class Client(Logger):
 
     async def get_token_balance(
             self, token_name: str = None, check_symbol: bool = True, omnicheck: bool = False,
-            check_native: bool = False, bridge_check: bool = False, token_address: str = None
+            check_native: bool = False, token_address: str = None
     ) -> [float, int, str]:
         if not token_name:
             token_name = self.token
@@ -232,11 +237,6 @@ class Client(Logger):
                     contract = self.get_contract(token_address)
                 elif omnicheck:
                     contract = self.get_contract(TOKENS_PER_CHAIN2[self.network.name][token_name])
-                elif bridge_check and token_name == 'USDC':
-                    contract_address = TOKENS_PER_CHAIN[self.network.name].get('USDC.e')
-                    contract = self.get_contract(
-                        contract_address if contract_address else TOKENS_PER_CHAIN[self.network.name]['USDC']
-                    )
                 else:
                     contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
 

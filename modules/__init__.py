@@ -20,6 +20,8 @@ from .swaps import XYfinance
 from .swaps import ZkSwap
 from .swaps import Uniswap
 from .swaps import SushiSwap
+from .swaps import Zebra
+from .swaps import Skydrome
 from .bridges import LayerSwap
 from .bridges import Orbiter
 from .bridges import Rhino
@@ -27,6 +29,7 @@ from .bridges import Across
 from .bridges import Relay
 from .bridges import Owlto
 from .bridges import Bungee
+from .bridges import Nitro
 from .onmichain import L2Telegraph
 from .onmichain import Merkly
 from .onmichain import Zerius

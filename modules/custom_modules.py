@@ -3,9 +3,11 @@ import copy
 import random
 import traceback
 
+import aiohttp.client_exceptions
+
 from modules import Logger, RequestClient, Client
 from general_settings import AMOUNT_PERCENT_WRAPS, GLOBAL_NETWORK
-from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry
+from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry, SoftwareExceptionWithRetries
 from utils.tools import helper, gas_checker, sleep
 from config import (
     ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA,
@@ -25,8 +27,9 @@ from settings import (
     LAYERSWAP_TOKEN_NAME, RELAY_TOKEN_NAME, RHINO_TOKEN_NAME, OKX_DEPOSIT_DATA, BINGX_DEPOSIT_DATA,
     SRC_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_MERKLY_POLYHEDRA, SRC_CHAIN_MERKLY_HYPERLANE, DST_CHAIN_MERKLY_WORMHOLE,
     DST_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_HYPERLANE, WORMHOLE_TOKENS_AMOUNT, HYPERLANE_TOKENS_AMOUNT,
-    DST_CHAIN_MERKLY_POLYHEDRA_REFUEL, CEX_VOLUME_MODE, BRIDGE_VOLUME_MODE, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME,
-    L0_BRIDGE_COUNT, CUSTOM_SWAP_DATA, BITGET_DEPOSIT_DATA, BITGET_WITHDRAW_DATA, STG_STAKE_CONFIG
+    DST_CHAIN_MERKLY_POLYHEDRA_REFUEL, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME,
+    L0_BRIDGE_COUNT, CUSTOM_SWAP_DATA, BITGET_DEPOSIT_DATA, BITGET_WITHDRAW_DATA, STG_STAKE_CONFIG, NITRO_CHAIN_ID_FROM,
+    NITRO_TOKEN_NAME
 )
 
 
@@ -101,12 +104,20 @@ class Custom(Logger, RequestClient):
 
     @helper
     async def balance_average(self):
-        from functions import okx_withdraw_util #, okx_deposit_util
+        from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util, bitget_withdraw
 
         self.logger_msg(*self.client.acc_info, msg=f"Stark check all balance to make average")
 
-        amount = CEX_BALANCE_WANTED
-        okx_network = {
+        cex_wanted, amount = CEX_BALANCE_WANTED
+
+        func = {
+            1: okx_withdraw_util,
+            2: bingx_withdraw_util,
+            3: binance_withdraw_util,
+            4: bitget_withdraw,
+        }[cex_wanted]
+
+        cex_network = {
             3: 6,
             4: 5,
             11: 4
@@ -130,10 +141,9 @@ class Custom(Logger, RequestClient):
         if wanted_amount_in_usd > sum_balance_in_usd:
             need_to_withdraw = float(f"{(wanted_amount_in_usd - sum_balance_in_usd) / eth_price:.6f}")
 
-            self.logger_msg(*self.client.acc_info, msg=f"Not enough balance on account, launch OKX withdraw module")
+            self.logger_msg(*self.client.acc_info, msg=f"Not enough balance on account, launch CEX withdraw module")
 
-            return await okx_withdraw_util(
-                self.client, withdraw_data=(okx_network, (need_to_withdraw, need_to_withdraw)))
+            return await func(self.client, withdraw_data=(cex_network, (need_to_withdraw, need_to_withdraw)))
 
         self.logger_msg(*self.client.acc_info, msg=f"Account have enough ETH balance", type_msg='success')
 
@@ -410,7 +420,7 @@ class Custom(Logger, RequestClient):
 
         return True
 
-    async def balance_searcher(self, chains, tokens, omni_check:bool = True, bridge_check:bool = False):
+    async def balance_searcher(self, chains, tokens, omni_check:bool = True):
         index = 0
         clients = []
         while True:
@@ -420,7 +430,6 @@ class Custom(Logger, RequestClient):
 
                 balances = [await client.get_token_balance(
                     omnicheck=omni_check if token not in ['USDV', 'STG'] else True, token_name=token,
-                    bridge_check=bridge_check
                 )
                             for client, token in zip(clients, tokens)]
 
@@ -449,7 +458,7 @@ class Custom(Logger, RequestClient):
 
                 return clients[index], index, balances[index][1], balances[index][0], balances_in_usd[index]
 
-            except asyncio.exceptions.TimeoutError:
+            except (asyncio.exceptions.TimeoutError, aiohttp.client_exceptions.ClientHttpProxyError):
                 self.logger_msg(
                     *self.client.acc_info,
                     msg=f"Connection to RPC is not stable. Will try again in 1 min...",
@@ -586,6 +595,8 @@ class Custom(Logger, RequestClient):
                         )
 
                         if not ALL_DST_CHAINS:
+                            if not result:
+                                raise SoftwareException(f'Bad {module_name}. Trying again...')
                             return True
 
                         if ALL_DST_CHAINS:
@@ -709,43 +720,46 @@ class Custom(Logger, RequestClient):
 
     @helper
     async def smart_cex_withdraw(self, dapp_id:int):
-        from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util, bitget_withdraw_util
+        try:
+            from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util, bitget_withdraw_util
 
-        func, withdraw_data = {
-            1: (okx_withdraw_util, OKX_WITHDRAW_DATA),
-            2: (bingx_withdraw_util, BINGX_WITHDRAW_DATA),
-            3: (binance_withdraw_util, BINANCE_WITHDRAW_DATA),
-            4: (bitget_withdraw_util, BITGET_WITHDRAW_DATA)
-        }[dapp_id]
+            func, withdraw_data = {
+                1: (okx_withdraw_util, OKX_WITHDRAW_DATA),
+                2: (bingx_withdraw_util, BINGX_WITHDRAW_DATA),
+                3: (binance_withdraw_util, BINANCE_WITHDRAW_DATA),
+                4: (bitget_withdraw_util, BITGET_WITHDRAW_DATA)
+            }[dapp_id]
 
-        withdraw_data_copy = copy.deepcopy(withdraw_data)
+            withdraw_data_copy = copy.deepcopy(withdraw_data)
 
-        random.shuffle(withdraw_data_copy)
-        result_list = []
+            random.shuffle(withdraw_data_copy)
+            result_list = []
 
-        for index, data in enumerate(withdraw_data_copy, 1):
-            current_data = data
-            if isinstance(data[0], list):
-                current_data = random.choice(data)
-                if not current_data:
-                    continue
+            for index, data in enumerate(withdraw_data_copy, 1):
+                current_data = data
+                if isinstance(data[0], list):
+                    current_data = random.choice(data)
+                    if not current_data:
+                        continue
 
-            network, amount = current_data
+                network, amount = current_data
 
-            if isinstance(amount[0], str):
-                raise SoftwareExceptionWithoutRetry('CEX withdrawal does not support % of the amount')
+                if isinstance(amount[0], str):
+                    raise SoftwareExceptionWithoutRetry('CEX withdrawal does not support % of the amount')
 
-            try:
-                result_list.append(await func(self.client, withdraw_data=(network, amount)))
+                try:
+                    result_list.append(await func(self.client, withdraw_data=(network, amount)))
 
-            except Exception as error:
-                self.logger_msg(
-                    *self.client.acc_info, msg=f"Withdraw from CEX failed. Error: {error}", type_msg='error')
+                except Exception as error:
+                    self.logger_msg(
+                        *self.client.acc_info, msg=f"Withdraw from CEX failed. Error: {error}", type_msg='error')
 
-            if index != len(withdraw_data_copy):
-                await sleep(self)
+                if index != len(withdraw_data_copy):
+                    await sleep(self)
 
-        return all(result_list)
+            return all(result_list)
+        except Exception as error:
+            raise SoftwareExceptionWithRetries(f'{error}')
 
     @helper
     @gas_checker
@@ -798,15 +812,11 @@ class Custom(Logger, RequestClient):
 
                 if balance_in_usd >= limit_amount:
 
-                    if CEX_VOLUME_MODE:
-                        dep_amount_in_usd = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
-                        if dep_amount_in_usd < 0:
-                            raise SoftwareExceptionWithoutRetry(
-                                'You can`t deposit amount < 0$. Check CEX_DEPOSIT_LIMITER')
-                        dep_amount = round(dep_amount_in_usd / token_price, 6)
-                    else:
-                        dep_amount = await client.get_smart_amount(amount, token_name=dep_token, omnicheck=omnicheck)
-                        dep_amount_in_usd = dep_amount * token_price
+                    dep_amount = await client.get_smart_amount(amount, token_name=dep_token, omnicheck=omnicheck)
+                    if balance - dep_amount < 0.00015:
+                        dep_amount -= round(random.uniform(0.00015, 0.0002), 5)
+
+                    dep_amount_in_usd = dep_amount * token_price
 
                     if balance_in_usd >= dep_amount_in_usd:
 
@@ -834,6 +844,8 @@ class Custom(Logger, RequestClient):
                 info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
                 raise SoftwareExceptionWithoutRetry(f'Account {dep_token} balance < wanted limit amount: {info}')
             return all(result_list)
+        except Exception as error:
+            raise SoftwareExceptionWithRetries(f'{error}')
         finally:
             if client:
                 await client.session.close()
@@ -845,62 +857,63 @@ class Custom(Logger, RequestClient):
         try:
             from functions import bridge_utils
 
-            bridge_app_id, dapp_chains, dapp_token = {
+            bridge_app_id, dapp_chains, dapp_tokens = {
                 1: (1, ACROSS_CHAIN_ID_FROM, ACROSS_TOKEN_NAME),
                 2: (2, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME),
                 3: (3, LAYERSWAP_CHAIN_ID_FROM, LAYERSWAP_TOKEN_NAME),
-                4: (4, ORBITER_CHAIN_ID_FROM, ORBITER_TOKEN_NAME),
-                5: (5, OWLTO_CHAIN_ID_FROM, OWLTO_TOKEN_NAME),
-                6: (6, RELAY_CHAIN_ID_FROM, RELAY_TOKEN_NAME),
-                7: (7, RHINO_CHAIN_ID_FROM, RHINO_TOKEN_NAME),
+                4: (4, NITRO_CHAIN_ID_FROM, NITRO_TOKEN_NAME),
+                5: (5, ORBITER_CHAIN_ID_FROM, ORBITER_TOKEN_NAME),
+                6: (6, OWLTO_CHAIN_ID_FROM, OWLTO_TOKEN_NAME),
+                7: (7, RELAY_CHAIN_ID_FROM, RELAY_TOKEN_NAME),
+                8: (8, RHINO_CHAIN_ID_FROM, RHINO_TOKEN_NAME),
             }[dapp_id]
 
-            dapp_tokens = [dapp_token for _ in dapp_chains]
+            if len(dapp_tokens) == 2:
+                from_token_name, to_token_name = dapp_tokens
+            else:
+                from_token_name, to_token_name = dapp_tokens, dapp_tokens
+
+            dapp_tokens = [from_token_name for _ in dapp_chains]
 
             client, chain_index, balance, _, balance_data = await self.balance_searcher(
-                chains=dapp_chains, tokens=dapp_tokens, omni_check=False, bridge_check=True
+                chains=dapp_chains, tokens=dapp_tokens, omni_check=False
             )
 
-            chain_from_id, token_name = dapp_chains[chain_index], dapp_token
+            chain_from_id, token_name = dapp_chains[chain_index], from_token_name
 
             source_chain_name, destination_chain, amount, dst_chain_id = await client.get_bridge_data(
                 chain_from_id=chain_from_id, dapp_id=bridge_app_id
             )
 
-            from_token_addr = None
-            to_token_addr = None
             from_chain_name = client.network.name
             to_chain_name = CHAIN_NAME[dst_chain_id]
-            if token_name == 'USDC':
-                from_token_addr = TOKENS_PER_CHAIN[from_chain_name].get('USDC.e')
-                to_token_addr = TOKENS_PER_CHAIN[to_chain_name].get('USDC.e')
-            from_token_addr = from_token_addr if from_token_addr else TOKENS_PER_CHAIN[from_chain_name][token_name]
-            to_token_addr = to_token_addr if to_token_addr else TOKENS_PER_CHAIN[to_chain_name][token_name]
+            from_token_addr = TOKENS_PER_CHAIN[from_chain_name][from_token_name]
+            to_token_addr = TOKENS_PER_CHAIN[to_chain_name][to_token_name]
 
             balance_in_usd, token_price = balance_data
             limit_amount, wanted_to_hold_amount = BRIDGE_AMOUNT_LIMITER
             min_wanted_amount, max_wanted_amount = min(wanted_to_hold_amount), max(wanted_to_hold_amount)
-            bridge_data = (source_chain_name, destination_chain, amount,
-                           dst_chain_id, token_name, from_token_addr, to_token_addr)
+            fee_bridge_data = (source_chain_name, destination_chain, amount, dst_chain_id,
+                               from_token_name, to_token_name, from_token_addr, to_token_addr)
 
             if balance_in_usd >= limit_amount:
 
-                if BRIDGE_VOLUME_MODE:
-                    bridge_amount_in_usd = round(balance_in_usd - (random.uniform(min_wanted_amount, max_wanted_amount)), 6)
-                    if bridge_amount_in_usd < 0:
-                        raise SoftwareExceptionWithoutRetry('You can`t bridge amount < 0$. Check BRIDGE_AMOUNT_LIMITER')
-                    bridge_amount = round(bridge_amount_in_usd / token_price, 6)
-                else:
-                    bridge_amount = await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data, need_fee=True)
-                    bridge_amount_in_usd = bridge_amount * token_price
+                bridge_fee = await bridge_utils(client, bridge_app_id, chain_from_id, fee_bridge_data, need_fee=True)
 
-                bridge_data = (source_chain_name, destination_chain, bridge_amount,
-                               dst_chain_id, token_name, from_token_addr, to_token_addr)
+                if from_token_name != "ETH":
+                    bridge_amount = amount - bridge_fee
+                else:
+                    bridge_amount = amount - bridge_fee
+                    if balance - bridge_amount < 0.00015:
+                        bridge_amount -= round(random.uniform(0.00015, 0.0002), 5)
+                bridge_amount_in_usd = bridge_amount * token_price
+
+                bridge_data = (source_chain_name, destination_chain, bridge_amount, dst_chain_id,
+                               from_token_name, to_token_name, from_token_addr, to_token_addr)
 
                 if balance_in_usd >= bridge_amount_in_usd:
 
-                    if (min_wanted_amount <= (balance_in_usd - bridge_amount_in_usd) <= max_wanted_amount
-                            or BRIDGE_VOLUME_MODE):
+                    if min_wanted_amount <= (balance_in_usd - bridge_amount_in_usd) <= max_wanted_amount:
 
                         return await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data)
 
@@ -913,6 +926,8 @@ class Custom(Logger, RequestClient):
 
             info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
             raise SoftwareExceptionWithoutRetry(f'Account {token_name} balance < wanted limit amount: {info}')
+        except Exception as error:
+            raise SoftwareExceptionWithRetries(f'{error}')
         finally:
             if client:
                 await client.session.close()

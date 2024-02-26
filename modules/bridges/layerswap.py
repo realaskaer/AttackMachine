@@ -60,9 +60,9 @@ class LayerSwap(Bridge, Logger):
         return (await self.make_request(url=url, headers=self.headers, params=params))['data']
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
-        (source_chain, destination_chain, amount, to_chain_id,
-         token_name, from_token_address, to_token_address) = bridge_data
-        source_asset, destination_asset, refuel = token_name, token_name, False
+        (source_chain, destination_chain, amount, to_chain_id, from_token_name,
+         to_token_name, from_token_address, to_token_address) = bridge_data
+        source_asset, destination_asset, refuel = from_token_name, to_token_name, False
 
         bridge_info = f'{self.client.network.name} -> {destination_asset} {destination_chain}'
         if not need_check:
@@ -84,7 +84,7 @@ class LayerSwap(Bridge, Logger):
             min_amount, max_amount, fee_amount, receive_amount = (await self.get_swap_rate(*data)).values()
 
             if need_check:
-                return round(float(fee_amount + amount), 6)
+                return round(float(fee_amount), 6)
 
             if float(min_amount) <= amount <= float(max_amount):
 
@@ -93,7 +93,7 @@ class LayerSwap(Bridge, Logger):
                 swap_id = await self.get_swap_id(amount, *data)
                 tx_data = await self.create_tx(swap_id['swap_id'])
 
-                if token_name != self.client.token:
+                if from_token_name != self.client.token:
                     value = 0
                 else:
                     value = amount_in_wei
@@ -104,7 +104,8 @@ class LayerSwap(Bridge, Logger):
                 }
 
                 old_balance_on_dst = await self.client.wait_for_receiving(
-                    token_address=to_token_address, chain_id=to_chain_id, check_balance_on_dst=True
+                    token_address=to_token_address, token_name=to_token_name, chain_id=to_chain_id,
+                    check_balance_on_dst=True
                 )
 
                 await self.client.send_transaction(transaction)
@@ -113,7 +114,8 @@ class LayerSwap(Bridge, Logger):
                                 msg=f"Bridge complete. Note: wait a little for receiving funds", type_msg='success')
 
                 return await self.client.wait_for_receiving(
-                    token_address=to_token_address, old_balance=old_balance_on_dst, chain_id=to_chain_id
+                    token_address=to_token_address, token_name=to_token_name,
+                    old_balance=old_balance_on_dst, chain_id=to_chain_id
                 )
 
             else:

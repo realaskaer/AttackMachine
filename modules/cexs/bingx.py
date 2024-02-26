@@ -112,10 +112,10 @@ class BingX(CEX, Logger):
         for sub_data in sub_list:
             sub_name = sub_data['subAccountString']
             sub_uid = sub_data['subUid']
-
             sub_balances = await self.get_sub_balance(sub_uid)
 
             if sub_balances:
+
                 sub_balance = float(
                     [balance for balance in sub_balances['balances'] if balance['asset'] == ccy][0]['free'])
 
@@ -207,7 +207,8 @@ class BingX(CEX, Logger):
         while True:
             new_sub_balances = await self.get_cex_balances(ccy=ccy)
             for acc_name, acc_balance in new_sub_balances.items():
-
+                if acc_name not in old_balances:
+                    old_balances[acc_name] = 0
                 if acc_balance > old_balances[acc_name]:
                     self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} complete", type_msg='success')
                     return True
@@ -219,65 +220,71 @@ class BingX(CEX, Logger):
 
     @helper
     async def withdraw(self, want_balance:float = 0, withdraw_data:tuple = None, transfer_mode:bool = False):
-        path = '/openApi/wallets/v1/capital/withdraw/apply'
+        while True:
+            path = '/openApi/wallets/v1/capital/withdraw/apply'
 
-        network_id, amount = withdraw_data
-        network_raw_name = BINGX_NETWORKS_NAME[network_id]
-        ccy, network_name = network_raw_name.split('-')
-        dst_chain_id = CEX_WRAPPED_ID[network_id]
+            network_id, amount = withdraw_data
+            network_raw_name = BINGX_NETWORKS_NAME[network_id]
+            ccy, network_name = network_raw_name.split('-')
+            dst_chain_id = CEX_WRAPPED_ID[network_id]
 
-        withdraw_data = (await self.get_currencies(ccy))[0]['networkList']
+            withdraw_data = (await self.get_currencies(ccy))[0]['networkList']
 
-        network_data = {
-            item['network']: {
-                'withdrawEnable': item['withdrawEnable'],
-                'withdrawFee': item['withdrawFee'],
-                'withdrawMin': item['withdrawMin'],
-                'withdrawMax': item['withdrawMax']
-            } for item in withdraw_data
-        }[network_name]
+            network_data = {
+                item['network']: {
+                    'withdrawEnable': item['withdrawEnable'],
+                    'withdrawFee': item['withdrawFee'],
+                    'withdrawMin': item['withdrawMin'],
+                    'withdrawMax': item['withdrawMax']
+                } for item in withdraw_data
+            }[network_name]
 
-        if transfer_mode:
-            amount = await self.get_balance(ccy)
-        else:
-            amount = want_balance if want_balance else await self.client.get_smart_amount(amount)
-
-        self.logger_msg(
-            *self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
-
-        if network_data['withdrawEnable']:
-            min_wd, max_wd = float(network_data['withdrawMin']), float(network_data['withdrawMax'])
-
-            if min_wd <= amount <= max_wd:
-
-                params = {
-                    "address": self.client.address,
-                    "amount": amount,
-                    "coin": ccy,
-                    "network": network_name,
-                    "walletType": "1",
-                }
-
-                ccy = f"{ccy}.e" if network_id in [29, 30] else ccy
-
-                old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
-                                                                          check_balance_on_dst=True)
-
-                parse_params = self.parse_params(params)
-                url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
-
-                await self.make_request(method='POST', url=url, headers=self.headers, module_name='Withdraw')
-
-                self.logger_msg(*self.client.acc_info,
-                                msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success')
-
-                await self.client.wait_for_receiving(dst_chain_id, old_balance_on_dst, token_name=ccy)
-
-                return True
+            if transfer_mode:
+                amount = await self.get_balance(ccy)
             else:
-                raise SoftwareExceptionWithoutRetry(f"Limit range for withdraw: {min_wd:.5f} {ccy} - {max_wd} {ccy}")
-        else:
-            raise SoftwareExceptionWithoutRetry(f"Withdraw from {network_name} is not available")
+                amount = want_balance if want_balance else await self.client.get_smart_amount(amount)
+
+            self.logger_msg(
+                *self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
+
+            if network_data['withdrawEnable']:
+                min_wd, max_wd = float(network_data['withdrawMin']), float(network_data['withdrawMax'])
+
+                if min_wd <= amount <= max_wd:
+
+                    params = {
+                        "address": self.client.address,
+                        "amount": amount,
+                        "coin": ccy,
+                        "network": network_name,
+                        "walletType": "1",
+                    }
+
+                    ccy = f"{ccy}.e" if network_id in [29, 30] else ccy
+
+                    old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
+                                                                              check_balance_on_dst=True)
+
+                    parse_params = self.parse_params(params)
+                    url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
+
+                    await self.make_request(method='POST', url=url, headers=self.headers, module_name='Withdraw')
+
+                    self.logger_msg(*self.client.acc_info,
+                                    msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success')
+
+                    await self.client.wait_for_receiving(dst_chain_id, old_balance_on_dst, token_name=ccy)
+
+                    return True
+                else:
+                    raise SoftwareExceptionWithoutRetry(f"Limit range for withdraw: {min_wd:.5f} {ccy} - {max_wd} {ccy}")
+            else:
+                self.logger_msg(
+                    *self.client.acc_info,
+                    msg=f"Withdraw from {network_name} is not active now. Will try again in 1 min...",
+                    type_msg='warning'
+                )
+                await asyncio.sleep(60)
 
     @helper
     async def deposit(self, deposit_data:tuple = None):
