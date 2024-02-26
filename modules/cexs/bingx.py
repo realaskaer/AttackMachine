@@ -228,7 +228,7 @@ class BingX(CEX, Logger):
             ccy, network_name = network_raw_name.split('-')
             dst_chain_id = CEX_WRAPPED_ID[network_id]
 
-            withdraw_data = (await self.get_currencies(ccy))[0]['networkList']
+            withdraw_raw_data = (await self.get_currencies(ccy))[0]['networkList']
 
             network_data = {
                 item['network']: {
@@ -236,7 +236,7 @@ class BingX(CEX, Logger):
                     'withdrawFee': item['withdrawFee'],
                     'withdrawMin': item['withdrawMin'],
                     'withdrawMax': item['withdrawMax']
-                } for item in withdraw_data
+                } for item in withdraw_raw_data
             }[network_name]
 
             if transfer_mode:

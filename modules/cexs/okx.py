@@ -46,68 +46,6 @@ class OKX(CEX, Logger):
         return await self.make_request(url=url, headers=headers, params=params, module_name='Token info')
 
     @helper
-    async def withdraw(self, withdraw_data:tuple = None):
-
-        url = 'https://www.okx.cab/api/v5/asset/withdrawal'
-
-        network, amount = withdraw_data
-        network_raw_name = OKX_NETWORKS_NAME[network]
-        ccy, network_name = network_raw_name.split('-')
-        dst_chain_id = CEX_WRAPPED_ID[network]
-
-        await self.transfer_from_subs(ccy=ccy, silent_mode=True)
-
-        withdraw_data = await self.get_currencies(ccy)
-
-        network_data = {
-            item['chain']: {
-                'can_withdraw': item['canWd'],
-                'min_fee': item['minFee'],
-                'min_wd': item['minWd'],
-                'max_wd': item['maxWd']
-            } for item in withdraw_data
-        }[network_raw_name]
-
-        amount = await self.client.get_smart_amount(amount)
-
-        self.logger_msg(
-            *self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name}")
-
-        if network_data['can_withdraw']:
-            min_wd, max_wd = float(network_data['min_wd']), float(network_data['max_wd'])
-
-            if min_wd <= amount <= max_wd:
-
-                body = {
-                    "ccy": ccy,
-                    "amt": amount,
-                    "dest": "4",
-                    "toAddr": self.client.address,
-                    "fee": network_data['min_fee'],
-                    "chain": network_raw_name,
-                }
-
-                headers = await self.get_headers(method="POST", request_path=url, body=str(body))
-
-                ccy = f"{ccy}.e" if network in [29, 30] else ccy
-
-                old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
-                                                                          check_balance_on_dst=True)
-
-                await self.make_request(method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
-
-                self.logger_msg(*self.client.acc_info,
-                                msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success')
-
-                await self.client.wait_for_receiving(dst_chain_id, old_balance_on_dst, token_name=ccy)
-
-                return True
-            else:
-                raise SoftwareExceptionWithoutRetry(f"Limit range for withdraw: {min_wd:.5f} {ccy} - {max_wd} {ccy}")
-        else:
-            raise SoftwareExceptionWithoutRetry(f"Withdraw from {network_name} is not available")
-
-    @helper
     async def transfer_from_subaccounts(self, ccy:str = 'ETH', amount:float = None, silent_mode:bool = False):
 
         if ccy == 'USDC.e':
@@ -258,6 +196,73 @@ class OKX(CEX, Logger):
             else:
                 self.logger_msg(*self.client.acc_info, msg=f"Deposit still in progress...", type_msg='warning')
                 await asyncio.sleep(check_time)
+
+    @helper
+    async def withdraw(self, withdraw_data:tuple = None):
+        while True:
+            url = 'https://www.okx.cab/api/v5/asset/withdrawal'
+
+            network, amount = withdraw_data
+            network_raw_name = OKX_NETWORKS_NAME[network]
+            ccy, network_name = network_raw_name.split('-')
+            dst_chain_id = CEX_WRAPPED_ID[network]
+
+            await self.transfer_from_subs(ccy=ccy, silent_mode=True)
+
+            withdraw_raw_data = await self.get_currencies(ccy)
+
+            network_data = {
+                item['chain']: {
+                    'can_withdraw': item['canWd'],
+                    'min_fee': item['minFee'],
+                    'min_wd': item['minWd'],
+                    'max_wd': item['maxWd']
+                } for item in withdraw_raw_data
+            }[network_raw_name]
+
+            amount = await self.client.get_smart_amount(amount)
+
+            self.logger_msg(
+                *self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name}")
+
+            if network_data['can_withdraw']:
+                min_wd, max_wd = float(network_data['min_wd']), float(network_data['max_wd'])
+
+                if min_wd <= amount <= max_wd:
+
+                    body = {
+                        "ccy": ccy,
+                        "amt": amount,
+                        "dest": "4",
+                        "toAddr": self.client.address,
+                        "fee": network_data['min_fee'],
+                        "chain": network_raw_name,
+                    }
+
+                    headers = await self.get_headers(method="POST", request_path=url, body=str(body))
+
+                    ccy = f"{ccy}.e" if network in [29, 30] else ccy
+
+                    old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
+                                                                              check_balance_on_dst=True)
+
+                    await self.make_request(method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
+
+                    self.logger_msg(*self.client.acc_info,
+                                    msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success')
+
+                    await self.client.wait_for_receiving(dst_chain_id, old_balance_on_dst, token_name=ccy)
+
+                    return True
+                else:
+                    raise SoftwareExceptionWithoutRetry(f"Limit range for withdraw: {min_wd:.5f} {ccy} - {max_wd} {ccy}")
+            else:
+                self.logger_msg(
+                    *self.client.acc_info,
+                    msg=f"Withdraw from {network_name} is not active now. Will try again in 1 min...",
+                    type_msg='warning'
+                )
+                await asyncio.sleep(60)
 
     @helper
     async def deposit(self, deposit_data:tuple = None):
