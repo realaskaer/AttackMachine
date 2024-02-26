@@ -87,33 +87,34 @@ class Bungee(Refuel, Bridge, Logger):
         url = 'https://api.socket.tech/v2/quote'
 
         wanted_route = {
-            1: 'across',
-            2: 'cctp',
-            3: 'celer',
-            4: 'connext',
-            5: 'stargate',
-            6: 'symbiosis',
-            7: 'synapse',
-            8: 'hyphen',
-            9: 'hop',
-            0: 'refuel-bridge'
+            1:  'across',
+            2:  'cctp',
+            3:  'celer',
+            4:  'connext',
+            5:  'stargate',
+            6:  'refuel-bridge',
+            7:  'synapse',
+            8:  'symbiosis',
+            9:  'hop',
+            10:  'hyphen',
+
         }.get(BUNGEE_ROUTE_TYPE, False)
 
         params = {
-                "fromChainId": self.client.chain_id,
-                "toChainId": to_chain_id,
-                "fromTokenAddress": from_token_address,
-                "toTokenAddress": to_token_address,
-                "fromAmount": amount,
-                "userAddress": self.client.address,
-                "singleTxOnly": "true",
-                "bridgeWithGas": "false",
-                "sort": "output",
-                "defaultSwapSlippage": 0.5,
-                "bridgeWithInsurance": "true",
-                "isContractCall": "false",
-                "showAutoRoutes": "false",
-            }
+                    "fromChainId": self.client.chain_id,
+                    "toChainId": to_chain_id,
+                    "fromTokenAddress": from_token_address,
+                    "toTokenAddress": to_token_address,
+                    "fromAmount": amount,
+                    "userAddress": self.client.address,
+                    "singleTxOnly": "true",
+                    "bridgeWithGas": "false",
+                    "sort": "output",
+                    "defaultSwapSlippage": 0.5,
+                    "bridgeWithInsurance": "true",
+                    "isContractCall": "false",
+                    "showAutoRoutes": "false",
+                }
 
         response = await self.make_request(url=url, params=params, headers=self.headers)
         final_route = None
