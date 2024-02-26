@@ -822,7 +822,7 @@ class Custom(Logger, RequestClient):
 
                         if min_wanted_amount <= (balance_in_usd - dep_amount_in_usd) <= max_wanted_amount:
 
-                            deposit_data = dep_network, (dep_amount, dep_amount)
+                            deposit_data = dep_network, (total_dep_amount, total_dep_amount)
 
                             if len(deposit_data_copy) == 1:
                                 return await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
