@@ -813,15 +813,13 @@ class Custom(Logger, RequestClient):
                 if balance_in_usd >= limit_amount:
 
                     dep_amount = await client.get_smart_amount(amount, token_name=dep_token, omnicheck=omnicheck)
-                    if balance - dep_amount < 0.00015:
-                        dep_amount -= round(random.uniform(0.00015, 0.0002), 5)
-
+                    if balance_in_usd - dep_amount * token_price < 0.5:
+                        dep_amount -= round(random.uniform(0.5, 0.7) / token_price, 5)
                     dep_amount_in_usd = dep_amount * token_price
 
                     if balance_in_usd >= dep_amount_in_usd:
 
-                        if (min_wanted_amount <= (balance_in_usd - dep_amount_in_usd) <= max_wanted_amount
-                                or CEX_VOLUME_MODE):
+                        if min_wanted_amount <= (balance_in_usd - dep_amount_in_usd) <= max_wanted_amount:
 
                             deposit_data = dep_network, (dep_amount, dep_amount)
 
@@ -904,8 +902,9 @@ class Custom(Logger, RequestClient):
                     bridge_amount = amount - bridge_fee
                 else:
                     bridge_amount = amount - bridge_fee
-                    if balance - bridge_amount < 0.00015:
-                        bridge_amount -= round(random.uniform(0.00015, 0.0002), 5)
+                    if balance_in_usd - bridge_amount * token_price < 0.5:
+                        bridge_amount -= round(random.uniform(0.5, 0.7) / token_price, 5)
+                        
                 bridge_amount_in_usd = bridge_amount * token_price
 
                 bridge_data = (source_chain_name, destination_chain, bridge_amount, dst_chain_id,
