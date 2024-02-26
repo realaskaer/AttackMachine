@@ -246,10 +246,13 @@ class OKX(CEX, Logger):
                     old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
                                                                               check_balance_on_dst=True)
 
-                    await self.make_request(method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
+                    await self.make_request(
+                        method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
 
                     self.logger_msg(*self.client.acc_info,
-                                    msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success')
+                                    msg=f"Withdraw complete. Note: wait a little for receiving funds",
+                                    type_msg='success'
+                                    )
 
                     await self.client.wait_for_receiving(dst_chain_id, old_balance_on_dst, token_name=ccy)
 
