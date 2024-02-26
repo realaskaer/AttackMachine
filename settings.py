@@ -659,6 +659,7 @@ HELPERS_CONFIG = {
 
 ---------------------------------------------------------SCROLL---------------------------------------------------------        
     
+    add_liquidity_syncswap           # USDC/WETH LP на LIQUIDITY_AMOUNT
     swap_rango
     swap_ambient
     swap_zebra
