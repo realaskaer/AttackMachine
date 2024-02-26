@@ -1,10 +1,7 @@
 import json
 
-from config import TOKENS_PER_CHAIN
 from modules import Bridge, Logger
-from general_settings import GLOBAL_NETWORK
 from modules.interfaces import BridgeExceptionWithoutRetry
-from utils.tools import gas_checker, helper
 
 
 class LayerSwap(Bridge, Logger):
@@ -84,7 +81,7 @@ class LayerSwap(Bridge, Logger):
 
             data = source_chain, destination_chain, source_asset, destination_asset, refuel
 
-            min_amount, max_amount, fee_amount = (await self.get_swap_rate(*data)).values()
+            min_amount, max_amount, fee_amount, receive_amount = (await self.get_swap_rate(*data)).values()
 
             if need_check:
                 return round(float(fee_amount + amount), 6)
