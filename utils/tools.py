@@ -220,6 +220,8 @@ def helper(func):
                         no_sleep_flag = True
 
                     elif isinstance(error, CriticalException):
+                        msg_action = f"Software will be stopped. Please, try to fix your settings in files"
+                        self.logger_msg(self.client.account_name, None, msg=msg_action, type_msg='error')
                         raise error
 
                     elif isinstance(error, SoftwareExceptionWithRetries):

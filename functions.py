@@ -19,7 +19,8 @@ def get_interface_by_chain_id(chain_id):
         4: Linea,
         8: Scroll,
         11: ZkSync,
-        12: Zora
+        12: Zora,
+        13: Ethereum
     }[chain_id]
 
 

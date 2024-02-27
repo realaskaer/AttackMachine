@@ -10,7 +10,7 @@ from aiohttp import ClientSession
 from utils.networks import EthereumRPC
 from web3 import AsyncWeb3, AsyncHTTPProvider
 from functions import get_network_by_chain_id
-from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry, CriticalException
+from modules.interfaces import SoftwareException, CriticalException
 from settings import HELP_NEW_MODULE, EXCLUDED_MODULES
 from config import ACCOUNT_NAMES, PRIVATE_KEYS, PROXIES, CHAIN_NAME
 from utils.route_generator import RouteGenerator, AVAILABLE_MODULES_INFO, get_func_by_name
@@ -137,10 +137,10 @@ class Runner(Logger):
             try:
                 result_list = list(self.get_google_progress_data().values())
                 wallets_list = route_generator.get_account_name_list()
-                if GLOBAL_NETWORK != 0:
-                    modules_list = [i.__name__ for i in route_generator.get_modules_list()]
-                else:
-                    modules_list = list(route_generator.function_mappings.keys())
+                modules_list = [i for i in route_generator.get_modules_list()]
+                if GLOBAL_NETWORK == 0:
+                    modules_list = [module[1] for module in modules_list]
+
                 total_result_to_send = []
                 successes = 0
                 errors = 0
@@ -181,9 +181,11 @@ class Runner(Logger):
             else:
                 account_name, private_key = accounts_data
                 await route_generator.get_smart_route(str(account_name))
+        except SoftwareException as error:
+            raise error
         except Exception as error:
             traceback.print_exc()
-            raise SoftwareException(f"Can`t generate smart route. Error: {error}")
+            raise SoftwareException(f"{error}")
 
     async def change_ip_proxy(self):
         try:

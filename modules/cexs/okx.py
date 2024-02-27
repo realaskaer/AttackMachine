@@ -68,8 +68,9 @@ class OKX(CEX, Logger):
             url_sub_balance = f"https://www.okx.cab/api/v5/asset/subaccount/balances?subAcct={sub_name}&ccy={ccy}"
             headers = await self.get_headers(request_path=url_sub_balance)
 
-            sub_balance = (await self.make_request(url=url_sub_balance, headers=headers,
-                                                   module_name='Get subAccount balance'))
+            sub_balance = await self.make_request(
+                url=url_sub_balance, headers=headers,module_name='Get subAccount balance'
+            )
 
             if sub_balance:
                 sub_balance = float(sub_balance[0]['availBal'])

@@ -11,11 +11,9 @@ from modules.interfaces import SoftwareException
 from gspread.utils import rowcol_to_a1
 from gspread import Client, Spreadsheet, Worksheet, service_account
 from general_settings import GOOGLE_SHEET_URL, GOOGLE_SHEET_PAGE_NAME, GLOBAL_NETWORK, SHUFFLE_ROUTE
-from settings import (MODULES_COUNT, ALL_MODULES_TO_RUN,
-                      TRANSFER_IN_ROUTES, TRANSFER_COUNT, EXCLUDED_MODULES,
-                      DMAIL_IN_ROUTES, DMAIL_COUNT, COLLATERAL_IN_ROUTES, COLLATERAL_COUNT,
-                      CLASSIC_ROUTES_MODULES_USING, WITHDRAW_LP, WITHDRAW_LANDING, HELPERS_CONFIG,
-                      CLASSIC_WITHDRAW_DEPENDENCIES)
+from settings import (MODULES_COUNT, ALL_MODULES_TO_RUN, TRANSFER_COUNT, EXCLUDED_MODULES, DMAIL_COUNT,
+                      COLLATERAL_COUNT, CLASSIC_ROUTES_MODULES_USING, WITHDRAW_LP, WITHDRAW_LANDING, HELPERS_CONFIG,
+                      CLASSIC_WITHDRAW_DEPENDENCIES, INCLUDED_MODULES, WRAPS_COUNT)
 
 GSHEET_CONFIG = "./data/services/service_account.json"
 os.environ["GSPREAD_SILENCE_WARNINGS"] = "1"
@@ -160,182 +158,15 @@ def get_func_by_name(module_name, help_message:bool = False):
 class RouteGenerator(Logger):
     def __init__(self, silent:bool = True):
         Logger.__init__(self)
+        self.modules_names_const = [module.__name__ for module in list(AVAILABLE_MODULES_INFO.keys())]
+
         if GOOGLE_SHEET_URL != '' and not silent:
             self.gc: Client = service_account(filename=GSHEET_CONFIG)
             self.sh: Spreadsheet = self.gc.open_by_url(GOOGLE_SHEET_URL)
             self.ws: Worksheet = self.sh.worksheet(GOOGLE_SHEET_PAGE_NAME)
         else:
             self.gc, self.sh, self.ws = None, None, None
-        self.w3 = AsyncWeb3()
-        if GLOBAL_NETWORK == 11:
-            map_data = {
-                'Syncswap Liquidity': add_liquidity_syncswap,
-                'Maverick Liquidity': add_liquidity_maverick,
-                'Mute Liquidity': add_liquidity_mute,
-                'Syncswap Swap': swap_syncswap,
-                'Mute Swap': swap_mute,
-                'Maverick Swap': swap_maverick,
-                'iZumi Swap': swap_izumi,
-                'Rango Swap': swap_rango,
-                'VeSync Swap': swap_vesync,
-                'SpaceFi Swap': swap_spacefi,
-                'Pancake Swap': swap_pancake,
-                'WooFi Swap': swap_woofi,
-                'ODOS Swap': swap_odos,
-                'zkSwap Swap': swap_zkswap,
-                'XYfinance Swap': swap_xyfinance,
-                'Velocore Swap': swap_velocore,
-                '1inch Swap': swap_oneinch,
-                'Openocean Swap': swap_openocean,
-                'EraLend Deposit': deposit_eralend,
-                'ZeroLend Deposit': deposit_zerolend,
-                'Basilisk Deposit': deposit_basilisk,
-                'RocketSam Deposit': deposit_rocketsam,
-                'Reactorfusion Deposit': deposit_reactorfusion,
-              #  'Zerius Mint NFT': mint_zerius,
-                'Zerius Bridge NFT': bridge_zerius,
-                'Omnisea Create NFT': create_omnisea,
-                'Tavaera ID & NFT Mint': mint_tevaera,
-                'Mailzero NFT Mint': mint_mailzero,
-                'ZNS Domain Mint': mint_domain_zns,
-                'ENS Domain Mint': mint_domain_ens,
-                'L2Telegraph NFT Bridge': mint_and_bridge_l2telegraph,
-                'Gnosis Safe': create_safe,
-                'Contract Deploy': deploy_contract,
-                'L2Telegraph Message': send_message_l2telegraph,
-                'Zerius Refuel': refuel_zerius,
-                'Merkly Refuel': refuel_merkly,
-                'Bungee Refuel': refuel_bungee,
-                'Withdraw txSync': withdraw_native_bridge,
-            }
-        elif GLOBAL_NETWORK == 2:
-            map_data = {
-                'SushiSwap Swap': swap_sushiswap,
-                'RocketSam Deposit': deposit_rocketsam,
-               # 'Zerius Mint': mint_zerius,
-                'Zerius Bridge': bridge_zerius,
-                'Contract Deploy': deploy_contract,
-                'Merkly Refuel': refuel_merkly,
-                'Zerius Refuel': refuel_zerius,
-                'L2Telegraph Bridge NFT': mint_and_bridge_l2telegraph,
-                'L2Telegraph Message': send_message_l2telegraph,
-            }
-        elif GLOBAL_NETWORK == 3:
-            map_data = {
-                'PancakeSwap Swap': swap_pancake,
-                'Uniswap Swap':  swap_uniswap,
-                'SushiSwap Swap':  swap_sushiswap,
-                'WooFi Swap': swap_woofi,
-                'Maverick Swap': swap_maverick,
-                'iZumi Swap': swap_izumi,
-                'ODOS Swap': swap_odos,
-                '1inch Swap': swap_oneinch,
-                'OpenOcean Swap': swap_openocean,
-                'XYfinance Swap': swap_xyfinance,
-                'RocketSam Deposit': deposit_rocketsam,
-                'Gnosis Safe Create': create_safe,
-                'zkStars Mint': mint_zkstars,
-              #  'Zerius Mint': mint_zerius,
-                'Zerius Bridge': bridge_zerius,
-                'L2Telegraph Bridge NFT': mint_and_bridge_l2telegraph,
-                'Contract Deploy': deploy_contract,
-                'Bungee Refuel': refuel_bungee,
-                'Merkly Refuel': refuel_merkly,
-                'Zerius Refuel': refuel_zerius,
-                'L2Telegraph Message': send_message_l2telegraph,
-            }
-        elif GLOBAL_NETWORK == 4:
-            map_data = {
-                'SyncSwap Swap': swap_syncswap,
-                'PancakeSwap Swap': swap_pancake,
-                'WooFi Swap': swap_woofi,
-                'Velocore Swap': swap_velocore,
-                'iZumi Swap': swap_izumi,
-                'Rango Swap': swap_rango,
-                'OpenOcean Swap': swap_openocean,
-                'XYfinance Swap': swap_xyfinance,
-                'LayerBank Deposit': deposit_layerbank,
-                'RocketSam Deposit': deposit_rocketsam,
-                'OmniSea Create': create_omnisea,
-                'zkStars Mint': mint_zkstars,
-               # 'Zerius Mint': mint_zerius,
-                'Zerius Bridge': bridge_zerius,
-                'L2Telegraph Bridge NFT': mint_and_bridge_l2telegraph,
-                'Contract Deploy': deploy_contract,
-                'Merkly Refuel': refuel_merkly,
-                'Zerius Refuel': refuel_zerius,
-                'L2Telegraph Message': send_message_l2telegraph,
-            }
-        elif GLOBAL_NETWORK == 8:
-            map_data = {
-                'SyncSwap Swap': swap_syncswap,
-                'SpaceFi Swap': swap_spacefi,
-                'iZumi Swap': swap_izumi,
-                'OpenOcean Swap': swap_openocean,
-                'XYfinance Swap': swap_xyfinance,
-                'LayerBank Deposit': deposit_layerbank,
-                'RocketSam Deposit': deposit_rocketsam,
-                'OmniSea Create': create_omnisea,
-                'zkStars Mint':  mint_zkstars,
-               # 'Zerius Mint': mint_zerius,
-                'Zerius Bridge': bridge_zerius,
-                'L2Telegraph Bridge NFT': mint_and_bridge_l2telegraph,
-                'Contract Deploy': deploy_contract,
-                'Merkly Refuel': refuel_merkly,
-                'Zerius Refuel': refuel_zerius,
-                'L2Telegraph Message': send_message_l2telegraph,
-            }
-        elif GLOBAL_NETWORK == 12:
-            map_data = {
-                'MintFun Mint': mint_mintfun,
-                'zkStars Mint': mint_zkstars,
-                'RocketSam Deposit': deposit_rocketsam,
-               # 'Zerius Mint': mint_zerius,
-                'Zerius Bridge': bridge_zerius,
-                'Contract Deploy': deploy_contract,
-                'Merkly Refuel': refuel_merkly,
-                'Zerius Refuel': refuel_zerius,
-                'L2Telegraph Bridge NFT': mint_and_bridge_l2telegraph,
-                'L2Telegraph Message': send_message_l2telegraph,
-            }
-        elif GLOBAL_NETWORK == 0:
-            if not self.ws:
-                raise SoftwareException('GLOBAL_NETWORK = 0 does not support classic routes')
-            map_data = {}
-            modules_names = (self.ws.row_values(1))[2:]
-            for module_name in modules_names:
-                module_func = None
-                module_name_symbol, module_path, module_type = module_name.split()
-
-                if module_type == 'R':
-                    if module_name_symbol == 'L':
-                        module_func = l2pass_refuel_google
-                    elif module_name_symbol == 'M':
-                        module_func = merkly_refuel_google
-                    elif module_name_symbol == 'W':
-                        module_func = whale_refuel_google
-                    elif module_name_symbol == 'Z':
-                        module_func = zerius_refuel_google
-                elif module_type == 'B':
-                    if module_name_symbol == 'L':
-                        module_func = l2pass_bridge_google
-                    elif module_name_symbol == 'M':
-                        module_func = merkly_bridge_google
-                    elif module_name_symbol == 'W':
-                        module_func = whale_bridge_google
-                    elif module_name_symbol == 'Z':
-                        module_func = zerius_bridge_google
-
-                if module_func:
-                    map_data[module_name] = module_func
-                else:
-                    raise SoftwareException(f"That setting is wrong in Google SpreadSheets")
-
-        else:
-            self.logger_msg(None, None,
-                            msg=f"This network does not support in Google SpreadSheets", type_msg='warning')
-            map_data = {}
-        self.function_mappings = map_data
+            self.w3 = AsyncWeb3()
 
     @staticmethod
     def classic_generate_route():
@@ -365,11 +196,6 @@ class RouteGenerator(Logger):
                 route.append(withdraw_module.__name__)
         return route
 
-    def get_function_mappings_key(self, value):
-        for key, val in self.function_mappings.items():
-            if val == value:
-                return key
-
     def get_account_name_list(self):
         try:
             return self.ws.col_values(1)[1:]
@@ -396,30 +222,65 @@ class RouteGenerator(Logger):
 
     def get_modules_list(self):
         modules_list_str = self.ws.row_values(1)[2:]
-
         modules_list = []
-        for module in modules_list_str:
-            if module in self.function_mappings:
-                modules_list.append(self.function_mappings[module])
+
+        if GLOBAL_NETWORK == 0:
+            if not self.ws:
+                raise SoftwareException('GLOBAL_NETWORK = 0 does not support classic routes')
+            for module_name in modules_list_str:
+                module_func = None
+                module_name_symbol, module_path, module_type = module_name.split()
+
+                if module_type == 'R':
+                    if module_name_symbol == 'L':
+                        module_func = l2pass_refuel_google
+                    elif module_name_symbol == 'M':
+                        module_func = merkly_refuel_google
+                    elif module_name_symbol == 'W':
+                        module_func = whale_refuel_google
+                    elif module_name_symbol == 'Z':
+                        module_func = zerius_refuel_google
+                elif module_type == 'B':
+                    if module_name_symbol == 'L':
+                        module_func = l2pass_bridge_google
+                    elif module_name_symbol == 'M':
+                        module_func = merkly_bridge_google
+                    elif module_name_symbol == 'W':
+                        module_func = whale_bridge_google
+                    elif module_name_symbol == 'Z':
+                        module_func = zerius_bridge_google
+
+                if module_func:
+                    modules_list.append([module_func.__name__, module_name])
+                else:
+                    raise SoftwareException(f"That module does not exist in Google SpreadSheets")
+        else:
+            modules_list = []
+            for module in modules_list_str:
+                if module in self.modules_names_const:
+                    modules_list.append(module)
+                else:
+                    raise SoftwareException(f"That module does not exist in Google SpreadSheets")
+
         return modules_list
 
-    def get_data_for_batch(self, account_names:list):
+    def get_data_for_batch(self, account_names:list, modules_list:list):
         wallet_list = self.get_account_name_list()
         batch_size = 200
         data_to_return = {}
 
         for i in range(0, len(account_names), batch_size):
             batch_account_names = account_names[i:i+batch_size]
-            batch_data = self.get_data_for_single_batch(batch_account_names, wallet_list)
+            batch_data = self.get_data_for_single_batch(batch_account_names, wallet_list, modules_list)
             data_to_return.update(batch_data)
 
         return data_to_return
 
-    def get_data_for_single_batch(self, batch_account_names:list, wallet_list:list):
+    def get_data_for_single_batch(self, batch_account_names:list, wallet_list:list, modules_list:list):
         ranges_for_sheet = []
         batch_data = {}
         data_to_return = {}
-        col = 2 + len(self.function_mappings)
+        col = 2 + len(modules_list)
 
         for account_name in batch_account_names:
             row = 2 + wallet_list.index(account_name)
@@ -440,8 +301,8 @@ class RouteGenerator(Logger):
         return data_to_return
 
     async def get_smart_routes_for_batch(self, accounts_names:list):
-        batch_data = self.get_data_for_batch(accounts_names)
         modules_list = self.get_modules_list()
+        batch_data = self.get_data_for_batch(accounts_names, modules_list)
         tasks = []
         for accounts_names in accounts_names:
             tasks.append(self.get_smart_route(accounts_names, batch_data[accounts_names]['progress'][0],
@@ -480,37 +341,45 @@ class RouteGenerator(Logger):
         else:
             for i in range(len(wallet_modules_statuses)):
                 if wallet_modules_statuses[i] in ["Not Started", "Error"]:
-                    path = list(self.function_mappings.keys())[i]
-                    modules_to_work.append([modules_list[i], path])
+                    modules_to_work.append([modules_list[i][0], modules_list[i][1]])
 
-        excluded_modules = [get_func_by_name(module) for module in EXCLUDED_MODULES
-                            if get_func_by_name(module) in list(self.function_mappings.values())]
+        excluded_modules = [module for module in EXCLUDED_MODULES if module in self.modules_names_const]
 
         if GLOBAL_NETWORK != 0:
             possible_modules = [module for module in modules_to_work if module not in excluded_modules]
         else:
-            possible_modules = [module for module in modules_to_work if module not in excluded_modules]
+            possible_modules = [module for module in modules_to_work if module[0] not in excluded_modules]
 
         want_count = len(modules_to_work) if ALL_MODULES_TO_RUN else random.choice(MODULES_COUNT)
         possible_count = min(want_count, len(possible_modules))
 
-        if GLOBAL_NETWORK != 0:
-            possible_modules_data = [AVAILABLE_MODULES_INFO[module] for module in possible_modules]
-        else:
-            possible_modules_data = [(AVAILABLE_MODULES_INFO[module[0]], module[1]) for module in possible_modules]
+        possible_modules_data = []
+        for module in possible_modules:
+            module_to_add = [AVAILABLE_MODULES_INFO[get_func_by_name(module[0])]]
+            if GLOBAL_NETWORK == 0:
+                module_to_add.append(module[1])
+            possible_modules_data.append(module_to_add)
 
         smart_route: list = random.sample(possible_modules_data, possible_count)
 
-        if DMAIL_IN_ROUTES:
-            smart_route.extend([AVAILABLE_MODULES_INFO[send_message_dmail] for _ in range(random.choice(DMAIL_COUNT))])
+        dmails_count = random.randint(*DMAIL_COUNT)
+        transfers_count = random.randint(*TRANSFER_COUNT)
+        collaterals_count = random.randint(*COLLATERAL_COUNT)
+        wraps_count = random.randint(*WRAPS_COUNT)
 
-        if COLLATERAL_IN_ROUTES and collaterals_modules:
+        if dmails_count:
+            smart_route.extend([AVAILABLE_MODULES_INFO[send_message_dmail] for _ in range(dmails_count)])
+
+        if collaterals_count and collaterals_modules:
             smart_route.extend([AVAILABLE_MODULES_INFO[random.choice(collaterals_modules)]
-                                for _ in range(random.choice(COLLATERAL_COUNT))])
+                                for _ in range(collaterals_count)])
 
-        if TRANSFER_IN_ROUTES and transfers_modules:
+        if transfers_count and transfers_modules:
             smart_route.extend([AVAILABLE_MODULES_INFO[random.choice(transfers_modules)]
-                                for _ in range(random.choice(TRANSFER_COUNT))])
+                                for _ in range(transfers_count)])
+
+        if wraps_count:
+            smart_route.extend([AVAILABLE_MODULES_INFO[wrap_abuser] for _ in range(wraps_count)])
 
         if WITHDRAW_LP:
             if GLOBAL_NETWORK == 11:
@@ -555,6 +424,12 @@ class RouteGenerator(Logger):
         smart_route.append(AVAILABLE_MODULES_INFO[collector_eth] if HELPERS_CONFIG['collector_eth'] else None)
         smart_route.append(
             AVAILABLE_MODULES_INFO[make_balance_to_average] if HELPERS_CONFIG['make_balance_to_average'] else None)
+
+        if INCLUDED_MODULES:
+            for module in INCLUDED_MODULES:
+                module_func = get_func_by_name(module)
+                if module_func:
+                    smart_route.append(AVAILABLE_MODULES_INFO[module_func])
 
         random.shuffle(smart_route)
 

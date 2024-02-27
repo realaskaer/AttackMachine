@@ -1,7 +1,7 @@
 from .interfaces import DEX, RequestClient, Bridge, Refuel, Messenger, Landing, Minter, Blockchain, Creator, CEX, Logger
 from .client import Client
 from .custom_modules import Custom
-from .blockchains import ZkSync, Base, Scroll, Linea, ArbitrumNova, Zora
+from .blockchains import ZkSync, Base, Scroll, Linea, ArbitrumNova, Zora, Ethereum
 from .swaps import Izumi
 from .swaps import Maverick
 from .swaps import Mute

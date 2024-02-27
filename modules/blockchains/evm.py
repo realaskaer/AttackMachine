@@ -424,6 +424,12 @@ class ArbitrumNova(Blockchain, SimpleEVM):
         Blockchain.__init__(self, client)
 
 
+class Ethereum(Blockchain, SimpleEVM):
+    def __init__(self, client):
+        SimpleEVM.__init__(self, client)
+        Blockchain.__init__(self, client)
+
+
 class Zora(Blockchain, SimpleEVM):
     def __init__(self, client):
         SimpleEVM.__init__(self, client)
