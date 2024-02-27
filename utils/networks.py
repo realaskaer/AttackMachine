@@ -36,7 +36,6 @@ ScrollRPC = Network(
     name='Scroll',
     rpc=[
         'https://rpc.scroll.io',
-        'https://scroll.blockpi.network/v1/rpc/public'
     ],
     chain_id=534352,
     eip1559_support=False,
@@ -48,7 +47,6 @@ ArbitrumRPC = Network(
     name='Arbitrum',
     rpc=[
         'https://rpc.ankr.com/arbitrum/',
-       # 'https://arb1.arbitrum.io/rpc'
     ],
     chain_id=42161,
     eip1559_support=True,

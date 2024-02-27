@@ -1,3 +1,5 @@
+from eth_abi import abi
+
 from modules import DEX, Logger, Client
 from utils.tools import gas_checker, helper
 from general_settings import SLIPPAGE
@@ -55,17 +57,24 @@ class Ambient(DEX, Logger):
 
         await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
 
-        transaction = await self.router_contract.functions.swap(
-            ZERO_ADDRESS,
-            to_token_address if from_token_name == 'ETH' else from_token_address,
-            pool_idx,
-            True if from_token_name == 'ETH' else False,
-            True if from_token_name == 'ETH' else False,
-            amount_in_wei,
-            tip,
-            max_sqrt_price if from_token_name == 'ETH' else min_sqrt_price,
-            min_amount_out,
-            reserve_flags
+        encode_data = abi.encode(
+            ['address', 'address', 'uint16', 'bool', 'bool', 'uint256', 'uint8', 'uint256', 'uint256', 'uint8'], [
+                ZERO_ADDRESS,
+                to_token_address if from_token_name == 'ETH' else from_token_address,
+                pool_idx,
+                True if from_token_name == 'ETH' else False,
+                True if from_token_name == 'ETH' else False,
+                amount_in_wei,
+                tip,
+                max_sqrt_price if from_token_name == 'ETH' else min_sqrt_price,
+                min_amount_out,
+                reserve_flags
+            ]
+        )
+
+        transaction = await self.router_contract.functions.userCmd(
+            1,
+            encode_data
         ).build_transaction(tx_params)
 
         return await self.client.send_transaction(transaction)

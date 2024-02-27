@@ -3,7 +3,7 @@ import random
 
 from modules import Minter, Logger, RequestClient
 from config import MINTFUN_ABI
-from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry
+from modules.interfaces import SoftwareException
 from utils.tools import helper, gas_checker
 from settings import MINTFUN_CONTRACTS
 
