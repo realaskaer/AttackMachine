@@ -188,7 +188,6 @@ class Client(Logger):
                     )
                 else:
                     old_balance, _, _ = await client.get_token_balance(token_name, omnicheck=omnicheck)
-                print(old_balance)
                 return old_balance
 
             self.logger_msg(*self.acc_info, msg=f'Waiting {token_name} to receive')
