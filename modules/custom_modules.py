@@ -912,6 +912,11 @@ class Custom(Logger, RequestClient):
                     need_to_freeze_amount = min_hold_balance - (balance - bridge_amount)
                     bridge_amount = round(bridge_amount - need_to_freeze_amount, 6)
 
+                if bridge_amount < 0:
+                    raise SoftwareExceptionWithoutRetry(
+                        f'Set BRIDGE_AMOUNT_LIMITER[2 value] lower than {wanted_to_hold_amount}. '
+                        f'Current amount = {bridge_amount} {from_token_name}')
+
                 bridge_amount_in_usd = bridge_amount * token_price
 
                 bridge_data = (source_chain_name, destination_chain, bridge_amount, dst_chain_id,
