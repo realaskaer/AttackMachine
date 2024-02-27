@@ -1,3 +1,5 @@
+import uuid
+
 from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 from config import TOKENS_PER_CHAIN, HELP_SOFTWARE
@@ -18,7 +20,8 @@ class Rango(RequestClient, Logger):
 
         headers = {
             'content-type': 'application/json;charset=UTF-8',
-            "accept": "*/*"
+            "accept": "*/*",
+            "X-Rango-Id": uuid.uuid4()
         }
 
         quote_payload = {
@@ -61,7 +64,8 @@ class Rango(RequestClient, Logger):
 
         headers = {
             'content-type': 'application/json;charset=UTF-8',
-            "accept": "*/*"
+            "accept": "*/*",
+            "X-Rango-Id": uuid.uuid4()
         }
 
         swap_payload = {
