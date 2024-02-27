@@ -510,11 +510,8 @@ class Client(Logger):
 
         url = f"https://api-mainnet.layerzero-scan.com/tx/{tx_hash}"
 
-        t = 0
-        sleep_time = 20
-        timeout = 600 if self.network.name != 'Polygon' else 3600
         flag = False
-        while t < timeout:
+        while True:
             try:
                 async with self.session.get(url=url) as response:
                     result = await response.json()
@@ -531,14 +528,5 @@ class Client(Logger):
             else:
                 self.logger_msg(
                     *self.acc_info, msg=f'Waiting for funds on destination chain...', type_msg='warning')
-                await asyncio.sleep(sleep_time)
-                t += sleep_time
-            if t > timeout:
-                raise SoftwareException(f'Funds have not been received on destination chain within {timeout} seconds')
+                await asyncio.sleep(30)
 
-        async with self.session.get(url=url) as response:
-            result = await response.json()
-
-            if (len(result["messages"]) > 0 and "dstTxHash" in result["messages"][0]
-                    and 'status' in result["messages"][0] and result["messages"][0]['status'] == "DELIVERED"):
-                return True
