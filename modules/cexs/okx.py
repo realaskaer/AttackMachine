@@ -288,7 +288,8 @@ class OKX(CEX, Logger):
 
         deposit_network, deposit_amount = deposit_data
         network_raw_name = OKX_NETWORKS_NAME[deposit_network]
-        ccy, network_name = network_raw_name.split('-')
+        split_network_data = network_raw_name.split('-')
+        ccy, network_name = split_network_data[0], '-'.join(split_network_data[1:])
         withdraw_data = await self.get_currencies(ccy)
 
         networks_raw_data = {item['chain']: {'can_dep': item['canDep'], 'min_dep': item['minDep']}

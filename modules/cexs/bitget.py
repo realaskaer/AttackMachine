@@ -211,7 +211,8 @@ class Bitget(CEX, Logger):
 
         network_id, amount = withdraw_data
         network_raw_name = BITGET_NETWORKS_NAME[network_id]
-        ccy, network_name = network_raw_name.split('-')
+        split_network_data = network_raw_name.split('-')
+        ccy, network_name = split_network_data[0], '-'.join(split_network_data[1:])
         dst_chain_id = CEX_WRAPPED_ID[network_id]
         amount = self.client.round_amount(*amount)
 
