@@ -312,11 +312,17 @@ class RouteGenerator(Logger):
                         module_func = l2pass_refuel_google
                     elif module_name_symbol == 'M':
                         module_func = merkly_refuel_google
+                    elif module_name_symbol == 'W':
+                        module_func = whale_refuel_google
                     elif module_name_symbol == 'Z':
                         module_func = zerius_refuel_google
                 elif module_type == 'B':
                     if module_name_symbol == 'L':
                         module_func = l2pass_bridge_google
+                    elif module_name_symbol == 'M':
+                        module_func = merkly_bridge_google
+                    elif module_name_symbol == 'W':
+                        module_func = whale_bridge_google
                     elif module_name_symbol == 'Z':
                         module_func = zerius_bridge_google
 
@@ -552,8 +558,12 @@ class RouteGenerator(Logger):
 
         random.shuffle(smart_route)
 
-        smart_route_with_priority = [(i[0][0].__name__, i[1]) if GLOBAL_NETWORK == 0 else i[0].__name__
-                                     for i in sorted(list(filter(None, smart_route)), key=lambda x: x[1])]
+        if GLOBAL_NETWORK != 0:
+            smart_route_with_priority = [
+                i[0].__name__ for i in sorted(list(filter(None, smart_route)), key=lambda x: x[1])
+            ]
+        else:
+            smart_route_with_priority = [(i[0][0].__name__, i[1]) for i in list(filter(None, smart_route))]
 
         self.smart_routes_json_save(account_name, smart_route_with_priority)
 
