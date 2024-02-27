@@ -159,6 +159,8 @@ class OKX(CEX, Logger):
 
         if balance:
             balances['Main CEX Account'] = float(balance[0]['availBal'])
+        else:
+            balances['Main CEX Account'] = 0
 
         for sub_data in sub_list:
             sub_name = sub_data['subAcct']
@@ -172,6 +174,8 @@ class OKX(CEX, Logger):
 
             if sub_balance:
                 balances[sub_name] = float(sub_balance[0]['availBal'])
+            else:
+                balances[sub_name] = 0
 
         return balances
 
@@ -187,7 +191,9 @@ class OKX(CEX, Logger):
         await asyncio.sleep(10)
         while True:
             new_sub_balances = await self.get_cex_balances(ccy=ccy)
+            print(new_sub_balances)
             for sub_name, sub_balance in new_sub_balances.items():
+                print(sub_name, sub_balance)
                 if sub_balance > old_sub_balances[sub_name]:
                     self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} complete", type_msg='success')
                     return True

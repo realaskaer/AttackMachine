@@ -817,29 +817,30 @@ class Custom(Logger, RequestClient):
                 if balance_in_usd >= limit_amount:
 
                     dep_amount = await client.get_smart_amount(amount, token_name=dep_token, omnicheck=omnicheck)
-                    hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
-                    total_dep_amount = round(dep_amount - hold_balance, 6)
+                    min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
+                    if balance - dep_amount < min_hold_balance:
+                        need_to_freeze_amount = min_hold_balance - (balance - dep_amount)
+                        dep_amount = round(dep_amount - need_to_freeze_amount, 6)
 
-                    dep_amount_in_usd = total_dep_amount * token_price
+                    if dep_amount < 0:
+                        raise SoftwareExceptionWithoutRetry(
+                            f'Set CEX_DEPOSIT_LIMITER[2 value] lower than {wanted_to_hold_amount}. '
+                            f'Current amount = {dep_amount} {dep_token}')
+
+                    dep_amount_in_usd = dep_amount * token_price
 
                     if balance_in_usd >= dep_amount_in_usd:
 
-                        if min_wanted_amount <= (balance_in_usd - dep_amount_in_usd) <= max_wanted_amount:
+                        deposit_data = dep_network, (dep_amount, dep_amount)
 
-                            deposit_data = dep_network, (total_dep_amount, total_dep_amount)
-
-                            if len(deposit_data_copy) == 1:
-                                return await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
-                            else:
-                                result_list.append(
-                                    await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
-                                )
-                                await client.session.close()
-                                continue
-
-                        hold_amount_in_usd = balance_in_usd - dep_amount_in_usd
-                        info = f"{min_wanted_amount:.2f}$ <= {hold_amount_in_usd:.2f}$ <= {max_wanted_amount:.2f}$"
-                        raise SoftwareExceptionWithoutRetry(f'Account balance will be not in wanted hold amount: {info}')
+                        if len(deposit_data_copy) == 1:
+                            return await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
+                        else:
+                            result_list.append(
+                                await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
+                            )
+                            await client.session.close()
+                            continue
 
                     info = f"{balance_in_usd:.2f}$ < {dep_amount_in_usd:.2f}$"
                     raise SoftwareExceptionWithoutRetry(f'Account {dep_token} balance < wanted deposit amount: {info}')
@@ -847,6 +848,9 @@ class Custom(Logger, RequestClient):
                 info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
                 raise SoftwareExceptionWithoutRetry(f'Account {dep_token} balance < wanted limit amount: {info}')
             return all(result_list)
+
+        except SoftwareExceptionWithoutRetry as error:
+            raise error
         except Exception as error:
             raise SoftwareExceptionWithRetries(f'{error}')
         finally:
@@ -902,8 +906,11 @@ class Custom(Logger, RequestClient):
             if balance_in_usd >= limit_amount:
 
                 bridge_fee = await bridge_utils(client, bridge_app_id, chain_from_id, fee_bridge_data, need_fee=True)
-                hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
-                bridge_amount = round(amount - bridge_fee - hold_balance, 6)
+                min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
+                bridge_amount = round(amount - bridge_fee, 6)
+                if balance - bridge_amount < min_hold_balance:
+                    need_to_freeze_amount = min_hold_balance - (balance - bridge_amount)
+                    bridge_amount = round(bridge_amount - need_to_freeze_amount, 6)
 
                 bridge_amount_in_usd = bridge_amount * token_price
 
@@ -912,13 +919,7 @@ class Custom(Logger, RequestClient):
 
                 if balance_in_usd >= bridge_amount_in_usd:
 
-                    if min_wanted_amount <= (balance_in_usd - bridge_amount_in_usd) <= max_wanted_amount:
-
-                        return await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data)
-
-                    hold_amount_in_usd = balance_in_usd - bridge_amount_in_usd
-                    info = f"{min_wanted_amount:.2f}$ <= {hold_amount_in_usd:.2f}$ <= {max_wanted_amount:.2f}$"
-                    raise SoftwareExceptionWithoutRetry(f'Account balance will be not in wanted hold amount: {info}')
+                    return await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data)
 
                 info = f"{balance_in_usd:.2f}$ < {bridge_amount_in_usd:.2f}$"
                 raise SoftwareExceptionWithoutRetry(f'Account {token_name} balance < wanted bridge amount: {info}')

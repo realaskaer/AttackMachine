@@ -191,7 +191,7 @@ def helper(func):
                     return await func(self, *args, **kwargs)
                 except (PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
                         BlockchainExceptionWithoutRetry, asyncio.exceptions.TimeoutError, TimeExhausted, ValueError,
-                        ContractLogicError, ClientResponseError) as err:
+                        ContractLogicError, ClientResponseError, SoftwareExceptionWithRetries) as err:
                     error = err
                     attempts += 1
 
