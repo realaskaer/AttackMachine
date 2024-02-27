@@ -279,4 +279,6 @@ class Blockchain(ABC):
             data = await response.json()
             if response.status == 200:
                 return data
-            raise SoftwareException(f"Bad request to {self.__class__.__name__} API: {response.status}")
+            raise SoftwareException(
+                f"Bad request to {self.__class__.__name__} API. "
+                f"Response status: {response.status}. Status: {response.status}. Response: {await response.text()}")

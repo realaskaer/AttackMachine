@@ -438,6 +438,21 @@ class Zora(Blockchain, SimpleEVM):
     async def get_bridge_info(self, amount_in_wei, chain_to_name):
         url = f'https://api-{chain_to_name.lower()}.reservoir.tools/execute/call/v1'
 
+        headers = {
+            "accept": "application/json, text/plain, */*",
+            "accept-language": "ru,en;q=0.9,en-GB;q=0.8,en-US;q=0.7",
+            "content-type": "application/json",
+            "sec-ch-ua": '"Chromium";v="122", "Not(A:Brand";v="24", "Microsoft Edge";v="122""',
+            "sec-ch-ua-mobile": "?0",
+            "Origin": "https://bridge.zora.energy",
+            "Referer": "https://bridge.zora.energy/",
+            "sec-ch-ua-platform": "Windows",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "x-rkc-version": "1.11.2"
+        }
+
         payload = {
             "user": self.client.address,
             "txs": [
@@ -450,7 +465,8 @@ class Zora(Blockchain, SimpleEVM):
             "originChainId": self.client.network.chain_id
         }
 
-        data = (await self.make_request(method='POST', url=url, json=payload))["steps"][0]["items"][0]["data"]
+        data = (await self.make_request(
+            method='POST', url=url, headers=headers, json=payload))["steps"][0]["items"][0]["data"]
 
         contract_address = self.client.w3.to_checksum_address(data["to"])
         tx_data = data["data"]
