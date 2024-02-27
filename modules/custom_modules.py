@@ -270,6 +270,10 @@ class Custom(Logger, RequestClient):
                         dst_chain = tuple_chains[0]
                     else:
                         dst_chain = [chain for chain in tuple_chains if chain != converted_chains[index]]
+                elif isinstance(chains, tuple):
+                    if L0_BRIDGE_COUNT != len(chains) - 1:
+                        raise SoftwareExceptionWithoutRetry('L0_BRIDGE_COUNT != all chains in params - 1')
+                    dst_chain = converted_chains[bridge_count + 1]
                 else:
                     if not start_chain:
                         start_chain = converted_chains[index]
