@@ -191,9 +191,8 @@ class OKX(CEX, Logger):
         await asyncio.sleep(10)
         while True:
             new_sub_balances = await self.get_cex_balances(ccy=ccy)
-            print(new_sub_balances)
             for sub_name, sub_balance in new_sub_balances.items():
-                print(sub_name, sub_balance)
+
                 if sub_balance > old_sub_balances[sub_name]:
                     self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} complete", type_msg='success')
                     return True
