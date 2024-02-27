@@ -371,8 +371,6 @@ class Custom(Logger, RequestClient):
 
         from_token_name, to_token_name, amount_tuple, _ = CUSTOM_SWAP_DATA
 
-
-
     @helper
     @gas_checker
     async def layerzero_attack(self, dapp_id:int = None, dapp_mode:int = None):
@@ -388,11 +386,14 @@ class Custom(Logger, RequestClient):
         attack_data_without_none = []
 
         if dapp_mode == 1:
-            attack_data = [[data[0], (data[1], data[2])] for data in attack_data[0]]
+            attack_data = [[random.choice(data[0]) if isinstance(data[0], list) else data[0], (data[1], data[2])]
+                           for data in attack_data[0]]
             if SHUFFLE_ATTACK:
                 random.shuffle(attack_data)
         elif dapp_mode == 2:
             attack_data = attack_data[1]
+            if isinstance(attack_data[1], list):
+                attack_data = random.choice(attack_data)
             if SHUFFLE_NFT_ATTACK:
                 random.shuffle(attack_data)
 
