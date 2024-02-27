@@ -38,7 +38,7 @@ class Orbiter(Bridge, Logger):
         if not need_check:
             bridge_info = f'{amount} {token_name} from {from_chain["name"]} to {to_chain["name"]}'
             self.logger_msg(*self.client.acc_info, msg=f'Bridge on Orbiter: {bridge_info}')
-        print(bridge_data)
+
         bridge_data = self.get_maker_data(from_chain['id'], to_chain['id'], token_name)
         destination_code = 9000 + to_chain['id']
         decimals = await self.client.get_decimals(token_address=from_token_address)
