@@ -226,27 +226,23 @@ class BingX(CEX, Logger):
         network_raw_name = BINGX_NETWORKS_NAME[network_id]
         ccy, network_name = network_raw_name.split('-')
         dst_chain_id = CEX_WRAPPED_ID[network_id]
-
-        withdraw_raw_data = (await self.get_currencies(ccy))[0]['networkList']
-
-        network_data = {
-            item['network']: {
-                'withdrawEnable': item['withdrawEnable'],
-                'withdrawFee': item['withdrawFee'],
-                'withdrawMin': item['withdrawMin'],
-                'withdrawMax': item['withdrawMax']
-            } for item in withdraw_raw_data
-        }[network_name]
-
         if transfer_mode:
             amount = await self.get_balance(ccy)
         else:
             amount = self.client.round_amount(*amount)
 
-        self.logger_msg(
-            *self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
+        self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
 
         while True:
+            withdraw_raw_data = (await self.get_currencies(ccy))[0]['networkList']
+            network_data = {
+                item['network']: {
+                    'withdrawEnable': item['withdrawEnable'],
+                    'withdrawFee': item['withdrawFee'],
+                    'withdrawMin': item['withdrawMin'],
+                    'withdrawMax': item['withdrawMax']
+                } for item in withdraw_raw_data
+            }[network_name]
 
             if network_data['withdrawEnable']:
                 min_wd, max_wd = float(network_data['withdrawMin']), float(network_data['withdrawMax'])

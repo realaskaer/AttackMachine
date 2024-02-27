@@ -208,23 +208,20 @@ class OKX(CEX, Logger):
 
         await self.transfer_from_subs(ccy=ccy, silent_mode=True)
 
-        withdraw_raw_data = await self.get_currencies(ccy)
-
-        network_data = {
-            item['chain']: {
-                'can_withdraw': item['canWd'],
-                'min_fee': item['minFee'],
-                'min_wd': item['minWd'],
-                'max_wd': item['maxWd']
-            } for item in withdraw_raw_data
-        }[network_raw_name]
-
         amount = self.client.round_amount(*amount)
 
-        self.logger_msg(
-            *self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name}")
+        self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name}")
 
         while True:
+            withdraw_raw_data = await self.get_currencies(ccy)
+            network_data = {
+                item['chain']: {
+                    'can_withdraw': item['canWd'],
+                    'min_fee': item['minFee'],
+                    'min_wd': item['minWd'],
+                    'max_wd': item['maxWd']
+                } for item in withdraw_raw_data
+            }[network_raw_name]
 
             if network_data['can_withdraw']:
                 min_wd, max_wd = float(network_data['min_wd']), float(network_data['max_wd'])

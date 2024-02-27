@@ -213,21 +213,19 @@ class Bitget(CEX, Logger):
         network_raw_name = BITGET_NETWORKS_NAME[network_id]
         ccy, network_name = network_raw_name.split('-')
         dst_chain_id = CEX_WRAPPED_ID[network_id]
-        withdraw_raw_data = (await self.get_currencies(ccy))[0]['chains']
-
-        network_data = {
-            item['chain']: {
-                'withdrawEnable': item['withdrawable'],
-                'withdrawFee': item['withdrawFee'],
-                'withdrawMin': item['minWithdrawAmount'],
-            } for item in withdraw_raw_data
-        }[network_name]
-
         amount = self.client.round_amount(*amount)
 
-        while True:
+        self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
 
-            self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
+        while True:
+            withdraw_raw_data = (await self.get_currencies(ccy))[0]['chains']
+            network_data = {
+                item['chain']: {
+                    'withdrawEnable': item['withdrawable'],
+                    'withdrawFee': item['withdrawFee'],
+                    'withdrawMin': item['minWithdrawAmount'],
+                } for item in withdraw_raw_data
+            }[network_name]
 
             if network_data['withdrawEnable']:
                 min_wd = float(network_data['withdrawMin'])
