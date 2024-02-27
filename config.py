@@ -2687,7 +2687,7 @@ OKX_NETWORKS_NAME = {
     17                      : 'FTM-Fantom',
     18                      : 'MATIC-Polygon',
     19                      : 'USDT-Arbitrum One',
-    20                      : 'USDT-Avalanche',
+    20                      : 'USDT-Avalanche C-Chain',
     21                      : 'USDT-Optimism',
     22                      : 'USDT-Polygon',
     23                      : 'USDT-BSC',
