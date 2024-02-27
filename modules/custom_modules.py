@@ -7,7 +7,8 @@ import aiohttp.client_exceptions
 
 from modules import Logger, RequestClient, Client
 from general_settings import AMOUNT_PERCENT_WRAPS, GLOBAL_NETWORK
-from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry, SoftwareExceptionWithRetries
+from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry, SoftwareExceptionWithRetries, \
+    CriticalException
 from utils.tools import helper, gas_checker, sleep
 from config import (
     ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA,
@@ -599,16 +600,17 @@ class Custom(Logger, RequestClient):
                         )
 
                         if not ALL_DST_CHAINS:
-                            if not result:
-                                raise SoftwareException(f'Bad {module_name}. Trying again...')
-                            return True
+                            if result:
+                                return True
+                            raise SoftwareException(f'Software do not complete {module_name}. Will try again...')
 
                         if ALL_DST_CHAINS:
                             random.shuffle(src_chains)
-
                             if result:
                                 break
 
+                except SoftwareException as error:
+                    raise error
                 except Exception as error:
                     traceback.print_exc()
                     self.logger_msg(
@@ -693,14 +695,17 @@ class Custom(Logger, RequestClient):
                         )
 
                         if not ALL_DST_CHAINS:
-                            return True
+                            if result:
+                                return True
+                            raise SoftwareException(f'Software do not complete {module_name}. Will try again')
 
                         if ALL_DST_CHAINS:
                             random.shuffle(src_chains)
-
                             if result:
                                 break
 
+                except SoftwareException as error:
+                    raise error
                 except Exception as error:
                     self.logger_msg(
                         *self.client.acc_info,
@@ -749,19 +754,16 @@ class Custom(Logger, RequestClient):
                 network, amount = current_data
 
                 if isinstance(amount[0], str):
-                    raise SoftwareExceptionWithoutRetry('CEX withdrawal does not support % of the amount')
+                    raise CriticalException('CEX withdrawal does not support % of the amount')
 
-                try:
-                    result_list.append(await func(self.client, withdraw_data=(network, amount)))
-
-                except Exception as error:
-                    self.logger_msg(
-                        *self.client.acc_info, msg=f"Withdraw from CEX failed. Error: {error}", type_msg='error')
+                result_list.append(await func(self.client, withdraw_data=(network, amount)))
 
                 if index != len(withdraw_data_copy):
                     await sleep(self)
 
             return all(result_list)
+        except CriticalException as error:
+            raise error
         except Exception as error:
             raise SoftwareExceptionWithRetries(f'{error}')
 
@@ -823,7 +825,7 @@ class Custom(Logger, RequestClient):
                         dep_amount = round(dep_amount - need_to_freeze_amount, 6)
 
                     if dep_amount < 0:
-                        raise SoftwareExceptionWithoutRetry(
+                        raise CriticalException(
                             f'Set CEX_DEPOSIT_LIMITER[2 value] lower than {wanted_to_hold_amount}. '
                             f'Current amount = {dep_amount} {dep_token}')
 
@@ -843,13 +845,13 @@ class Custom(Logger, RequestClient):
                             continue
 
                     info = f"{balance_in_usd:.2f}$ < {dep_amount_in_usd:.2f}$"
-                    raise SoftwareExceptionWithoutRetry(f'Account {dep_token} balance < wanted deposit amount: {info}')
+                    raise CriticalException(f'Account {dep_token} balance < wanted deposit amount: {info}')
 
                 info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
-                raise SoftwareExceptionWithoutRetry(f'Account {dep_token} balance < wanted limit amount: {info}')
-            return all(result_list)
+                raise CriticalException(f'Account {dep_token} balance < wanted limit amount: {info}')
 
-        except SoftwareExceptionWithoutRetry as error:
+            return all(result_list)
+        except CriticalException as error:
             raise error
         except Exception as error:
             raise SoftwareExceptionWithRetries(f'{error}')
@@ -913,7 +915,7 @@ class Custom(Logger, RequestClient):
                     bridge_amount = round(bridge_amount - need_to_freeze_amount, 6)
 
                 if bridge_amount < 0:
-                    raise SoftwareExceptionWithoutRetry(
+                    raise CriticalException(
                         f'Set BRIDGE_AMOUNT_LIMITER[2 value] lower than {wanted_to_hold_amount}. '
                         f'Current amount = {bridge_amount} {from_token_name}')
 
@@ -927,10 +929,13 @@ class Custom(Logger, RequestClient):
                     return await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data)
 
                 info = f"{balance_in_usd:.2f}$ < {bridge_amount_in_usd:.2f}$"
-                raise SoftwareExceptionWithoutRetry(f'Account {token_name} balance < wanted bridge amount: {info}')
+                raise CriticalException(f'Account {token_name} balance < wanted bridge amount: {info}')
 
             info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
-            raise SoftwareExceptionWithoutRetry(f'Account {token_name} balance < wanted limit amount: {info}')
+            raise CriticalException(f'Account {token_name} balance < wanted limit amount: {info}')
+
+        except CriticalException as error:
+            raise error
         except Exception as error:
             raise SoftwareExceptionWithRetries(f'{error}')
         finally:

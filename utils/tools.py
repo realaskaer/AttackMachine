@@ -173,12 +173,28 @@ def create_cex_withdrawal_list():
         cprint('❌ Put your wallets into files, before running this function', 'light_red')
 
 
+def get_wallet_for_deposit(self):
+    from modules.interfaces import CriticalException
+
+    try:
+        with open('./data/services/cex_withdraw_list.json') as file:
+            from json import load
+            cex_withdraw_list = load(file)
+            cex_wallet = cex_withdraw_list[self.client.account_name]
+        return cex_wallet
+    except json.JSONDecodeError:
+        from modules.interfaces import CriticalException
+        raise CriticalException(f"Bad data in cex_wallet_list.json")
+    except Exception as error:
+        raise CriticalException(f'There is no wallet listed for deposit to CEX: {error}')
+
+
 def helper(func):
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
         from modules.interfaces import (
             PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
-            BlockchainExceptionWithoutRetry, SoftwareExceptionWithRetries
+            BlockchainExceptionWithoutRetry, SoftwareExceptionWithRetries, CriticalException
         )
 
         attempts = 0
@@ -191,7 +207,8 @@ def helper(func):
                     return await func(self, *args, **kwargs)
                 except (PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
                         BlockchainExceptionWithoutRetry, asyncio.exceptions.TimeoutError, TimeExhausted, ValueError,
-                        ContractLogicError, ClientResponseError, SoftwareExceptionWithRetries) as err:
+                        ContractLogicError, ClientResponseError, SoftwareExceptionWithRetries, CriticalException
+                        ) as err:
                     error = err
                     attempts += 1
 
@@ -201,6 +218,9 @@ def helper(func):
                         msg = f'Rate limit exceeded. Will try again in 1 min...'
                         await asyncio.sleep(60)
                         no_sleep_flag = True
+
+                    elif isinstance(error, CriticalException):
+                        raise error
 
                     elif isinstance(error, SoftwareExceptionWithRetries):
                         msg_action = f"Software cannot continue, awaiting operator's action. Will try again in 1 min..."

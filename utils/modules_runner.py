@@ -10,7 +10,7 @@ from aiohttp import ClientSession
 from utils.networks import EthereumRPC
 from web3 import AsyncWeb3, AsyncHTTPProvider
 from functions import get_network_by_chain_id
-from modules.interfaces import SoftwareException
+from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry, CriticalException
 from settings import HELP_NEW_MODULE, EXCLUDED_MODULES
 from config import ACCOUNT_NAMES, PRIVATE_KEYS, PROXIES, CHAIN_NAME
 from utils.route_generator import RouteGenerator, AVAILABLE_MODULES_INFO, get_func_by_name
@@ -291,6 +291,8 @@ class Runner(Logger):
 
                 try:
                     result = await module_func(*module_input_data)
+                except CriticalException as error:
+                    raise error
                 except Exception as error:
                     info = f"Module name: {module_info[module_func][2]} | Error {error}"
                     self.logger_msg(
@@ -353,6 +355,8 @@ class Runner(Logger):
                 self.logger_msg(account_name, None, f"Wait for other wallets in stream!\n", 'info')
 
             return True
+        except CriticalException as error:
+            raise error
         except Exception as error:
             self.logger_msg(account_name, None, f"Error during the route! Error: {error}\n", 'error')
             if smart_route_type:
@@ -385,7 +389,11 @@ class Runner(Logger):
                         account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK),
                         self.get_proxy_for_account(account_name), smart_route, index, parallel_mode=True)))
 
-            await asyncio.gather(*tasks, return_exceptions=True)
+            result_list = await asyncio.gather(*tasks, return_exceptions=True)
+
+            for result in result_list:
+                if isinstance(result, Exception):
+                    raise result
 
             if smart_route:
                 await self.update_sheet_data(route_generator)
@@ -446,4 +454,5 @@ class Runner(Logger):
                 self.logger_msg(None, None, f"Machine cant die. Saving progress in Google...\n",
                                 'warning')
                 await self.update_sheet_data(route_generator)
-            traceback.print_exc()
+            if not isinstance(error, CriticalException):
+                traceback.print_exc()

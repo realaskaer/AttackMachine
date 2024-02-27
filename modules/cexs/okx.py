@@ -1,13 +1,14 @@
 import hmac
 import base64
 import asyncio
+import json
 
 from hashlib import sha256
 from modules import CEX, Logger
 from datetime import datetime, timezone
 
-from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException
-from utils.tools import helper
+from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, CriticalException
+from utils.tools import helper, get_wallet_for_deposit
 from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID
 
 
@@ -272,73 +273,66 @@ class OKX(CEX, Logger):
 
     @helper
     async def deposit(self, deposit_data:tuple = None):
-        try:
-            with open('./data/services/cex_withdraw_list.json') as file:
-                from json import load
-                okx_withdraw_list = load(file)
-        except:
-            self.logger_msg(None, None, f"Bad data in cex_withdraw_list.json", 'error')
-
-        try:
-            okx_wallet = okx_withdraw_list[self.client.account_name]
-        except Exception as error:
-            raise SoftwareExceptionWithoutRetry(f'There is no wallet listed for deposit to CEX: {error}')
-
-        info = f"{okx_wallet[:10]}....{okx_wallet[-6:]}"
-
+        cex_wallet = get_wallet_for_deposit(self)
+        info = f"{cex_wallet[:10]}....{cex_wallet[-6:]}"
         deposit_network, deposit_amount = deposit_data
         network_raw_name = OKX_NETWORKS_NAME[deposit_network]
         split_network_data = network_raw_name.split('-')
         ccy, network_name = split_network_data[0], '-'.join(split_network_data[1:])
-        withdraw_data = await self.get_currencies(ccy)
+        if deposit_network in [29, 30]:
+            ccy = f"{ccy}.e"
 
-        networks_raw_data = {item['chain']: {'can_dep': item['canDep'], 'min_dep': item['minDep']}
-                             for item in withdraw_data}
-
-        network_data = networks_raw_data[network_raw_name]
-        ccy = f"{ccy}.e" if deposit_network in [29, 30] else ccy
         amount = await self.client.get_smart_amount(deposit_amount, token_name=ccy)
-
         self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to OKX wallet: {info}")
 
-        if network_data['can_dep']:
+        while True:
+            withdraw_data = await self.get_currencies(ccy)
+            network_data = {item['chain']: {'can_dep': item['canDep'], 'min_dep': item['minDep']}
+                                 for item in withdraw_data}[network_raw_name]
 
-            min_dep = float(network_data['min_dep'])
+            if network_data['can_dep']:
 
-            if amount >= min_dep:
+                min_dep = float(network_data['min_dep'])
 
-                if ccy != self.client.token:
-                    token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
-                    decimals = await self.client.get_decimals(ccy)
-                    amount_in_wei = self.client.to_wei(amount, decimals)
+                if amount >= min_dep:
 
-                    transaction = await token_contract.functions.transfer(
-                        self.client.w3.to_checksum_address(okx_wallet),
-                        amount_in_wei
-                    ).build_transaction(await self.client.prepare_transaction())
+                    if ccy != self.client.token:
+                        token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
+                        decimals = await self.client.get_decimals(ccy)
+                        amount_in_wei = self.client.to_wei(amount, decimals)
+
+                        transaction = await token_contract.functions.transfer(
+                            self.client.w3.to_checksum_address(cex_wallet),
+                            amount_in_wei
+                        ).build_transaction(await self.client.prepare_transaction())
+                    else:
+                        amount_in_wei = self.client.to_wei(amount)
+                        transaction = (await self.client.prepare_transaction(value=amount_in_wei)) | {
+                            'to': self.client.w3.to_checksum_address(cex_wallet),
+                            'data': '0x'
+                        }
+
+                    cex_balances = await self.get_cex_balances(ccy=ccy)
+
+                    result_tx = await self.client.send_transaction(transaction)
+
+                    if result_tx:
+                        result_confirmation = await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
+
+                        result_transfer = await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
+
+                        return all([result_tx, result_confirmation, result_transfer])
+                    else:
+                        raise SoftwareException('Transaction not sent, trying again')
                 else:
-                    amount_in_wei = self.client.to_wei(amount)
-                    transaction = (await self.client.prepare_transaction(value=amount_in_wei)) | {
-                        'to': self.client.w3.to_checksum_address(okx_wallet),
-                        'data': '0x'
-                    }
-
-                cex_balances = await self.get_cex_balances(ccy=ccy)
-
-                result = await self.client.send_transaction(transaction)
-
-                if result:
-                    await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
-
-                    await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
-                else:
-                    raise SoftwareException('Transaction not sent, trying again')
-
-                return result
+                    raise SoftwareExceptionWithoutRetry(f"Minimum to deposit: {min_dep} {ccy}")
             else:
-                raise SoftwareExceptionWithoutRetry(f"Minimum to deposit: {min_dep} {ccy}")
-        else:
-            raise SoftwareExceptionWithoutRetry(f"Deposit to {network_name} is not available")
+                self.logger_msg(
+                    *self.client.acc_info,
+                    msg=f"Deposit to {network_name} is not active now. Will try again in 1 min...",
+                    type_msg='warning'
+                )
+                await asyncio.sleep(60)
 
     async def transfer_from_subs(self, ccy, amount: float = None, silent_mode:bool = False):
         await self.transfer_from_subaccounts(ccy=ccy, amount=amount, silent_mode=silent_mode)

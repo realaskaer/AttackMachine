@@ -1,11 +1,12 @@
 import asyncio
 import hmac
+import json
 import time
 
 from hashlib import sha256
 from modules import CEX, Logger
-from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException
-from utils.tools import helper
+from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, CriticalException
+from utils.tools import helper, get_wallet_for_deposit
 from config import CEX_WRAPPED_ID, BINGX_NETWORKS_NAME, TOKENS_PER_CHAIN
 
 
@@ -286,65 +287,59 @@ class BingX(CEX, Logger):
 
     @helper
     async def deposit(self, deposit_data:tuple = None):
-        try:
-            with open('./data/services/cex_withdraw_list.json') as file:
-                from json import load
-                cex_withdraw_list = load(file)
-        except:
-            self.logger_msg(None, None, f"Bad data in cex_wallet_list.json", 'error')
-
-        try:
-            cex_wallet = cex_withdraw_list[self.client.account_name]
-        except Exception as error:
-            raise SoftwareExceptionWithoutRetry(f'There is no wallet listed for deposit to CEX: {error}')
-
+        cex_wallet = get_wallet_for_deposit(self)
         info = f"{cex_wallet[:10]}....{cex_wallet[-6:]}"
-
         deposit_network, deposit_amount = deposit_data
         network_raw_name = BINGX_NETWORKS_NAME[deposit_network]
         ccy, network_name = network_raw_name.split('-')
-        withdraw_data = (await self.get_currencies(ccy))[0]['networkList']
-
-        network_data = {
-            item['network']: {
-                'depositEnable': item['depositEnable']
-            } for item in withdraw_data
-        }[network_name]
-
         ccy = f"{ccy}.e" if deposit_network in [29, 30] else ccy
-        amount = await self.client.get_smart_amount(deposit_amount, token_name=ccy)
 
+        amount = await self.client.get_smart_amount(deposit_amount, token_name=ccy)
         self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to BingX wallet: {info}")
 
-        if network_data['depositEnable']:
+        while True:
+            withdraw_data = (await self.get_currencies(ccy))[0]['networkList']
+            network_data = {
+                item['network']: {
+                    'depositEnable': item['depositEnable']
+                } for item in withdraw_data
+            }[network_name]
 
-            if ccy != self.client.token:
-                token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
-                decimals = await self.client.get_decimals(ccy)
-                amount_in_wei = self.client.to_wei(amount, decimals)
+            if network_data['depositEnable']:
 
-                transaction = await token_contract.functions.transfer(
-                    self.client.w3.to_checksum_address(cex_wallet),
-                    amount_in_wei
-                ).build_transaction(await self.client.prepare_transaction())
+                if ccy != self.client.token:
+                    token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
+                    decimals = await self.client.get_decimals(ccy)
+                    amount_in_wei = self.client.to_wei(amount, decimals)
+
+                    transaction = await token_contract.functions.transfer(
+                        self.client.w3.to_checksum_address(cex_wallet),
+                        amount_in_wei
+                    ).build_transaction(await self.client.prepare_transaction())
+                else:
+                    amount_in_wei = self.client.to_wei(amount)
+                    transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
+                        'to': self.client.w3.to_checksum_address(cex_wallet),
+                        'data': '0x'
+                    }
+
+                cex_balances = await self.get_cex_balances(ccy=ccy)
+
+                result_tx = await self.client.send_transaction(transaction)
+
+                if result_tx:
+                    result_confirmation = await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
+
+                    result_transfer = await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
+
+                    return all([result_tx, result_confirmation, result_transfer])
+                else:
+                    raise SoftwareException('Transaction not sent, trying again')
+
             else:
-                amount_in_wei = self.client.to_wei(amount)
-                transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
-                    'to': self.client.w3.to_checksum_address(cex_wallet),
-                    'data': '0x'
-                }
-
-            cex_balances = await self.get_cex_balances(ccy=ccy)
-
-            result = await self.client.send_transaction(transaction)
-
-            if result:
-                await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
-
-                await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
-            else:
-                raise SoftwareException('Transaction not sent, trying again')
-
-            return result
-        else:
-            raise SoftwareExceptionWithoutRetry(f"Deposit to {network_name} is not available")
+                self.logger_msg(
+                    *self.client.acc_info,
+                    msg=f"Deposit to {network_name} is not active now. Will try again in 1 min...",
+                    type_msg='warning'
+                )
+                await asyncio.sleep(60)

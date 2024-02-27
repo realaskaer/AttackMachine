@@ -35,6 +35,10 @@ class SoftwareException(Exception):
     pass
 
 
+class CriticalException(Exception):
+    pass
+
+
 class SoftwareExceptionWithoutRetry(Exception):
     pass
 

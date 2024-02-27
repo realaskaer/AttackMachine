@@ -429,12 +429,20 @@ async def send_message_dmail(account_name, private_key, _, proxy):
     return await worker.send_message()
 
 
-async def bridge_native(account_name, private_key, __, proxy, *args, **kwargs):
+async def bridge_native(account_name, private_key, _, proxy, *args, **kwargs):
     network = get_network_by_chain_id(13)
     blockchain = get_interface_by_chain_id(GLOBAL_NETWORK)
 
     worker = blockchain(get_client(account_name, private_key, network, proxy))
     return await worker.deposit(*args, **kwargs)
+
+
+async def withdraw_native_bridge(account_name, private_key, _, proxy):
+    blockchain = get_interface_by_chain_id(GLOBAL_NETWORK)
+    network = get_network_by_chain_id(GLOBAL_NETWORK)
+
+    worker = blockchain(get_client(account_name, private_key, network, proxy))
+    return await worker.withdraw()
 
 
 async def transfer_eth(account_name, private_key, network, proxy):
@@ -449,14 +457,6 @@ async def transfer_eth_to_myself(account_name, private_key, network, proxy):
 
     worker = blockchain(get_client(account_name, private_key, network, proxy))
     return await worker.transfer_eth_to_myself()
-
-
-async def withdraw_native_bridge(account_name, private_key, _, proxy):
-    blockchain = get_interface_by_chain_id(GLOBAL_NETWORK)
-    network = get_network_by_chain_id(GLOBAL_NETWORK)
-
-    worker = blockchain(get_client(account_name, private_key, network, proxy))
-    return await worker.withdraw()
 
 
 async def wrap_eth(account_name, private_key, network, proxy):
