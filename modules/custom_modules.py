@@ -392,8 +392,6 @@ class Custom(Logger, RequestClient):
                 random.shuffle(attack_data)
         elif dapp_mode == 2:
             attack_data = attack_data[1]
-            if isinstance(attack_data[1], list):
-                attack_data = random.choice(attack_data)
             if SHUFFLE_NFT_ATTACK:
                 random.shuffle(attack_data)
 
@@ -406,16 +404,18 @@ class Custom(Logger, RequestClient):
             attack_data_without_none.append(path)
 
         for chain_id_from, attack_info in attack_data_without_none:
-            if isinstance(attack_info, (list, tuple)) and dapp_mode != 1:
-                attack_info = random.choice(attack_info)
-
             if dapp_mode == 1:
                 chain_to_id, amount = attack_info
+                if isinstance(chain_to_id, list):
+                    chain_to_id = random.choice(chain_to_id)
                 attack_data = {
                     chain_to_id: (amount, round(amount * 1.1, 7))
                 }
             elif dapp_mode == 2:
-                attack_data = attack_info
+                if isinstance(attack_info, list):
+                    attack_data = random.choice(attack_info)
+                else:
+                    attack_data = attack_info
 
             await omnichain_util(
                 self.client.account_name, self.client.private_key, self.client.proxy_init,
