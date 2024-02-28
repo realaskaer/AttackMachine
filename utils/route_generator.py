@@ -355,9 +355,11 @@ class RouteGenerator(Logger):
 
         possible_modules_data = []
         for module in possible_modules:
-            module_to_add = [AVAILABLE_MODULES_INFO[get_func_by_name(module)]]
             if GLOBAL_NETWORK == 0:
-                module_to_add.append(module[1])
+                module_to_add = AVAILABLE_MODULES_INFO[get_func_by_name(module[0])], module[1]
+            else:
+                module_to_add = AVAILABLE_MODULES_INFO[get_func_by_name(module)]
+
             possible_modules_data.append(module_to_add)
 
         smart_route: list = random.sample(possible_modules_data, possible_count)
