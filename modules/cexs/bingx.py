@@ -289,12 +289,11 @@ class BingX(CEX, Logger):
     async def deposit(self, deposit_data:tuple = None):
         cex_wallet = get_wallet_for_deposit(self)
         info = f"{cex_wallet[:10]}....{cex_wallet[-6:]}"
-        deposit_network, deposit_amount = deposit_data
+        deposit_network, amount = deposit_data
         network_raw_name = BINGX_NETWORKS_NAME[deposit_network]
         ccy, network_name = network_raw_name.split('-')
         ccy = f"{ccy}.e" if deposit_network in [29, 30] else ccy
 
-        amount = await self.client.get_smart_amount(deposit_amount, token_name=ccy)
         self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to BingX wallet: {info}")
 
         while True:

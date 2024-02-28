@@ -65,7 +65,7 @@ class Rango(RequestClient, Logger):
         headers = {
             'content-type': 'application/json;charset=UTF-8',
             "accept": "*/*",
-            "X-Rango-Id": uuid.uuid4()
+            "X-Rango-Id": f"{uuid.uuid4()}"
         }
 
         swap_payload = {

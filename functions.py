@@ -5,7 +5,8 @@ from utils.networks import *
 from config import LAYERZERO_WRAPED_NETWORKS
 from general_settings import GLOBAL_NETWORK
 from settings import (SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, SRC_CHAIN_L2PASS, SRC_CHAIN_BUNGEE,
-                      SRC_CHAIN_L2TELEGRAPH, NATIVE_CHAIN_ID_FROM, L2PASS_GAS_STATION_ID_FROM, SRC_CHAIN_WHALE)
+                      SRC_CHAIN_L2TELEGRAPH, NATIVE_CHAIN_ID_FROM, L2PASS_GAS_STATION_ID_FROM, SRC_CHAIN_WHALE,
+                      CUSTOM_SWAP_DATA)
 
 
 def get_client(account_name, private_key, network, proxy) -> Client:
@@ -841,3 +842,9 @@ async def vote_rubyscore(account_name, private_key, network, proxy):
 async def smart_stake_stg(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_stake_stg()
+
+
+async def custom_swap(account_name, private_key, _, proxy):
+    network = get_network_by_chain_id(LAYERZERO_WRAPED_NETWORKS[CUSTOM_SWAP_DATA[-1]])
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.custom_swap()

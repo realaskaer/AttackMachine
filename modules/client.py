@@ -31,7 +31,9 @@ from settings import (
     RHINO_BRIDGE_AMOUNT,
     ACROSS_CHAIN_ID_TO,
     ACROSS_BRIDGE_AMOUNT, WAIT_FOR_RECEIPT, RELAY_CHAIN_ID_TO, RELAY_BRIDGE_AMOUNT, OWLTO_CHAIN_ID_TO,
-    OWLTO_BRIDGE_AMOUNT, BUNGEE_CHAIN_ID_TO, BUNGEE_BRIDGE_AMOUNT, NITRO_CHAIN_ID_TO, NITRO_BRIDGE_AMOUNT
+    OWLTO_BRIDGE_AMOUNT, BUNGEE_CHAIN_ID_TO, BUNGEE_BRIDGE_AMOUNT, NITRO_CHAIN_ID_TO, NITRO_BRIDGE_AMOUNT,
+    ACROSS_TOKEN_NAME, BUNGEE_TOKEN_NAME, LAYERSWAP_TOKEN_NAME, NITRO_TOKEN_NAME, ORBITER_TOKEN_NAME, OWLTO_TOKEN_NAME,
+    RELAY_TOKEN_NAME, RHINO_TOKEN_NAME
 )
 
 
@@ -150,22 +152,24 @@ class Client(Logger):
                 f'DEX price impact > your wanted impact | DEX impact: {price_impact:.3}% > Your impact {PRICE_IMPACT}%')
 
     async def get_bridge_data(self, chain_from_id: int, dapp_id: int):
-        bridge_config, to_chain_ids, deposit_info = {
-            1: (CHAIN_IDS, ACROSS_CHAIN_ID_TO, ACROSS_BRIDGE_AMOUNT),
-            2: (CHAIN_IDS, BUNGEE_CHAIN_ID_TO, BUNGEE_BRIDGE_AMOUNT),
-            3: (LAYERSWAP_CHAIN_NAME, LAYERSWAP_CHAIN_ID_TO, LAYERSWAP_BRIDGE_AMOUNT),
-            4: (CHAIN_IDS, NITRO_CHAIN_ID_TO, NITRO_BRIDGE_AMOUNT),
-            5: (ORBITER_CHAINS_INFO, ORBITER_CHAIN_ID_TO, ORBITER_BRIDGE_AMOUNT),
-            6: (CHAIN_IDS, OWLTO_CHAIN_ID_TO, OWLTO_BRIDGE_AMOUNT),
-            7: (CHAIN_IDS, RELAY_CHAIN_ID_TO, RELAY_BRIDGE_AMOUNT),
-            8: (RHINO_CHAIN_INFO, RHINO_CHAIN_ID_TO, RHINO_BRIDGE_AMOUNT),
+        bridge_config, to_chain_ids, bridge_setting, bridge_token = {
+            1: (CHAIN_IDS, ACROSS_CHAIN_ID_TO, ACROSS_BRIDGE_AMOUNT, ACROSS_TOKEN_NAME),
+            2: (CHAIN_IDS, BUNGEE_CHAIN_ID_TO, BUNGEE_BRIDGE_AMOUNT, BUNGEE_TOKEN_NAME),
+            3: (LAYERSWAP_CHAIN_NAME, LAYERSWAP_CHAIN_ID_TO, LAYERSWAP_BRIDGE_AMOUNT, LAYERSWAP_TOKEN_NAME),
+            4: (CHAIN_IDS, NITRO_CHAIN_ID_TO, NITRO_BRIDGE_AMOUNT, NITRO_TOKEN_NAME),
+            5: (ORBITER_CHAINS_INFO, ORBITER_CHAIN_ID_TO, ORBITER_BRIDGE_AMOUNT, ORBITER_TOKEN_NAME),
+            6: (CHAIN_IDS, OWLTO_CHAIN_ID_TO, OWLTO_BRIDGE_AMOUNT, OWLTO_TOKEN_NAME),
+            7: (CHAIN_IDS, RELAY_CHAIN_ID_TO, RELAY_BRIDGE_AMOUNT, RELAY_TOKEN_NAME),
+            8: (RHINO_CHAIN_INFO, RHINO_CHAIN_ID_TO, RHINO_BRIDGE_AMOUNT, RHINO_TOKEN_NAME),
         }[dapp_id]
 
         source_chain = bridge_config[chain_from_id]
         dst_chain_id = random.choice(to_chain_ids)
         destination_chain = bridge_config[dst_chain_id]
+        if isinstance(bridge_token, tuple):
+            bridge_token = bridge_token[0]
 
-        amount = await self.get_smart_amount(deposit_info)
+        amount = await self.get_smart_amount(bridge_setting, token_name=bridge_token)
         return source_chain, destination_chain, amount, dst_chain_id
 
     async def new_client(self, chain_id: int):

@@ -349,27 +349,41 @@ class Custom(Logger, RequestClient):
         return await swap_uniswap(self.client.account_name, self.client.private_key,
                                   self.client.network, self.client.proxy_init, swapdata=data)
 
-    @gas_checker
     @helper
-    async def custom_swap_1inch(self):
-        from functions import swap_oneinch, swap_xyfinance, swap_odos, swap_sushiswap
+    @gas_checker
+    async def custom_swap(self):
+        from functions import swap_oneinch, swap_izumi, swap_syncswap, swap_odos, swap_sushiswap
 
-        func = {
+        funcs = {
             'Arbitrum': [swap_oneinch, swap_odos],
             'Arbitrum Nova': [swap_sushiswap],
-            'Base': [swap_odos, swap_oneinch, swap_xyfinance],
-            'Linea': [swap_xyfinance],
-            'Scroll': [swap_xyfinance],
-            'zkSync': [swap_xyfinance, swap_odos, swap_oneinch],
+            'Base': [swap_odos, swap_oneinch],
+            'Linea': [swap_izumi, swap_syncswap],
+            'Scroll': [swap_izumi, swap_syncswap],
+            'zkSync': [swap_odos, swap_oneinch],
             'Optimism': [swap_oneinch, swap_odos],
-            'Polygon ZKEVM': [swap_xyfinance],
+            # 'Polygon ZKEVM': [swap_xyfinance],
             'BNB Chain': [swap_oneinch],
-            'Manta': [swap_xyfinance],
+            # 'Manta': [swap_xyfinance],
             'Polygon': [swap_oneinch],
-            #'Zora': [swap_oneinch],
+            # 'Zora': [swap_oneinch],
         }[self.client.network.name]
 
         from_token_name, to_token_name, amount_tuple, _ = CUSTOM_SWAP_DATA
+
+        swap_module = random.choice(funcs)
+
+        amount = await self.client.get_smart_amount(amount_tuple, token_name=from_token_name)
+
+        if amount == 0:
+            raise SoftwareException("Insufficient USDC balances")
+        
+        decimals = await self.client.get_decimals(from_token_name)
+        amount_in_wei = self.client.to_wei(amount, decimals)
+        data = from_token_name, to_token_name, amount, amount_in_wei
+
+        return await swap_module(self.client.account_name, self.client.private_key, self.client.network,
+                                 self.client.proxy_init, swapdata=data)
 
     @helper
     @gas_checker
@@ -487,7 +501,9 @@ class Custom(Logger, RequestClient):
             chains, tokens, omni_check=True
         )
 
-        stake_amount = round(await current_client.get_smart_amount(STG_STAKE_CONFIG[1]), 2)
+        stake_amount = round(
+            await current_client.get_smart_amount(STG_STAKE_CONFIG[1], token_name='STG', omnicheck=True), 2
+        )
         stake_amount_in_wei = current_client.to_wei(stake_amount, 18)
         lock_time = int((STG_STAKE_CONFIG[0] * 30))
         if lock_time == 0:
@@ -834,7 +850,7 @@ class Custom(Logger, RequestClient):
 
                     if balance_in_usd >= dep_amount_in_usd:
 
-                        deposit_data = dep_network, (dep_amount, dep_amount)
+                        deposit_data = dep_network, dep_amount
 
                         if len(deposit_data_copy) == 1:
                             return await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)

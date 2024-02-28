@@ -52,6 +52,7 @@ AVAILABLE_MODULES_INFO = {
     smart_stake_stg                     : (smart_stake_stg, 2, 'Stake STG on Stargate', 0, [0]),
     bridge_stargate                     : (bridge_stargate, 2, 'Stargate Bridge', 0, [0]),
     bridge_coredao                      : (bridge_coredao, 2, 'CoreDAO Bridge', 0, [0]),
+    custom_swap                         : (custom_swap, 2, 'Custom Swap', 0, [3, 4, 8, 11]),
     swap_ambient                        : (swap_ambient, 2, 'Ambient Swap', 1, [3, 4, 8, 11]),
     swap_zebra                          : (swap_zebra, 2, 'Zebra Swap', 1, [3, 4, 8, 11]),
     swap_skydrome                       : (swap_skydrome, 2, 'Skydrome Swap', 1, [3, 4, 8, 11]),
