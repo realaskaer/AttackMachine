@@ -830,7 +830,7 @@ class Custom(Logger, RequestClient):
                             f'Set CEX_DEPOSIT_LIMITER[2 value] lower than {wanted_to_hold_amount}. '
                             f'Current amount = {dep_amount} {dep_token}')
 
-                    dep_amount_in_usd = round(dep_amount * token_price, 6)
+                    dep_amount_in_usd = round(dep_amount * token_price * 0.99, 6)
 
                     if balance_in_usd >= dep_amount_in_usd:
 
