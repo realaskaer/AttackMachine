@@ -462,7 +462,7 @@ class Custom(Logger, RequestClient):
                     type_msg='success'
                 )
 
-                return clients[index], index, balances[index][1], balances[index][0], balances_in_usd[index]
+                return clients[index], index, balances[index][1], balances[index][0], round(balances_in_usd[index], 6)
 
             except (asyncio.exceptions.TimeoutError, aiohttp.client_exceptions.ClientHttpProxyError):
                 self.logger_msg(
@@ -830,7 +830,7 @@ class Custom(Logger, RequestClient):
                             f'Set CEX_DEPOSIT_LIMITER[2 value] lower than {wanted_to_hold_amount}. '
                             f'Current amount = {dep_amount} {dep_token}')
 
-                    dep_amount_in_usd = dep_amount * token_price
+                    dep_amount_in_usd = round(dep_amount * token_price, 6)
 
                     if balance_in_usd >= dep_amount_in_usd:
 
