@@ -462,7 +462,7 @@ class Custom(Logger, RequestClient):
                     type_msg='success'
                 )
 
-                return clients[index], index, balances[index][1], balances[index][0], round(balances_in_usd[index], 6)
+                return clients[index], index, balances[index][1], balances[index][0], balances_in_usd[index]
 
             except (asyncio.exceptions.TimeoutError, aiohttp.client_exceptions.ClientHttpProxyError):
                 self.logger_msg(
