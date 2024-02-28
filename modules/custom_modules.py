@@ -377,7 +377,7 @@ class Custom(Logger, RequestClient):
 
         if amount == 0:
             raise SoftwareException("Insufficient USDC balances")
-        
+
         decimals = await self.client.get_decimals(from_token_name)
         amount_in_wei = self.client.to_wei(amount, decimals)
         data = from_token_name, to_token_name, amount, amount_in_wei
@@ -673,7 +673,6 @@ class Custom(Logger, RequestClient):
 
         result = False
         action_flag = False
-
         for dst_data in dst_datas:
             chain_name_to = CHAIN_NAME[LAYERZERO_WRAPED_NETWORKS[dst_data if dapp_function != 1 else dst_data[0]]]
             for src_chain in src_chains:
@@ -905,6 +904,7 @@ class Custom(Logger, RequestClient):
                 chains=dapp_chains, tokens=dapp_tokens, omni_check=False
             )
 
+            fee_client = await client.new_client(dapp_chains[chain_index])
             chain_from_id, token_name = dapp_chains[chain_index], from_token_name
 
             source_chain_name, destination_chain, amount, dst_chain_id = await client.get_bridge_data(
@@ -923,8 +923,8 @@ class Custom(Logger, RequestClient):
                                from_token_name, to_token_name, from_token_addr, to_token_addr)
 
             if balance_in_usd >= limit_amount:
-
-                bridge_fee = await bridge_utils(client, bridge_app_id, chain_from_id, fee_bridge_data, need_fee=True)
+                bridge_fee = await bridge_utils(
+                    fee_client, bridge_app_id, chain_from_id, fee_bridge_data, need_fee=True)
                 min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
                 bridge_amount = round(amount - bridge_fee, 6)
                 if balance - bridge_amount < min_hold_balance:

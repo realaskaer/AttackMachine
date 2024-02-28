@@ -13,7 +13,7 @@ from getpass import getpass
 from termcolor import cprint
 from utils.networks import *
 from datetime import datetime, timedelta
-from web3.exceptions import TimeExhausted, ContractLogicError
+from web3.exceptions import ContractLogicError
 from web3 import AsyncWeb3, AsyncHTTPProvider
 from aiohttp import ClientSession, TCPConnector, ClientResponseError
 from msoffcrypto.exceptions import DecryptionError, InvalidKeyError
@@ -206,7 +206,7 @@ def helper(func):
                 try:
                     return await func(self, *args, **kwargs)
                 except (PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
-                        BlockchainExceptionWithoutRetry, asyncio.exceptions.TimeoutError, TimeExhausted, ValueError,
+                        BlockchainExceptionWithoutRetry, asyncio.exceptions.TimeoutError, ValueError,
                         ContractLogicError, ClientResponseError, SoftwareExceptionWithRetries, CriticalException
                         ) as err:
                     error = err
@@ -225,6 +225,7 @@ def helper(func):
                         raise error
 
                     elif isinstance(error, SoftwareExceptionWithRetries):
+                        self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
                         msg_action = f"Software cannot continue, awaiting operator's action. Will try again in 1 min..."
                         self.logger_msg(self.client.account_name, None, msg=msg_action, type_msg='warning')
                         await asyncio.sleep(60)
@@ -241,10 +242,11 @@ def helper(func):
                         msg = f'{error}'
 
                     elif isinstance(error, BlockchainException):
-                        self.logger_msg(
-                            self.client.account_name,
-                            None, msg=f'Maybe problem with node: {self.client.rpc}', type_msg='warning')
-                        await self.client.change_rpc()
+                        if 'insufficient funds' not in str(error):
+                            self.logger_msg(
+                                self.client.account_name,
+                                None, msg=f'Maybe problem with node: {self.client.rpc}', type_msg='warning')
+                            await self.client.change_rpc()
 
                     self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
 

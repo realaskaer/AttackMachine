@@ -59,6 +59,7 @@ class LayerSwap(Bridge, Logger):
 
         return (await self.make_request(url=url, headers=self.headers, params=params))['data']
 
+    @helper
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
         (source_chain, destination_chain, amount, to_chain_id, from_token_name,
          to_token_name, from_token_address, to_token_address) = bridge_data

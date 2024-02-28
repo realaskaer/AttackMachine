@@ -72,6 +72,7 @@ class Owlto(Bridge, Logger, RequestClient):
 
         return float((await self.make_request(url=url, params=params))['msg'])
 
+    @helper
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
         from_chain, to_chain, amount, to_chain_id, token_name, _, _, _ = bridge_data
         if not need_check:

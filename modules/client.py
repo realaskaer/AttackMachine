@@ -6,7 +6,7 @@ from aiohttp import ClientSession, TCPConnector
 from aiohttp_socks import ProxyConnector
 from eth_typing import HexStr
 from web3.contract import AsyncContract
-from web3.exceptions import TransactionNotFound, TimeExhausted
+from web3.exceptions import TransactionNotFound
 from modules.interfaces import PriceImpactException, BlockchainException, SoftwareException
 from modules import Logger
 from utils.networks import Network
@@ -469,20 +469,10 @@ class Client(Logger):
                 elif status is None:
                     await asyncio.sleep(poll_latency)
                 else:
-                    self.logger_msg(
-                        *self.acc_info, msg=f'Transaction failed: {self.explorer}tx/{tx_hash}', type_msg='error'
-                    )
-                    return False
+                    raise BlockchainException(f'Transaction failed: {self.explorer}tx/{tx_hash}')
             except TransactionNotFound:
                 if total_time > timeout:
-                    if self.network.name in ['BNB Chain', 'Moonbeam']:
-                        self.logger_msg(
-                            *self.acc_info,
-                            msg=f'Transaction was sent and tried to be confirmed, but not finished yet',
-                            type_msg='warning'
-                        )
-                        return False
-                    raise TimeExhausted(f"Transaction is not in the chain after {timeout} seconds")
+                    raise BlockchainException(f"Transaction is not in the chain after {timeout} seconds")
                 total_time += poll_latency
                 await asyncio.sleep(poll_latency)
 
