@@ -2,6 +2,7 @@ from modules import Bridge, Logger
 from modules.interfaces import BridgeExceptionWithoutRetry
 from config import TOKENS_PER_CHAIN, ACROSS_ABI, CHAIN_NAME_FROM_ID, ACROSS_CONTRACT
 from general_settings import GAS_LIMIT_MULTIPLIER
+from utils.tools import helper
 
 
 class Across(Bridge, Logger):

@@ -3,6 +3,9 @@ from modules.interfaces import BridgeExceptionWithoutRetry, SoftwareExceptionWit
 from config import CHAIN_NAME_FROM_ID
 from web3 import AsyncWeb3
 
+from utils.tools import helper
+
+
 class Owlto(Bridge, Logger, RequestClient):
     def __init__(self, client):
         self.client = client

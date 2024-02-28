@@ -2,6 +2,7 @@ import json
 
 from modules import Bridge, Logger
 from modules.interfaces import BridgeExceptionWithoutRetry
+from utils.tools import helper
 
 
 class LayerSwap(Bridge, Logger):

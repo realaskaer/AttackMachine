@@ -1,5 +1,6 @@
 from config import ETH_MASK, CHAIN_NAME_FROM_ID
 from modules import Bridge, Logger, Client
+from utils.tools import helper
 
 
 class Nitro(Bridge, Logger):

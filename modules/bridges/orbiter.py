@@ -5,6 +5,8 @@ from modules import Bridge, Logger
 from modules.interfaces import BridgeExceptionWithoutRetry, SoftwareExceptionWithoutRetry
 from web3 import AsyncWeb3
 
+from utils.tools import helper
+
 
 class Orbiter(Bridge, Logger):
     def __init__(self, client):

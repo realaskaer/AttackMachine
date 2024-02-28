@@ -10,7 +10,7 @@ from modules import Bridge, Logger, Client
 from datetime import datetime, timezone
 
 from modules.interfaces import SoftwareException
-from utils.tools import gas_checker, sleep, helper
+from utils.tools import sleep, helper
 from eth_account.messages import encode_defunct, encode_structured_data
 from utils.stark_signature.stark_singature import sign, pedersen_hash, EC_ORDER, private_to_stark_key
 from utils.stark_signature.eth_coder import encrypt_with_public_key, decrypt_with_private_key, get_public_key
