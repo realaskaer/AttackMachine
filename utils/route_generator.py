@@ -261,7 +261,7 @@ class RouteGenerator(Logger):
                 if module in self.modules_names_const:
                     modules_list.append(module)
                 else:
-                    raise SoftwareException(f"That module does not exist in Google SpreadSheets")
+                    raise SoftwareException(f"Module with name '{module}' does not exist in software features")
 
         return modules_list
 
