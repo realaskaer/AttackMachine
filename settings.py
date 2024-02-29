@@ -3,16 +3,16 @@
     Выберите сети/суммы для вывода и ввода с CEX. Не забудьте вставить API ключи в general_settings.py.
     Депозиты и выводы работают только со спотовым балансом на бирже.
 
-    1  - ETH-ERC20                10 - CELO-CELO           19 - USDT-Arbitrum One       28 - USDC-Polygon
-    2  - ETH-Arbitrum One         11 - GLMR-Moonbeam       20 - USDT-Avalanche          29 - USDC-Optimism (Bridged)
-    3  - ETH-Optimism             12 - MOVR-Moonriver      21 - USDT-Optimism           30 - USDC-Polygon (Bridged)
-    4  - ETH-zkSync Era           13 - METIS-Metis         22 - USDT-Polygon            31 - USDC-BSC
-    5  - ETH-Linea                14 - CORE-CORE           23 - USDT-BSC                32 - USDC-ERC20
-    6  - ETH-Base                 15 - CFX-CFX_EVM         24 - USDT-ERC20              33 - STG-Arbitrum One
-    7  - AVAX-Avalanche C-Chain   16 - KLAY-Klaytn         25 - USDC-Arbitrum One       34 - USDV-BSC
-    8  - BNB-BSC                  17 - FTM-Fantom          26 - USDC-Avalanche C-Chain  35 - ARB-Arbitrum One
-    9  - BNB-OPBNB                18 - MATIC-Polygon       27 - USDC-Optimism
-
+    1 - ETH-ERC20                10 - CELO-CELO           19 - USDT-Arbitrum One       28 - USDC-Polygon
+    2 - ETH-Arbitrum One         11 - GLMR-Moonbeam       20 - USDT-Avalanche          29 - USDC-Optimism (Bridged)
+    3 - ETH-Optimism             12 - MOVR-Moonriver      21 - USDT-Optimism           30 - USDC-Polygon (Bridged)
+    4 - ETH-zkSync Era           13 - METIS-Metis         22 - USDT-Polygon            31 - USDC-BSC
+    5 - ETH-Linea                14 - CORE-CORE           23 - USDT-BSC                32 - USDC-ERC20
+    6 - ETH-Base                 15 - CFX-CFX_EVM         24 - USDT-ERC20              33 - STG-Arbitrum One
+    7 - AVAX-Avalanche C-Chain   16 - KLAY-Klaytn         25 - USDC-Arbitrum One       34 - STG-BSC
+    8 - BNB-BSC                  17 - FTM-Fantom          26 - USDC-Avalanche C-Chain  35 - STG-Avalanche C-Chain
+    9 - BNB-OPBNB                18 - MATIC-Polygon       27 - USDC-Optimism           36 - USDV-BSC
+                                                                                       37 - ARB-Arbitrum One
     Сумма в количестве  - (0.01, 0.02)
     Сумма в процентах   - ("10", "20") ⚠️ Значения в кавычках
 
@@ -42,7 +42,7 @@
 '--------------------------------------------------------OKX-----------------------------------------------------------'
 
 OKX_WITHDRAW_DATA = [
-    [2, (0.0007, 0.00071)],
+    [11, (0.4, 0.41)],
 ]
 
 OKX_DEPOSIT_DATA = [
@@ -138,11 +138,11 @@ ACROSS_TOKEN_NAME = 'ETH'
 
 '--------------------------------------------------------Bungee--------------------------------------------------------'
 
-BUNGEE_CHAIN_ID_FROM = [6]                  # Исходящая сеть
+BUNGEE_CHAIN_ID_FROM = [7]                  # Исходящая сеть
 BUNGEE_CHAIN_ID_TO = [1]                    # Входящая сеть
-BUNGEE_BRIDGE_AMOUNT = (9, 9)               # (минимум, максимум) (% или кол-во)
-BUNGEE_TOKEN_NAME = ('USDC.e', 'ETH')       # ETH, BNB, MATIC, USDC, USDC.e, USDT
-BUNGEE_ROUTE_TYPE = 0                       # см. BUNGEE_ROUTE_TYPE
+BUNGEE_BRIDGE_AMOUNT = (0.001, 0.001)               # (минимум, максимум) (% или кол-во)
+BUNGEE_TOKEN_NAME = ('ETH', 'ETH')       # ETH, BNB, MATIC, USDC, USDC.e, USDT
+BUNGEE_ROUTE_TYPE = 5                       # см. BUNGEE_ROUTE_TYPE
 
 '-------------------------------------------------------LayerSwap------------------------------------------------------'
 
@@ -433,7 +433,7 @@ L2PASS_GAS_STATION_DATA = [
     CUSTOM_SWAP_DATA | ('токен для обмена', 'токен для получения', (сумма от и до), сеть запуска(см. OMNI-CHAIN))
     
 """
-CUSTOM_SWAP_DATA = ('USDC.e', 'USDC', ('100', '100'), 33)
+CUSTOM_SWAP_DATA = ('USDC.e', 'USDC', ('100', '100'), 31)
 
 ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при 0 заминтит случайную новую NFT
 
