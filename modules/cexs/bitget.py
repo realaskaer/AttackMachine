@@ -235,7 +235,7 @@ class Bitget(CEX, Logger):
 
                     payload = {
                         "coin": ccy,
-                        "address": self.client.address.lower(),
+                        "address": self.client.address,
                         "chain": network_name,
                         "size": f"{amount}",
                         "transferType": 'on_chain',
