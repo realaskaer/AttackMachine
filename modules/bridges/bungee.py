@@ -107,7 +107,7 @@ class Bungee(Refuel, Bridge, Logger):
                     "toTokenAddress": to_token_address,
                     "fromAmount": amount,
                     "userAddress": self.client.address,
-                    "singleTxOnly": "true",
+                    "singleTxOnly": "false",
                     "bridgeWithGas": "false",
                     "sort": "output",
                     "defaultSwapSlippage": 0.5,
@@ -120,11 +120,11 @@ class Bungee(Refuel, Bridge, Logger):
         final_route = None
         if response['success']:
             all_routes = response['result']['routes']
-
             if wanted_route:
                 for route in all_routes:
-                    if route['usedBridgeNames'][0] == wanted_route:
+                    if route['usedBridgeNames'][0] == wanted_route and int(route['totalUserTx']) == 1:
                         final_route = route
+                        break
 
             if final_route:
                 self.logger_msg(
@@ -189,7 +189,7 @@ class Bungee(Refuel, Bridge, Logger):
         decimals = await self.client.get_decimals(token_address=from_token_address)
         amount_in_wei = self.client.to_wei(amount, decimals=decimals)
 
-        if from_token_address == 'ETH':
+        if to_token_name == 'ETH':
             from_token_address = ETH_MASK
         if to_token_name == 'ETH':
             to_token_address = ETH_MASK
