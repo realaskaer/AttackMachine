@@ -31,11 +31,11 @@ class EraLend(Landing, Logger):
     @helper
     @gas_checker
     async def withdraw(self):
-        self.logger_msg(*self.client.acc_info, msg=f'Withdraw from EraLend')
-
         liquidity_balance = await self.landing_contract.functions.balanceOfUnderlying(self.client.address).call()
 
         if liquidity_balance != 0:
+
+            self.logger_msg(*self.client.acc_info, msg=f'Withdraw {liquidity_balance / 10 ** 18:.5f} from EraLend')
 
             tx_params = await self.client.prepare_transaction()
 

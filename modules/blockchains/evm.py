@@ -154,23 +154,32 @@ class SimpleEVM(Logger):
             "XYfinance":XYFINANCE_CONTRACTS,
         }
 
-        all_network_contracts = {
-            name: contracts[self.network]['router']
-            for name, contracts in all_contracts.items()
-            if contracts.get(self.network)
-        }
+        amount = random.uniform(1, 1000)
+        while True:
+            all_network_contracts = {
+                name: contracts[self.network]['router']
+                for name, contracts in all_contracts.items()
+                if contracts.get(self.network)
+            }
 
-        approve_contracts = [(k, v) for k, v in all_network_contracts.items()]
-        contract_name, approve_contract = random.choice(approve_contracts)
-        native = ['ETH', 'WETH']
-        token_contract = random.choice([i for i in list(TOKENS_PER_CHAIN[self.network].items()) if i[0] not in native])
-        amount = random.uniform(1, 10000)
-        amount_in_wei = self.client.to_wei(amount, await self.client.get_decimals(token_contract[0]))
+            approve_contracts = [(k, v) for k, v in all_network_contracts.items()]
+            contract_name, approve_contract = random.choice(approve_contracts)
+            native = [self.client.token, f'W{self.client.token}']
+            token_contract = random.choice(
+                [i for i in list(TOKENS_PER_CHAIN[self.network].items()) if i[0] not in native]
+            )
+            amount *= 1.1
+            amount_in_wei = self.client.to_wei(amount, await self.client.get_decimals(token_contract[0]))
 
-        message = f"Approve {amount:.4f} {token_contract[0]} for {contract_name}"
-        self.logger_msg(*self.client.acc_info, msg=message)
-        return await self.client.check_for_approved(token_contract[1], approve_contract,
-                                                    amount_in_wei, without_bal_check=True)
+            message = f"Approve {amount:.4f} {token_contract[0]} for {contract_name}"
+            self.logger_msg(*self.client.acc_info, msg=message)
+            result = await self.client.check_for_approved(
+                token_contract[1], approve_contract, amount_in_wei, without_bal_check=True
+            )
+
+            if not result:
+                raise SoftwareException('Bad approve, trying again with higher amount...')
+            return result
 
 
 class Scroll(Blockchain, SimpleEVM):

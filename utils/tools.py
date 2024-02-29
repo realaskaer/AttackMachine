@@ -214,9 +214,19 @@ def helper(func):
 
                     msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
 
-                    if 'rate limit' in str(error):
+                    if 'rate limit' in str(error) or '429' in str(error):
                         msg = f'Rate limit exceeded. Will try again in 1 min...'
                         await asyncio.sleep(60)
+                        no_sleep_flag = True
+
+                    elif isinstance(error, asyncio.exceptions.TimeoutError):
+                        self.logger_msg(
+                            *self.client.acc_info,
+                            msg=f"Connection to RPC is not stable. Will try again in 1 min...",
+                            type_msg='warning'
+                        )
+                        await asyncio.sleep(60)
+                        attempts -= 1
                         no_sleep_flag = True
 
                     elif isinstance(error, CriticalException):

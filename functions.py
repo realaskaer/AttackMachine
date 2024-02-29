@@ -781,6 +781,11 @@ async def wrap_abuser(account_name, private_key, network, proxy):
     return await worker.wraps_abuser()
 
 
+async def bridge_stargate_dust(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.smart_bridge_l0(dapp_id=1, dust_mode=True)
+
+
 async def bridge_stargate(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_bridge_l0(dapp_id=1)

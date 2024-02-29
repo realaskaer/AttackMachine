@@ -30,7 +30,7 @@ from settings import (
     DST_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_HYPERLANE, WORMHOLE_TOKENS_AMOUNT, HYPERLANE_TOKENS_AMOUNT,
     DST_CHAIN_MERKLY_POLYHEDRA_REFUEL, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME,
     L0_BRIDGE_COUNT, CUSTOM_SWAP_DATA, BITGET_DEPOSIT_DATA, BITGET_WITHDRAW_DATA, STG_STAKE_CONFIG, NITRO_CHAIN_ID_FROM,
-    NITRO_TOKEN_NAME
+    NITRO_TOKEN_NAME, STARGATE_DUST_CONFIG
 )
 
 
@@ -224,15 +224,16 @@ class Custom(Logger, RequestClient):
         return True
 
     @helper
-    async def smart_bridge_l0(self, dapp_id:int = None):
+    async def smart_bridge_l0(self, dapp_id:int = None, dust_mode:bool = False):
         from functions import Stargate, CoreDAO
 
-        dapp_config = {
+        class_name, tokens, chains = {
             1: (Stargate, STARGATE_TOKENS, STARGATE_CHAINS),
             2: (CoreDAO, COREDAO_TOKENS, COREDAO_CHAINS)
         }[dapp_id]
 
-        class_name, tokens, chains = dapp_config
+        if dust_mode:
+            tokens, chains = STARGATE_DUST_CONFIG
 
         converted_chains = copy.deepcopy(chains)
         if any([isinstance(item, tuple) for item in chains]):
@@ -322,6 +323,9 @@ class Custom(Logger, RequestClient):
             amount_in_wei = balance_in_wei if from_token_name != 'ETH' else self.client.to_wei(
                 (await current_client.get_smart_amount(need_percent=True)), decimals)
 
+            if dust_mode:
+                amount_in_wei = int(amount_in_wei * random.uniform(0.0000001, 0.0000003))
+
             amount = f"{amount_in_wei / 10 ** decimals:.4f}"
 
             swapdata = (src_chain_name, dst_chain_name, dst_chain_id,
@@ -332,7 +336,8 @@ class Custom(Logger, RequestClient):
             if current_client:
                 await current_client.session.close()
 
-            await sleep(self)
+            if L0_BRIDGE_COUNT != 1:
+                await sleep(self)
 
         return all(result_list)
 
@@ -515,6 +520,7 @@ class Custom(Logger, RequestClient):
     @helper
     @gas_checker
     async def smart_random_approve(self):
+        amount = random.uniform(1, 1000)
         while True:
             client = None
             try:
@@ -555,15 +561,22 @@ class Custom(Logger, RequestClient):
                 approve_contracts = [(k, v) for k, v in all_network_contracts.items()]
                 contract_name, approve_contract = random.choice(approve_contracts)
                 native = [client.network.token, f"W{client.network.token}"]
-                token_contract = random.choice([i for i in list(TOKENS_PER_CHAIN[network_name].items()) if i[0] not in native])
-                amount = random.uniform(1, 1000)
+                token_contract = random.choice(
+                    [i for i in list(TOKENS_PER_CHAIN[network_name].items()) if i[0] not in native]
+                )
+                amount *= 1.1
                 amount_in_wei = self.client.to_wei(amount, await client.get_decimals(token_contract[0]))
 
                 message = f"Approve {amount:.4f} {token_contract[0]} for {contract_name}"
                 self.logger_msg(*client.acc_info, msg=message)
 
-                return await client.check_for_approved(token_contract[1], approve_contract, amount_in_wei,
-                                                       without_bal_check=True)
+                result = await client.check_for_approved(
+                    token_contract[1], approve_contract, amount_in_wei, without_bal_check=True
+                )
+
+                if not result:
+                    raise SoftwareException('Bad approve, trying again with higher amount...')
+                return result
             finally:
                 if client:
                     await client.session.close()
@@ -836,6 +849,7 @@ class Custom(Logger, RequestClient):
 
                     dep_amount = await client.get_smart_amount(amount, token_name=dep_token, omnicheck=omnicheck)
                     min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
+                    dep_amount -= await client.simulate_transfer(dep_amount, token_name=dep_token, omnicheck=omnicheck)
                     if balance - dep_amount < min_hold_balance:
                         need_to_freeze_amount = min_hold_balance - (balance - dep_amount)
                         dep_amount = round(dep_amount - need_to_freeze_amount, 6)
