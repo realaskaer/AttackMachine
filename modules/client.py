@@ -74,7 +74,7 @@ class Client(Logger):
         except:
             return error
 
-    async def simulate_transfer(self, amount:float, token_name:str, omnicheck: bool):
+    async def simulate_transfer(self, amount:float, token_name:str, omnicheck: bool) -> int:
         if token_name != self.token:
             if omnicheck:
                 token_contract = self.get_contract(TOKENS_PER_CHAIN2[self.network.name][token_name])
@@ -93,8 +93,8 @@ class Client(Logger):
                 'to': self.address,
                 'data': '0x'
             }
-
-        return int((await self.w3.eth.estimate_gas(transaction)) * GAS_LIMIT_MULTIPLIER)
+        gas_price = await self.w3.eth.gas_price
+        return int((await self.w3.eth.estimate_gas(transaction)) * GAS_LIMIT_MULTIPLIER * gas_price)
 
     async def change_rpc(self):
         self.logger_msg(
