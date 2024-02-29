@@ -74,22 +74,19 @@ class Client(Logger):
         except:
             return error
 
-    async def simulate_transfer(self, amount:float, token_name:str, omnicheck: bool) -> int:
+    async def simulate_transfer(self, token_name:str, omnicheck: bool) -> int:
         if token_name != self.token:
             if omnicheck:
                 token_contract = self.get_contract(TOKENS_PER_CHAIN2[self.network.name][token_name])
             else:
                 token_contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
-            decimals = await self.get_decimals(token_name, omnicheck=omnicheck)
-            amount_in_wei = self.to_wei(amount, decimals)
 
             transaction = await token_contract.functions.transfer(
                 self.address,
-                amount_in_wei
+                1
             ).build_transaction(await self.prepare_transaction())
         else:
-            amount_in_wei = self.to_wei(amount)
-            transaction = (await self.prepare_transaction(value=int(amount_in_wei))) | {
+            transaction = (await self.prepare_transaction(value=1)) | {
                 'to': self.address,
                 'data': '0x'
             }
