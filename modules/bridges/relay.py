@@ -1,4 +1,4 @@
-from config import CHAIN_NAME_FROM_ID
+from config import CHAIN_NAME_FROM_ID, ZERO_ADDRESS
 from modules import Bridge, Logger
 from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry
 from utils.tools import helper
@@ -10,17 +10,30 @@ class Relay(Bridge, Logger):
         Logger.__init__(self)
         Bridge.__init__(self, client)
 
-    async def get_bridge_config(self, dest_chain_id, ccy:str = 'ETH'):
+    async def get_bridge_config(self, dest_chain_id):
         url = "https://api.relay.link/config"
+
+        headers = {
+            "accept": "*/*",
+            "accept-language": "ru,en;q=0.9,en-GB;q=0.8,en-US;q=0.7",
+            "sec-ch-ua": "\"Chromium\";v=\"122\", \"Not(A:Brand\";v=\"24\", \"Microsoft Edge\";v=\"122\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-site",
+            "referrer": "https://www.relay.link/",
+            "referrerPolicy": "strict-origin-when-cross-origin",
+        }
 
         params = {
             'originChainId': self.client.network.chain_id,
             'destinationChainId': dest_chain_id,
-            'user': self.client.address,
-            'currency': ccy,
+            'user': ZERO_ADDRESS,
+            'currency': ZERO_ADDRESS,
         }
 
-        return await self.make_request(url=url, params=params)
+        return await self.make_request(url=url, headers=headers, params=params)
 
     async def get_bridge_data(self, dest_chain_id, amount_in_wei):
         url = f"https://api.relay.link/execute/call"
