@@ -2782,7 +2782,7 @@ BINANCE_NETWORKS_NAME = {
     32                      : 'USDC-ETH',
     33                      : 'STG-ARBITRUM',
     34                      : 'STG-BSC',
-    35                      : 'STG-AVAX-C',
+    35                      : 'STG-AVAXC',
     # 36                      : 'USDV-BSC',
     37                      : 'ARB-ARBITRUM',
 }
