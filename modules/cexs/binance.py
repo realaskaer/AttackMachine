@@ -4,7 +4,7 @@ import time
 
 from hashlib import sha256
 from modules import CEX, Logger
-from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, CriticalException
+from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException
 from utils.tools import helper, get_wallet_for_deposit
 from config import BINANCE_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID, TOKENS_PER_CHAIN2
 

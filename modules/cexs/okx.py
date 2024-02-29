@@ -210,7 +210,8 @@ class OKX(CEX, Logger):
 
         network, amount = withdraw_data
         network_raw_name = OKX_NETWORKS_NAME[network]
-        ccy, network_name = network_raw_name.split('-')
+        split_network_data = network_raw_name.split('-')
+        ccy, network_name = split_network_data[0], '-'.join(split_network_data[1:])
         dst_chain_id = CEX_WRAPPED_ID[network]
 
         await self.transfer_from_subs(ccy=ccy, silent_mode=True)

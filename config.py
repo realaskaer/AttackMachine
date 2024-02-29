@@ -2822,7 +2822,7 @@ BITGET_NETWORKS_NAME = {
     32                      : 'USDC-ERC20',
     33                      : 'STG-ARBITRUM',
     # 34                      : 'STG-BSC',
-    # 35                      : 'STG-AVAX-C',
+    # 35                      : 'STG-C-Chain',
     36                      : 'USDV-BSC',
     37                      : 'ARB-ARBITRUM',
 }

@@ -281,7 +281,8 @@ class Bitget(CEX, Logger):
         info = f"{cex_wallet[:10]}....{cex_wallet[-6:]}"
         deposit_network, amount = deposit_data
         network_raw_name = BITGET_NETWORKS_NAME[deposit_network]
-        ccy, network_name = network_raw_name.split('-')
+        split_network_data = network_raw_name.split('-')
+        ccy, network_name = split_network_data[0], '-'.join(split_network_data[1:])
         if deposit_network in [29, 30]:
             ccy = f"{ccy}.e"
 
