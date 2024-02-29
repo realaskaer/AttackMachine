@@ -13,6 +13,7 @@
     8 - BNB-BSC                  17 - FTM-Fantom          26 - USDC-Avalanche C-Chain  35 - STG-Avalanche C-Chain
     9 - BNB-OPBNB                18 - MATIC-Polygon       27 - USDC-Optimism           36 - USDV-BSC
                                                                                        37 - ARB-Arbitrum One
+
     Сумма в количестве  - (0.01, 0.02)
     Сумма в процентах   - ("10", "20") ⚠️ Значения в кавычках
 
@@ -42,7 +43,7 @@
 '--------------------------------------------------------OKX-----------------------------------------------------------'
 
 OKX_WITHDRAW_DATA = [
-    [11, (0.4, 0.41)],
+    [2, (0.0007, 0.00071)],
 ]
 
 OKX_DEPOSIT_DATA = [
@@ -72,7 +73,7 @@ BINANCE_DEPOSIT_DATA = [
 '--------------------------------------------------------BitGet--------------------------------------------------------'
 
 BITGET_WITHDRAW_DATA = [
-    [2, (0.0007, 0.00071)],
+    [8, (0.004, 0.00411)],
 ]
 
 BITGET_DEPOSIT_DATA = [
@@ -218,6 +219,8 @@ BRIDGE_AMOUNT_LIMITER = 0, (0, 0)  # (Ограничитель баланса, (
     
     STARGATE_CHAINS | Выберите чейны, между которыми будут производиться бриджи
     STARGATE_TOKENS | Выберите монеты, между которыми будут производиться свапы. Доступны: ETH, USDT, USDC, USDV, STG. 
+    STARGATE_DUST_CONFIG |  Пример: (['USDV', 'USDV'], [31, 6]). Софт отправит 0.000000(1-3)% от баланса токена в сети с
+                            наибольшим балансом.
     
         Софт сам определит, где сейчас находиться баланс и сделает бридж по указанной логике в вышеуказанных настройках    
         
@@ -298,8 +301,9 @@ L0_SEARCH_DATA = 0          # Поиск балансов в сетях. 0 - STA
 
 STG_STAKE_CONFIG = [2, (1, 5)]
 
-STARGATE_CHAINS = [1, 7, 33]
-STARGATE_TOKENS = ['USDC', 'USDC', 'USDC']
+STARGATE_DUST_CONFIG = (['USDV', 'USDV'], [31, 6])
+STARGATE_CHAINS = [6, 33]
+STARGATE_TOKENS = ['USDV', 'USDV']
 
 COREDAO_CHAINS = [5, 11, 33]
 COREDAO_TOKENS = ['USDC', 'USDC', 'USDC']
