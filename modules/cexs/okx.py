@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 
 from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, CriticalException
 from utils.tools import helper, get_wallet_for_deposit
-from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID
+from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID, TOKENS_PER_CHAIN2
 
 
 class OKX(CEX, Logger):
@@ -248,18 +248,25 @@ class OKX(CEX, Logger):
 
                     ccy = f"{ccy}.e" if network in [29, 30] else ccy
 
-                    old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
-                                                                              check_balance_on_dst=True)
+                    omnicheck = False
+                    if ccy in ['USDV', 'STG']:
+                        omnicheck = True
+
+                    old_balance_on_dst = await self.client.wait_for_receiving(
+                        dst_chain_id, token_name=ccy, omnicheck=omnicheck, check_balance_on_dst=True
+                    )
 
                     await self.make_request(
                         method='POST', url=url, data=str(body), headers=headers, module_name='Withdraw')
 
-                    self.logger_msg(*self.client.acc_info,
-                                    msg=f"Withdraw complete. Note: wait a little for receiving funds",
-                                    type_msg='success'
-                                    )
+                    self.logger_msg(
+                        *self.client.acc_info,
+                        msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success'
+                    )
 
-                    await self.client.wait_for_receiving(dst_chain_id, old_balance_on_dst, token_name=ccy)
+                    await self.client.wait_for_receiving(
+                        dst_chain_id, old_balance_on_dst, omnicheck=omnicheck, token_name=ccy
+                    )
 
                     return True
                 else:
@@ -283,6 +290,10 @@ class OKX(CEX, Logger):
         if deposit_network in [29, 30]:
             ccy = f"{ccy}.e"
 
+        omnicheck = False
+        if ccy in ['USDV', 'STG']:
+            omnicheck = True
+
         self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to OKX wallet: {info}")
 
         while True:
@@ -297,8 +308,11 @@ class OKX(CEX, Logger):
                 if amount >= min_dep:
 
                     if ccy != self.client.token:
-                        token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
-                        decimals = await self.client.get_decimals(ccy)
+                        if omnicheck:
+                            token_contract = self.client.get_contract(TOKENS_PER_CHAIN2[self.client.network.name][ccy])
+                        else:
+                            token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
+                        decimals = await self.client.get_decimals(ccy, omnicheck=omnicheck)
                         amount_in_wei = self.client.to_wei(amount, decimals)
 
                         transaction = await token_contract.functions.transfer(
@@ -307,7 +321,7 @@ class OKX(CEX, Logger):
                         ).build_transaction(await self.client.prepare_transaction())
                     else:
                         amount_in_wei = self.client.to_wei(amount)
-                        transaction = (await self.client.prepare_transaction(value=amount_in_wei)) | {
+                        transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
                             'to': self.client.w3.to_checksum_address(cex_wallet),
                             'data': '0x'
                         }

@@ -1,13 +1,12 @@
 import asyncio
 import hmac
-import json
 import time
 
 from hashlib import sha256
 from modules import CEX, Logger
 from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, CriticalException
 from utils.tools import helper, get_wallet_for_deposit
-from config import BINANCE_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID
+from config import BINANCE_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID, TOKENS_PER_CHAIN2
 
 
 class Binance(CEX, Logger):
@@ -239,8 +238,13 @@ class Binance(CEX, Logger):
 
                     ccy = f"{ccy}.e" if network_id in [29, 30] else ccy
 
-                    old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
-                                                                              check_balance_on_dst=True)
+                    omnicheck = False
+                    if ccy in ['USDV', 'STG']:
+                        omnicheck = True
+
+                    old_balance_on_dst = await self.client.wait_for_receiving(
+                        dst_chain_id, token_name=ccy, omnicheck=omnicheck, check_balance_on_dst=True
+                    )
 
                     parse_params = self.parse_params(params)
                     url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
@@ -252,8 +256,9 @@ class Binance(CEX, Logger):
                         type_msg='success'
                     )
 
-                    await self.client.wait_for_receiving(dst_chain_id, old_balance_on_dst, token_name=ccy)
-
+                    await self.client.wait_for_receiving(
+                        dst_chain_id, old_balance_on_dst, omnicheck=omnicheck, token_name=ccy
+                    )
                     return True
                 else:
                     raise SoftwareExceptionWithoutRetry(f"Limit range for withdraw: {min_wd:.5f} {ccy} - {max_wd} {ccy}")
@@ -274,6 +279,10 @@ class Binance(CEX, Logger):
         ccy, network_name = network_raw_name.split('-')
         ccy = f"{ccy}.e" if deposit_network in [29, 30] else ccy
 
+        omnicheck = False
+        if ccy in ['USDV', 'STG']:
+            omnicheck = True
+
         self.logger_msg(
             *self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to Binance wallet: {info}")
 
@@ -289,8 +298,11 @@ class Binance(CEX, Logger):
             if network_data['depositEnable']:
 
                 if ccy != self.client.token:
-                    token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
-                    decimals = await self.client.get_decimals(ccy)
+                    if omnicheck:
+                        token_contract = self.client.get_contract(TOKENS_PER_CHAIN2[self.client.network.name][ccy])
+                    else:
+                        token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
+                    decimals = await self.client.get_decimals(ccy, omnicheck=omnicheck)
                     amount_in_wei = self.client.to_wei(amount, decimals)
 
                     transaction = await token_contract.functions.transfer(
@@ -299,7 +311,7 @@ class Binance(CEX, Logger):
                     ).build_transaction(await self.client.prepare_transaction())
                 else:
                     amount_in_wei = self.client.to_wei(amount)
-                    transaction = (await self.client.prepare_transaction(value=amount_in_wei)) | {
+                    transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
                         'to': self.client.w3.to_checksum_address(cex_wallet),
                         'data': '0x'
                     }

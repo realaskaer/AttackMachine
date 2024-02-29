@@ -7,7 +7,7 @@ from hashlib import sha256
 from modules import CEX, Logger
 from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, CriticalException
 from utils.tools import helper, get_wallet_for_deposit
-from config import CEX_WRAPPED_ID, BINGX_NETWORKS_NAME, TOKENS_PER_CHAIN
+from config import CEX_WRAPPED_ID, BINGX_NETWORKS_NAME, TOKENS_PER_CHAIN, TOKENS_PER_CHAIN2
 
 
 class BingX(CEX, Logger):
@@ -261,18 +261,27 @@ class BingX(CEX, Logger):
 
                     ccy = f"{ccy}.e" if network_id in [29, 30] else ccy
 
-                    old_balance_on_dst = await self.client.wait_for_receiving(dst_chain_id, token_name=ccy,
-                                                                              check_balance_on_dst=True)
+                    omnicheck = False
+                    if ccy in ['USDV', 'STG']:
+                        omnicheck = True
+
+                    old_balance_on_dst = await self.client.wait_for_receiving(
+                        dst_chain_id, token_name=ccy, omnicheck=omnicheck, check_balance_on_dst=True
+                    )
 
                     parse_params = self.parse_params(params)
                     url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
 
                     await self.make_request(method='POST', url=url, headers=self.headers, module_name='Withdraw')
 
-                    self.logger_msg(*self.client.acc_info,
-                                    msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success')
+                    self.logger_msg(
+                        *self.client.acc_info,
+                        msg=f"Withdraw complete. Note: wait a little for receiving funds", type_msg='success'
+                    )
 
-                    await self.client.wait_for_receiving(dst_chain_id, old_balance_on_dst, token_name=ccy)
+                    await self.client.wait_for_receiving(
+                        dst_chain_id, old_balance_on_dst, omnicheck=omnicheck, token_name=ccy
+                    )
 
                     return True
                 else:
@@ -294,6 +303,10 @@ class BingX(CEX, Logger):
         ccy, network_name = network_raw_name.split('-')
         ccy = f"{ccy}.e" if deposit_network in [29, 30] else ccy
 
+        omnicheck = False
+        if ccy in ['USDV', 'STG']:
+            omnicheck = True
+
         self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to BingX wallet: {info}")
 
         while True:
@@ -307,8 +320,11 @@ class BingX(CEX, Logger):
             if network_data['depositEnable']:
 
                 if ccy != self.client.token:
-                    token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
-                    decimals = await self.client.get_decimals(ccy)
+                    if omnicheck:
+                        token_contract = self.client.get_contract(TOKENS_PER_CHAIN2[self.client.network.name][ccy])
+                    else:
+                        token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
+                    decimals = await self.client.get_decimals(ccy, omnicheck=omnicheck)
                     amount_in_wei = self.client.to_wei(amount, decimals)
 
                     transaction = await token_contract.functions.transfer(

@@ -2700,7 +2700,11 @@ OKX_NETWORKS_NAME = {
     30                      : 'USDC-Polygon (Bridged)',
     31                      : 'USDC-BSC',
     32                      : 'USDC-ERC20',
-    35                      : 'ARB-Arbitrum One',
+    # 33                      : 'STG-Arbitrum One',
+    # 34                      : 'STG-Avalanche C-Chain',
+    # 35                      : 'STG-Avalanche C-Chain',
+    # 36                      : 'USDV-BSC',
+    37                      : 'ARB-ARBITRUM',
 }
 
 BINGX_NETWORKS_NAME = {
@@ -2736,7 +2740,11 @@ BINGX_NETWORKS_NAME = {
     30                      : 'USDC-Polygon (Bridged)',
     31                      : 'USDC-BEP20',
     32                      : 'USDC-ERC20',
-    35                      : 'ARB-ARBITRUM',
+    33                      : 'STG-ARBITRUM',
+    34                      : 'STG-BEP20',
+    # 35                      : 'STG-AVAX-C',
+    # 36                      : 'USDV-BSC',
+    37                      : 'ARB-ARBITRUM',
 }
 
 BINANCE_NETWORKS_NAME = {
@@ -2748,7 +2756,7 @@ BINANCE_NETWORKS_NAME = {
     6                       : "ETH-BASE",
     7                       : 'AVAX-AVAXC',
     8                       : 'BNB-BSC',
-    9                      : 'BNB-OPBNB',
+    9                       : 'BNB-OPBNB',
     10                      : 'CELO-CELO',
     11                      : 'GLMR-Moonbeam',
     12                      : 'MOVR-Moonriver',
@@ -2772,7 +2780,11 @@ BINANCE_NETWORKS_NAME = {
     # 30                    : 'USDC-Polygon (Bridged)',
     31                      : 'USDC-BSC',
     32                      : 'USDC-ETH',
-    35                      : 'ARB-ARBITRUM',
+    33                      : 'STG-ARBITRUM',
+    34                      : 'STG-BSC',
+    35                      : 'STG-AVAX-C',
+    # 36                      : 'USDV-BSC',
+    37                      : 'ARB-ARBITRUM',
 }
 
 BITGET_NETWORKS_NAME = {
@@ -2808,9 +2820,11 @@ BITGET_NETWORKS_NAME = {
     # 30                      : 'USDC-Polygon (Bridged)',
     31                      : 'USDC-ERC20',
     32                      : 'USDC-ERC20',
-    33                      : 'STG-ArbitrumOne',
-    34                      : 'USDV-BEP20',
-    35                      : 'ARB-ARBITRUM',
+    33                      : 'STG-ARBITRUM',
+    # 34                      : 'STG-BSC',
+    # 35                      : 'STG-AVAX-C',
+    36                      : 'USDV-BSC',
+    37                      : 'ARB-ARBITRUM',
 }
 
 CEX_WRAPPED_ID = {
@@ -2848,7 +2862,9 @@ CEX_WRAPPED_ID = {
      32                         : 13,
      33                         : 1,
      34                         : 15,
-     35                         : 1,
+     35                         : 14,
+     36                         : 15,
+     37                         : 1,
 }
 
 LAYERZERO_WRAPED_NETWORKS = {
@@ -2992,7 +3008,7 @@ LAYERZERO_NETWORKS_DATA = {
     46                      : ('Rarible', 235, 'ETH', 'ethereum'),
 }
 
-HELP_SOFTWARE = True  # True or False | True = You support me 1% amount of transactions on aggregator`s
+HELP_SOFTWARE = True  # True or False | Если True, контракт агрегатора будет переводить мне 1% от суммы свапа
 
 CHAIN_NAME = {
     0: 'OMNI-CHAIN',
