@@ -2820,11 +2820,11 @@ BITGET_NETWORKS_NAME = {
     # 30                      : 'USDC-Polygon (Bridged)',
     31                      : 'USDC-ERC20',
     32                      : 'USDC-ERC20',
-    33                      : 'STG-ARBITRUM',
-    # 34                      : 'STG-BSC',
+    33                      : 'STG-ArbitrumOne',
+    # 34                      : 'STG-BEP20',
     # 35                      : 'STG-C-Chain',
-    36                      : 'USDV-BSC',
-    37                      : 'ARB-ARBITRUM',
+    36                      : 'USDV-BEP20',
+    37                      : 'ARB-ArbitrumOne',
 }
 
 CEX_WRAPPED_ID = {
