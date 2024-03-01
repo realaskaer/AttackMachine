@@ -87,7 +87,7 @@ AvalancheRPC = Network(
         'https://avalanche.drpc.org'
     ],
     chain_id=43114,
-    eip1559_support=True,
+    eip1559_support=False,
     token='AVAX',
     explorer='https://snowtrace.io/',
 )
