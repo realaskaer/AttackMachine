@@ -849,9 +849,6 @@ class Custom(Logger, RequestClient):
 
                     dep_amount = await client.get_smart_amount(amount, token_name=dep_token, omnicheck=omnicheck)
                     min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
-                    if dep_token == client.token:
-                        gas_fee = await client.simulate_transfer(token_name=dep_token, omnicheck=omnicheck)
-                        dep_amount -= round(gas_fee / 10 ** 18, 6)
                     if balance - dep_amount < min_hold_balance:
                         need_to_freeze_amount = min_hold_balance - (balance - dep_amount)
                         dep_amount = round(dep_amount - need_to_freeze_amount, 6)
