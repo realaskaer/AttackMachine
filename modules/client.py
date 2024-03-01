@@ -74,25 +74,6 @@ class Client(Logger):
         except:
             return error
 
-    async def simulate_transfer(self, token_name:str, omnicheck: bool) -> int:
-        if token_name != self.token:
-            if omnicheck:
-                token_contract = self.get_contract(TOKENS_PER_CHAIN2[self.network.name][token_name])
-            else:
-                token_contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
-
-            transaction = await token_contract.functions.transfer(
-                self.address,
-                1
-            ).build_transaction(await self.prepare_transaction())
-        else:
-            transaction = (await self.prepare_transaction(value=1)) | {
-                'to': self.address,
-                'data': '0x'
-            }
-        gas_price = await self.w3.eth.gas_price
-        return int((await self.w3.eth.estimate_gas(transaction)) * GAS_LIMIT_MULTIPLIER * gas_price)
-
     async def change_rpc(self):
         self.logger_msg(
             self.account_name, None, msg=f'Trying to replace RPC', type_msg='warning')
@@ -522,7 +503,6 @@ class Client(Logger):
 
         url = f"https://api-mainnet.layerzero-scan.com/tx/{tx_hash}"
 
-        flag = False
         while True:
             try:
                 async with self.session.get(url=url) as response:
@@ -530,15 +510,17 @@ class Client(Logger):
 
                     if (len(result["messages"]) > 0 and "dstTxHash" in result["messages"][0]
                             and "status" in result["messages"][0] and result["messages"][0]["status"] == "DELIVERED"):
-                        flag = True
-            except:
-                pass
-
-            if flag:
-                self.logger_msg(*self.acc_info, msg=f'Funds were received on destination chain', type_msg='success')
-                return True
-            else:
+                        self.logger_msg(
+                            *self.acc_info, msg=f'Funds were received on destination chain', type_msg='success'
+                        )
+                        return True
+            except Exception as error:
                 self.logger_msg(
-                    *self.acc_info, msg=f'Waiting for funds on destination chain...', type_msg='warning')
-                await asyncio.sleep(30)
+                    *self.acc_info, msg=f'Can`t get info about LayerZero transaction. Error: {error}',
+                    type_msg='warning'
+                )
+
+            self.logger_msg(
+                *self.acc_info, msg=f'Waiting for funds on destination chain...', type_msg='warning')
+            await asyncio.sleep(30)
 
