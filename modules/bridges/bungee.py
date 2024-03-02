@@ -83,7 +83,7 @@ class Bungee(Refuel, Bridge, Logger):
         else:
             raise SoftwareException('Source chain refuel is not active!')
 
-    async def get_quote(self, to_chain_id, from_token_address, to_token_address, amount):
+    async def get_quote(self, to_chain_id, from_token_address, to_token_address, amount, need_check):
         url = 'https://api.socket.tech/v2/quote'
 
         wanted_route = {
@@ -126,12 +126,17 @@ class Bungee(Refuel, Bridge, Logger):
                         final_route = route
                         break
 
-            if final_route:
-                self.logger_msg(
-                    *self.client.acc_info,
-                    msg=f'Successfully found {wanted_route.capitalize()} route. Initialize bridge...',
-                    type_msg='success'
-                )
+            if final_route and need_check:
+                return final_route
+            elif not final_route and need_check:
+                return all_routes[0]
+            elif final_route:
+                if not need_check:
+                    self.logger_msg(
+                        *self.client.acc_info,
+                        msg=f'Successfully found {wanted_route.capitalize()} route. Initialize bridge...',
+                        type_msg='success'
+                    )
             else:
                 self.logger_msg(
                     *self.client.acc_info,
@@ -180,11 +185,9 @@ class Bungee(Refuel, Bridge, Logger):
         (from_chain, to_chain, amount, to_chain_id, from_token_name,
          to_token_name, from_token_address, to_token_address) = bridge_data
 
-        if need_check:
-            return 0
-
-        bridge_info = f'{self.client.network.name} -> {to_token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
-        self.logger_msg(*self.client.acc_info, msg=f'Bridge on Bungee: {amount} {from_token_name} {bridge_info}')
+        if not need_check:
+            bridge_info = f'{self.client.network.name} -> {to_token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
+            self.logger_msg(*self.client.acc_info, msg=f'Bridge on Bungee: {amount} {from_token_name} {bridge_info}')
 
         decimals = await self.client.get_decimals(token_address=from_token_address)
         amount_in_wei = self.client.to_wei(amount, decimals=decimals)
@@ -194,7 +197,11 @@ class Bungee(Refuel, Bridge, Logger):
         if to_token_name == 'ETH':
             to_token_address = ETH_MASK
 
-        route_data = await self.get_quote(to_chain, from_token_address, to_token_address, amount_in_wei)
+        route_data = await self.get_quote(to_chain, from_token_address, to_token_address, amount_in_wei, need_check)
+
+        if need_check:
+            return route_data['totalGasFeesInUsd']
+
         tx_data, to_address = await self.build_tx(route_data)
 
         if from_token_name != self.client.token:
