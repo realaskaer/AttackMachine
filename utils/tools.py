@@ -194,7 +194,7 @@ def helper(func):
     async def wrapper(self, *args, **kwargs):
         from modules.interfaces import (
             PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
-            BlockchainExceptionWithoutRetry, SoftwareExceptionWithRetries, CriticalException
+            BlockchainExceptionWithoutRetry, CriticalException
         )
 
         attempts = 0
@@ -205,10 +205,11 @@ def helper(func):
             while attempts <= MAXIMUM_RETRY and not infinity_flag:
                 try:
                     return await func(self, *args, **kwargs)
-                except (PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
+                except (
+                        PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
                         BlockchainExceptionWithoutRetry, asyncio.exceptions.TimeoutError, ValueError,
-                        ContractLogicError, ClientResponseError, SoftwareExceptionWithRetries, CriticalException
-                        ) as err:
+                        ContractLogicError, ClientResponseError, CriticalException
+                    ) as err:
                     error = err
                     attempts += 1
 
@@ -233,14 +234,6 @@ def helper(func):
                         msg_action = f"Software will be stopped. Please, try to fix your settings in files"
                         self.logger_msg(self.client.account_name, None, msg=msg_action, type_msg='error')
                         raise error
-
-                    elif isinstance(error, SoftwareExceptionWithRetries):
-                        self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
-                        msg_action = f"Software cannot continue, awaiting operator's action. Will try again in 1 min..."
-                        self.logger_msg(self.client.account_name, None, msg=msg_action, type_msg='warning')
-                        await asyncio.sleep(60)
-                        infinity_flag = True
-                        no_sleep_flag = True
 
                     elif isinstance(error, asyncio.exceptions.TimeoutError):
                         error = 'Connection to RPC is not stable'

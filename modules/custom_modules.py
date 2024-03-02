@@ -758,216 +758,227 @@ class Custom(Logger, RequestClient):
 
     @helper
     async def smart_cex_withdraw(self, dapp_id:int):
-        try:
-            from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util, bitget_withdraw_util
+        while True:
+            try:
+                from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util, bitget_withdraw_util
 
-            func, withdraw_data = {
-                1: (okx_withdraw_util, OKX_WITHDRAW_DATA),
-                2: (bingx_withdraw_util, BINGX_WITHDRAW_DATA),
-                3: (binance_withdraw_util, BINANCE_WITHDRAW_DATA),
-                4: (bitget_withdraw_util, BITGET_WITHDRAW_DATA)
-            }[dapp_id]
+                func, withdraw_data = {
+                    1: (okx_withdraw_util, OKX_WITHDRAW_DATA),
+                    2: (bingx_withdraw_util, BINGX_WITHDRAW_DATA),
+                    3: (binance_withdraw_util, BINANCE_WITHDRAW_DATA),
+                    4: (bitget_withdraw_util, BITGET_WITHDRAW_DATA)
+                }[dapp_id]
 
-            withdraw_data_copy = copy.deepcopy(withdraw_data)
+                withdraw_data_copy = copy.deepcopy(withdraw_data)
 
-            random.shuffle(withdraw_data_copy)
-            result_list = []
+                random.shuffle(withdraw_data_copy)
+                result_list = []
 
-            for index, data in enumerate(withdraw_data_copy, 1):
-                current_data = data
-                if isinstance(data[0], list):
-                    current_data = random.choice(data)
-                    if not current_data:
-                        continue
+                for index, data in enumerate(withdraw_data_copy, 1):
+                    current_data = data
+                    if isinstance(data[0], list):
+                        current_data = random.choice(data)
+                        if not current_data:
+                            continue
 
-                network, amount = current_data
+                    network, amount = current_data
 
-                if isinstance(amount[0], str):
-                    raise CriticalException('CEX withdrawal does not support % of the amount')
+                    if isinstance(amount[0], str):
+                        raise CriticalException('CEX withdrawal does not support % of the amount')
 
-                result_list.append(await func(self.client, withdraw_data=(network, amount)))
+                    result_list.append(await func(self.client, withdraw_data=(network, amount)))
 
-                if index != len(withdraw_data_copy):
-                    await sleep(self)
+                    if index != len(withdraw_data_copy):
+                        await sleep(self)
 
-            return all(result_list)
-        except CriticalException as error:
-            raise error
-        except Exception as error:
-            raise SoftwareExceptionWithRetries(f'{error}')
+                return all(result_list)
+            except CriticalException as error:
+                raise error
+            except Exception as error:
+                self.logger_msg(self.client.account_name, None, msg=f'{error}', type_msg='error')
+                msg = f"Software cannot continue, awaiting operator's action. Will try again in 1 min..."
+                self.logger_msg(self.client.account_name, None, msg=msg, type_msg='warning')
+                await asyncio.sleep(60)
 
     @helper
     @gas_checker
     async def smart_cex_deposit(self, dapp_id:int):
+        from functions import cex_deposit_util
+
+        class_id, deposit_data, cex_config = {
+            1: (1, OKX_DEPOSIT_DATA, OKX_NETWORKS_NAME),
+            2: (2, BINGX_DEPOSIT_DATA, BINGX_NETWORKS_NAME),
+            3: (3, BINANCE_DEPOSIT_DATA, BINANCE_NETWORKS_NAME),
+            4: (4, BITGET_DEPOSIT_DATA, BITGET_NETWORKS_NAME),
+        }[dapp_id]
+
+        deposit_data_copy = copy.deepcopy(deposit_data)
+
         client = None
-        try:
-            from functions import cex_deposit_util
-
-            class_id, deposit_data, cex_config = {
-                1: (1, OKX_DEPOSIT_DATA, OKX_NETWORKS_NAME),
-                2: (2, BINGX_DEPOSIT_DATA, BINGX_NETWORKS_NAME),
-                3: (3, BINANCE_DEPOSIT_DATA, BINANCE_NETWORKS_NAME),
-                4: (4, BITGET_DEPOSIT_DATA, BITGET_NETWORKS_NAME),
-            }[dapp_id]
-
-            deposit_data_copy = copy.deepcopy(deposit_data)
-
-            result_list = []
-            for data in deposit_data_copy:
-
-                current_data = data
-                if isinstance(data[0], list):
-                    current_data = random.choice(data)
-                    if not current_data:
-                        continue
-
-                networks, amount = current_data
-                if isinstance(networks, tuple):
-                    dapp_tokens = [f"{cex_config[network].split('-')[0]}{'.e' if network in [29, 30] else ''}"
-                                   for network in networks]
-                    dapp_chains = [CEX_WRAPPED_ID[chain] for chain in networks]
-                else:
-                    dapp_tokens = [f"{cex_config[networks].split('-')[0]}{'.e' if networks in [29, 30] else ''}"]
-                    dapp_chains = [CEX_WRAPPED_ID[networks]]
-
-                client, chain_index, balance, _, balance_data = await self.balance_searcher(
-                    chains=dapp_chains, tokens=dapp_tokens, omni_check=False,
-                )
-
-                balance_in_usd, token_price = balance_data
-                dep_token = dapp_tokens[chain_index]
-
-                omnicheck = False
-                if dep_token in ['USDV', 'STG']:
-                    omnicheck = True
-
-                dep_network = networks if isinstance(networks, int) else networks[chain_index]
-                limit_amount, wanted_to_hold_amount = CEX_DEPOSIT_LIMITER
-                min_wanted_amount, max_wanted_amount = min(wanted_to_hold_amount), max(wanted_to_hold_amount)
-
-                if balance_in_usd >= limit_amount:
-
-                    dep_amount = await client.get_smart_amount(amount, token_name=dep_token, omnicheck=omnicheck)
-                    min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
-                    if balance - dep_amount < min_hold_balance:
-                        need_to_freeze_amount = min_hold_balance - (balance - dep_amount)
-                        dep_amount = round(dep_amount - need_to_freeze_amount, 6)
-
-                    if dep_amount < 0:
-                        raise CriticalException(
-                            f'Set CEX_DEPOSIT_LIMITER[2 value] lower than {wanted_to_hold_amount}. '
-                            f'Current amount = {dep_amount} {dep_token}')
-
-                    dep_amount_in_usd = round(dep_amount * token_price * 0.99, 6)
-
-                    if balance_in_usd >= dep_amount_in_usd:
-
-                        deposit_data = dep_network, dep_amount
-
-                        if len(deposit_data_copy) == 1:
-                            return await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
-                        else:
-                            result_list.append(
-                                await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
-                            )
-                            await client.session.close()
+        result_list = []
+        for data in deposit_data_copy:
+            while True:
+                try:
+                    current_data = data
+                    if isinstance(data[0], list):
+                        current_data = random.choice(data)
+                        if not current_data:
                             continue
 
-                    info = f"{balance_in_usd:.2f}$ < {dep_amount_in_usd:.2f}$"
-                    raise CriticalException(f'Account {dep_token} balance < wanted deposit amount: {info}')
+                    networks, amount = current_data
+                    if isinstance(networks, tuple):
+                        dapp_tokens = [f"{cex_config[network].split('-')[0]}{'.e' if network in [29, 30] else ''}"
+                                       for network in networks]
+                        dapp_chains = [CEX_WRAPPED_ID[chain] for chain in networks]
+                    else:
+                        dapp_tokens = [f"{cex_config[networks].split('-')[0]}{'.e' if networks in [29, 30] else ''}"]
+                        dapp_chains = [CEX_WRAPPED_ID[networks]]
 
-                info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
-                raise CriticalException(f'Account {dep_token} balance < wanted limit amount: {info}')
+                    client, chain_index, balance, _, balance_data = await self.balance_searcher(
+                        chains=dapp_chains, tokens=dapp_tokens, omni_check=False,
+                    )
 
-            return all(result_list)
-        except CriticalException as error:
-            raise error
-        except Exception as error:
-            raise SoftwareExceptionWithRetries(f'{error}')
-        finally:
-            if client:
-                await client.session.close()
+                    balance_in_usd, token_price = balance_data
+                    dep_token = dapp_tokens[chain_index]
+
+                    omnicheck = False
+                    if dep_token in ['USDV', 'STG']:
+                        omnicheck = True
+
+                    dep_network = networks if isinstance(networks, int) else networks[chain_index]
+                    limit_amount, wanted_to_hold_amount = CEX_DEPOSIT_LIMITER
+                    min_wanted_amount, max_wanted_amount = min(wanted_to_hold_amount), max(wanted_to_hold_amount)
+
+                    if balance_in_usd >= limit_amount:
+
+                        dep_amount = await client.get_smart_amount(amount, token_name=dep_token, omnicheck=omnicheck)
+                        min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
+                        if balance - dep_amount < min_hold_balance:
+                            need_to_freeze_amount = min_hold_balance - (balance - dep_amount)
+                            dep_amount = round(dep_amount - need_to_freeze_amount, 6)
+
+                        if dep_amount < 0:
+                            raise CriticalException(
+                                f'Set CEX_DEPOSIT_LIMITER[2 value] lower than {wanted_to_hold_amount}. '
+                                f'Current amount = {dep_amount} {dep_token}')
+
+                        dep_amount_in_usd = round(dep_amount * token_price * 0.99, 6)
+
+                        if balance_in_usd >= dep_amount_in_usd:
+
+                            deposit_data = dep_network, dep_amount
+
+                            if len(deposit_data_copy) == 1:
+                                return await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
+                            else:
+                                result_list.append(
+                                    await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
+                                )
+                                break
+
+                        info = f"{balance_in_usd:.2f}$ < {dep_amount_in_usd:.2f}$"
+                        raise CriticalException(f'Account {dep_token} balance < wanted deposit amount: {info}')
+
+                    info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
+                    raise CriticalException(f'Account {dep_token} balance < wanted limit amount: {info}')
+
+                except CriticalException as error:
+                    raise error
+                except Exception as error:
+                    self.logger_msg(self.client.account_name, None, msg=f'{error}', type_msg='error')
+                    msg = f"Software cannot continue, awaiting operator's action. Will try again in 1 min..."
+                    self.logger_msg(self.client.account_name, None, msg=msg, type_msg='warning')
+                    await asyncio.sleep(60)
+                finally:
+                    if client:
+                        await client.session.close()
+
+        return all(result_list)
 
     @helper
     @gas_checker
     async def smart_bridge(self, dapp_id:int = None):
         client = None
-        try:
-            from functions import bridge_utils
+        while True:
+            try:
+                from functions import bridge_utils
 
-            bridge_app_id, dapp_chains, dapp_tokens = {
-                1: (1, ACROSS_CHAIN_ID_FROM, ACROSS_TOKEN_NAME),
-                2: (2, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME),
-                3: (3, LAYERSWAP_CHAIN_ID_FROM, LAYERSWAP_TOKEN_NAME),
-                4: (4, NITRO_CHAIN_ID_FROM, NITRO_TOKEN_NAME),
-                5: (5, ORBITER_CHAIN_ID_FROM, ORBITER_TOKEN_NAME),
-                6: (6, OWLTO_CHAIN_ID_FROM, OWLTO_TOKEN_NAME),
-                7: (7, RELAY_CHAIN_ID_FROM, RELAY_TOKEN_NAME),
-                8: (8, RHINO_CHAIN_ID_FROM, RHINO_TOKEN_NAME),
-            }[dapp_id]
+                bridge_app_id, dapp_chains, dapp_tokens = {
+                    1: (1, ACROSS_CHAIN_ID_FROM, ACROSS_TOKEN_NAME),
+                    2: (2, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME),
+                    3: (3, LAYERSWAP_CHAIN_ID_FROM, LAYERSWAP_TOKEN_NAME),
+                    4: (4, NITRO_CHAIN_ID_FROM, NITRO_TOKEN_NAME),
+                    5: (5, ORBITER_CHAIN_ID_FROM, ORBITER_TOKEN_NAME),
+                    6: (6, OWLTO_CHAIN_ID_FROM, OWLTO_TOKEN_NAME),
+                    7: (7, RELAY_CHAIN_ID_FROM, RELAY_TOKEN_NAME),
+                    8: (8, RHINO_CHAIN_ID_FROM, RHINO_TOKEN_NAME),
+                }[dapp_id]
 
-            if len(dapp_tokens) == 2:
-                from_token_name, to_token_name = dapp_tokens
-            else:
-                from_token_name, to_token_name = dapp_tokens, dapp_tokens
+                if len(dapp_tokens) == 2:
+                    from_token_name, to_token_name = dapp_tokens
+                else:
+                    from_token_name, to_token_name = dapp_tokens, dapp_tokens
 
-            dapp_tokens = [from_token_name for _ in dapp_chains]
+                dapp_tokens = [from_token_name for _ in dapp_chains]
 
-            client, chain_index, balance, _, balance_data = await self.balance_searcher(
-                chains=dapp_chains, tokens=dapp_tokens, omni_check=False
-            )
+                client, chain_index, balance, _, balance_data = await self.balance_searcher(
+                    chains=dapp_chains, tokens=dapp_tokens, omni_check=False
+                )
 
-            fee_client = await client.new_client(dapp_chains[chain_index])
-            chain_from_id, token_name = dapp_chains[chain_index], from_token_name
+                fee_client = await client.new_client(dapp_chains[chain_index])
+                chain_from_id, token_name = dapp_chains[chain_index], from_token_name
 
-            source_chain_name, destination_chain, amount, dst_chain_id = await client.get_bridge_data(
-                chain_from_id=chain_from_id, dapp_id=bridge_app_id
-            )
+                source_chain_name, destination_chain, amount, dst_chain_id = await client.get_bridge_data(
+                    chain_from_id=chain_from_id, dapp_id=bridge_app_id
+                )
 
-            from_chain_name = client.network.name
-            to_chain_name = CHAIN_NAME[dst_chain_id]
-            from_token_addr = TOKENS_PER_CHAIN[from_chain_name][from_token_name]
-            to_token_addr = TOKENS_PER_CHAIN[to_chain_name][to_token_name]
+                from_chain_name = client.network.name
+                to_chain_name = CHAIN_NAME[dst_chain_id]
+                from_token_addr = TOKENS_PER_CHAIN[from_chain_name][from_token_name]
+                to_token_addr = TOKENS_PER_CHAIN[to_chain_name][to_token_name]
 
-            balance_in_usd, token_price = balance_data
-            limit_amount, wanted_to_hold_amount = BRIDGE_AMOUNT_LIMITER
-            min_wanted_amount, max_wanted_amount = min(wanted_to_hold_amount), max(wanted_to_hold_amount)
-            fee_bridge_data = (source_chain_name, destination_chain, amount, dst_chain_id,
-                               from_token_name, to_token_name, from_token_addr, to_token_addr)
+                balance_in_usd, token_price = balance_data
+                limit_amount, wanted_to_hold_amount = BRIDGE_AMOUNT_LIMITER
+                min_wanted_amount, max_wanted_amount = min(wanted_to_hold_amount), max(wanted_to_hold_amount)
+                fee_bridge_data = (source_chain_name, destination_chain, amount, dst_chain_id,
+                                   from_token_name, to_token_name, from_token_addr, to_token_addr)
 
-            if balance_in_usd >= limit_amount:
-                bridge_fee = await bridge_utils(
-                    fee_client, bridge_app_id, chain_from_id, fee_bridge_data, need_fee=True)
-                min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
-                bridge_amount = round(amount - bridge_fee, 6)
-                if balance - bridge_amount < min_hold_balance:
-                    need_to_freeze_amount = min_hold_balance - (balance - bridge_amount)
-                    bridge_amount = round(bridge_amount - need_to_freeze_amount, 6)
+                if balance_in_usd >= limit_amount:
+                    bridge_fee = await bridge_utils(
+                        fee_client, bridge_app_id, chain_from_id, fee_bridge_data, need_fee=True)
+                    min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
+                    bridge_amount = round(amount - bridge_fee, 6)
+                    if balance - bridge_amount < min_hold_balance:
+                        need_to_freeze_amount = min_hold_balance - (balance - bridge_amount)
+                        bridge_amount = round(bridge_amount - need_to_freeze_amount, 6)
 
-                if bridge_amount < 0:
-                    raise CriticalException(
-                        f'Set BRIDGE_AMOUNT_LIMITER[2 value] lower than {wanted_to_hold_amount}. '
-                        f'Current amount = {bridge_amount} {from_token_name}')
+                    if bridge_amount < 0:
+                        raise CriticalException(
+                            f'Set BRIDGE_AMOUNT_LIMITER[2 value] lower than {wanted_to_hold_amount}. '
+                            f'Current amount = {bridge_amount} {from_token_name}')
 
-                bridge_amount_in_usd = bridge_amount * token_price
+                    bridge_amount_in_usd = bridge_amount * token_price
 
-                bridge_data = (source_chain_name, destination_chain, bridge_amount, dst_chain_id,
-                               from_token_name, to_token_name, from_token_addr, to_token_addr)
+                    bridge_data = (source_chain_name, destination_chain, bridge_amount, dst_chain_id,
+                                   from_token_name, to_token_name, from_token_addr, to_token_addr)
 
-                if balance_in_usd >= bridge_amount_in_usd:
+                    if balance_in_usd >= bridge_amount_in_usd:
 
-                    return await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data)
+                        return await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data)
 
-                info = f"{balance_in_usd:.2f}$ < {bridge_amount_in_usd:.2f}$"
-                raise CriticalException(f'Account {token_name} balance < wanted bridge amount: {info}')
+                    info = f"{balance_in_usd:.2f}$ < {bridge_amount_in_usd:.2f}$"
+                    raise CriticalException(f'Account {token_name} balance < wanted bridge amount: {info}')
 
-            info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
-            raise CriticalException(f'Account {token_name} balance < wanted limit amount: {info}')
+                info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
+                raise CriticalException(f'Account {token_name} balance < wanted limit amount: {info}')
 
-        except CriticalException as error:
-            raise error
-        except Exception as error:
-            raise SoftwareExceptionWithRetries(f'{error}')
-        finally:
-            if client:
-                await client.session.close()
+            except CriticalException as error:
+                raise error
+            except Exception as error:
+                self.logger_msg(self.client.account_name, None, msg=f'{error}', type_msg='error')
+                msg = f"Software cannot continue, awaiting operator's action. Will try again in 1 min..."
+                self.logger_msg(self.client.account_name, None, msg=msg, type_msg='warning')
+                await asyncio.sleep(60)
+            finally:
+                if client:
+                    await client.session.close()

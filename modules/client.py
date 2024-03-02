@@ -514,13 +514,13 @@ class Client(Logger):
                             *self.acc_info, msg=f'Funds were received on destination chain', type_msg='success'
                         )
                         return True
+
+                self.logger_msg(
+                    *self.acc_info, msg=f'Waiting for funds on destination chain...', type_msg='warning')
+                await asyncio.sleep(30)
+
             except Exception as error:
                 self.logger_msg(
                     *self.acc_info, msg=f'Can`t get info about LayerZero transaction. Error: {error}',
                     type_msg='warning'
                 )
-
-            self.logger_msg(
-                *self.acc_info, msg=f'Waiting for funds on destination chain...', type_msg='warning')
-            await asyncio.sleep(30)
-
