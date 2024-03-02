@@ -99,6 +99,25 @@ class Client(Logger):
 
         return self.w3.to_wei(number=number, unit=unit_name)
 
+    async def simulate_transfer(self, token_name: str, omnicheck: bool) -> float:
+        if token_name != self.token:
+            if omnicheck:
+                token_contract = self.get_contract(TOKENS_PER_CHAIN2[self.network.name][token_name])
+            else:
+                token_contract = self.get_contract(TOKENS_PER_CHAIN[self.network.name][token_name])
+
+            transaction = await token_contract.functions.transfer(
+                self.address,
+                1
+            ).build_transaction(await self.prepare_transaction())
+        else:
+            transaction = (await self.prepare_transaction(value=1)) | {
+                'to': self.address,
+                'data': '0x'
+            }
+        gas_price = await self.w3.eth.gas_price
+        return float((await self.w3.eth.estimate_gas(transaction)) * GAS_LIMIT_MULTIPLIER * gas_price / 10 ** 18)
+
     async def get_decimals(self, token_name: str = None, token_address: str = None, omnicheck:bool = False) -> int:
         if omnicheck:
             contract_address = token_address if token_address else TOKENS_PER_CHAIN2[self.network.name][token_name]
