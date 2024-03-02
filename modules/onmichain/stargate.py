@@ -5,6 +5,7 @@ from eth_abi import abi
 from config import STARGATE_ABI, STARGATE_CONTRACTS, STARGATE_POOLS_ID, TOKENS_PER_CHAIN2, USDV_ABI, ZERO_ADDRESS, \
     STG_ABI, L0_ENDPOINT_ABI, STARGATE_STG_CONFIG_CHECKERS, VESTG_ADDRESS, VESTG_ABI
 from modules import Logger, Client
+from modules.interfaces import SoftwareExceptionWithoutRetry
 from utils.tools import helper, gas_checker
 
 
@@ -74,34 +75,39 @@ class Stargate(Logger):
             encode_address = abi.encode(["address"], [self.client.address])
             adapter_params = abi.encode(["uint16", "uint64"], [1, min_gas_limit])
             adapter_params = self.client.w3.to_hex(adapter_params[30:])
+            try:
+                estimate_fee = (await router_contract.functions.quoteSendFee(
+                    [
+                        encode_address,
+                        amount_in_wei,
+                        min_amount_out,
+                        dst_chain_id
+                    ],
+                    adapter_params,
+                    False,
+                    "0x"
+                ).call())[0]
 
-            estimate_fee = (await router_contract.functions.quoteSendFee(
-                [
-                    encode_address,
-                    amount_in_wei,
-                    min_amount_out,
-                    dst_chain_id
-                ],
-                adapter_params,
-                False,
-                "0x"
-            ).call())[0]
-
-            transaction = await router_contract.functions.send(
-                [
-                    encode_address,
-                    amount_in_wei,
-                    min_amount_out,
-                    dst_chain_id
-                ],
-                adapter_params,
-                [
-                    dst_gas_for_call,
-                    dst_native_amount,
-                ],
-                self.client.address,
-                '0x'
-            ).build_transaction(await self.client.prepare_transaction(value=estimate_fee))
+                transaction = await router_contract.functions.send(
+                    [
+                        encode_address,
+                        amount_in_wei,
+                        min_amount_out,
+                        dst_chain_id
+                    ],
+                    adapter_params,
+                    [
+                        dst_gas_for_call,
+                        dst_native_amount,
+                    ],
+                    self.client.address,
+                    '0x'
+                ).build_transaction(await self.client.prepare_transaction(value=estimate_fee))
+            except Exception as error:
+                if '0xf4d678b8' in str(error):
+                    raise SoftwareExceptionWithoutRetry('Insufficient balance in this chain!')
+                else:
+                    raise error
         else:
             router_contract = self.client.get_contract(contracts['router'], STARGATE_ABI['router'])
             scr_pool_id = STARGATE_POOLS_ID[self.network][from_token_name]
