@@ -200,7 +200,7 @@ class Bungee(Refuel, Bridge, Logger):
         route_data = await self.get_quote(to_chain, from_token_address, to_token_address, amount_in_wei, need_check)
 
         if need_check:
-            return route_data['totalGasFeesInUsd']
+            return float(route_data['totalGasFeesInUsd']) / await self.client.get_token_price(from_token_name)
 
         tx_data, to_address = await self.build_tx(route_data)
 
