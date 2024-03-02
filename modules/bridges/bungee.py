@@ -9,7 +9,7 @@ from config import (
     BUNGEE_REFUEL_ABI,
     BUNGEE_CHAINS_IDS,
     LAYERZERO_NETWORKS_DATA,
-    CHAIN_NAME_FROM_ID, ETH_MASK
+    CHAIN_NAME_FROM_ID, ETH_MASK, COINGECKO_TOKEN_API_NAMES
 )
 
 
@@ -200,7 +200,8 @@ class Bungee(Refuel, Bridge, Logger):
         route_data = await self.get_quote(to_chain, from_token_address, to_token_address, amount_in_wei, need_check)
 
         if need_check:
-            return float(route_data['totalGasFeesInUsd']) / await self.client.get_token_price(from_token_name)
+            token_price = await self.client.get_token_price(COINGECKO_TOKEN_API_NAMES[from_token_name])
+            return float(route_data['totalGasFeesInUsd']) / token_price
 
         tx_data, to_address = await self.build_tx(route_data)
 
