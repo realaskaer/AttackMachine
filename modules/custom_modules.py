@@ -852,6 +852,8 @@ class Custom(Logger, RequestClient):
                     if balance_in_usd >= limit_amount:
 
                         dep_amount = await client.get_smart_amount(amount, token_name=dep_token, omnicheck=omnicheck)
+                        if dep_token == client.token:
+                            dep_amount -= await client.simulate_transfer(token_name=dep_token, omnicheck=omnicheck)
                         min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
                         if balance - dep_amount < min_hold_balance:
                             need_to_freeze_amount = min_hold_balance - (balance - dep_amount)
@@ -947,27 +949,36 @@ class Custom(Logger, RequestClient):
                     bridge_fee = await bridge_utils(
                         fee_client, bridge_app_id, chain_from_id, fee_bridge_data, need_fee=True)
                     min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
-                    bridge_amount = round(amount - bridge_fee, 6)
-                    if balance - bridge_amount < min_hold_balance:
-                        need_to_freeze_amount = min_hold_balance - (balance - bridge_amount)
-                        bridge_amount = round(bridge_amount - need_to_freeze_amount, 6)
+                    full_bridge_amount = round(bridge_fee + amount - min_hold_balance, 6)
+                    if balance > full_bridge_amount:
+                        if amount > bridge_fee:
+                            bridge_amount = round(amount - bridge_fee, 6)
+                        else:
+                            bridge_amount = amount
+                        if balance - bridge_amount < min_hold_balance:
+                            need_to_freeze_amount = min_hold_balance - (balance - bridge_amount)
+                            bridge_amount = round(bridge_amount - need_to_freeze_amount, 6)
 
-                    if bridge_amount < 0:
-                        raise CriticalException(
-                            f'Set BRIDGE_AMOUNT_LIMITER[2 value] lower than {wanted_to_hold_amount}. '
-                            f'Current amount = {bridge_amount} {from_token_name}')
+                        if bridge_amount < 0:
+                            raise CriticalException(
+                                f'Set BRIDGE_AMOUNT_LIMITER[2 value] lower than {wanted_to_hold_amount}. '
+                                f'Current amount = {bridge_amount} {from_token_name}')
 
-                    bridge_amount_in_usd = bridge_amount * token_price
+                        bridge_amount_in_usd = bridge_amount * token_price
 
-                    bridge_data = (source_chain_name, destination_chain, bridge_amount, dst_chain_id,
-                                   from_token_name, to_token_name, from_token_addr, to_token_addr)
+                        bridge_data = (source_chain_name, destination_chain, bridge_amount, dst_chain_id,
+                                       from_token_name, to_token_name, from_token_addr, to_token_addr)
 
-                    if balance_in_usd >= bridge_amount_in_usd:
+                        if balance_in_usd >= bridge_amount_in_usd:
 
-                        return await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data)
+                            return await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data)
 
-                    info = f"{balance_in_usd:.2f}$ < {bridge_amount_in_usd:.2f}$"
-                    raise CriticalException(f'Account {token_name} balance < wanted bridge amount: {info}')
+                        info = f"{balance_in_usd:.2f}$ < {bridge_amount_in_usd:.2f}$"
+                        raise CriticalException(f'Account {token_name} balance < wanted bridge amount: {info}')
+
+                    info = f"{balance:.2f} {token_name} < {full_bridge_amount:.2f} {token_name}"
+                    raise CriticalException(
+                        f'Account {token_name} balance < bridge fee + bridge amount - hold amount: {info}')
 
                 info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
                 raise CriticalException(f'Account {token_name} balance < wanted limit amount: {info}')
