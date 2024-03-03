@@ -8,7 +8,7 @@ from hashlib import sha256
 
 from general_settings import BITGET_API_PASSPHRAS
 from modules import CEX, Logger
-from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, CriticalException
+from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException
 from utils.tools import helper, get_wallet_for_deposit
 from config import CEX_WRAPPED_ID, TOKENS_PER_CHAIN, BITGET_NETWORKS_NAME, TOKENS_PER_CHAIN2
 
@@ -61,8 +61,10 @@ class Bitget(CEX, Logger):
         }
 
         url = f"{self.api_url}{path}"
-        data = await self.make_request(url=url, params=params, module_name='Balances Data')
-        return data[0]['available']
+        balance = await self.make_request(url=url, params=params, module_name='Balances Data')
+        if balance:
+            return float(balance[0]['available'])
+        raise SoftwareExceptionWithoutRetry(f'Your have not enough {ccy} balance on CEX')
 
     async def get_currencies(self, ccy):
         path = '/api/v2/spot/public/coins'
@@ -214,7 +216,10 @@ class Bitget(CEX, Logger):
         split_network_data = network_raw_name.split('-')
         ccy, network_name = split_network_data[0], '-'.join(split_network_data[1:])
         dst_chain_id = CEX_WRAPPED_ID[network_id]
-        amount = self.client.round_amount(*amount)
+        if isinstance(amount, str):
+            amount = round(await self.get_balance(ccy=ccy) * float(amount), 4)
+        else:
+            amount = self.client.round_amount(*amount)
 
         self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
 

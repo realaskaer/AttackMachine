@@ -1,13 +1,12 @@
 import hmac
 import base64
 import asyncio
-import json
 
 from hashlib import sha256
 from modules import CEX, Logger
 from datetime import datetime, timezone
 
-from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, CriticalException
+from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException
 from utils.tools import helper, get_wallet_for_deposit
 from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID, TOKENS_PER_CHAIN2
 
@@ -45,6 +44,21 @@ class OKX(CEX, Logger):
         headers = await self.get_headers(f'{url}?ccy={ccy}')
 
         return await self.make_request(url=url, headers=headers, params=params, module_name='Token info')
+
+    async def get_balance(self, ccy):
+        url_balance = f"https://www.okx.cab/api/v5/asset/balances?ccy={ccy}"
+
+        params = {
+            'ccy': ccy
+        }
+
+        headers = await self.get_headers(request_path=url_balance)
+        balance = (await self.make_request(
+            url=url_balance, params=params, headers=headers, module_name='Get Account balance'))
+
+        if balance:
+            return float(balance[0]['availBal'])
+        raise SoftwareExceptionWithoutRetry(f'Your have not enough {ccy} balance on CEX')
 
     @helper
     async def transfer_from_subaccounts(self, ccy:str = 'ETH', amount:float = None, silent_mode:bool = False):
@@ -216,7 +230,10 @@ class OKX(CEX, Logger):
 
         await self.transfer_from_subs(ccy=ccy, silent_mode=True)
 
-        amount = self.client.round_amount(*amount)
+        if isinstance(amount, str):
+            amount = round(await self.get_balance(ccy=ccy) * float(amount), 4)
+        else:
+            amount = self.client.round_amount(*amount)
 
         self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount} {ccy} to {network_name}")
 

@@ -784,7 +784,7 @@ class Custom(Logger, RequestClient):
                     network, amount = current_data
 
                     if isinstance(amount[0], str):
-                        raise CriticalException('CEX withdrawal does not support % of the amount')
+                        amount = f"{round(random.uniform(float(amount[0]), float(amount[1])), 6) / 100}"
 
                     result_list.append(await func(self.client, withdraw_data=(network, amount)))
 

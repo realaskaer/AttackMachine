@@ -1,11 +1,10 @@
 import asyncio
 import hmac
-import json
 import time
 
 from hashlib import sha256
 from modules import CEX, Logger
-from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, CriticalException
+from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException
 from utils.tools import helper, get_wallet_for_deposit
 from config import CEX_WRAPPED_ID, BINGX_NETWORKS_NAME, TOKENS_PER_CHAIN, TOKENS_PER_CHAIN2
 
@@ -51,7 +50,11 @@ class BingX(CEX, Logger):
 
         url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
         data = await self.make_request(url=url, headers=self.headers, module_name='Balances Data', content_type=None)
-        return [item for item in data['balances'] if item['asset'] == ccy][0]['free']
+        balance = [item for item in data['balances'] if item['asset'] == ccy]
+
+        if balance:
+            return float(balance[0]['free'])
+        raise SoftwareExceptionWithoutRetry(f'Your have not enough {ccy} balance on CEX')
 
     async def get_currencies(self, ccy):
         path = '/openApi/wallets/v1/capital/config/getall'
@@ -228,7 +231,9 @@ class BingX(CEX, Logger):
         split_network_data = network_raw_name.split('-')
         ccy, network_name = split_network_data[0], '-'.join(split_network_data[1:])
         dst_chain_id = CEX_WRAPPED_ID[network_id]
-        if transfer_mode:
+        if isinstance(amount, str):
+            amount = round(await self.get_balance(ccy=ccy) * float(amount), 4)
+        elif transfer_mode:
             amount = await self.get_balance(ccy)
         else:
             amount = self.client.round_amount(*amount)

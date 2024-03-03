@@ -39,8 +39,14 @@ class Binance(CEX, Logger):
         except Exception as error:
             raise SoftwareExceptionWithoutRetry(f'Bad signature for Binance request: {error}')
 
-    async def deposit(self):
-        pass
+    async def get_balance(self, ccy):
+        balances = await self.get_main_balance()
+
+        ccy_balance = [balance for balance in balances if balance['asset'] == ccy]
+
+        if ccy_balance:
+            return float(ccy_balance[0]['free'])
+        raise SoftwareExceptionWithoutRetry(f'Your have not enough {ccy} balance on CEX')
 
     async def get_currencies(self, ccy):
         path = '/sapi/v1/capital/config/getall'
@@ -209,7 +215,10 @@ class Binance(CEX, Logger):
 
         await self.transfer_from_subaccounts(ccy=ccy, silent_mode=True)
 
-        amount = self.client.round_amount(*amount)
+        if isinstance(amount, str):
+            amount = round(await self.get_balance(ccy=ccy) * float(amount), 4)
+        else:
+            amount = self.client.round_amount(*amount)
 
         self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
 
