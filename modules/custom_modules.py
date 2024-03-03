@@ -7,8 +7,7 @@ import aiohttp.client_exceptions
 
 from modules import Logger, RequestClient, Client
 from general_settings import AMOUNT_PERCENT_WRAPS, GLOBAL_NETWORK
-from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry, SoftwareExceptionWithRetries, \
-    CriticalException
+from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry, CriticalException
 from utils.tools import helper, gas_checker, sleep
 from config import (
     ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA,
@@ -949,8 +948,7 @@ class Custom(Logger, RequestClient):
                     bridge_fee = await bridge_utils(
                         fee_client, bridge_app_id, chain_from_id, fee_bridge_data, need_fee=True)
                     min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
-                    full_bridge_amount = round(bridge_fee + amount - min_hold_balance, 6)
-                    if balance > full_bridge_amount:
+                    if balance - bridge_fee - min_hold_balance > 0:
                         if amount > bridge_fee:
                             bridge_amount = round(amount - bridge_fee, 6)
                         else:
@@ -976,9 +974,9 @@ class Custom(Logger, RequestClient):
                         info = f"{balance_in_usd:.2f}$ < {bridge_amount_in_usd:.2f}$"
                         raise CriticalException(f'Account {token_name} balance < wanted bridge amount: {info}')
 
-                    info = f"{balance:.2f} {token_name} < {full_bridge_amount:.2f} {token_name}"
-                    raise CriticalException(
-                        f'Account {token_name} balance < bridge fee + bridge amount - hold amount: {info}')
+                    full_need_amount = round(bridge_fee + min_hold_balance, 6)
+                    info = f"{balance:.2f} {token_name} < {full_need_amount:.2f} {token_name}"
+                    raise CriticalException(f'Account {token_name} balance < bridge fee + hold amount: {info}')
 
                 info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
                 raise CriticalException(f'Account {token_name} balance < wanted limit amount: {info}')
