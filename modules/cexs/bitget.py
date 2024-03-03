@@ -61,7 +61,8 @@ class Bitget(CEX, Logger):
         }
 
         url = f"{self.api_url}{path}"
-        balance = await self.make_request(url=url, params=params, module_name='Balances Data')
+        headers = self.get_headers(method='GET', api_path=path, params=params)
+        balance = await self.make_request(url=url, params=params, headers=headers, module_name='Balances Data')
         if balance:
             return float(balance[0]['available'])
         raise SoftwareExceptionWithoutRetry(f'Your have not enough {ccy} balance on CEX')
