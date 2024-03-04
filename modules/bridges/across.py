@@ -2,7 +2,6 @@ from modules import Bridge, Logger
 from modules.interfaces import BridgeExceptionWithoutRetry
 from config import TOKENS_PER_CHAIN, ACROSS_ABI, CHAIN_NAME_FROM_ID, ACROSS_CONTRACT
 from general_settings import GAS_LIMIT_MULTIPLIER
-from utils.tools import helper
 
 
 class Across(Bridge, Logger):
@@ -52,7 +51,6 @@ class Across(Bridge, Logger):
 
         return await self.make_request(url=url, params=params)
 
-    @helper
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
         from_chain, to_chain, amount, to_chain_id, token_name, _, from_token_address, to_token_address = bridge_data
 

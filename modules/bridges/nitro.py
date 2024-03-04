@@ -1,6 +1,5 @@
 from config import ETH_MASK, CHAIN_NAME_FROM_ID
 from modules import Bridge, Logger, Client
-from utils.tools import helper
 
 
 class Nitro(Bridge, Logger):
@@ -45,7 +44,6 @@ class Nitro(Bridge, Logger):
 
         return response['txn']['data'], self.client.w3.to_checksum_address(response['txn']['to'])
 
-    @helper
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
         (from_chain, to_chain, amount, to_chain_id, from_token_name,
          to_token_name, from_token_address, to_token_address) = bridge_data

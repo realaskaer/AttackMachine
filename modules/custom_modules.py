@@ -2,6 +2,7 @@ import asyncio
 import copy
 import random
 import traceback
+from math import floor
 
 import aiohttp.client_exceptions
 
@@ -505,7 +506,7 @@ class Custom(Logger, RequestClient):
             chains, tokens, omni_check=True
         )
 
-        stake_amount = round(
+        stake_amount = floor(
             await current_client.get_smart_amount(STG_STAKE_CONFIG[1], token_name='STG', omnicheck=True), 2
         )
         stake_amount_in_wei = current_client.to_wei(stake_amount, 18)

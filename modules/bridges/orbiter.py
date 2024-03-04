@@ -5,8 +5,6 @@ from modules import Bridge, Logger
 from modules.interfaces import BridgeExceptionWithoutRetry, SoftwareExceptionWithoutRetry
 from web3 import AsyncWeb3
 
-from utils.tools import helper
-
 
 class Orbiter(Bridge, Logger):
     def __init__(self, client):
@@ -34,7 +32,6 @@ class Orbiter(Bridge, Logger):
             return bridge_data
         raise BridgeExceptionWithoutRetry(f'That bridge is not active!')
 
-    @helper
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
         from_chain, to_chain, amount, to_chain_id, token_name, _, from_token_address, to_token_address = bridge_data
 
