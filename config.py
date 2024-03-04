@@ -280,6 +280,7 @@ TOKENS_PER_CHAIN = {
         'USDT'              : '0xdAC17F958D2ee523a2206206994597C13D831ec7',
     },
     "Avalanche": {
+        'ETH'               : '0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB',
         'USDC'              : '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
         'USDC.e'            : '0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664',
         'USDT'              : '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',
