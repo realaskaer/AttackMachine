@@ -543,3 +543,4 @@ class Client(Logger):
                     *self.acc_info, msg=f'Can`t get info about LayerZero transaction. Error: {error}',
                     type_msg='warning'
                 )
+                await asyncio.sleep(10)
