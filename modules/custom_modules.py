@@ -407,8 +407,7 @@ class Custom(Logger, RequestClient):
         attack_data_without_none = []
 
         if dapp_mode == 1:
-            attack_data = [[random.choice(data[0]) if isinstance(data[0], list) else data[0], (data[1], data[2])]
-                           for data in attack_data[0]]
+            attack_data = attack_data[0]
             if SHUFFLE_ATTACK:
                 random.shuffle(attack_data)
         elif dapp_mode == 2:
@@ -424,23 +423,30 @@ class Custom(Logger, RequestClient):
                 continue
             attack_data_without_none.append(path)
 
-        for chain_id_from, attack_info in attack_data_without_none:
+        for attack_info in attack_data_without_none:
             if dapp_mode == 1:
-                chain_to_id, amount = attack_info
+                chain_id_from, chain_to_id, amount = attack_info
+                if isinstance(chain_id_from, list):
+                    chain_id_from = random.choice(chain_id_from)
                 if isinstance(chain_to_id, list):
                     chain_to_id = random.choice(chain_to_id)
                 attack_data = {
                     chain_to_id: (amount, round(amount * 1.1, 7))
                 }
             elif dapp_mode == 2:
-                if isinstance(attack_info, list):
-                    attack_data = random.choice(attack_info)
+                chain_id_from, chain_to_id = attack_info
+                if isinstance(chain_id_from, list):
+                    chain_id_from = random.choice(chain_id_from)
+                if isinstance(chain_to_id, list):
+                    attack_data = random.choice(chain_to_id)
                 else:
-                    attack_data = attack_info
+                    attack_data = chain_to_id
+            else:
+                raise SoftwareExceptionWithoutRetry(f'This dapp mode is not exist: {dapp_mode}')
 
             await omnichain_util(
-                self.client.account_name, self.client.private_key, self.client.proxy_init,
-                chain_id_from, attack_data=attack_data, dapp_id=class_id, dapp_mode=dapp_mode
+               self.client.account_name, self.client.private_key, self.client.proxy_init,
+               chain_id_from, attack_data=attack_data, dapp_id=class_id, dapp_mode=dapp_mode
             )
 
             await sleep(self)

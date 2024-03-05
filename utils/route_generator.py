@@ -128,6 +128,7 @@ AVAILABLE_MODULES_INFO = {
     zerius_bridge_google                : (zerius_bridge_google, 3, 'Zerius Google Bridge', 0, []),
     l2pass_bridge_google                : (l2pass_bridge_google, 3, 'L2Pass Google Bridge', 0, []),
     whale_bridge_google                 : (whale_bridge_google, 3, 'Whale Google Bridge', 0, []),
+    merkly_nft_attack                   : (merkly_nft_attack, 3, 'Merkly NFT Attack', 0, []),
     zerius_nft_attack                   : (zerius_nft_attack, 3, 'Zerius NFT Attack', 0, []),
     l2pass_nft_attack                   : (l2pass_nft_attack, 3, 'L2Pass NFT Attack', 0, []),
     whale_nft_attack                    : (whale_nft_attack, 3, 'Whale NFT Attack', 0, []),
