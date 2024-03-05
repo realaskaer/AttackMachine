@@ -2763,10 +2763,11 @@ OKX_NETWORKS_NAME = {
     31                      : 'USDC-BSC',
     32                      : 'USDC-ERC20',
     # 33                      : 'STG-Arbitrum One',
-    # 34                      : 'STG-Avalanche C-Chain',
+    # 34                      : 'STG-BSC',
     # 35                      : 'STG-Avalanche C-Chain',
-    # 36                      : 'USDV-BSC',
-    37                      : 'ARB-ARBITRUM',
+    # 36                      : 'STG-Fantom',
+    # 37                      : 'USDV-BSC',
+    38                      : 'ARB-ARBITRUM',
 }
 
 BINGX_NETWORKS_NAME = {
@@ -2805,8 +2806,9 @@ BINGX_NETWORKS_NAME = {
     33                      : 'STG-ARBITRUM',
     34                      : 'STG-BEP20',
     # 35                      : 'STG-AVAX-C',
-    # 36                      : 'USDV-BSC',
-    37                      : 'ARB-ARBITRUM',
+    # 36                      : 'STG-FANTOM',
+    # 37                      : 'USDV-BSC',
+    38                      : 'ARB-ARBITRUM',
 }
 
 BINANCE_NETWORKS_NAME = {
@@ -2845,8 +2847,9 @@ BINANCE_NETWORKS_NAME = {
     33                      : 'STG-ARBITRUM',
     34                      : 'STG-BSC',
     35                      : 'STG-AVAXC',
-    # 36                      : 'USDV-BSC',
-    37                      : 'ARB-ARBITRUM',
+    36                      : 'STG-FANTOM',
+    # 37                      : 'USDV-BSC',
+    38                      : 'ARB-ARBITRUM',
 }
 
 BITGET_NETWORKS_NAME = {
@@ -2884,9 +2887,10 @@ BITGET_NETWORKS_NAME = {
     32                      : 'USDC-ERC20',
     33                      : 'STG-ArbitrumOne',
     # 34                      : 'STG-BEP20',
-    # 35                      : 'STG-C-Chain',
-    36                      : 'USDV-BEP20',
-    37                      : 'ARB-ArbitrumOne',
+    # 35                      : 'STG-FANTOM',
+    # 36                      : 'STG-C-Chain',
+    37                      : 'USDV-BEP20',
+    38                      : 'ARB-ArbitrumOne',
 }
 
 CEX_WRAPPED_ID = {
@@ -2925,8 +2929,9 @@ CEX_WRAPPED_ID = {
      33                         : 1,
      34                         : 15,
      35                         : 14,
-     36                         : 15,
-     37                         : 1,
+     36                         : 33,
+     37                         : 15,
+     38                         : 1,
 }
 
 LAYERZERO_WRAPED_NETWORKS = {

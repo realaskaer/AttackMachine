@@ -3,16 +3,16 @@
     Выберите сети/суммы для вывода и ввода с CEX. Не забудьте вставить API ключи в general_settings.py.
     Депозиты и выводы работают только со спотовым балансом на бирже.
 
-    1 - ETH-ERC20                10 - CELO-CELO           19 - USDT-Arbitrum One       28 - USDC-Polygon
-    2 - ETH-Arbitrum One         11 - GLMR-Moonbeam       20 - USDT-Avalanche          29 - USDC-Optimism (Bridged)
-    3 - ETH-Optimism             12 - MOVR-Moonriver      21 - USDT-Optimism           30 - USDC-Polygon (Bridged)
-    4 - ETH-zkSync Era           13 - METIS-Metis         22 - USDT-Polygon            31 - USDC-BSC
-    5 - ETH-Linea                14 - CORE-CORE           23 - USDT-BSC                32 - USDC-ERC20
-    6 - ETH-Base                 15 - CFX-CFX_EVM         24 - USDT-ERC20              33 - STG-Arbitrum One
-    7 - AVAX-Avalanche C-Chain   16 - KLAY-Klaytn         25 - USDC-Arbitrum One       34 - STG-BSC
-    8 - BNB-BSC                  17 - FTM-Fantom          26 - USDC-Avalanche C-Chain  35 - STG-Avalanche C-Chain
-    9 - BNB-OPBNB                18 - MATIC-Polygon       27 - USDC-Optimism           36 - USDV-BSC
-                                                                                       37 - ARB-Arbitrum One
+    1 - ETH-ERC20                10 - CELO-CELO           19 - USDT-Arbitrum One       29 - USDC-Optimism (Bridged)
+    2 - ETH-Arbitrum One         11 - GLMR-Moonbeam       20 - USDT-Avalanche          30 - USDC-Polygon (Bridged)
+    3 - ETH-Optimism             12 - MOVR-Moonriver      21 - USDT-Optimism           31 - USDC-BSC
+    4 - ETH-zkSync Era           13 - METIS-Metis         22 - USDT-Polygon            32 - USDC-ERC20
+    5 - ETH-Linea                14 - CORE-CORE           23 - USDT-BSC                33 - STG-Arbitrum One
+    6 - ETH-Base                 15 - CFX-CFX_EVM         24 - USDT-ERC20              34 - STG-BSC
+    7 - AVAX-Avalanche C-Chain   16 - KLAY-Klaytn         25 - USDC-Arbitrum One       35 - STG-Avalanche C-Chain
+    8 - BNB-BSC                  17 - FTM-Fantom          26 - USDC-Avalanche C-Chain  36 - STG-Fantom
+    9 - BNB-OPBNB                18 - MATIC-Polygon       27 - USDC-Optimism           37 - USDV-BSC
+                                                          28 - USDC-Polygon            38 - ARB-Arbitrum One
 
     Сумма в количестве  - (0.01, 0.02)
     Сумма в процентах   - ("10", "20") ⚠️ Значения в кавычках
