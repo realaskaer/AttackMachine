@@ -155,6 +155,7 @@ class Client(Logger):
             'DAI': 'dai',
             'USDT': 'tether',
             'USDC': 'usd-coin',
+            'USDB': 'usdb',
             'USDC.e': 'bridged-usdc-polygon-pos-bridge',
             'BUSD': 'binance-usd',
             'ETH': 'ethereum',
@@ -453,28 +454,27 @@ class Client(Logger):
             raise BlockchainException(f'{self.get_normalize_error(error)}')
 
     async def send_transaction(
-            self, transaction, need_hash: bool = False, without_gas: bool = False, poll_latency: int = 10,
-            timeout: int = 360
+            self, transaction=None, need_hash: bool = False, without_gas: bool = False, poll_latency: int = 10,
+            timeout: int = 360, tx_hash=None
     ) -> bool | HexStr:
         try:
-            if not without_gas:
+            if not without_gas and not tx_hash:
                 transaction['gas'] = int((await self.w3.eth.estimate_gas(transaction)) * GAS_LIMIT_MULTIPLIER)
         except Exception as error:
             raise BlockchainException(f'{self.get_normalize_error(error)}')
 
-        try:
-            singed_tx = self.w3.eth.account.sign_transaction(transaction, self.private_key)
-            tx_hash = self.w3.to_hex(await self.w3.eth.send_raw_transaction(singed_tx.rawTransaction))
-        except Exception as error:
-            if self.get_normalize_error(error) == 'already known':
-                self.logger_msg(*self.acc_info, msg='RPC got error, but tx was send', type_msg='warning')
-                return True
-            else:
-                raise BlockchainException(f'{self.get_normalize_error(error)}')
+        if not tx_hash:
+            try:
+                singed_tx = self.w3.eth.account.sign_transaction(transaction, self.private_key)
+                tx_hash = self.w3.to_hex(await self.w3.eth.send_raw_transaction(singed_tx.rawTransaction))
+            except Exception as error:
+                if self.get_normalize_error(error) == 'already known':
+                    self.logger_msg(*self.acc_info, msg='RPC got error, but tx was send', type_msg='warning')
+                    return True
+                else:
+                    raise BlockchainException(f'{self.get_normalize_error(error)}')
 
         total_time = 0
-        timeout = timeout if self.network.name != 'Polygon' else 1200
-
         while True:
             try:
                 receipts = await self.w3.eth.get_transaction_receipt(tx_hash)

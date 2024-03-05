@@ -21,7 +21,8 @@ def get_interface_by_chain_id(chain_id):
         8: Scroll,
         11: ZkSync,
         12: Zora,
-        13: Ethereum
+        13: Ethereum,
+        49: Blast
     }[chain_id]
 
 
@@ -76,6 +77,7 @@ def get_network_by_chain_id(chain_id):
         46: BeamRPC,
         47: InEVM_RPC,
         48: RaribleRPC,
+        49: BlastRPC,
     }[chain_id]
 
 
@@ -461,14 +463,14 @@ async def transfer_eth_to_myself(account_name, private_key, network, proxy):
     return await worker.transfer_eth_to_myself()
 
 
-async def wrap_eth(account_name, private_key, network, proxy):
+async def wrap_eth(account_name, private_key, network, proxy, *args):
     worker = ZkSync(get_client(account_name, private_key, network, proxy))
-    return await worker.wrap_eth()
+    return await worker.wrap_eth(*args)
 
 
-async def unwrap_eth(account_name, private_key, network, proxy):
+async def unwrap_eth(account_name, private_key, network, proxy, *args):
     wrap = ZkSync(get_client(account_name, private_key, network, proxy))
-    return await wrap.unwrap_eth()
+    return await wrap.unwrap_eth(*args)
 
 
 async def deploy_contract(account_name, private_key, network, proxy):
@@ -538,6 +540,16 @@ async def swap_zkswap(account_name, private_key, network, proxy):
 
 async def swap_spacefi(account_name, private_key, network, proxy):
     worker = SpaceFi(get_client(account_name, private_key, network, proxy))
+    return await worker.swap()
+
+
+async def swap_bebop(account_name, private_key, network, proxy):
+    worker = Bebop(get_client(account_name, private_key, network, proxy))
+    return await worker.swap()
+
+
+async def swap_thruster(account_name, private_key, network, proxy):
+    worker = Thruster(get_client(account_name, private_key, network, proxy))
     return await worker.swap()
 
 
@@ -611,6 +623,21 @@ async def withdraw_basilisk(account_name, private_key, network, proxy):
     return await worker.withdraw()
 
 
+async def deposit_abracadabra(account_name, private_key, network, proxy):
+    worker = Abracadabra(get_client(account_name, private_key, network, proxy))
+    return await worker.deposit()
+
+
+async def deposit_abracadabra_with_lock(account_name, private_key, network, proxy):
+    worker = Abracadabra(get_client(account_name, private_key, network, proxy))
+    return await worker.deposit(lock=True)
+
+
+async def withdraw_abracadabra(account_name, private_key, network, proxy):
+    worker = Abracadabra(get_client(account_name, private_key, network, proxy))
+    return await worker.withdraw()
+
+
 async def enable_collateral_basilisk(account_name, private_key, network, proxy):
     worker = Basilisk(get_client(account_name, private_key, network, proxy))
     return await worker.enable_collateral()
@@ -624,6 +651,11 @@ async def disable_collateral_basilisk(account_name, private_key, network, proxy)
 async def deposit_zerolend(account_name, private_key, network, proxy):
     worker = ZeroLend(get_client(account_name, private_key, network, proxy))
     return await worker.deposit()
+
+
+async def deposit_usdb_zerolend(account_name, private_key, network, proxy):
+    worker = ZeroLend(get_client(account_name, private_key, network, proxy))
+    return await worker.deposit_usdb()
 
 
 async def withdraw_zerolend(account_name, private_key, network, proxy):
@@ -696,6 +728,11 @@ async def create_safe(account_name, private_key, network, proxy):
 async def swap_uniswap(account_name, private_key, network, proxy, **kwargs):
     worker = Uniswap(get_client(account_name, private_key, network, proxy))
     return await worker.swap(**kwargs)
+
+
+async def swap_bladeswap(account_name, private_key, network, proxy):
+    worker = BladeSwap(get_client(account_name, private_key, network, proxy))
+    return await worker.swap()
 
 
 async def swap_sushiswap(account_name, private_key, network, proxy):

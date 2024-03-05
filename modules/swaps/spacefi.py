@@ -1,5 +1,5 @@
 from time import time
-from modules import DEX, Logger
+from modules import DEX, Logger, Client
 from utils.tools import gas_checker, helper
 from general_settings import SLIPPAGE
 from config import (
@@ -10,7 +10,7 @@ from config import (
 
 
 class SpaceFi(DEX, Logger):
-    def __init__(self, client):
+    def __init__(self, client: Client):
         self.client = client
         Logger.__init__(self)
         self.network = self.client.network.name

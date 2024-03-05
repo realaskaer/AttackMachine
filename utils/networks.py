@@ -601,6 +601,18 @@ InEVM_RPC = Network(
     explorer='https://inevm.calderaexplorer.xyz/'
 )
 
+BlastRPC = Network(
+    name='Blast',
+    rpc=[
+        'https://rpc.blast.io',
+        'https://rpc.ankr.com/blast'
+    ],
+    chain_id=81457,
+    eip1559_support=False,
+    token='ETH',
+    explorer='https://blastscan.io/'
+)
+
 
 RaribleRPC = Network(
     name='Rarible',

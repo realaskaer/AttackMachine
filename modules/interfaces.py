@@ -244,14 +244,6 @@ class Landing(ABC):
     async def withdraw(self):
         pass
 
-    @abstractmethod
-    async def enable_collateral(self):
-        pass
-
-    @abstractmethod
-    async def disable_collateral(self):
-        pass
-
 
 class Minter(ABC):
     @abstractmethod

@@ -15,7 +15,7 @@
 """
 AMOUNT_PERCENT = (55, 60)  # Применяется для обменов.
 AMOUNT_PERCENT_WRAPS = (55, 60)  # Применяется для модуля wrap_abuser.
-LIQUIDITY_AMOUNT = (0.001, 0.002)  # Применяется для добавления ликвидности, депозитов на лендинги и wrap ETH
+LIQUIDITY_AMOUNT = ('10', '20')  # Применяется для добавления ликвидности, депозитов на лендинги и wrap ETH
 TRANSFER_AMOUNT = (0.0001, 0.0002)  # Применяется для трансферов эфира на свой или рандомный адрес
 MIN_BALANCE = 0.001  # Количество ETH на аккаунте
 
@@ -23,13 +23,13 @@ MIN_BALANCE = 0.001  # Количество ETH на аккаунте
 ------------------------------------------------GENERAL SETTINGS--------------------------------------------------------
     GLOBAL_NETWORK | Блокчейн для основного взаимодействия ⚠️
 
-    Arbitrum = 1            Optimism = 7
-    Arbitrum Nova = 2       Scroll = 8
-    Base = 3                Starknet = 9
-    Linea = 4               Polygon ZKEVM = 10
-    Manta = 5               zkSync Era = 11
-    Polygon = 6             Zora = 12
-                            Gnosis = 20
+    Arbitrum = 1            Scroll = 8
+    Arbitrum Nova = 2       Starknet = 9
+    Base = 3                Polygon ZKEVM = 10
+    Linea = 4               zkSync Era = 11
+    Manta = 5               Zora = 12
+    Polygon = 6             Ethereum = 13
+    Optimism = 7            Blast = 49
 
     WALLETS_TO_WORK = 0 | Софт будет брать кошельки из таблице по правилам, описанным снизу
     0       = все кошельки подряд

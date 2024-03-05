@@ -1,3 +1,4 @@
+from general_settings import LIQUIDITY_AMOUNT
 from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 from config import ZEROLEND_CONTRACTS, ZEROLEND_ABI, TOKENS_PER_CHAIN
@@ -8,9 +9,13 @@ class ZeroLend(Landing, Logger):
     def __init__(self, client):
         self.client = client
         Logger.__init__(self)
-
-        self.landing_contract = self.client.get_contract(ZEROLEND_CONTRACTS['landing'], ZEROLEND_ABI)
-        self.collateral_contract = self.client.get_contract(ZEROLEND_CONTRACTS['pool_proxy'], ZEROLEND_ABI)
+        self.network = self.client.network.name
+        self.landing_contract = self.client.get_contract(
+            ZEROLEND_CONTRACTS[self.network]['landing'], ZEROLEND_ABI['landing']
+        )
+        self.proxy_contract = self.client.get_contract(
+            ZEROLEND_CONTRACTS[self.network]['pool_proxy'], ZEROLEND_ABI['pool_proxy']
+        )
 
     @helper
     @gas_checker
@@ -23,6 +28,29 @@ class ZeroLend(Landing, Logger):
 
         transaction = await self.landing_contract.functions.depositETH(
             ZEROLEND_CONTRACTS['pool_proxy'],
+            self.client.address,
+            0
+        ).build_transaction(tx_params)
+
+        return await self.client.send_transaction(transaction)
+
+    @helper
+    @gas_checker
+    async def deposit_usdb(self):
+        amount = await self.client.get_smart_amount(LIQUIDITY_AMOUNT, token_name='USDB')
+        amount_in_wei = self.client.to_wei(amount, 18)
+
+        self.logger_msg(*self.client.acc_info, msg=f'Deposit to ZeroLend: {amount} USDB')
+
+        usdb_address = TOKENS_PER_CHAIN[self.client.network.name]['USDB']
+
+        await self.client.check_for_approved(usdb_address, self.proxy_contract.address, amount_in_wei)
+
+        tx_params = await self.client.prepare_transaction()
+
+        transaction = await self.proxy_contract.functions.supply(
+            usdb_address,
+            amount_in_wei,
             self.client.address,
             0
         ).build_transaction(tx_params)
@@ -62,7 +90,7 @@ class ZeroLend(Landing, Logger):
 
         tx_params = await self.client.prepare_transaction()
 
-        transaction = await self.collateral_contract.functions.setUserUseReserveAsCollateral(
+        transaction = await self.proxy_contract.functions.setUserUseReserveAsCollateral(
             TOKENS_PER_CHAIN[self.client.network.name]['ETH'],
             True
         ).build_transaction(tx_params)
@@ -76,7 +104,7 @@ class ZeroLend(Landing, Logger):
 
         tx_params = await self.client.prepare_transaction()
 
-        transaction = await self.collateral_contract.functions.setUserUseReserveAsCollateral(
+        transaction = await self.proxy_contract.functions.setUserUseReserveAsCollateral(
             TOKENS_PER_CHAIN[self.client.network.name]['ETH'],
             False
         ).build_transaction(tx_params)

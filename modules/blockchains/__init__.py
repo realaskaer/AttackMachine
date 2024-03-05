@@ -1,1 +1,1 @@
-from .evm import ZkSync, Scroll, Base, Linea, ArbitrumNova, Zora, Ethereum
+from .evm import ZkSync, Scroll, Base, Linea, ArbitrumNova, Zora, Ethereum, Blast

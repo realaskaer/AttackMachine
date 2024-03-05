@@ -43,7 +43,7 @@
 '--------------------------------------------------------OKX-----------------------------------------------------------'
 
 OKX_WITHDRAW_DATA = [
-    [2, (0.0007, 0.00071)],
+    [18, (3.2, 3.3)],
 ]
 
 OKX_DEPOSIT_DATA = [
@@ -90,17 +90,17 @@ CEX_DEPOSIT_LIMITER = 0, (0, 0)         # (Ограничитель баланс
     Проверьте руками, работает ли сеть на сайте. (Софт сам проверит, но зачем его напрягать?)
     Не забудьте вставить API ключ для LayerSwap снизу. Для каждого моста поддерживается уникальная настройка
        
-        Arbitrum = 1                    Polygon ZKEVM = 10 
-        Arbitrum Nova = 2               zkSync Era = 11     
-        Base = 3                        Zora = 12 
-        Linea = 4                       Ethereum = 13
-        Manta = 5                       Avalanche = 14
-        Polygon = 6                     BNB Chain = 15
-        Optimism = 7                    Metis = 26        
-        Scroll = 8                      OpBNB = 28
-        Starknet = 9                    Mantle = 29
-                                        ZKFair = 45   
-    
+        Arbitrum = 1                    zkSync Era = 11     
+        Arbitrum Nova = 2               Zora = 12 
+        Base = 3                        Ethereum = 13
+        Linea = 4                       Avalanche = 14
+        Manta = 5                       BNB Chain = 15
+        Polygon = 6                     Metis = 26        
+        Optimism = 7                    OpBNB = 28
+        Scroll = 8                      Mantle = 29
+        Starknet = 9                    ZKFair = 45
+        Polygon ZKEVM = 10              Blast = 49
+                                           
     Сумма в количестве  - (0.01, 0.02)
     Сумма в процентах   - ("10", "20") ⚠️ Значения в кавычках
     
@@ -627,6 +627,18 @@ HELPERS_CONFIG = {
     withdraw_liquidity_maverick      # выводит всю ликвидность из пула USDC/WETH
     withdraw_liquidity_mute
     withdraw_liquidity_syncswap
+    
+---------------------------------------------------------BLAST----------------------------------------------------------  
+
+    swap_bebop
+    swap_thruster
+    swap_bladeswap
+    swap_ambient
+    deposit_abracadabra
+    deposit_zerolend
+    deposit_usdb_zerolend
+    deposit_abracadabra_with_lock
+    withdraw_abracadabra
     
 ----------------------------------------------------------BASE----------------------------------------------------------        
 

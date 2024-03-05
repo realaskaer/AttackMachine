@@ -99,9 +99,12 @@ class SimpleEVM(Logger):
 
     @helper
     @gas_checker
-    async def wrap_eth(self):
+    async def wrap_eth(self, amount_in_wei: int = None):
 
-        amount, amount_in_wei = await self.client.check_and_get_eth()
+        if not amount_in_wei:
+            amount, amount_in_wei = await self.client.check_and_get_eth()
+        else:
+            amount = round(amount_in_wei / 10 ** 18, 5)
 
         self.logger_msg(*self.client.acc_info, msg=f'Wrap {amount} ETH')
 
@@ -117,9 +120,12 @@ class SimpleEVM(Logger):
 
     @helper
     @gas_checker
-    async def unwrap_eth(self):
+    async def unwrap_eth(self, amount_in_wei: int = None):
 
-        amount_in_wei, amount, _ = await self.client.get_token_balance('WETH', check_symbol=False)
+        if not amount_in_wei:
+            amount_in_wei, amount, _ = await self.client.get_token_balance('WETH', check_symbol=False)
+        else:
+            amount = round(amount_in_wei / 10 ** 18, 5)
 
         self.logger_msg(*self.client.acc_info, msg=f'Unwrap {amount:.6f} WETH')
 
@@ -434,6 +440,11 @@ class ArbitrumNova(Blockchain, SimpleEVM):
 
 
 class Ethereum(Blockchain, SimpleEVM):
+    def __init__(self, client):
+        SimpleEVM.__init__(self, client)
+        Blockchain.__init__(self, client)
+
+class Blast(Blockchain, SimpleEVM):
     def __init__(self, client):
         SimpleEVM.__init__(self, client)
         Blockchain.__init__(self, client)

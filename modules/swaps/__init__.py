@@ -18,3 +18,6 @@ from .sushiswap import SushiSwap
 from .ambient import Ambient
 from .skydrome import Skydrome
 from .zebra import Zebra
+from .bebop import Bebop
+from .thruster import Thruster
+from .bladeswap import BladeSwap
