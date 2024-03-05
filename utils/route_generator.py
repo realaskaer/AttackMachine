@@ -133,6 +133,7 @@ AVAILABLE_MODULES_INFO = {
     l2pass_nft_attack                   : (l2pass_nft_attack, 3, 'L2Pass NFT Attack', 0, []),
     whale_nft_attack                    : (whale_nft_attack, 3, 'Whale NFT Attack', 0, []),
     gas_station_l2pass                  : (gas_station_l2pass, 3, 'L2Pass Gas Station', 0, []),
+    check_in_owlto                      : (check_in_owlto, 2, 'Check-in Owlto', 0, [0]),
     send_message_dmail                  : (send_message_dmail, 2, 'Dmail Message', 1, [3, 4, 8, 9, 11]),
     send_message_l2telegraph            : (send_message_l2telegraph, 2, 'L2Telegraph Message', 0, []),
     bingx_transfer                      : (bingx_transfer, 2, 'BingX Transfer', 0, []),

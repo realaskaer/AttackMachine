@@ -599,6 +599,7 @@ HELPERS_CONFIG = {
     swap_vesync                      
     swap_woofi                       
     swap_zkswap                 
+    check_in_owlto                   # checkIn на сайте https://owlto.finance/confirm
     wrap_eth                         # wrap/unwrap ETH через офф. контракт токена WETH. (кол-во из LIQUIDITY_AMOUNT)
     grapedraw_bid                    # создание ставки на GrapeDraw https://grapedraw.com. см. GRAPEDRAW_TICKETS_AMOUNT 
     vote_rubyscore                   # голосование на RubyScore https://rubyscore.io 
@@ -634,6 +635,7 @@ HELPERS_CONFIG = {
     swap_thruster
     swap_bladeswap
     swap_ambient
+    check_in_owlto
     deposit_abracadabra
     deposit_zerolend
     deposit_usdb_zerolend
@@ -681,6 +683,7 @@ HELPERS_CONFIG = {
     deposit_rocketsam
     withdraw_rocketsam
     create_omnisea
+    check_in_owlto
     mint_zkstars
     deploy_contract
     vote_rubyscore
@@ -703,6 +706,7 @@ HELPERS_CONFIG = {
     swap_izumi
     swap_openocean
     swap_xyfinance
+    check_in_owlto
     deposit_layerbank
     withdraw_layerbank
     deposit_rocketsam

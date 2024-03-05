@@ -1,9 +1,10 @@
+import datetime
+
 from modules import Bridge, Logger
 from modules.interfaces import BridgeExceptionWithoutRetry, SoftwareExceptionWithoutRetry, RequestClient
-from config import CHAIN_NAME_FROM_ID
+from config import CHAIN_NAME_FROM_ID, OWLTO_CONTRACT, OWLTO_ABI
 from web3 import AsyncWeb3
-
-from utils.tools import helper
+from utils.tools import helper, gas_checker
 
 
 class Owlto(Bridge, Logger, RequestClient):
@@ -127,3 +128,21 @@ class Owlto(Bridge, Logger, RequestClient):
 
         else:
             raise BridgeExceptionWithoutRetry(f"Limit range for bridge: {min_amount} – {max_amount} {token_name}!")
+
+    @helper
+    @gas_checker
+    async def check_in(self):
+        self.logger_msg(*self.client.acc_info, msg=f"Check-in on Owlto")
+
+        date = datetime.datetime.utcnow()
+        format_date = int(f"{date.year}{date.month:0>2}{date.day:0>2}")
+
+        nfts2me_contract = self.client.get_contract(
+            OWLTO_CONTRACT[self.client.network.name]['check_in'], OWLTO_ABI['check_in']
+        )
+
+        transaction = await nfts2me_contract.functions.checkIn(
+            format_date
+        ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transaction)

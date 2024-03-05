@@ -886,6 +886,11 @@ async def smart_stake_stg(account_name, private_key, network, proxy):
     return await worker.smart_stake_stg()
 
 
+async def check_in_owlto(account_name, private_key, network, proxy):
+    worker = Owlto(get_client(account_name, private_key, network, proxy))
+    return await worker.check_in()
+
+
 async def custom_swap(account_name, private_key, _, proxy):
     network = get_network_by_chain_id(LAYERZERO_WRAPED_NETWORKS[CUSTOM_SWAP_DATA[-1]])
     worker = Custom(get_client(account_name, private_key, network, proxy))
