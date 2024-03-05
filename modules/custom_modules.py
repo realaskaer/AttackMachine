@@ -508,9 +508,9 @@ class Custom(Logger, RequestClient):
             chains, tokens, omni_check=True
         )
 
-        stake_amount = floor(
-            await current_client.get_smart_amount(STG_STAKE_CONFIG[1], token_name='STG', omnicheck=True), 2
-        )
+        amount = await current_client.get_smart_amount(STG_STAKE_CONFIG[1], token_name='STG', omnicheck=True)
+        stake_amount = f"{amount:.2f}"
+
         stake_amount_in_wei = current_client.to_wei(stake_amount, 18)
         lock_time = int((STG_STAKE_CONFIG[0] * 30))
         if lock_time == 0:
