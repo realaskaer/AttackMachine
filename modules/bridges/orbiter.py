@@ -15,21 +15,23 @@ class Orbiter(Bridge, Logger):
     @staticmethod
     def get_maker_data(from_id:int, to_id:int, token_name: str):
 
-        path = random.choice(['orbiter_maker1.json', 'orbiter_maker2.json'])
-        with open(f'./data/services/{path}') as file:
-            data = json.load(file)
+        paths = ['orbiter_maker1.json', 'orbiter_maker2.json', 'orbiter_maker3.json',
+                 'orbiter_maker4.json', 'orbiter_maker5.json']
+        for path in paths:
+            with open(f'./data/services/{path}') as file:
+                data = json.load(file)
 
-        maker_data = data[f"{from_id}-{to_id}"][f"{token_name}-{token_name}"]
+            maker_data = data[f"{from_id}-{to_id}"][f"{token_name}-{token_name}"]
 
-        bridge_data = {
-            'maker': maker_data['makerAddress'],
-            'fee': maker_data['tradingFee'],
-            'min_amount': maker_data['minPrice'],
-            'max_amount': maker_data['maxPrice'],
-        }
+            bridge_data = {
+                'maker': maker_data['makerAddress'],
+                'fee': maker_data['tradingFee'],
+                'min_amount': maker_data['minPrice'],
+                'max_amount': maker_data['maxPrice'],
+            }
 
-        if bridge_data:
-            return bridge_data
+            if bridge_data:
+                return bridge_data
         raise BridgeExceptionWithoutRetry(f'That bridge is not active!')
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
