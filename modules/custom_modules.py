@@ -339,7 +339,9 @@ class Custom(Logger, RequestClient):
             if L0_BRIDGE_COUNT != 1:
                 await sleep(self)
 
-        return all(result_list)
+        if L0_BRIDGE_COUNT != 1:
+            return all(result_list)
+        return any(result_list)
 
     @helper
     async def swap_bridged_usdc(self):
