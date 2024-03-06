@@ -222,7 +222,6 @@ class BingX(CEX, Logger):
                 self.logger_msg(*self.client.acc_info, msg=f"Deposit still in progress...", type_msg='warning')
                 await asyncio.sleep(check_time)
 
-    @helper
     async def withdraw(self, withdraw_data:tuple = None, transfer_mode:bool = False):
         path = '/openApi/wallets/v1/capital/withdraw/apply'
 
@@ -299,7 +298,6 @@ class BingX(CEX, Logger):
                 )
                 await asyncio.sleep(60)
 
-    @helper
     async def deposit(self, deposit_data:tuple = None):
         cex_wallet = get_wallet_for_deposit(self)
         info = f"{cex_wallet[:10]}....{cex_wallet[-6:]}"
