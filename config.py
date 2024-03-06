@@ -2437,7 +2437,8 @@ ORBITER_CHAINS_INFO = {
     26: {'name': 'Metis',          'chainId': 1088,         'id': 10},
     28: {'name': 'OpBNB',          'chainId': 204,          'id': 25},
     29: {'name': 'Mantle',         'chainId': 5000,         'id': 24},
-    45: {'name': 'ZKFair',         'chainId': 42766,        'id': 38}
+    45: {'name': 'ZKFair',         'chainId': 42766,        'id': 38},
+    49: {'name': 'Blast',          'chainId': 81457,        'id': 40}
 }
 
 TOKENS_PER_CHAIN2 = {
