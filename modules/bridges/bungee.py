@@ -1,6 +1,6 @@
 import random
 
-from modules import Refuel, Logger
+from modules import Refuel, Logger, Client
 from modules.interfaces import SoftwareException, Bridge, BridgeExceptionWithoutRetry
 from settings import DST_CHAIN_BUNGEE_REFUEL, BUNGEE_ROUTE_TYPE
 from utils.tools import gas_checker, helper
@@ -14,7 +14,7 @@ from config import (
 
 
 class Bungee(Refuel, Bridge, Logger):
-    def __init__(self, client):
+    def __init__(self, client: Client):
         self.client = client
         Logger.__init__(self)
         Bridge.__init__(self, client)
@@ -175,7 +175,7 @@ class Bungee(Refuel, Bridge, Logger):
 
         if response['success']:
             tx_data = response['result']['txData']
-            contract_address = response['result']['txTarget']
+            contract_address = self.client.w3.to_checksum_address(response['result']['txTarget'])
 
             return tx_data, contract_address
         raise BridgeExceptionWithoutRetry(f'Bad request to Bungee API: {await response.text()}')
