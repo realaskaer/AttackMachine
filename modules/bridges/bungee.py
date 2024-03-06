@@ -191,7 +191,7 @@ class Bungee(Refuel, Bridge, Logger):
         decimals = await self.client.get_decimals(token_address=from_token_address)
         amount_in_wei = self.client.to_wei(amount, decimals=decimals)
 
-        if to_token_name == 'ETH':
+        if from_token_name == 'ETH':
             from_token_address = ETH_MASK
         if to_token_name == 'ETH':
             to_token_address = ETH_MASK
@@ -207,7 +207,7 @@ class Bungee(Refuel, Bridge, Logger):
         if from_token_name != self.client.token:
             await self.client.check_for_approved(from_token_address, to_address, amount_in_wei)
 
-        transaction = await self.client.prepare_transaction(value=amount_in_wei) | {
+        transaction = await self.client.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0) | {
             'to': to_address,
             'data': tx_data
         }
