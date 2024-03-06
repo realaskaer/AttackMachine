@@ -3,6 +3,8 @@ import json
 import random
 import asyncio
 import traceback
+
+import aiohttp
 import telebot
 
 from modules import Logger
@@ -291,16 +293,30 @@ class Runner(Logger):
                 if GLOBAL_NETWORK == 0:
                     module_input_data.extend([int(i) for i in route_paths[current_step]])
 
-                try:
-                    result = await module_func(*module_input_data)
-                except CriticalException as error:
-                    raise error
-                except Exception as error:
-                    info = f"Module name: {module_info[module_func][2]} | Error {error}"
-                    self.logger_msg(
-                        account_name, None, f"Module crashed during the route: {info}", type_msg='error')
-                    traceback.print_exc()
-                    result = False
+                result = False
+                while True:
+                    try:
+                        result = await module_func(*module_input_data)
+                        break
+                    except (aiohttp.client_exceptions.ClientProxyConnectionError, asyncio.exceptions.TimeoutError,
+                            aiohttp.client_exceptions.ClientHttpProxyError):
+                        self.logger_msg(
+                            account_name, None,
+                            msg=f"Connection to RPC is not stable. Will try again in 1 min...",
+                            type_msg='warning'
+                        )
+                        await asyncio.sleep(60)
+                        continue
+
+                    except CriticalException as error:
+                        raise error
+                    except Exception as error:
+                        info = f"Module name: {module_info[module_func][2]} | Error {error}"
+                        self.logger_msg(
+                            account_name, None, f"Module crashed during the route: {info}", type_msg='error')
+                        traceback.print_exc()
+                        result = False
+                        break
 
                 if result:
                     self.update_step(account_name, current_step + 1)
