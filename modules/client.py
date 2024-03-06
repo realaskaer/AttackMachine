@@ -116,7 +116,8 @@ class Client(Logger):
                 'data': '0x'
             }
         gas_price = await self.w3.eth.gas_price
-        return float((await self.w3.eth.estimate_gas(transaction)) * GAS_LIMIT_MULTIPLIER * gas_price / 10 ** 18 * 3)
+
+        return float((await self.w3.eth.estimate_gas(transaction)) * GAS_LIMIT_MULTIPLIER * gas_price / 10 ** 18 * 1.2)
 
     async def get_decimals(self, token_name: str = None, token_address: str = None, omnicheck:bool = False) -> int:
         if omnicheck:
