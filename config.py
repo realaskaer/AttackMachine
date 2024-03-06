@@ -844,6 +844,21 @@ ONEINCH_CONTRACTS = {
 BEBOP_CONTRACTS = {
     'Blast':{
         'router': '0xBeB09000fa59627dc02Bb55448AC1893EAa501A5'
+    },
+    'zkSync':{
+        'router': '0xBeB09000fa59627dc02Bb55448AC1893EAa501A5'
+    },
+    'Polygon':{
+        'router': '0xBeB09000fa59627dc02Bb55448AC1893EAa501A5'
+    },
+    'Arbitrum':{
+        'router': '0xBeB09000fa59627dc02Bb55448AC1893EAa501A5'
+    },
+    'BNB Chain':{
+        'router': '0xBeB09000fa59627dc02Bb55448AC1893EAa501A5'
+    },
+    'Ethereum':{
+        'router': '0xBeB09000fa59627dc02Bb55448AC1893EAa501A5'
     }
 }
 
@@ -2824,7 +2839,7 @@ BINGX_NETWORKS_NAME = {
     33                      : 'STG-ARBITRUM',
     34                      : 'STG-BEP20',
     # 35                      : 'STG-AVAX-C',
-    # 36                      : 'STG-FANTOM',
+    # 36                      : 'STG-FTM',
     # 37                      : 'USDV-BSC',
     38                      : 'ARB-ARBITRUM',
 }
@@ -2865,7 +2880,7 @@ BINANCE_NETWORKS_NAME = {
     33                      : 'STG-ARBITRUM',
     34                      : 'STG-BSC',
     35                      : 'STG-AVAXC',
-    36                      : 'STG-FANTOM',
+    36                      : 'STG-FTM',
     # 37                      : 'USDV-BSC',
     38                      : 'ARB-ARBITRUM',
 }
