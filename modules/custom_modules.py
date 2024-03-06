@@ -864,25 +864,25 @@ class Custom(Logger, RequestClient):
                         min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
 
                         if dep_token == client.token:
-                            dep_amount = round(dep_amount - deposit_fee, 6)
+                            dep_amount = dep_amount - deposit_fee
 
                         if balance - dep_amount < 0:
                             raise SoftwareException('Account balance - deposit fee < 0')
 
                         if balance - dep_amount < min_hold_balance:
                             need_to_freeze_amount = min_hold_balance - (balance - dep_amount)
-                            dep_amount = round(dep_amount - need_to_freeze_amount, 6)
+                            dep_amount = dep_amount - need_to_freeze_amount
 
                         if dep_amount < 0:
                             raise CriticalException(
                                 f'Set CEX_DEPOSIT_LIMITER[2 value] lower than {wanted_to_hold_amount}. '
-                                f'Current amount = {dep_amount} {dep_token}')
+                                f'Current amount = {dep_amount:.4f} {dep_token}')
 
-                        dep_amount_in_usd = round(dep_amount * token_price * 0.99, 6)
+                        dep_amount_in_usd = dep_amount * token_price * 0.99
 
                         if balance_in_usd >= dep_amount_in_usd:
 
-                            deposit_data = dep_network, dep_amount
+                            deposit_data = dep_network, round(dep_amount, 6)
 
                             if len(deposit_data_copy) == 1:
                                 return await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
