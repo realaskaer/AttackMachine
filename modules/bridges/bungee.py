@@ -6,7 +6,7 @@ from settings import DST_CHAIN_BUNGEE_REFUEL, BUNGEE_ROUTE_TYPE
 from utils.tools import gas_checker, helper
 from config import (
     BUNGEE_CONTRACTS,
-    BUNGEE_REFUEL_ABI,
+    BUNGEE_ABI,
     BUNGEE_CHAINS_IDS,
     LAYERZERO_NETWORKS_DATA,
     CHAIN_NAME_FROM_ID, ETH_MASK, COINGECKO_TOKEN_API_NAMES
@@ -20,7 +20,12 @@ class Bungee(Refuel, Bridge, Logger):
         Bridge.__init__(self, client)
 
         self.network = self.client.network.name
-        self.refuel_contract = self.client.get_contract(BUNGEE_CONTRACTS[self.network]['gas_refuel'], BUNGEE_REFUEL_ABI)
+        self.refuel_contract = self.client.get_contract(
+            BUNGEE_CONTRACTS[self.network]['gas_refuel'], BUNGEE_ABI['refuel']
+        )
+        self.claim_contract = self.client.get_contract(
+            BUNGEE_CONTRACTS[self.network]['claim'], BUNGEE_ABI['claim']
+        )
 
     async def get_limits_data(self):
         url = 'https://refuel.socket.tech/chains'
@@ -226,3 +231,56 @@ class Bungee(Refuel, Bridge, Logger):
             token_address=to_token_address, token_name=to_token_name, old_balance=old_balance_on_dst,
             chain_id=to_chain_id
         )
+
+    @helper
+    @gas_checker
+    async def claim_rewards(self):
+        url = 'https://microservices.socket.tech/loki/rewards/get-claim-data'
+
+        params = {
+            'address': self.client.address
+        }
+
+        response = await self.make_request(url=url, params=params)
+
+        if response['success']:
+            rewards = response['result']
+            if rewards:
+                for reward in rewards:
+                    claimable_amount_in_wei = int(reward['claimableAmount'])
+                    claimed_amount_in_wei = int(reward['claimedAmount'])
+                    pending_amount_in_wei = int(reward['pendingAmount'])
+                    merkle_proof = reward['proof']
+                    symbol = reward['asset']['symbol']
+                    decimals = int(reward['asset']['decimals'])
+                    chain_id = int(reward['asset']['chainId'])
+
+                    if claimable_amount_in_wei != 0:
+
+                        clmbl_amount = claimable_amount_in_wei / 10 ** decimals
+                        clmd_amount = claimed_amount_in_wei / 10 ** decimals
+                        pend_amount = pending_amount_in_wei / 10 ** decimals
+
+                        self.logger_msg(
+                            *self.client.acc_info,
+                            msg=f'Claimable: {clmbl_amount:.3f} ${symbol}. Claimed: {clmd_amount:.3f} ${symbol}.'
+                                f' Pending: {pend_amount:.3f} ${symbol}', type_msg='success')
+
+                        self.logger_msg(
+                            *self.client.acc_info,
+                            msg=f'Start claiming {clmbl_amount} ${symbol} on {CHAIN_NAME_FROM_ID[chain_id]} chain'
+                        )
+
+                        transaction = await self.claim_contract.functions.claim(
+                            self.client.address,
+                            claimable_amount_in_wei,
+                            merkle_proof
+                        ).build_transaction(await self.client.prepare_transaction())
+
+                        await self.client.send_transaction(transaction)
+            else:
+                self.logger_msg(*self.client.acc_info, msg=f'No tokens are available for claiming')
+
+            return True
+
+        raise BridgeExceptionWithoutRetry(f'Bad request to Bungee API: {await response.text()}')

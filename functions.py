@@ -658,6 +658,26 @@ async def deposit_usdb_zerolend(account_name, private_key, network, proxy):
     return await worker.deposit_usdb()
 
 
+async def deposit_seamless(account_name, private_key, network, proxy):
+    worker = Seamless(get_client(account_name, private_key, network, proxy))
+    return await worker.deposit()
+
+
+async def withdraw_seamless(account_name, private_key, network, proxy):
+    worker = Seamless(get_client(account_name, private_key, network, proxy))
+    return await worker.withdraw()
+
+
+async def deposit_usdbc_seamless(account_name, private_key, network, proxy):
+    worker = Seamless(get_client(account_name, private_key, network, proxy))
+    return await worker.deposit_usdbc()
+
+
+async def withdraw_usdbc_seamless(account_name, private_key, network, proxy):
+    worker = Seamless(get_client(account_name, private_key, network, proxy))
+    return await worker.withdraw_usdbc()
+
+
 async def withdraw_zerolend(account_name, private_key, network, proxy):
     worker = ZeroLend(get_client(account_name, private_key, network, proxy))
     return await worker.withdraw()
@@ -760,6 +780,16 @@ async def withdraw_layerbank(account_name, private_key, network, proxy):
     return await worker.withdraw()
 
 
+async def deposit_moonwell(account_name, private_key, network, proxy):
+    worker = Moonwell(get_client(account_name, private_key, network, proxy))
+    return await worker.deposit()
+
+
+async def withdraw_moonwell(account_name, private_key, network, proxy):
+    worker = Moonwell(get_client(account_name, private_key, network, proxy))
+    return await worker.withdraw()
+
+
 async def enable_collateral_layerbank(account_name, private_key, network, proxy):
     worker = LayerBank(get_client(account_name, private_key, network, proxy))
     return await worker.enable_collateral()
@@ -767,6 +797,26 @@ async def enable_collateral_layerbank(account_name, private_key, network, proxy)
 
 async def disable_collateral_layerbank(account_name, private_key, network, proxy):
     worker = LayerBank(get_client(account_name, private_key, network, proxy))
+    return await worker.disable_collateral()
+
+
+async def enable_collateral_moonwell(account_name, private_key, network, proxy):
+    worker = Moonwell(get_client(account_name, private_key, network, proxy))
+    return await worker.enable_collateral()
+
+
+async def disable_collateral_moonwell(account_name, private_key, network, proxy):
+    worker = Moonwell(get_client(account_name, private_key, network, proxy))
+    return await worker.disable_collateral()
+
+
+async def enable_collateral_seamless(account_name, private_key, network, proxy):
+    worker = Seamless(get_client(account_name, private_key, network, proxy))
+    return await worker.enable_collateral()
+
+
+async def disable_collateral_seamless(account_name, private_key, network, proxy):
+    worker = Seamless(get_client(account_name, private_key, network, proxy))
     return await worker.disable_collateral()
 
 
@@ -895,3 +945,9 @@ async def custom_swap(account_name, private_key, _, proxy):
     network = get_network_by_chain_id(LAYERZERO_WRAPED_NETWORKS[CUSTOM_SWAP_DATA[-1]])
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.custom_swap()
+
+
+async def claim_rewards_bungee(account_name, private_key, _, proxy):
+    network = get_network_by_chain_id(1)
+    worker = Bungee(get_client(account_name, private_key, network, proxy))
+    return await worker.claim_rewards()

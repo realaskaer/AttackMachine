@@ -8,7 +8,7 @@ from hashlib import sha256
 
 from general_settings import BITGET_API_PASSPHRAS
 from modules import CEX, Logger
-from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException
+from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, InsufficientBalanceException
 from utils.tools import helper, get_wallet_for_deposit
 from config import CEX_WRAPPED_ID, TOKENS_PER_CHAIN, BITGET_NETWORKS_NAME, TOKENS_PER_CHAIN2
 
@@ -224,61 +224,64 @@ class Bitget(CEX, Logger):
         self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
 
         while True:
-            withdraw_raw_data = (await self.get_currencies(ccy))[0]['chains']
-            network_data = {
-                item['chain']: {
-                    'withdrawEnable': item['withdrawable'],
-                    'withdrawFee': item['withdrawFee'],
-                    'withdrawMin': item['minWithdrawAmount'],
-                } for item in withdraw_raw_data
-            }[network_name]
+            try:
+                withdraw_raw_data = (await self.get_currencies(ccy))[0]['chains']
+                network_data = {
+                    item['chain']: {
+                        'withdrawEnable': item['withdrawable'],
+                        'withdrawFee': item['withdrawFee'],
+                        'withdrawMin': item['minWithdrawAmount'],
+                    } for item in withdraw_raw_data
+                }[network_name]
 
-            if network_data['withdrawEnable']:
-                min_wd = float(network_data['withdrawMin'])
+                if network_data['withdrawEnable']:
+                    min_wd = float(network_data['withdrawMin'])
 
-                if min_wd <= amount:
+                    if min_wd <= amount:
 
-                    payload = {
-                        "coin": ccy,
-                        "address": self.client.address,
-                        "chain": network_name,
-                        "size": f"{amount}",
-                        "transferType": 'on_chain',
-                    }
+                        payload = {
+                            "coin": ccy,
+                            "address": self.client.address,
+                            "chain": network_name,
+                            "size": f"{amount}",
+                            "transferType": 'on_chain',
+                        }
 
-                    ccy = f"{ccy}.e" if network_id in [29, 30] else ccy
+                        ccy = f"{ccy}.e" if network_id in [29, 30] else ccy
 
-                    omnicheck = False
-                    if ccy in ['USDV', 'STG']:
-                        omnicheck = True
+                        omnicheck = False
+                        if ccy in ['USDV', 'STG']:
+                            omnicheck = True
 
-                    old_balance_on_dst = await self.client.wait_for_receiving(
-                        dst_chain_id, token_name=ccy, omnicheck=omnicheck, check_balance_on_dst=True
-                    )
+                        old_balance_on_dst = await self.client.wait_for_receiving(
+                            dst_chain_id, token_name=ccy, omnicheck=omnicheck, check_balance_on_dst=True
+                        )
 
-                    url = f"{self.api_url}{path}"
-                    headers = self.get_headers('POST', path, payload=payload)
-                    await self.make_request(
-                        method='POST', url=url, headers=headers, json=payload, module_name='Withdraw')
+                        url = f"{self.api_url}{path}"
+                        headers = self.get_headers('POST', path, payload=payload)
+                        await self.make_request(
+                            method='POST', url=url, headers=headers, json=payload, module_name='Withdraw')
 
-                    self.logger_msg(*self.client.acc_info,
-                                    msg=f"Withdraw complete. Note: wait a little for receiving funds",
-                                    type_msg='success')
+                        self.logger_msg(*self.client.acc_info,
+                                        msg=f"Withdraw complete. Note: wait a little for receiving funds",
+                                        type_msg='success')
 
-                    await self.client.wait_for_receiving(
-                        dst_chain_id, old_balance_on_dst, omnicheck=omnicheck, token_name=ccy
-                    )
+                        await self.client.wait_for_receiving(
+                            dst_chain_id, old_balance_on_dst, omnicheck=omnicheck, token_name=ccy
+                        )
 
-                    return True
+                        return True
+                    else:
+                        raise SoftwareExceptionWithoutRetry(f"Limit range for withdraw: more than {min_wd:.5f} {ccy}")
                 else:
-                    raise SoftwareExceptionWithoutRetry(f"Limit range for withdraw: more than {min_wd:.5f} {ccy}")
-            else:
-                self.logger_msg(
-                    *self.client.acc_info,
-                    msg=f"Withdraw from {network_name} is not active now. Will try again in 1 min...",
-                    type_msg='warning'
-                )
-                await asyncio.sleep(60)
+                    self.logger_msg(
+                        *self.client.acc_info,
+                        msg=f"Withdraw from {network_name} is not active now. Will try again in 1 min...",
+                        type_msg='warning'
+                    )
+                    await asyncio.sleep(60)
+            except InsufficientBalanceException:
+                continue
 
     async def deposit(self, deposit_data:tuple = None):
         cex_wallet = get_wallet_for_deposit(self)
@@ -298,51 +301,53 @@ class Bitget(CEX, Logger):
             *self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to Bitget wallet: {info}")
 
         while True:
+            try:
+                withdraw_data = (await self.get_currencies(ccy))[0]['chains']
+                network_data = {
+                    item['chain']: {
+                        'depositEnable': item['rechargeable']
+                    } for item in withdraw_data
+                }[network_name]
 
-            withdraw_data = (await self.get_currencies(ccy))[0]['chains']
-            network_data = {
-                item['chain']: {
-                    'depositEnable': item['rechargeable']
-                } for item in withdraw_data
-            }[network_name]
+                if network_data['depositEnable']:
 
-            if network_data['depositEnable']:
+                    if ccy != self.client.token:
+                        if omnicheck:
+                            token_contract = self.client.get_contract(TOKENS_PER_CHAIN2[self.client.network.name][ccy])
+                        else:
+                            token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
+                        decimals = await self.client.get_decimals(ccy, omnicheck=omnicheck)
+                        amount_in_wei = self.client.to_wei(amount, decimals)
 
-                if ccy != self.client.token:
-                    if omnicheck:
-                        token_contract = self.client.get_contract(TOKENS_PER_CHAIN2[self.client.network.name][ccy])
+                        transaction = await token_contract.functions.transfer(
+                            self.client.w3.to_checksum_address(cex_wallet),
+                            amount_in_wei
+                        ).build_transaction(await self.client.prepare_transaction())
                     else:
-                        token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.client.network.name][ccy])
-                    decimals = await self.client.get_decimals(ccy, omnicheck=omnicheck)
-                    amount_in_wei = self.client.to_wei(amount, decimals)
+                        amount_in_wei = self.client.to_wei(amount)
+                        transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
+                            'to': self.client.w3.to_checksum_address(cex_wallet),
+                            'data': '0x'
+                        }
 
-                    transaction = await token_contract.functions.transfer(
-                        self.client.w3.to_checksum_address(cex_wallet),
-                        amount_in_wei
-                    ).build_transaction(await self.client.prepare_transaction())
+                    cex_balances = await self.get_cex_balances(ccy=ccy)
+
+                    result_tx = await self.client.send_transaction(transaction)
+
+                    if result_tx:
+                        result_confirmation = await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
+
+                        result_transfer = await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
+
+                        return all([result_tx, result_confirmation, result_transfer])
+                    else:
+                        raise SoftwareException('Transaction not sent, trying again')
                 else:
-                    amount_in_wei = self.client.to_wei(amount)
-                    transaction = (await self.client.prepare_transaction(value=int(amount_in_wei))) | {
-                        'to': self.client.w3.to_checksum_address(cex_wallet),
-                        'data': '0x'
-                    }
-
-                cex_balances = await self.get_cex_balances(ccy=ccy)
-
-                result_tx = await self.client.send_transaction(transaction)
-
-                if result_tx:
-                    result_confirmation = await self.wait_deposit_confirmation(amount, cex_balances, ccy=ccy)
-
-                    result_transfer = await self.transfer_from_subaccounts(ccy=ccy, amount=amount)
-
-                    return all([result_tx, result_confirmation, result_transfer])
-                else:
-                    raise SoftwareException('Transaction not sent, trying again')
-            else:
-                self.logger_msg(
-                    *self.client.acc_info,
-                    msg=f"Deposit to {network_name} is not active now. Will try again in 1 min...",
-                    type_msg='warning'
-                )
-                await asyncio.sleep(60)
+                    self.logger_msg(
+                        *self.client.acc_info,
+                        msg=f"Deposit to {network_name} is not active now. Will try again in 1 min...",
+                        type_msg='warning'
+                    )
+                    await asyncio.sleep(60)
+            except InsufficientBalanceException:
+                continue

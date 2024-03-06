@@ -139,7 +139,7 @@ ACROSS_TOKEN_NAME = 'ETH'
 
 '--------------------------------------------------------Bungee--------------------------------------------------------'
 
-BUNGEE_CHAIN_ID_FROM = [7]                  # Исходящая сеть
+BUNGEE_CHAIN_ID_FROM = [3]                  # Исходящая сеть
 BUNGEE_CHAIN_ID_TO = [1]                    # Входящая сеть
 BUNGEE_BRIDGE_AMOUNT = (0.001, 0.001)               # (минимум, максимум) (% или кол-во)
 BUNGEE_TOKEN_NAME = ('ETH', 'ETH')       # ETH, BNB, MATIC, USDC, USDC.e, USDT
@@ -520,9 +520,12 @@ HELPERS_CONFIG = {
     bingx_deposit                    # ввод средств на биржу + сбор средств на субАккаунтов на основной счет
     binance_deposit                  # ввод средств на биржу + сбор средств на субАккаунтов на основной счет
     bitget_deposit                   # ввод средств на биржу + сбор средств на субАккаунтов на основной счет
-    
+        
+    custom_swap                      # производит свап по настройке CUSTOM_SWAP_DATA
     collector_eth                    # сбор всех токенов на аккаунте в ETH
     make_balance_to_average          # уравнивает ваши балансы на аккаунтах (см. CEX_BALANCE_WANTED) 
+    
+    claim_rewards_bungee             # клейм наград за бриджи через Socket на сайте https://www.socketscan.io/rewards
     
 --------------------------------------------------OMNI-CHAIN------------------------------------------------------------            
     
@@ -656,6 +659,16 @@ HELPERS_CONFIG = {
     swap_xyfinance
     deposit_rocketsam
     withdraw_rocketsam
+    deposit_seamless
+    withdraw_seamless
+    deposit_usdbc_seamless
+    withdraw_usdbc_seamless
+    deposit_moonwell
+    withdraw_moonwell
+    enable_collateral_moonwell
+    disable_collateral_moonwell
+    enable_collateral_seamless
+    disable_collateral_seamless
     create_safe
     mint_mintfun
     mint_zkstars
