@@ -175,9 +175,10 @@ class Bungee(Refuel, Bridge, Logger):
 
         if response['success']:
             tx_data = response['result']['txData']
+            value = int(response['result']['value'], 16)
             contract_address = self.client.w3.to_checksum_address(response['result']['txTarget'])
 
-            return tx_data, contract_address
+            return tx_data, value, contract_address
         raise BridgeExceptionWithoutRetry(f'Bad request to Bungee API: {await response.text()}')
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
@@ -202,12 +203,12 @@ class Bungee(Refuel, Bridge, Logger):
             token_price = await self.client.get_token_price(COINGECKO_TOKEN_API_NAMES[from_token_name])
             return float(route_data['totalGasFeesInUsd']) / token_price
 
-        tx_data, to_address = await self.build_tx(route_data)
+        tx_data, value, to_address = await self.build_tx(route_data)
 
         if from_token_name != self.client.token:
             await self.client.check_for_approved(from_token_address, to_address, amount_in_wei)
 
-        transaction = await self.client.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0) | {
+        transaction = await self.client.prepare_transaction(value=value) | {
             'to': to_address,
             'data': tx_data
         }
