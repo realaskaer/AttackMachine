@@ -860,9 +860,15 @@ class Custom(Logger, RequestClient):
                     if balance_in_usd >= limit_amount:
 
                         dep_amount = await client.get_smart_amount(amount, token_name=dep_token, omnicheck=omnicheck)
-                        if dep_token == client.token:
-                            dep_amount -= await client.simulate_transfer(token_name=dep_token, omnicheck=omnicheck)
+                        deposit_fee = await client.simulate_transfer(token_name=dep_token, omnicheck=omnicheck)
                         min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
+
+                        if dep_token == client.token:
+                            dep_amount = round(dep_amount - deposit_fee, 6)
+
+                        if balance - dep_amount < 0:
+                            raise SoftwareException('Account balance - deposit fee < 0')
+
                         if balance - dep_amount < min_hold_balance:
                             need_to_freeze_amount = min_hold_balance - (balance - dep_amount)
                             dep_amount = round(dep_amount - need_to_freeze_amount, 6)
