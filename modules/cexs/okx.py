@@ -37,6 +37,9 @@ class OKX(CEX, Logger):
             raise SoftwareExceptionWithoutRetry(f'Bad headers for OKX request: {error}')
 
     async def get_currencies(self, ccy: str = 'ETH'):
+        if ccy == 'USDC.e':
+            ccy = 'USDC'
+
         url = 'https://www.okx.cab/api/v5/asset/currencies'
 
         params = {'ccy': ccy}
@@ -310,7 +313,7 @@ class OKX(CEX, Logger):
         while True:
             withdraw_data = await self.get_currencies(ccy)
             network_data = {item['chain']: {'can_dep': item['canDep'], 'min_dep': item['minDep']}
-                                 for item in withdraw_data}[network_raw_name]
+                            for item in withdraw_data}[network_raw_name]
 
             if network_data['can_dep']:
 
