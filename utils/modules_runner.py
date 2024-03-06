@@ -312,6 +312,8 @@ class Runner(Logger):
                     except CriticalException as error:
                         if not STOP_SOFTWARE:
                             self.logger_msg(account_name, None, msg=f"{error}", type_msg='error')
+                            result = False
+                            break
                         raise error
                     except Exception as error:
                         info = f"Module name: {module_info[module_func][2]} | Error {error}"
