@@ -36,8 +36,8 @@ class Izumi(DEX, Logger):
                 "USDT/USDC": 500
             },
             'Base': {
-                "USDC/ETH": 3000,
-                "ETH/USDC": 3000,
+                "USDC.e/ETH": 3000,
+                "ETH/USDC.e": 3000,
             },
             'Scroll': {
                 "USDC/ETH": 3000,
