@@ -226,8 +226,11 @@ class Client(Logger):
                         )
                     else:
                         new_eth_balance, _, _ = await client.get_token_balance(token_name, omnicheck=omnicheck)
-                except:
-                    pass
+                except Exception as error:
+                    self.logger_msg(
+                        *self.acc_info, msg=f'Can`t get response from RPC. Error: {error}',
+                        type_msg='warning'
+                    )
 
                 if new_eth_balance > old_balance:
                     decimals = 18
