@@ -149,10 +149,10 @@ class CEX(ABC):
                         if code in insf_balance_code:
                             self.client.logger_msg(
                                 *self.client.acc_info,
-                                msg=f"Your CEX balance < your want withdraw amount. Will try again in 10 min...",
+                                msg=f"Your CEX balance < your want transfer amount. Will try again in 5 min...",
                                 type_msg='warning'
                             )
-                            await asyncio.sleep(600)
+                            await asyncio.sleep(300)
                             continue
 
                         error = f"Error code: {data['code']} Msg: {message}"
