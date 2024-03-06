@@ -19,7 +19,8 @@ from utils.route_generator import RouteGenerator, AVAILABLE_MODULES_INFO, get_fu
 from utils.tools import clean_progress_file, clean_google_progress_file, clean_gwei_file, check_google_progress_file
 from general_settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, TG_ID, TG_TOKEN, MOBILE_PROXY,
                               MOBILE_PROXY_URL_CHANGER, WALLETS_TO_WORK, TELEGRAM_NOTIFICATIONS, GLOBAL_NETWORK,
-                              SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM, SHUFFLE_WALLETS, BREAK_ROUTE)
+                              SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM, SHUFFLE_WALLETS, BREAK_ROUTE,
+                              STOP_SOFTWARE)
 
 
 class Runner(Logger):
@@ -309,6 +310,8 @@ class Runner(Logger):
                         continue
 
                     except CriticalException as error:
+                        if not STOP_SOFTWARE:
+                            self.logger_msg(account_name, None, msg=f"{error}", type_msg='error')
                         raise error
                     except Exception as error:
                         info = f"Module name: {module_info[module_func][2]} | Error {error}"
