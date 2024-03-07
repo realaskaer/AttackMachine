@@ -140,6 +140,8 @@ class Binance(CEX, Logger):
                                 type_msg='warning'
                             )
                             await asyncio.sleep(60)
+                        elif '-8012 Msg' in str(error):
+                            return True
                         else:
                             raise error
 
