@@ -361,6 +361,18 @@ class Custom(Logger, RequestClient):
     async def custom_swap(self):
         from functions import swap_oneinch, swap_izumi, swap_syncswap, swap_odos, swap_sushiswap
 
+        from_token_name, to_token_name, amount_tuple, networks = CUSTOM_SWAP_DATA
+
+        if isinstance(networks, list):
+            chains = networks
+            tokens = [from_token_name for _ in range(len(chains))]
+
+            current_client, index, balance, balance_in_wei, balances_in_usd = await self.balance_searcher(
+                chains, tokens
+            )
+        else:
+            current_client = self.client
+
         funcs = {
             'Arbitrum': [swap_oneinch, swap_odos],
             'Arbitrum Nova': [swap_sushiswap],
@@ -374,23 +386,20 @@ class Custom(Logger, RequestClient):
             # 'Manta': [swap_xyfinance],
             'Polygon': [swap_oneinch],
             # 'Zora': [swap_oneinch],
-        }[self.client.network.name]
-
-        from_token_name, to_token_name, amount_tuple, _ = CUSTOM_SWAP_DATA
+        }[current_client.network.name]
 
         swap_module = random.choice(funcs)
-
-        amount = await self.client.get_smart_amount(amount_tuple, token_name=from_token_name)
+        amount = await current_client.get_smart_amount(amount_tuple, token_name=from_token_name)
 
         if amount == 0:
             raise SoftwareException("Insufficient USDC balances")
 
-        decimals = await self.client.get_decimals(from_token_name)
-        amount_in_wei = self.client.to_wei(amount, decimals)
+        decimals = await current_client.get_decimals(from_token_name)
+        amount_in_wei = current_client.to_wei(amount, decimals)
         data = from_token_name, to_token_name, amount, amount_in_wei
 
-        return await swap_module(self.client.account_name, self.client.private_key, self.client.network,
-                                 self.client.proxy_init, swapdata=data)
+        return await swap_module(current_client.account_name, current_client.private_key, current_client.network,
+                                 current_client.proxy_init, swapdata=data)
 
     @helper
     @gas_checker
