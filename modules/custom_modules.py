@@ -462,13 +462,16 @@ class Custom(Logger, RequestClient):
 
         return True
 
-    async def balance_searcher(self, chains, tokens, omni_check:bool = True):
+    async def balance_searcher(self, chains, tokens = None, omni_check:bool = True, native_check:bool = False):
         index = 0
         clients = []
         while True:
             try:
                 clients = [await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[chain] if omni_check else chain)
                            for chain in chains]
+
+                if native_check:
+                    tokens = [client.token for client in clients]
 
                 balances = [await client.get_token_balance(
                     omnicheck=omni_check if token not in ['USDV', 'STG'] else True, token_name=token,
@@ -560,12 +563,24 @@ class Custom(Logger, RequestClient):
                     "XYfinance": XYFINANCE_CONTRACTS,
                 }
 
-                chains, tokens = {
-                    0: (STARGATE_CHAINS, STARGATE_TOKENS),
-                    1: (COREDAO_CHAINS, COREDAO_TOKENS),
+                chains = {
+                    0: STARGATE_CHAINS,
+                    1: COREDAO_CHAINS,
                 }[L0_SEARCH_DATA]
 
-                client, index, _, _, _ = await self.balance_searcher(chains, tokens, omni_check=True)
+                converted_chains = copy.deepcopy(chains)
+                if any([isinstance(item, tuple) for item in chains]):
+                    new_chains = []
+                    for item in chains:
+                        if isinstance(item, tuple):
+                            new_chains.extend(item)
+                        else:
+                            new_chains.append(item)
+                    converted_chains = new_chains
+
+                client, index, _, _, _ = await self.balance_searcher(
+                    converted_chains, native_check=True, omni_check=True
+                )
 
                 network_name = client.network.name
 
