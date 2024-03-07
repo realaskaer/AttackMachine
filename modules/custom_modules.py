@@ -543,7 +543,7 @@ class Custom(Logger, RequestClient):
             stake_amount = round(amount, 6)
 
             stake_amount_in_wei = current_client.to_wei(stake_amount, 18)
-            lock_time = int((STG_STAKE_CONFIG[0] * 30))
+            lock_time = int((random.randint(*STG_STAKE_CONFIG[0]) * 30))
             if lock_time == 0:
                 raise SoftwareExceptionWithoutRetry('STG_STAKE_CONFIG[0] can`t be zero')
             stakedata = stake_amount, stake_amount_in_wei, lock_time
