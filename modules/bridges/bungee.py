@@ -23,9 +23,6 @@ class Bungee(Refuel, Bridge, Logger):
         self.refuel_contract = self.client.get_contract(
             BUNGEE_CONTRACTS[self.network]['gas_refuel'], BUNGEE_ABI['refuel']
         )
-        self.claim_contract = self.client.get_contract(
-            BUNGEE_CONTRACTS[self.network]['claim'], BUNGEE_ABI['claim']
-        )
 
     async def get_limits_data(self):
         url = 'https://refuel.socket.tech/chains'
@@ -241,6 +238,8 @@ class Bungee(Refuel, Bridge, Logger):
             'address': self.client.address
         }
 
+        claim_contract = self.client.get_contract(BUNGEE_CONTRACTS[self.network]['claim'], BUNGEE_ABI['claim'])
+
         response = await self.make_request(url=url, params=params)
 
         if response['success']:
@@ -270,8 +269,8 @@ class Bungee(Refuel, Bridge, Logger):
                             *self.client.acc_info,
                             msg=f'Start claiming {clmbl_amount} ${symbol} on {CHAIN_NAME_FROM_ID[chain_id]} chain'
                         )
-
-                        transaction = await self.claim_contract.functions.claim(
+                    
+                        transaction = await claim_contract.functions.claim(
                             self.client.address,
                             claimable_amount_in_wei,
                             merkle_proof
