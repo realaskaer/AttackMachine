@@ -185,7 +185,7 @@ class Client(Logger):
         }[dapp_id]
 
         source_chain = bridge_config[chain_from_id]
-        dst_chain_id = random.choice(to_chain_ids)
+        dst_chain_id = random.choice([chain for chain in to_chain_ids if chain != chain_from_id])
         destination_chain = bridge_config[dst_chain_id]
         if isinstance(bridge_token, tuple):
             bridge_token = bridge_token[0]
