@@ -231,7 +231,7 @@ class BingX(CEX, Logger):
         ccy, network_name = split_network_data[0], '-'.join(split_network_data[1:])
         dst_chain_id = CEX_WRAPPED_ID[network_id]
         if isinstance(amount, str):
-            amount = round(await self.get_balance(ccy=ccy) * float(amount), 4)
+            amount = round(await self.get_balance(ccy=ccy) * float(amount), 6)
         elif transfer_mode:
             amount = await self.get_balance(ccy)
         else:
