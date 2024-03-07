@@ -1,34 +1,38 @@
+import time
+
+from hexbytes import HexBytes
 from modules import DEX, Logger
 from utils.tools import gas_checker, helper
 from general_settings import SLIPPAGE
-from hexbytes import HexBytes
 from config import (
-    UNISWAP_ABI,
-    UNISWAP_CONTRACTS,
-    TOKENS_PER_CHAIN
+    QUICKSWAP_ABI,
+    QUICKSWAP_CONTRACTS,
+    TOKENS_PER_CHAIN, ZERO_ADDRESS
 )
 
 
-class Uniswap(DEX, Logger):
+class QuickSwap(DEX, Logger):
     def __init__(self, client):
         self.client = client
         Logger.__init__(self)
         self.network = self.client.network.name
         self.router_contract = self.client.get_contract(
-            UNISWAP_CONTRACTS[self.network]['router'],
-            UNISWAP_ABI['router']
+            QUICKSWAP_CONTRACTS[self.network]['router'],
+            QUICKSWAP_ABI['router']
         )
         self.quoter_contract = self.client.get_contract(
-            UNISWAP_CONTRACTS[self.network]['quoter'],
-            UNISWAP_ABI['quoter']
+            QUICKSWAP_CONTRACTS[self.network]['quoter'],
+            QUICKSWAP_ABI['quoter']
         )
 
     def get_path(self, from_token_address: str, to_token_address: str, from_token_name: str, to_token_name: str):
 
         pool_fee_info = {
-            'Base': {
-                "USDC.e/ETH": 500,
-                "ETH/USDC.e": 500,
+            'Polygon zkEVM': {
+                "USDC/ETH": 539,
+                "ETH/USDC": 539,
+                "USDC/USDT": 100,
+                "USDT/USDC": 100
             }
         }[self.client.network.name]
 
@@ -47,28 +51,26 @@ class Uniswap(DEX, Logger):
             to_token_bytes = HexBytes(to_token_address).rjust(20, b'\0')
             return from_token_bytes + fee_bytes_1 + middle_token_bytes + fee_bytes_2 + to_token_bytes
 
-    async def get_min_amount_out(self, path: bytes, amount_in_wei: int):
+    async def get_min_amount_out(self, path:bytes, amount_in_wei: int):
         min_amount_out, _, _, _ = await self.quoter_contract.functions.quoteExactInput(
             path,
             amount_in_wei
         ).call()
 
-        return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE))
+        return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE * 2))
 
     @helper
     @gas_checker
-    async def swap(self, swapdata: tuple = None):
-        if not swapdata:
-            from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
-        else:
-            from_token_name, to_token_name, amount, amount_in_wei = swapdata
+    async def swap(self):
+        from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
         self.logger_msg(
-            *self.client.acc_info, msg=f'Swap on Uniswap: {amount} {from_token_name} -> {to_token_name}')
+            *self.client.acc_info, msg=f'Swap on QuickSwap: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address = TOKENS_PER_CHAIN[self.network][from_token_name]
         to_token_address = TOKENS_PER_CHAIN[self.network][to_token_name]
 
+        deadline = int(time.time()) + 1800
         path = self.get_path(from_token_address, to_token_address, from_token_name, to_token_name)
         min_amount_out = await self.get_min_amount_out(path, amount_in_wei)
 
@@ -76,16 +78,17 @@ class Uniswap(DEX, Logger):
 
         if from_token_name != 'ETH':
             await self.client.check_for_approved(
-                from_token_address, UNISWAP_CONTRACTS[self.network]['router'], amount_in_wei
+                from_token_address, QUICKSWAP_CONTRACTS[self.network]['router'], amount_in_wei
             )
 
         tx_data = self.router_contract.encodeABI(
             fn_name='exactInput',
             args=[(
                 path,
-                self.client.address if to_token_name != 'ETH' else '0x0000000000000000000000000000000000000002',
+                self.client.address if to_token_name != 'ETH' else ZERO_ADDRESS,
+                deadline,
                 amount_in_wei,
-                min_amount_out
+                min_amount_out,
             )]
         )
 

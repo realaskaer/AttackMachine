@@ -5,6 +5,7 @@ import asyncio
 import traceback
 
 import aiohttp
+import python_socks
 import telebot
 
 from modules import Logger
@@ -300,7 +301,7 @@ class Runner(Logger):
                         result = await module_func(*module_input_data)
                         break
                     except (aiohttp.client_exceptions.ClientProxyConnectionError, asyncio.exceptions.TimeoutError,
-                            aiohttp.client_exceptions.ClientHttpProxyError):
+                            aiohttp.client_exceptions.ClientHttpProxyError, python_socks.ProxyError):
                         self.logger_msg(
                             account_name, None,
                             msg=f"Connection to RPC is not stable. Will try again in 1 min...",

@@ -2,9 +2,8 @@ import asyncio
 import copy
 import random
 import traceback
-from math import floor
-
 import aiohttp.client_exceptions
+import python_socks
 
 from modules import Logger, RequestClient, Client
 from general_settings import AMOUNT_PERCENT_WRAPS, GLOBAL_NETWORK
@@ -462,7 +461,7 @@ class Custom(Logger, RequestClient):
 
         return True
 
-    async def balance_searcher(self, chains, tokens = None, omni_check:bool = True, native_check:bool = False):
+    async def balance_searcher(self, chains, tokens=None, omni_check:bool = True, native_check:bool = False):
         index = 0
         clients = []
         while True:
@@ -503,7 +502,8 @@ class Custom(Logger, RequestClient):
 
                 return clients[index], index, balances[index][1], balances[index][0], balances_in_usd[index]
 
-            except (asyncio.exceptions.TimeoutError, aiohttp.client_exceptions.ClientHttpProxyError):
+            except (aiohttp.client_exceptions.ClientProxyConnectionError, asyncio.exceptions.TimeoutError,
+                    aiohttp.client_exceptions.ClientHttpProxyError, python_socks.ProxyError):
                 self.logger_msg(
                     *self.client.acc_info,
                     msg=f"Connection to RPC is not stable. Will try again in 1 min...",
@@ -521,21 +521,53 @@ class Custom(Logger, RequestClient):
         from functions import Stargate
         chains = STARGATE_CHAINS
         tokens = ['STG' for _ in range(len(chains))]
+        converted_chains = copy.deepcopy(chains)
 
-        current_client, index, balance, balance_in_wei, balances_in_usd = await self.balance_searcher(
-            chains, tokens, omni_check=True
-        )
+        counter = 0
+        while True:
+            random.shuffle(converted_chains)
+            if any([isinstance(item, tuple) for item in chains]):
+                new_chains = []
+                for item in chains:
+                    if isinstance(item, tuple):
+                        new_chains.extend(item)
+                    else:
+                        new_chains.append(item)
+                converted_chains = new_chains
 
-        amount = await current_client.get_smart_amount(STG_STAKE_CONFIG[1], token_name='STG', omnicheck=True)
-        stake_amount = round(amount, 6)
+            current_client, index, balance, balance_in_wei, balances_in_usd = await self.balance_searcher(
+                converted_chains, tokens, omni_check=True
+            )
 
-        stake_amount_in_wei = current_client.to_wei(stake_amount, 18)
-        lock_time = int((STG_STAKE_CONFIG[0] * 30))
-        if lock_time == 0:
-            raise SoftwareExceptionWithoutRetry('STG_STAKE_CONFIG[0] can`t be zero')
-        stakedata = stake_amount, stake_amount_in_wei, lock_time
+            amount = await current_client.get_smart_amount(STG_STAKE_CONFIG[1], token_name='STG', omnicheck=True)
+            stake_amount = round(amount, 6)
 
-        return await Stargate(current_client).stake_stg(stakedata=stakedata)
+            stake_amount_in_wei = current_client.to_wei(stake_amount, 18)
+            lock_time = int((STG_STAKE_CONFIG[0] * 30))
+            if lock_time == 0:
+                raise SoftwareExceptionWithoutRetry('STG_STAKE_CONFIG[0] can`t be zero')
+            stakedata = stake_amount, stake_amount_in_wei, lock_time
+            try:
+                await Stargate(current_client).stake_stg(stakedata=stakedata)
+            except Exception as error:
+                if 'old tokens' in str(error):
+                    counter += 1
+                    if counter == len(chains):
+                        self.logger_msg(
+                            *self.client.acc_info, msg=f"You are already staked STG in all chains", type_msg='warning'
+                        )
+                        return True
+
+                    self.logger_msg(
+                        *self.client.acc_info,
+                        msg=f"You are already staked STG in {current_client.network.name}. Trying take next chain...",
+                        type_msg='warning'
+                    )
+                    converted_chains.remove(converted_chains[index])
+                else:
+                    raise error
+
+
 
     @helper
     @gas_checker

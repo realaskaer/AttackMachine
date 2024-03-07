@@ -307,8 +307,8 @@ class Client(Logger):
 
     async def get_auto_amount(self, token_name_search: str = None, class_name: str = None) -> [str, float, int]:
 
-        wallet_balance = {k: await self.get_token_balance(k, False)
-                          for k, v in TOKENS_PER_CHAIN[self.network.name].items()}
+        token_per_chain = TOKENS_PER_CHAIN[self.network.name]
+        wallet_balance = {k: await self.get_token_balance(k, False) for k, v in token_per_chain.items()}
         valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
         eth_price = ETH_PRICE
 
@@ -332,8 +332,12 @@ class Client(Logger):
             amount_from_token_on_balance = wallet_balance[biggest_token_balance_name][1]
             amount_from_token_on_balance_in_wei = wallet_balance[biggest_token_balance_name][0]
 
-            token_names_list = list(filter(lambda token_name: token_name != biggest_token_balance_name,
-                                           TOKENS_PER_CHAIN[self.network.name].keys()))
+            token_names_list = list(filter(
+                lambda token_name: token_name != biggest_token_balance_name, token_per_chain.keys()
+            ))
+
+            if self.network.name == 'Base' and biggest_token_balance_name != 'USDC':
+                token_names_list.remove('USDC')
 
             if biggest_token_balance_name != 'WETH':
                 token_names_list.remove('WETH')

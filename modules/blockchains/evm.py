@@ -1,3 +1,4 @@
+import os
 import random
 
 from eth_account import Account
@@ -13,7 +14,7 @@ from config import (
     WETH_ABI,
     TOKENS_PER_CHAIN,
     NATIVE_CONTRACTS_PER_CHAIN,
-    NATIVE_ABI, CHAIN_NAME,
+    NATIVE_ABI, CHAIN_NAME, ZKSYNC_CONTRACT_ABI,
 )
 
 
@@ -253,6 +254,25 @@ class ZkSync(Blockchain, SimpleEVM):
                                                          NATIVE_ABI['zkSync']['deposit'])
         self.withdraw_contract = self.client.get_contract(NATIVE_CONTRACTS_PER_CHAIN['zkSync']['withdraw'],
                                                           NATIVE_ABI['zkSync']['withdraw'])
+
+    @helper
+    @gas_checker
+    async def deploy_contract(self):
+        contract_deployer = NATIVE_CONTRACTS_PER_CHAIN['zkSync']['contact_deployer']
+        contract = self.client.get_contract(contract_deployer, ZKSYNC_CONTRACT_ABI)
+
+        salt = f"0x{os.urandom(32).hex()}"
+        byte_code_hash = '0x01000021a88a3dee3b0944ff9cbf36cb51c26df19b404d38a115a2a2e3ee5b88'
+
+        self.logger_msg(*self.client.acc_info, msg=f"Deploy contract on {self.client.network.name} with Merkly")
+
+        transaction = await contract.functions.create(
+            salt,
+            byte_code_hash,
+            '0x'
+        ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transaction)
 
     @helper
     @gas_checker

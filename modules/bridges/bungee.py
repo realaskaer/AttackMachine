@@ -269,7 +269,7 @@ class Bungee(Refuel, Bridge, Logger):
                             *self.client.acc_info,
                             msg=f'Start claiming {clmbl_amount} ${symbol} on {CHAIN_NAME_FROM_ID[chain_id]} chain'
                         )
-                    
+
                         transaction = await claim_contract.functions.claim(
                             self.client.address,
                             claimable_amount_in_wei,

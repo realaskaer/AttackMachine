@@ -145,4 +145,19 @@ class Owlto(Bridge, Logger, RequestClient):
             format_date
         ).build_transaction(await self.client.prepare_transaction())
 
-        return await self.client.send_transaction(transaction)
+        tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+
+        url = 'https://owlto.finance/api/lottery/maker/sign/in'
+
+        params = {
+            'hash': tx_hash,
+            'chainId': self.client.chain_id,
+            'userAddress': self.client.address
+        }
+
+        response = await self.make_request(url=url, params=params)
+
+        if response['message'] == 'success':
+            self.logger_msg(*self.client.acc_info, msg=f"Successfully made check-in on Owlto", type_msg='success')
+            return True
+        raise SoftwareExceptionWithoutRetry('Bad request to Owlto API(Check-in)')

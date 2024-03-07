@@ -18,13 +18,47 @@ class PancakeSwap(DEX, Logger):
         self.router_contract = self.client.get_contract(PANCAKE_CONTRACTS[self.network]['router'], PANCAKE_ROUTER_ABI)
         self.quoter_contract = self.client.get_contract(PANCAKE_CONTRACTS[self.network]['quoter'], PANCAKE_QUOTER_ABI)
 
-    @staticmethod
-    def get_path(from_token_address: str, to_token_address: str):
-        from_token_bytes = HexBytes(from_token_address).rjust(20, b'\0')
-        to_token_bytes = HexBytes(to_token_address).rjust(20, b'\0')
-        fee_bytes = (500).to_bytes(3, 'big')
+    def get_path(self, from_token_address: str, to_token_address: str, from_token_name: str, to_token_name: str):
 
-        return from_token_bytes + fee_bytes + to_token_bytes
+        pool_fee_info = {
+            'zkSync': {
+                "USDC/ETH": 500,
+                "ETH/USDC": 500,
+                "USDC/USDT": 100,
+                "USDT/USDC": 100
+            },
+            'Linea': {
+                "USDC/ETH": 500,
+                "ETH/USDC": 500,
+                "USDC/USDT": 100,
+                "USDT/USDC": 100
+            },
+            'Base': {
+                "USDC.e/ETH": 500,
+                "ETH/USDC.e": 500,
+            },
+            'Polygon zkEVM': {
+                "USDC/ETH": 500,
+                "ETH/USDC": 500,
+                "ETH/USDT": 500,
+                "USDT/ETH": 500
+            }
+        }[self.client.network.name]
+
+        if 'USDC' in [from_token_name, to_token_name] or self.client.network.name in ['Polygon zkEVM']:
+            from_token_bytes = HexBytes(from_token_address).rjust(20, b'\0')
+            to_token_bytes = HexBytes(to_token_address).rjust(20, b'\0')
+            fee_bytes = pool_fee_info[f"{from_token_name}/{to_token_name}"].to_bytes(3, 'big')
+            return from_token_bytes + fee_bytes + to_token_bytes
+        else:
+            from_token_bytes = HexBytes(from_token_address).rjust(20, b'\0')
+            index_1 = f'{from_token_name}/USDC'
+            fee_bytes_1 = pool_fee_info[index_1].to_bytes(3, 'big')
+            middle_token_bytes = HexBytes(TOKENS_PER_CHAIN[self.network]['USDC']).rjust(20, b'\0')
+            index_2 = f'USDC/{to_token_name}'
+            fee_bytes_2 = pool_fee_info[index_2].to_bytes(3, 'big')
+            to_token_bytes = HexBytes(to_token_address).rjust(20, b'\0')
+            return from_token_bytes + fee_bytes_1 + middle_token_bytes + fee_bytes_2 + to_token_bytes
 
     async def get_min_amount_out(self, path:bytes, amount_in_wei: int):
         min_amount_out, _, _, _ = await self.quoter_contract.functions.quoteExactInput(
@@ -44,7 +78,7 @@ class PancakeSwap(DEX, Logger):
 
         from_token_address = TOKENS_PER_CHAIN[self.network][from_token_name]
         to_token_address = TOKENS_PER_CHAIN[self.network][to_token_name]
-        path = self.get_path(from_token_address, to_token_address)
+        path = self.get_path(from_token_address, to_token_address, from_token_name, to_token_name)
         min_amount_out = await self.get_min_amount_out(path, amount_in_wei)
 
         await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
