@@ -102,7 +102,7 @@ class Stargate(Logger):
                     ],
                     self.client.address,
                     '0x'
-                ).build_transaction(await self.client.prepare_transaction(value=estimate_fee))
+                ).build_transaction(await self.client.prepare_transaction(value=int(estimate_fee * 1.05)))
             except Exception as error:
                 if '0xf4d678b8' in str(error):
                     raise SoftwareExceptionWithoutRetry('Insufficient balance in this chain!')
@@ -159,7 +159,6 @@ class Stargate(Logger):
 
         return await self.client.wait_for_l0_received(tx_hash)
 
-    @helper
     async def stake_stg(self, stakedata:tuple):
         stake_amount, stake_amount_in_wei, lock_time = stakedata
 
