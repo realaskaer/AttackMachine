@@ -58,7 +58,7 @@ class HyperComic(Minter, Logger, RequestClient):
             claim_contract = self.client.get_contract(contract_address, HYPERCOMIC_ABI)
 
             transaction = await claim_contract.functions.mint(
-                signature
+                self.client.w3.to_bytes(hexstr=signature)
             ).build_transaction(await self.client.prepare_transaction())
 
             transaction['value'] = amount_in_wei
