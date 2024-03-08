@@ -50,43 +50,48 @@ class HyperComic(Minter, Logger, RequestClient):
         self.logger_msg(*self.client.acc_info, msg=f'Claim zkList Pass on HyperComic')
 
         signature = await self.get_tx_data(14)
-        contract_address = '0x1A640bF545E04416Df6FfA2f9Cc4813003E52649'
-        amount_in_wei = int(0.00013 * 10 ** 18)
-        claim_contract = self.client.get_contract(contract_address, HYPERCOMIC_ABI)
 
-        transaction = await claim_contract.functions.mint(
-            signature
-        ).build_transaction(await self.client.prepare_transaction(value=amount_in_wei))
+        if signature != 'notEnough':
 
-        tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+            contract_address = '0x1A640bF545E04416Df6FfA2f9Cc4813003E52649'
+            amount_in_wei = int(0.00013 * 10 ** 18)
+            claim_contract = self.client.get_contract(contract_address, HYPERCOMIC_ABI)
 
-        url = 'https://play.hypercomic.io/Claim/actionZK/request'
+            transaction = await claim_contract.functions.mint(
+                signature
+            ).build_transaction(await self.client.prepare_transaction(value=amount_in_wei))
 
-        payload = f'trancnt=0&walletgbn=Metamask&wallet={self.client.address}&hash={tx_hash}&nftNumber=14'
+            tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
-        headers = {
-            "accept": "*/*",
-            "accept-language": "de-DE,de;q=0.9",
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "Sec-Ch-Ua": '"Not A(Brand";v="99", "Microsoft Edge";v="121", "Chromium";v="121"',
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": "\"Windows\"",
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "same-site",
-            "referrer": "https://zk24.hypercomic.io/",
-            "referrerPolicy": "strict-origin-when-cross-origin",
-            "method": "POST",
-            "mode": "cors",
-            "credentials": "omit"
-        }
+            url = 'https://play.hypercomic.io/Claim/actionZK/request'
 
-        self.logger_msg(*self.client.acc_info, msg=f'Confirming claim on HyperComic...')
+            payload = f'trancnt=0&walletgbn=Metamask&wallet={self.client.address}&hash={tx_hash}&nftNumber=14'
 
-        response = await self.client.session.post(url=url, headers=headers, data=payload)
-        if response.status == 200:
-            data = await response.text()
-            if data == 'success':
-                self.logger_msg(*self.client.acc_info, msg=f'Confirmed claim on HyperComic', type_msg='success')
-                return True
-        raise SoftwareException('Bad response from HyperComic API')
+            headers = {
+                "accept": "*/*",
+                "accept-language": "de-DE,de;q=0.9",
+                "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+                "Sec-Ch-Ua": '"Not A(Brand";v="99", "Microsoft Edge";v="121", "Chromium";v="121"',
+                "sec-ch-ua-mobile": "?0",
+                "sec-ch-ua-platform": "\"Windows\"",
+                "sec-fetch-dest": "empty",
+                "sec-fetch-mode": "cors",
+                "sec-fetch-site": "same-site",
+                "referrer": "https://zk24.hypercomic.io/",
+                "referrerPolicy": "strict-origin-when-cross-origin",
+                "method": "POST",
+                "mode": "cors",
+                "credentials": "omit"
+            }
+
+            self.logger_msg(*self.client.acc_info, msg=f'Confirming claim on HyperComic...')
+
+            response = await self.client.session.post(url=url, headers=headers, data=payload)
+            if response.status == 200:
+                data = await response.text()
+                if data == 'success':
+                    self.logger_msg(*self.client.acc_info, msg=f'Confirmed claim on HyperComic', type_msg='success')
+                    return True
+            raise SoftwareException('Bad response from HyperComic API')
+        self.logger_msg(*self.client.acc_info, msg=f'Account is not eligible to claim zkList Pass', type_msg='warning')
+        return True
