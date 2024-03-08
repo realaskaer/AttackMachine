@@ -54,13 +54,13 @@ class HyperComic(Minter, Logger, RequestClient):
         if signature != 'notEnough':
 
             contract_address = '0x1A640bF545E04416Df6FfA2f9Cc4813003E52649'
-            amount_in_wei = int(0.00013 * 10 ** 18)
+            amount_in_wei = self.client.to_wei(0.00013)
             claim_contract = self.client.get_contract(contract_address, HYPERCOMIC_ABI)
 
             tx_data = claim_contract.encodeABI(
                 fn_name='mint',
                 args=[
-                    self.client.w3.to_bytes(hexstr=signature)
+                    self.client.w3.to_bytes(hexstr=signature.strip())
                 ]
             )
 
