@@ -1,11 +1,7 @@
-import asyncio
-import random
-
 from modules import Minter, Logger, RequestClient, Client
 from config import HYPERCOMIC_ABI
 from modules.interfaces import SoftwareException
-from utils.tools import helper, gas_checker, sleep
-from settings import HYPERCOMIC_NFT_ID
+from utils.tools import helper, gas_checker
 
 
 class HyperComic(Minter, Logger, RequestClient):
@@ -17,7 +13,7 @@ class HyperComic(Minter, Logger, RequestClient):
     async def get_tx_data(self, nft_id: int):
         url = f'https://play.hypercomic.io/Claim/actionZK/conditionsCheck2'
 
-        nonce = await self.client.w3.eth.get_transaction_count(self.client.address)
+        nonce = 0
         address = self.client.address.lower()
 
         payload = f'trancnt={nonce}&walletgbn=Metamask&wallet={address}&nftNumber={nft_id}'
@@ -50,63 +46,47 @@ class HyperComic(Minter, Logger, RequestClient):
     @helper
     @gas_checker
     async def mint(self):
-        mint_info = {
-            1: (6, '0x9d405d767b5d2c3F6E2ffBFE07589c468d3fc04E', 'zkDmail Explorer'),
-            2: (7, '0x02E1eb4547A6869da1e416cfd5916C213655aA24', 'zkSync Bridger'),
-            3: (8, '0x9f5417Dc26622A4804Aa4852dfBf75Db6f8c6F9F', 'zkSync Root'),
-            4: (9, '0x761cCCE4a16A670Db9527b1A17eCa4216507946f', 'zkSync Junior'),
-            5: (10, '0xDc5401279A735FF9F3fAb1d73d51d520dC1D8fDF', 'zkSync Exhibit'),
-            6: (11, '0x8Cc9502fd26222aB38A25eEe76ae4C7493A3Fa2A', 'zkSync Charge'),
-            7: (12, '0xeE8020254c67547ceE7FF8dF15DDbc1FFA0c477A', 'zkSync Volume'),
-            8: (13, '0x3F332B469Fbc7A580B00b11Df384bdBebbd65588', 'zkSync Bird'),
+
+        self.logger_msg(*self.client.acc_info, msg=f'Claim zkList Pass on HyperComic')
+
+        signature = await self.get_tx_data(14)
+        contract_address = '0x1A640bF545E04416Df6FfA2f9Cc4813003E52649'
+        amount_in_wei = int(0.00013 * 10 ** 18)
+        claim_contract = self.client.get_contract(contract_address, HYPERCOMIC_ABI)
+
+        transaction = await claim_contract.functions.mint(
+            signature
+        ).build_transaction(await self.client.prepare_transaction(value=amount_in_wei))
+
+        tx_hash = await self.client.send_transaction(transaction, need_hash=True)
+
+        url = 'https://play.hypercomic.io/Claim/actionZK/request'
+
+        payload = f'trancnt=0&walletgbn=Metamask&wallet={self.client.address}&hash={tx_hash}&nftNumber=14'
+
+        headers = {
+            "accept": "*/*",
+            "accept-language": "de-DE,de;q=0.9",
+            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Sec-Ch-Ua": '"Not A(Brand";v="99", "Microsoft Edge";v="121", "Chromium";v="121"',
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-site",
+            "referrer": "https://zk24.hypercomic.io/",
+            "referrerPolicy": "strict-origin-when-cross-origin",
+            "method": "POST",
+            "mode": "cors",
+            "credentials": "omit"
         }
 
-        mint_ids = list(HYPERCOMIC_NFT_ID) if HYPERCOMIC_NFT_ID != 0 else list(mint_info.keys())
+        self.logger_msg(*self.client.acc_info, msg=f'Confirming claim on HyperComic...')
 
-        random.shuffle(mint_ids)
-
-        result_list = []
-
-        if HYPERCOMIC_NFT_ID == 0:
-            minted_any = True
-        elif isinstance(HYPERCOMIC_NFT_ID, tuple):
-            minted_any = False
-        else:
-            raise SoftwareException('HYPERCOMIC_NFT_ID can only be 0 or (1, 2, 3...)')
-
-        for mint_id in mint_ids:
-            nft_id, contract_address, nft_name = mint_info[mint_id]
-            try:
-                calldata = await self.get_tx_data(nft_id)
-
-                if calldata == 'notEnough':
-                    self.logger_msg(
-                        *self.client.acc_info, msg=f"Not eligible for mint {nft_name} NFT.", type_msg='warning')
-                    await asyncio.sleep(10)
-                    continue
-
-                contract = self.client.get_contract(contract_address, HYPERCOMIC_ABI)
-
-                self.logger_msg(*self.client.acc_info, msg=f"Mint {nft_name} NFT. Price: 0.00012 ETH")
-
-                transaction = await contract.functions.mint(
-                    calldata.strip()
-                ).build_transaction(await self.client.prepare_transaction(value=120000000000000))
-
-                result = await self.client.send_transaction(transaction)
-                result_list.append(result)
-
-                if minted_any:
-                    break
-
-                await sleep(self)
-
-            except Exception as error:
-                print(error.args)
-                self.logger_msg(*self.client.acc_info, msg=f"Can't mint {nft_name}. Error: {error}")
-                await asyncio.sleep(10)
-
-        if minted_any and result_list[0] is False:
-            self.logger_msg(*self.client.acc_info, msg="Failed to mint any available NFT", type_msg='error')
-
-        return all(result_list)
+        response = await self.client.session.post(url=url, headers=headers, data=payload)
+        if response.status == 200:
+            data = await response.text()
+            if data == 'success':
+                self.logger_msg(*self.client.acc_info, msg=f'Confirmed claim on HyperComic', type_msg='success')
+                return True
+        raise SoftwareException('Bad response from HyperComic API')
