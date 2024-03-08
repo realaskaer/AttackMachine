@@ -57,11 +57,18 @@ class HyperComic(Minter, Logger, RequestClient):
             amount_in_wei = int(0.00013 * 10 ** 18)
             claim_contract = self.client.get_contract(contract_address, HYPERCOMIC_ABI)
 
-            transaction = await claim_contract.functions.mint(
-                self.client.w3.to_bytes(hexstr=signature)
-            ).build_transaction(await self.client.prepare_transaction())
+            tx_data = claim_contract.encodeABI(
+                fn_name='mint',
+                args=[
+                    self.client.w3.to_bytes(hexstr=signature)
+                ]
+            )
 
-            transaction['value'] = amount_in_wei
+            transaction = await self.client.prepare_transaction() | {
+                'to': claim_contract.address,
+                'data': tx_data,
+                'value': amount_in_wei
+            }
 
             tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
