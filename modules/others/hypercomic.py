@@ -59,7 +59,9 @@ class HyperComic(Minter, Logger, RequestClient):
 
             transaction = await claim_contract.functions.mint(
                 signature
-            ).build_transaction(await self.client.prepare_transaction(value=amount_in_wei))
+            ).build_transaction(await self.client.prepare_transaction())
+
+            transaction['value'] = amount_in_wei
 
             tx_hash = await self.client.send_transaction(transaction, need_hash=True)
 
