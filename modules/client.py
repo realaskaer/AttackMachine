@@ -308,7 +308,7 @@ class Client(Logger):
     async def get_auto_amount(self, token_name_search: str = None, class_name: str = None) -> [str, float, int]:
 
         token_per_chain = TOKENS_PER_CHAIN[self.network.name]
-        
+
         if self.network.name == 'Base' and 'USDC' in token_per_chain:
             del token_per_chain['USDC']
 
