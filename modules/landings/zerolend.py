@@ -27,7 +27,7 @@ class ZeroLend(Landing, Logger):
         tx_params = await self.client.prepare_transaction(value=amount_in_wei)
 
         transaction = await self.landing_contract.functions.depositETH(
-            ZEROLEND_CONTRACTS['pool_proxy'],
+            ZEROLEND_CONTRACTS[self.network]['pool_proxy'],
             self.client.address,
             0
         ).build_transaction(tx_params)
@@ -62,18 +62,21 @@ class ZeroLend(Landing, Logger):
     async def withdraw(self):
         self.logger_msg(*self.client.acc_info, msg=f'Withdraw liquidity from ZeroLend')
 
-        liquidity_balance = await self.client.get_contract(ZEROLEND_CONTRACTS['weth_atoken']).functions.balanceOf(
-            self.client.address).call()
+        liquidity_balance = await self.client.get_contract(
+            ZEROLEND_CONTRACTS[self.network]['weth_atoken']
+        ).functions.balanceOf(self.client.address).call()
 
         if liquidity_balance != 0:
 
-            await self.client.check_for_approved(ZEROLEND_CONTRACTS['weth_atoken'], ZEROLEND_CONTRACTS['landing'],
-                                                 liquidity_balance)
+            await self.client.check_for_approved(
+                ZEROLEND_CONTRACTS[self.network]['weth_atoken'], ZEROLEND_CONTRACTS[self.network]['landing'],
+                liquidity_balance
+            )
 
             tx_params = await self.client.prepare_transaction()
 
             transaction = await self.landing_contract.functions.withdrawETH(
-                ZEROLEND_CONTRACTS['pool_proxy'],
+                ZEROLEND_CONTRACTS[self.network]['pool_proxy'],
                 liquidity_balance,
                 self.client.address
             ).build_transaction(tx_params)

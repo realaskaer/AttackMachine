@@ -29,7 +29,7 @@ class Seamless(Landing, Logger):
         tx_params = await self.client.prepare_transaction(value=amount_in_wei)
 
         transaction = await self.landing_contract.functions.depositETH(
-            SEAMLESS_CONTRACTS['pool_proxy'],
+            SEAMLESS_CONTRACTS[self.network]['pool_proxy'],
             self.client.address,
             0
         ).build_transaction(tx_params)
@@ -63,8 +63,9 @@ class Seamless(Landing, Logger):
     @gas_checker
     async def withdraw(self):
 
-        liquidity_balance = await self.client.get_contract(SEAMLESS_CONTRACTS['weth_atoken']).functions.balanceOf(
-            self.client.address).call()
+        liquidity_balance = await self.client.get_contract(
+            SEAMLESS_CONTRACTS[self.network]['weth_atoken']
+        ).functions.balanceOf(self.client.address).call()
 
         if liquidity_balance != 0:
 
@@ -73,13 +74,14 @@ class Seamless(Landing, Logger):
             )
 
             await self.client.check_for_approved(
-                SEAMLESS_CONTRACTS['weth_atoken'], SEAMLESS_CONTRACTS['landing'], liquidity_balance
+                SEAMLESS_CONTRACTS[self.network]['weth_atoken'], SEAMLESS_CONTRACTS[self.network]['landing'],
+                liquidity_balance
             )
 
             tx_params = await self.client.prepare_transaction()
 
             transaction = await self.landing_contract.functions.withdrawETH(
-                SEAMLESS_CONTRACTS['pool_proxy'],
+                SEAMLESS_CONTRACTS[self.network]['pool_proxy'],
                 2 ** 256 - 1,
                 self.client.address
             ).build_transaction(tx_params)
