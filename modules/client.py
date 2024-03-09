@@ -308,6 +308,10 @@ class Client(Logger):
     async def get_auto_amount(self, token_name_search: str = None, class_name: str = None) -> [str, float, int]:
 
         token_per_chain = TOKENS_PER_CHAIN[self.network.name]
+        
+        if self.network.name == 'Base' and 'USDC' in token_per_chain:
+            del token_per_chain['USDC']
+
         wallet_balance = {k: await self.get_token_balance(k, False) for k, v in token_per_chain.items()}
         valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
         eth_price = ETH_PRICE
@@ -335,9 +339,6 @@ class Client(Logger):
             token_names_list = list(filter(
                 lambda token_name: token_name != biggest_token_balance_name, token_per_chain.keys()
             ))
-
-            if self.network.name == 'Base' and biggest_token_balance_name != 'USDC':
-                token_names_list.remove('USDC')
 
             if biggest_token_balance_name != 'WETH':
                 token_names_list.remove('WETH')
@@ -463,18 +464,19 @@ class Client(Logger):
 
     async def send_transaction(
             self, transaction=None, need_hash: bool = False, without_gas: bool = False, poll_latency: int = 10,
-            timeout: int = 360, tx_hash=None
+            timeout: int = 360, tx_hash=None, send_mode: bool = False, signed_tx=None
     ) -> bool | HexStr:
         try:
-            if not without_gas and not tx_hash:
+            if not without_gas and not tx_hash and not send_mode:
                 transaction['gas'] = int((await self.w3.eth.estimate_gas(transaction)) * GAS_LIMIT_MULTIPLIER)
         except Exception as error:
             raise BlockchainException(f'{self.get_normalize_error(error)}')
 
         if not tx_hash:
             try:
-                singed_tx = self.w3.eth.account.sign_transaction(transaction, self.private_key)
-                tx_hash = self.w3.to_hex(await self.w3.eth.send_raw_transaction(singed_tx.rawTransaction))
+                if not send_mode:
+                    signed_tx = self.w3.eth.account.sign_transaction(transaction, self.private_key).rawTransaction
+                tx_hash = self.w3.to_hex(await self.w3.eth.send_raw_transaction(signed_tx))
             except Exception as error:
                 if self.get_normalize_error(error) == 'already known':
                     self.logger_msg(*self.acc_info, msg='RPC got error, but tx was send', type_msg='warning')
