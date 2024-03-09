@@ -6,7 +6,7 @@ from modules import DEX, Logger, Client
 from settings import ZKSYNC_PAYMASTER_TOKEN
 from utils.tools import gas_checker, helper
 from modules.interfaces import SoftwareException
-from eth_account.messages import encode_typed_data
+from eth_account.messages import encode_structured_data
 from config import (
     SYNCSWAP_CONTRACTS,
     SYNCSWAP_ABI,
@@ -100,7 +100,7 @@ class SyncSwap(DEX, Logger):
             }
         }
 
-        text_encoded = encode_typed_data(full_message=permit_data)
+        text_encoded = encode_structured_data(permit_data)
         sing_data = self.client.w3.eth.account.sign_message(text_encoded,
                                                             private_key=self.client.private_key)
 
@@ -122,7 +122,7 @@ class SyncSwap(DEX, Logger):
         if swapdata:
             from_token_name, to_token_name, amount, amount_in_wei = swapdata
         else:
-            from_token_name, to_token_name, amount, amount_in_wei = 'ETH', 'USDC', 0.0001, int(0.0001 * 10 ** 18)#await self.client.get_auto_amount()
+            from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
         self.logger_msg(*self.client.acc_info, msg=f'Swap on SyncSwap: {amount} {from_token_name} -> {to_token_name}')
 
@@ -134,7 +134,7 @@ class SyncSwap(DEX, Logger):
         pool_address = await self.pool_factory_contract.functions.getPool(from_token_address, to_token_address).call()
         min_amount_out = await self.get_min_amount_out(pool_address, from_token_address, amount_in_wei)
 
-        #await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
+        await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
 
         if from_token_name != 'ETH':
             await self.client.check_for_approved(
@@ -157,22 +157,6 @@ class SyncSwap(DEX, Logger):
             from_token_address if from_token_name != 'ETH' else ZERO_ADDRESS,
             amount_in_wei
         ]
-
-        # [
-        #     {
-        #         "steps": [
-        #             {
-        #                 "pool": "0x80115c708E12eDd42E504c1cD52Aea96C547c05c",
-        #                 "data": "0x0000000000000000000000005aea5775959fbc2557cc8789bc1bf90a239d9a910000000000000000000000005f1a69ec0b4860ff0fb7da21fdd4e2c5837d14ca0000000000000000000000000000000000000000000000000000000000000001",
-        #                 "callback": "0x0000000000000000000000000000000000000000",
-        #                 "callbackData": "0x",
-        #                 "useVault": false
-        #             }
-        #         ],
-        #         "tokenIn": "0x0000000000000000000000000000000000000000",
-        #         "amountIn": 100000000000000
-        #     }
-        # ]
 
         tx_params = await self.client.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
 
@@ -314,7 +298,7 @@ class SyncSwap(DEX, Logger):
             paymaster_additional = self.client.w3.to_hex(signature)[2:] + paymaster_input[2:]
             signed_tx = self.client.w3.eth.account.sign_transaction(transaction, self.client.private_key).rawTransaction
             full_tx = "0x71" + self.client.w3.to_hex(signed_tx)[4:] + paymaster_additional
-
+            
             return await self.client.send_transaction(send_mode=True, signed_tx=full_tx)
 
         return await self.client.send_transaction(transaction)
