@@ -300,10 +300,10 @@ L0_SEARCH_DATA = 0          # Поиск балансов в сетях. 0 - STA
 '--------------------------------------------------Stargate / CoreDAO--------------------------------------------------'
 
 STG_STAKE_CONFIG = [(2, 3), (1, 5)]
-
 STARGATE_DUST_CONFIG = (['USDV', 'USDV'], [31, 6])
-STARGATE_CHAINS = [6, 33]
-STARGATE_TOKENS = ['USDV', 'USDV']
+
+STARGATE_CHAINS = [5, 7]
+STARGATE_TOKENS = ['USDC', 'USDC']
 
 COREDAO_CHAINS = [5, 11, 33]
 COREDAO_TOKENS = ['USDC', 'USDC', 'USDC']
@@ -432,16 +432,15 @@ L2PASS_GAS_STATION_DATA = [
     ZKSTARS_NFT_CONTRACTS | Укажите какие NFT ID будут участвовать в минте. Все что в скобках, будут использованы
     MINTFUN_CONTRACTS | Список контрактов для минта в выбранной сети (GLOBAL NETWORK)
     GRAPEGRAW_TICKETS_AMOUNT | Количество билетов для покупки в одной транзакции на сайте https://grapedraw.com/
-    HYPERCOMIC_NFT_ID | 1 - zkDmail Explorer, 2 - zkSync Bridger, 3 - zkSync Root, 4 - zkSync Junior,
-                        5 - zkSync Exhibit, 6 - zkSync Charge, 7 - zkSync Volume, 8 - zkSync Bird, 0 - одну рандомную
+    ZKSYNC_PAYMASTER_TOKEN | Укажите каким токеном вы будете совершать оплату за газ при использовании paymaster 
     CUSTOM_SWAP_DATA | ('токен для обмена', 'токен для получения', (сумма от и до), сеть запуска(см. OMNI-CHAIN))
     
 """
 CUSTOM_SWAP_DATA = ('USDC.e', 'USDC', ('100', '100'), 31)
 
-ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при 0 заминтит случайную новую NFT
+ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при 0 заминтит все NFT в случайном порядке
 
-HYPERCOMIC_NFT_ID = (1, 2, 3, 4)  # при 0 заминтит все NFT в случайном порядке
+ZKSYNC_PAYMASTER_TOKEN = 0  # 0 - USDT, 1 - USDC
 
 GRAPEDRAW_TICKETS_AMOUNT = 1
 
