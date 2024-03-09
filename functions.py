@@ -397,6 +397,11 @@ async def swap_syncswap(account_name, private_key, network, proxy, **kwargs):
     return await worker.swap(**kwargs)
 
 
+async def swap_syncswap_paymaster(account_name, private_key, network, proxy, **kwargs):
+    worker = SyncSwap(get_client(account_name, private_key, network, proxy))
+    return await worker.swap(paymaster_mode=True, **kwargs)
+
+
 async def add_liquidity_syncswap(account_name, private_key, network, proxy):
     worker = SyncSwap(get_client(account_name, private_key, network, proxy))
     return await worker.add_liquidity()

@@ -81,6 +81,7 @@ AVAILABLE_MODULES_INFO = {
     swap_spacefi                        : (swap_spacefi, 2, 'SpaceFi swap', 1, [8, 11]),
     swap_rango                          : (swap_rango, 2, 'Rango swap', 1, [4, 11]),
     swap_xyfinance                      : (swap_xyfinance, 2, 'XYfinance swap', 0, []),
+    swap_syncswap_paymaster             : (swap_syncswap_paymaster, 2, 'SyncSwap paymaster swap', 1, [4, 8, 11]),
     swap_syncswap                       : (swap_syncswap, 2, 'SyncSwap swap', 1, [4, 8, 11]),
     swap_velocore                       : (swap_velocore, 2, 'Velocore swap', 1, [4, 11]),
     swap_vesync                         : (swap_vesync, 2, 'VeSync swap', 1, [11]),
@@ -198,10 +199,13 @@ class RouteGenerator(Logger):
             'deposit_eralend',
             'deposit_reactorfusion',
             'deposit_zerolend',
-            'deposit_nostra',
-            'deposit_zklend',
-            'deposit_rocketsam',
+            'deposit_usdb_zerolend',
             'deposit_layerbank',
+            'deposit_rocketsam',
+            'deposit_moonwell',
+            'deposit_seamless',
+            'deposit_usdbc_seamless',
+            'deposit_abracadabra',
         ]
         for i in CLASSIC_ROUTES_MODULES_USING:
             module_name = random.choice(i)
