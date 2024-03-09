@@ -1,15 +1,15 @@
+import json
 from time import time
 from eth_abi import abi
 from general_settings import SLIPPAGE
 from modules import DEX, Logger, Client
+from settings import ZKSYNC_PAYMASTER_TOKEN
 from utils.tools import gas_checker, helper
 from modules.interfaces import SoftwareException
-from eth_account.messages import encode_structured_data
+from eth_account.messages import encode_typed_data
 from config import (
     SYNCSWAP_CONTRACTS,
-    SYNCSWAP_CLASSIC_POOL_FACTORY_ABI,
-    SYNCSWAP_CLASSIC_POOL_ABI,
-    SYNCSWAP_ROUTER_ABI,
+    SYNCSWAP_ABI,
     ZERO_ADDRESS,
     TOKENS_PER_CHAIN
 )
@@ -22,10 +22,15 @@ class SyncSwap(DEX, Logger):
         self.network = self.client.network.name
         self.router_contract = self.client.get_contract(
             SYNCSWAP_CONTRACTS[self.network]['router'],
-            SYNCSWAP_ROUTER_ABI)
+            SYNCSWAP_ABI['router']
+        )
         self.pool_factory_contract = self.client.get_contract(
-            SYNCSWAP_CONTRACTS[self.network]['classic_pool_factoty'],
-            SYNCSWAP_CLASSIC_POOL_FACTORY_ABI
+            SYNCSWAP_CONTRACTS[self.network]['classic_pool_factory'],
+            SYNCSWAP_ABI['classic_pool_factory']
+        )
+        self.paymaster_contract = self.client.get_contract(
+            SYNCSWAP_CONTRACTS[self.network]['paymaster'],
+            SYNCSWAP_ABI['paymaster']
         )
 
     async def get_swap_permit(self, token_name:str):
@@ -95,14 +100,14 @@ class SyncSwap(DEX, Logger):
             }
         }
 
-        text_encoded = encode_structured_data(permit_data)
+        text_encoded = encode_typed_data(full_message=permit_data)
         sing_data = self.client.w3.eth.account.sign_message(text_encoded,
                                                             private_key=self.client.private_key)
 
         return deadline, sing_data.v, hex(sing_data.r), hex(sing_data.s)
 
     async def get_min_amount_out(self, pool_address: str, from_token_address: str, amount_in_wei: int):
-        pool_contract = self.client.get_contract(pool_address, SYNCSWAP_CLASSIC_POOL_ABI)
+        pool_contract = self.client.get_contract(pool_address, SYNCSWAP_ABI['classic_pool'])
         min_amount_out = await pool_contract.functions.getAmountOut(
             from_token_address,
             amount_in_wei,
@@ -113,24 +118,23 @@ class SyncSwap(DEX, Logger):
 
     @helper
     @gas_checker
-    async def swap(self, swapdata: tuple = None):
+    async def swap(self, swapdata: tuple = None, paymaster_mode:bool = False):
         if swapdata:
             from_token_name, to_token_name, amount, amount_in_wei = swapdata
         else:
-            from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
+            from_token_name, to_token_name, amount, amount_in_wei = 'ETH', 'USDC', 0.0001, int(0.0001 * 10 ** 18)#await self.client.get_auto_amount()
 
         self.logger_msg(*self.client.acc_info, msg=f'Swap on SyncSwap: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address = TOKENS_PER_CHAIN[self.network][from_token_name]
         to_token_address = TOKENS_PER_CHAIN[self.network][to_token_name]
 
-        withdraw_mode = 1
-        pool_address = await self.pool_factory_contract.functions.getPool(from_token_address,
-                                                                          to_token_address).call()
+        withdraw_mode = 2
         deadline = int(time()) + 1800
+        pool_address = await self.pool_factory_contract.functions.getPool(from_token_address, to_token_address).call()
         min_amount_out = await self.get_min_amount_out(pool_address, from_token_address, amount_in_wei)
 
-        await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
+        #await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
 
         if from_token_name != 'ETH':
             await self.client.check_for_approved(
@@ -140,18 +144,35 @@ class SyncSwap(DEX, Logger):
         swap_data = abi.encode(['address', 'address', 'uint8'],
                                [from_token_address, self.client.address, withdraw_mode])
 
-        steps = [{
-            'pool': pool_address,
-            'data': swap_data,
-            'callback': ZERO_ADDRESS,
-            'callbackData': '0x'
-        }]
+        steps = [
+            pool_address,
+            self.client.w3.to_hex(swap_data),
+            ZERO_ADDRESS,
+            '0x',
+            True,
+        ]
 
-        paths = [{
-            'steps': steps,
-            'tokenIn': from_token_address if from_token_name != 'ETH' else ZERO_ADDRESS,
-            'amountIn': amount_in_wei
-        }]
+        paths = [
+            [steps],
+            from_token_address if from_token_name != 'ETH' else ZERO_ADDRESS,
+            amount_in_wei
+        ]
+
+        # [
+        #     {
+        #         "steps": [
+        #             {
+        #                 "pool": "0x80115c708E12eDd42E504c1cD52Aea96C547c05c",
+        #                 "data": "0x0000000000000000000000005aea5775959fbc2557cc8789bc1bf90a239d9a910000000000000000000000005f1a69ec0b4860ff0fb7da21fdd4e2c5837d14ca0000000000000000000000000000000000000000000000000000000000000001",
+        #                 "callback": "0x0000000000000000000000000000000000000000",
+        #                 "callbackData": "0x",
+        #                 "useVault": false
+        #             }
+        #         ],
+        #         "tokenIn": "0x0000000000000000000000000000000000000000",
+        #         "amountIn": 100000000000000
+        #     }
+        # ]
 
         tx_params = await self.client.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
 
@@ -168,10 +189,138 @@ class SyncSwap(DEX, Logger):
             ).build_transaction(tx_params)
         else:
             transaction = await self.router_contract.functions.swap(
-                paths,
+                [paths],
                 min_amount_out,
                 deadline,
             ).build_transaction(tx_params)
+
+        if paymaster_mode:
+            fee_token_name = {
+                0: 'USDT',
+                1: 'USDC'
+            }[ZKSYNC_PAYMASTER_TOKEN]
+
+            fee_token_address = TOKENS_PER_CHAIN[self.client.network.name][fee_token_name]
+            min_allowance = int(2000 * 10 ** 6)
+            inner_input = self.client.w3.to_hex(abi.encode(['uint64'], [100]))
+
+            paymaster_input = self.paymaster_contract.encodeABI(
+                fn_name='approvalBased',
+                args=(
+                    fee_token_address,
+                    min_allowance,
+                    inner_input
+                )
+            )
+
+            typed_data = {
+                "types": {
+                    "Transaction": [
+                        {
+                            "name": "txType",
+                            "type": "uint256"
+                        },
+                        {
+                            "name": "from",
+                            "type": "uint256"
+                        },
+                        {
+                            "name": "to",
+                            "type": "uint256"
+                        },
+                        {
+                            "name": "gasLimit",
+                            "type": "uint256"
+                        },
+                        {
+                            "name": "gasPerPubdataByteLimit",
+                            "type": "uint256"
+                        },
+                        {
+                            "name": "maxFeePerGas",
+                            "type": "uint256"
+                        },
+                        {
+                            "name": "maxPriorityFeePerGas",
+                            "type": "uint256"
+                        },
+                        {
+                            "name": "paymaster",
+                            "type": "uint256"
+                        },
+                        {
+                            "name": "nonce",
+                            "type": "uint256"
+                        },
+                        {
+                            "name": "value",
+                            "type": "uint256"
+                        },
+                        {
+                            "name": "data",
+                            "type": "bytes"
+                        },
+                        {
+                            "name": "factoryDeps",
+                            "type": "bytes32[]"
+                        },
+                        {
+                            "name": "paymasterInput",
+                            "type": "bytes"
+                        }
+                    ],
+                    "EIP712Domain": [
+                        {
+                            "name": "name",
+                            "type": "string"
+                        },
+                        {
+                            "name": "version",
+                            "type": "string"
+                        },
+                        {
+                            "name": "chainId",
+                            "type": "uint256"
+                        }
+                    ]
+                },
+                "domain": {
+                    "name": self.client.network.name,
+                    "version": "2",
+                    "chainId": self.client.chain_id
+                },
+                "primaryType": "Transaction",
+                "message": {
+                    "txType": 0x71,
+                    "from": int(self.client.address, 16),
+                    "to": int(self.router_contract.address, 16),
+                    "gasLimit": transaction['gas'],
+                    "gasPerPubdataByteLimit": 50000,
+                    "maxFeePerGas": transaction['maxFeePerGas'],
+                    "maxPriorityFeePerGas": transaction['maxPriorityFeePerGas'],
+                    "paymaster": int(self.paymaster_contract.address, 16),
+                    "nonce": transaction['nonce'],
+                    "value": amount_in_wei if from_token_name == 'ETH' else 0,
+                    "data": self.client.w3.to_bytes(hexstr=transaction['data']),
+                    "factoryDeps": [],
+                    "paymasterInput": self.client.w3.to_bytes(hexstr=paymaster_input)
+                }
+            }
+
+            signature = self.client.w3.eth.account.sign_typed_data(
+                self.client.private_key, full_message=typed_data
+            ).signature
+
+            paymaster_additional = self.client.w3.to_hex(signature)[2:] + paymaster_input[2:]
+            signed_tx = self.client.w3.eth.account.sign_transaction(transaction, self.client.private_key).rawTransaction
+            full_tx = "0x71" + self.client.w3.to_hex(signed_tx)[4:] + paymaster_additional
+
+            '0x71  f902f58201444b808405f5e10083358568949b5def958d0f3b6955cbea4d5b7809b2fb26b059865af3107a4000b90284d7570e450000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000005d39a0000000000000000000000000000000000000000000000000000000065ec4024000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005af3107a40000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000080115c708e12edd42e504c1cd52aea96c547c05c00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000600000000000000000000000005aea5775959fbc2557cc8789bc1bf90a239d9a910000000000000000000000005f1a69ec0b4860ff0fb7da21fdd4e2c5837d14ca00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000c001a0560406b3108e14db555366b33ad434aefeb5d4c62f3c33710aa1848c52e9c68ca059a38876df1a73b757738f5aae52f79ab5c5fa3af6d0aec63801d9a4d5e9ad4e33140cd0df7cee67418b461b516fb00650ddeddb18f45c7b3a1e40a3e15958e923fbceb260614446a45b40b3cc2e5a7f58d78b84e0e2a11f48e0da59270e39f01c     949431dc000000000000000000000000493257fd37edb34451f62edf8d2a0c418852ba4c0000000000000000000000000000000000000000000000000000000077359400000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000064'
+            "0x71f903d34b8406638df58406638df5832dc6c0949b5def958d0f3b6955cbea4d5b7809b2fb26b059865af3107a4000b90284d7570e45000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000604030000000000000000000000000000000000000000000000000000000065eb5ad3000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005af3107a40000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000080115c708e12edd42e504c1cd52aea96c547c05c00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000600000000000000000000000005aea5775959fbc2557cc8789bc1bf90a239d9a910000000000000000000000005f1a69ec0b4860ff0fb7da21fdd4e2c5837d14ca000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008201448080820144945f1a69ec0b4860ff0fb7da21fdd4e2c5837d14ca82c350c0b841     cf61b5d1bafd92cd96bc8d76d7cf65368791dd0c8ec349a22931657dd6eadb96566d3133f76bda0844bf7bf080e47b5ed04738d987e4a2110603e4ed2717ae551c  f8bb940c08f298a75a090dc4c0bb4caa4204b8b9d156c1b8a4              949431dc000000000000000000000000493257fd37edb34451f62edf8d2a0c418852ba4c0000000000000000000000000000000000000000000000000000000077359400000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000064"
+            print(signature.hex())
+
+            print(full_tx)
+            return await self.client.send_transaction(send_mode=True, signed_tx=full_tx)
 
         return await self.client.send_transaction(transaction)
 
@@ -187,7 +336,7 @@ class SyncSwap(DEX, Logger):
         token_b_address = TOKENS_PER_CHAIN[self.client.network.name]['USDC']
 
         pool_address = await self.pool_factory_contract.functions.getPool(token_a_address, token_b_address).call()
-        pool_contract = self.client.get_contract(pool_address, SYNCSWAP_CLASSIC_POOL_ABI)
+        pool_contract = self.client.get_contract(pool_address, SYNCSWAP_ABI['classic_pool'])
 
         total_supply = await pool_contract.functions.totalSupply().call()
         _, reserve_eth = await pool_contract.functions.getReserves().call()
@@ -220,7 +369,7 @@ class SyncSwap(DEX, Logger):
         token_b_address = TOKENS_PER_CHAIN[self.client.network.name]['USDC']
 
         pool_address = await self.pool_factory_contract.functions.getPool(token_a_address, token_b_address).call()
-        pool_contract = self.client.get_contract(pool_address, SYNCSWAP_CLASSIC_POOL_ABI)
+        pool_contract = self.client.get_contract(pool_address, SYNCSWAP_ABI['classic_pool'])
 
         liquidity_balance = await pool_contract.functions.balanceOf(self.client.address).call()
 
