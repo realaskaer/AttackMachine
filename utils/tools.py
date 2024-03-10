@@ -6,10 +6,14 @@ import random
 import asyncio
 import functools
 import traceback
+
+import aiohttp
 import msoffcrypto
 import pandas as pd
 
 from getpass import getpass
+
+import python_socks
 from termcolor import cprint
 from utils.networks import *
 from datetime import datetime, timedelta
@@ -84,24 +88,24 @@ def get_accounts_data():
                 account_name = row["Name"]
                 private_key = row["Private Key"]
                 proxy = row["Proxy"]
-                okx_address = row['OKX address']
+                cex_address = row['OKX address']
                 accounts_data[int(index) + 1] = {
                     "account_number": account_name,
                     "private_key": private_key,
                     "proxy": proxy,
-                    "okx_wallet": okx_address,
+                    "cex_wallet": cex_address,
                 }
 
-            acc_name, priv_key, proxy, okx_wallet = [], [], [], []
+            acc_name, priv_key, proxy, cex_wallet = [], [], [], []
             for k, v in accounts_data.items():
                 acc_name.append(v['account_number'] if isinstance(v['account_number'], (int, str)) else None)
                 priv_key.append(v['private_key'])
                 proxy.append(v['proxy'] if isinstance(v['proxy'], str) else None)
-                okx_wallet.append(v['okx_wallet'] if isinstance(v['okx_wallet'], str) else None)
+                cex_wallet.append(v['cex_wallet'] if isinstance(v['cex_wallet'], str) else None)
 
             acc_name = [str(item) for item in acc_name if item is not None]
             proxy = [item for item in proxy if item is not None]
-            okx_wallet = [item for item in okx_wallet if item is not None]
+            okx_wallet = [item for item in cex_wallet if item is not None]
 
             return acc_name, priv_key, proxy, okx_wallet
     except (DecryptionError, InvalidKeyError, DecryptionError, ValueError):
@@ -209,10 +213,10 @@ def helper(func):
                         PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
                         BlockchainExceptionWithoutRetry, asyncio.exceptions.TimeoutError, ValueError,
                         ContractLogicError, ClientResponseError, CriticalException
-                    ) as err:
+                ) as err:
                     error = err
                     attempts += 1
-
+                    traceback.print_exc()
                     msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
 
                     if 'rate limit' in str(error) or '429' in str(error):
@@ -220,7 +224,10 @@ def helper(func):
                         await asyncio.sleep(60)
                         no_sleep_flag = True
 
-                    elif isinstance(error, asyncio.exceptions.TimeoutError):
+                    elif isinstance(error, (
+                            aiohttp.client_exceptions.ClientProxyConnectionError, asyncio.exceptions.TimeoutError,
+                            aiohttp.client_exceptions.ClientHttpProxyError, python_socks.ProxyError
+                    )):
                         self.logger_msg(
                             *self.client.acc_info,
                             msg=f"Connection to RPC is not stable. Will try again in 1 min...",
@@ -267,7 +274,6 @@ def helper(func):
                     msg = f'Unknown Error. Description: {error}'
                     self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
                     traceback.print_exc()
-                    break
         finally:
             await self.client.session.close()
         return False
@@ -346,3 +352,4 @@ async def get_eth_price():
                     return data['ethereum']['usd']
     except Exception as error:
         cprint(f'\nError in <get_eth_price> function! Error: {error}\n', color='light_red')
+        sys.exit()
