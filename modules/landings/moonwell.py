@@ -17,7 +17,7 @@ class Moonwell(Landing, Logger):
             MOONWELL_CONTRACTS[self.network]['weth_pool'], MOONWELL_ABI['weth_pool']
         )
         self.market_contract = self.client.get_contract(
-            MOONWELL_CONTRACTS[self.network]['market'], MOONWELL_ABI['weth_pool']
+            MOONWELL_CONTRACTS[self.network]['market'], MOONWELL_ABI['market']
         )
 
     @helper
