@@ -64,7 +64,7 @@ class Moonwell(Landing, Logger):
 
         tx_params = await self.client.prepare_transaction()
 
-        transaction = await self.landing_contract.functions.enterMarkets(
+        transaction = await self.market_contract.functions.enterMarkets(
             [self.pool_contract.address]
         ).build_transaction(tx_params)
 
@@ -77,7 +77,7 @@ class Moonwell(Landing, Logger):
 
         tx_params = await self.client.prepare_transaction()
 
-        transaction = await self.landing_contract.functions.exitMarket(
+        transaction = await self.market_contract.functions.exitMarket(
             self.pool_contract.address
         ).build_transaction(tx_params)
 
