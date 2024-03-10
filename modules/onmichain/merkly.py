@@ -56,7 +56,7 @@ class Merkly(Refuel, Minter, Logger):
     ):
         dst_data = random.choice(list(attack_data.items()))
         dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
-        dst_amount = await self.client.get_smart_amount(*dst_data[1])
+        dst_amount = await self.client.get_smart_amount(dst_data[1])
 
         if not need_check:
             refuel_info = f'{dst_amount} {dst_native_name} to {dst_chain_name} from {self.client.network.name}'
