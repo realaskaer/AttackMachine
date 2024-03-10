@@ -1,6 +1,6 @@
-import json
 from time import time
 from eth_abi import abi
+from zksync2.transaction.transaction_builders import TxFunctionCall
 from general_settings import SLIPPAGE
 from modules import DEX, Logger, Client
 from settings import ZKSYNC_PAYMASTER_TOKEN
@@ -281,7 +281,7 @@ class SyncSwap(DEX, Logger):
                     "gasLimit": transaction['gas'],
                     "gasPerPubdataByteLimit": 50000,
                     "maxFeePerGas": transaction['maxFeePerGas'],
-                    "maxPriorityFeePerGas": transaction['maxPriorityFeePerGas'],
+                    "maxPriorityFeePerGas": transaction['maxFeePerGas'],
                     "paymaster": int(self.paymaster_contract.address, 16),
                     "nonce": transaction['nonce'],
                     "value": amount_in_wei if from_token_name == 'ETH' else 0,
@@ -295,10 +295,30 @@ class SyncSwap(DEX, Logger):
                 self.client.private_key, full_message=typed_data
             ).signature
 
-            paymaster_additional = self.client.w3.to_hex(signature)[2:] + paymaster_input[2:]
-            signed_tx = self.client.w3.eth.account.sign_transaction(transaction, self.client.private_key).rawTransaction
-            full_tx = "0x71" + self.client.w3.to_hex(signed_tx)[4:] + paymaster_additional
-            
+            class PaymasterParams:
+                def __init__(self, paymaster_address, paymaster_input):
+                    self.paymaster = paymaster_address
+                    self.paymaster_input = paymaster_input
+
+            paymaster_params = PaymasterParams(
+                self.paymaster_contract.address, self.client.w3.to_bytes(hexstr=paymaster_input)
+            )
+
+            tx_encode = TxFunctionCall(
+                from_=self.client.w3.to_hex(hexstr=self.client.address),
+                to=self.router_contract.address,
+                value=amount_in_wei if from_token_name == 'ETH' else 0,
+                chain_id=self.client.chain_id,
+                nonce=transaction['nonce'],
+                data=transaction['data'],
+                gas_limit=transaction['gas'],
+                gas_price=transaction['maxFeePerGas'],
+                paymaster_params=paymaster_params,
+                custom_signature=self.client.w3.to_bytes(signature),
+            ).tx712(transaction['gas'])
+
+            full_tx = f'0x{tx_encode.encode().hex()}'
+
             return await self.client.send_transaction(send_mode=True, signed_tx=full_tx)
 
         return await self.client.send_transaction(transaction)

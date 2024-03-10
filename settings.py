@@ -595,7 +595,8 @@ HELPERS_CONFIG = {
     swap_pancake                     
     swap_rango                       
     swap_spacefi                     
-    swap_syncswap                    
+    swap_syncswap
+    swap_syncswap_paymaster                   
     swap_velocore                    
     swap_xyfinance                   
     swap_vesync                      
