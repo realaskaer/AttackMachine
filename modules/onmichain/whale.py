@@ -135,7 +135,14 @@ class Whale(Refuel, Logger, RequestClient):
 
         transaction = await onft_contract.functions.mint().build_transaction(tx_params)
 
-        return await self.client.send_transaction(transaction)
+        result = await self.client.send_transaction(transaction)
+
+        if self.client.network.name == 'Polygon':
+            await sleep(self, 300, 400)
+        else:
+            await sleep(self, 100, 200)
+
+        return result
 
     @helper
     async def bridge(
@@ -149,7 +156,6 @@ class Whale(Refuel, Logger, RequestClient):
             nft_id = await self.get_nft_id()
             if not nft_id:
                 await self.mint(chain_from_id)
-                await sleep(self, 25, 30)
                 nft_id = await self.get_nft_id()
 
             self.logger_msg(

@@ -107,7 +107,14 @@ class L2Pass(Refuel, Minter, Logger):
             '0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5'
         ).build_transaction(tx_params)
 
-        return await self.client.send_transaction(transaction)
+        result = await self.client.send_transaction(transaction)
+
+        if self.client.network.name == 'Polygon':
+            await sleep(self, 300, 400)
+        else:
+            await sleep(self, 100, 200)
+
+        return result
 
     @helper
     async def bridge(
@@ -122,7 +129,6 @@ class L2Pass(Refuel, Minter, Logger):
 
             if not nft_id:
                 await self.mint(chain_from_id)
-                await sleep(self, 25, 30)
                 nft_id = await self.get_nft_id(onft_contract)
 
             self.logger_msg(
