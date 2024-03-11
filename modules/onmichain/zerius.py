@@ -119,7 +119,7 @@ class Zerius(Refuel, Minter, Logger):
             await sleep(self, 100, 200)
 
         return result
-    
+
     @helper
     async def bridge(
             self, chain_from_id: int, attack_data: int, google_mode: bool = False, need_check: bool = False

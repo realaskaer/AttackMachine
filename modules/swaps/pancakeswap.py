@@ -45,7 +45,7 @@ class PancakeSwap(DEX, Logger):
             }
         }[self.client.network.name]
 
-        if 'USDC' in [from_token_name, to_token_name] or self.client.network.name in ['Polygon zkEVM']:
+        if 'USDT' not in [from_token_name, to_token_name] or self.client.network.name in ['Polygon zkEVM']:
             from_token_bytes = HexBytes(from_token_address).rjust(20, b'\0')
             to_token_bytes = HexBytes(to_token_address).rjust(20, b'\0')
             fee_bytes = pool_fee_info[f"{from_token_name}/{to_token_name}"].to_bytes(3, 'big')
