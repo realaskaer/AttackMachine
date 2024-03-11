@@ -534,6 +534,7 @@ HELPERS_CONFIG = {
     bitget_deposit                   # ввод средств на биржу + сбор средств на субАккаунтов на основной счет
         
     custom_swap                      # производит свап по настройке CUSTOM_SWAP_DATA
+    swap_bridged_usdc                # производит свап USDC.e на USDC через Uniswap для сети Polygon 
     collector_eth                    # сбор всех токенов на аккаунте в ETH
     make_balance_to_average          # уравнивает ваши балансы на аккаунтах (см. CEX_BALANCER_CONFIG) 
     
