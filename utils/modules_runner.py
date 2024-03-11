@@ -300,6 +300,12 @@ class Runner(Logger):
                     try:
                         result = await module_func(*module_input_data)
                         break
+                    except KeyError as error:
+                        msg = f"Setting '{error}' for this module is not exist in software!"
+                        self.logger_msg(account_name, None, msg=msg, type_msg='error')
+                        result = False
+                        break
+
                     except (aiohttp.client_exceptions.ClientProxyConnectionError, asyncio.exceptions.TimeoutError,
                             aiohttp.client_exceptions.ClientHttpProxyError, python_socks.ProxyError):
                         self.logger_msg(

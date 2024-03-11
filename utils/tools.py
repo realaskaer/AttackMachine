@@ -6,21 +6,20 @@ import random
 import asyncio
 import functools
 import traceback
-
-import aiohttp
 import msoffcrypto
 import pandas as pd
 
 from getpass import getpass
-
-import python_socks
-from termcolor import cprint
 from utils.networks import *
+from termcolor import cprint
+from python_socks import ProxyError
 from datetime import datetime, timedelta
-from web3.exceptions import ContractLogicError
+from asyncio.exceptions import TimeoutError
 from web3 import AsyncWeb3, AsyncHTTPProvider
+from web3.exceptions import ContractLogicError
 from aiohttp import ClientSession, TCPConnector, ClientResponseError
 from msoffcrypto.exceptions import DecryptionError, InvalidKeyError
+from aiohttp.client_exceptions import ClientProxyConnectionError, ClientHttpProxyError
 
 from general_settings import (
     SLEEP_TIME,
@@ -211,22 +210,26 @@ def helper(func):
                     return await func(self, *args, **kwargs)
                 except (
                         PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
-                        BlockchainExceptionWithoutRetry, asyncio.exceptions.TimeoutError, ValueError,
-                        ContractLogicError, ClientResponseError, CriticalException
+                        BlockchainExceptionWithoutRetry, ValueError, ContractLogicError, ClientProxyConnectionError,
+                        TimeoutError, ClientHttpProxyError, ProxyError, ClientResponseError, CriticalException, KeyError
                 ) as err:
                     error = err
                     attempts += 1
 
                     msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
 
-                    if 'rate limit' in str(error) or '429' in str(error):
+                    if isinstance(error, KeyError):
+                        stop_flag = True
+                        msg = f"Setting '{error}' for this module is not exist in software!"
+
+                    elif 'rate limit' in str(error) or '429' in str(error):
                         msg = f'Rate limit exceeded. Will try again in 1 min...'
                         await asyncio.sleep(60)
                         no_sleep_flag = True
 
                     elif isinstance(error, (
-                            aiohttp.client_exceptions.ClientProxyConnectionError, asyncio.exceptions.TimeoutError,
-                            aiohttp.client_exceptions.ClientHttpProxyError, python_socks.ProxyError
+                            ClientProxyConnectionError, TimeoutError, ClientHttpProxyError, ProxyError,
+                            ClientResponseError
                     )):
                         self.logger_msg(
                             *self.client.acc_info,
@@ -264,8 +267,10 @@ def helper(func):
                         break
 
                     if attempts > MAXIMUM_RETRY and not infinity_flag:
-                        self.logger_msg(self.client.account_name,
-                                        None, msg=f"Tries are over, software will stop module\n", type_msg='error')
+                        self.logger_msg(
+                            self.client.account_name, None,
+                            msg=f"Tries are over, software will stop module\n", type_msg='error'
+                        )
                     else:
                         if not no_sleep_flag:
                             await sleep(self, *SLEEP_TIME_RETRY)
