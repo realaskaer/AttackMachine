@@ -522,19 +522,19 @@ class Custom(Logger, RequestClient):
         chains = STARGATE_CHAINS
         tokens = ['STG' for _ in range(len(chains))]
         converted_chains = copy.deepcopy(chains)
+        random.shuffle(converted_chains)
+        if any([isinstance(item, tuple) for item in chains]):
+            new_chains = []
+            for item in chains:
+                if isinstance(item, tuple):
+                    new_chains.extend(item)
+                else:
+                    new_chains.append(item)
+            converted_chains = new_chains
 
         counter = 0
         while True:
-            random.shuffle(converted_chains)
-            if any([isinstance(item, tuple) for item in chains]):
-                new_chains = []
-                for item in chains:
-                    if isinstance(item, tuple):
-                        new_chains.extend(item)
-                    else:
-                        new_chains.append(item)
-                converted_chains = new_chains
-
+            
             current_client, index, balance, balance_in_wei, balances_in_usd = await self.balance_searcher(
                 converted_chains, tokens, omni_check=True
             )
@@ -566,8 +566,6 @@ class Custom(Logger, RequestClient):
                     converted_chains.remove(converted_chains[index])
                 else:
                     raise error
-
-
 
     @helper
     @gas_checker
