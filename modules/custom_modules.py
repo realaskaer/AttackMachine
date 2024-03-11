@@ -6,7 +6,7 @@ import aiohttp.client_exceptions
 import python_socks
 
 from modules import Logger, RequestClient, Client
-from general_settings import AMOUNT_PERCENT_WRAPS, GLOBAL_NETWORK
+from general_settings import AMOUNT_PERCENT_WRAPS
 from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry, CriticalException
 from utils.tools import helper, gas_checker, sleep
 from config import (
@@ -15,7 +15,7 @@ from config import (
     COINGECKO_TOKEN_API_NAMES, BITGET_NETWORKS_NAME
 )
 from settings import (
-    CEX_BALANCE_WANTED, STARGATE_CHAINS, STARGATE_TOKENS, L2PASS_ATTACK_NFT, ZERIUS_ATTACK_NFT,
+    CEX_BALANCER_CONFIG, STARGATE_CHAINS, STARGATE_TOKENS, L2PASS_ATTACK_NFT, ZERIUS_ATTACK_NFT,
     SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_WITHDRAW_DATA, BINANCE_DEPOSIT_DATA,
     BINGX_WITHDRAW_DATA, SHUFFLE_NFT_ATTACK, BINANCE_WITHDRAW_DATA, ALL_DST_CHAINS,
     CEX_DEPOSIT_LIMITER, RHINO_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, ORBITER_CHAIN_ID_FROM,
@@ -108,44 +108,49 @@ class Custom(Logger, RequestClient):
 
         self.logger_msg(*self.client.acc_info, msg=f"Stark check all balance to make average")
 
-        cex_wanted, amount = CEX_BALANCE_WANTED
+        balancer_data_copy = copy.deepcopy(CEX_BALANCER_CONFIG)
 
-        func = {
-            1: okx_withdraw_util,
-            2: bingx_withdraw_util,
-            3: binance_withdraw_util,
-            4: bitget_withdraw,
-        }[cex_wanted]
+        count = 0
+        for data in balancer_data_copy:
+            while True:
+                try:
+                    cex_network, wanted_balance, cex_wanted, amount = data
 
-        cex_network = {
-            3: 6,
-            4: 5,
-            11: 4
-        }[GLOBAL_NETWORK]
+                    func, cex_config = {
+                        1: (okx_withdraw_util, OKX_NETWORKS_NAME),
+                        2: (bingx_withdraw_util, BINGX_NETWORKS_NAME),
+                        3: (binance_withdraw_util, BINGX_NETWORKS_NAME),
+                        4: (bitget_withdraw, BITGET_NETWORKS_NAME),
+                    }[cex_wanted]
 
-        amount = self.client.round_amount(*amount)
-        wanted_amount_in_usd = float(f'{amount * ETH_PRICE:.2f}')
+                    dapp_tokens = [f"{cex_config[cex_network].split('-')[0]}{'.e' if cex_network in [29, 30] else ''}"]
+                    dapp_chains = [CEX_WRAPPED_ID[cex_network]]
 
-        wallet_balance = {k: await self.client.get_token_balance(k, False)
-                          for k, v in TOKENS_PER_CHAIN[self.client.network.name].items()}
-        valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
-        eth_price = ETH_PRICE
+                    client, index, balance, balance_in_wei, balance_data = await self.balance_searcher(
+                        chains=dapp_chains, tokens=dapp_tokens, omni_check=False,
+                    )
 
-        if 'ETH' in valid_wallet_balance:
-            valid_wallet_balance['ETH'] = valid_wallet_balance['ETH'] * eth_price
+                    dep_token = dapp_tokens[index]
+                    balance_in_usd, token_price = balance_data
+                    wanted_amount_in_usd = float(f'{wanted_balance * token_price:.2f}')
 
-        valid_wallet_balance = {k: round(v, 7) for k, v in valid_wallet_balance.items()}
+                    if wanted_amount_in_usd > balance_in_usd:
+                        need_to_withdraw = float(f"{(wanted_amount_in_usd - balance_in_usd) / token_price:.6f}")
 
-        sum_balance_in_usd = sum(valid_wallet_balance.values())
+                        self.logger_msg(
+                            *self.client.acc_info, msg=f"Not enough balance on account, launch CEX withdraw module"
+                        )
 
-        if wanted_amount_in_usd > sum_balance_in_usd:
-            need_to_withdraw = float(f"{(wanted_amount_in_usd - sum_balance_in_usd) / eth_price:.6f}")
+                        await func(self.client, withdraw_data=(cex_network, (need_to_withdraw, need_to_withdraw)))
 
-            self.logger_msg(*self.client.acc_info, msg=f"Not enough balance on account, launch CEX withdraw module")
-
-            return await func(self.client, withdraw_data=(cex_network, (need_to_withdraw, need_to_withdraw)))
-
-        self.logger_msg(*self.client.acc_info, msg=f"Account have enough ETH balance", type_msg='success')
+                    self.logger_msg(
+                        *self.client.acc_info, msg=f"Account have enough {dep_token} balance", type_msg='success'
+                    )
+                except Exception as error:
+                    count += 1
+                    if count == 3:
+                        raise SoftwareException(f"Exception: {error}")
+                    self.logger_msg(*self.client.acc_info, msg=f"Exception: {error}", type_msg='error')
 
         return True
         # else:
@@ -534,7 +539,7 @@ class Custom(Logger, RequestClient):
 
         counter = 0
         while True:
-            
+
             current_client, index, balance, balance_in_wei, balances_in_usd = await self.balance_searcher(
                 converted_chains, tokens, omni_check=True
             )

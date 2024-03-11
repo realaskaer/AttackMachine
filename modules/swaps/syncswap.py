@@ -186,7 +186,7 @@ class SyncSwap(DEX, Logger):
                 fee_token = ZKSYNC_PAYMASTER_TOKEN
             else:
                 raise SoftwareException('ZKSYNC_PAYMASTER_TOKEN can be only "int" or "tuple" type')
-            
+
             fee_token_name = {
                 0: 'USDT',
                 1: 'USDC'

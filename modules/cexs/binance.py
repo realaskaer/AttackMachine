@@ -150,7 +150,7 @@ class Binance(CEX, Logger):
                 )
                 if not silent_mode:
                     break
-                    
+
         if flag and not silent_mode:
             self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
         return True
