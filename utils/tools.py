@@ -216,7 +216,7 @@ def helper(func):
                 ) as err:
                     error = err
                     attempts += 1
-                    traceback.print_exc()
+
                     msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
 
                     if 'rate limit' in str(error) or '429' in str(error):

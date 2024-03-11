@@ -149,8 +149,8 @@ class Whale(Refuel, Logger, RequestClient):
             nft_id = await self.get_nft_id()
             if not nft_id:
                 await self.mint(chain_from_id)
+                await sleep(self, 25, 30)
                 nft_id = await self.get_nft_id()
-                await sleep(self, 5, 10)
 
             self.logger_msg(
                 *self.client.acc_info,
