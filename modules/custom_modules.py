@@ -142,10 +142,11 @@ class Custom(Logger, RequestClient):
                         )
 
                         await func(self.client, withdraw_data=(cex_network, (need_to_withdraw, need_to_withdraw)))
-
-                    self.logger_msg(
-                        *self.client.acc_info, msg=f"Account have enough {dep_token} balance", type_msg='success'
-                    )
+                    else:
+                        self.logger_msg(
+                            *self.client.acc_info, msg=f"Account have enough {dep_token} balance", type_msg='success'
+                        )
+                        return True
                 except Exception as error:
                     count += 1
                     if count == 3:
