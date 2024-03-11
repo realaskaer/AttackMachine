@@ -161,10 +161,10 @@ class Custom(Logger, RequestClient):
         from functions import swap_odos, swap_oneinch, swap_xyfinance
 
         func = {
-            'Base': [swap_odos, swap_oneinch, swap_xyfinance],
+            'Base': [swap_odos, swap_oneinch],
             'Linea': [swap_xyfinance],
             'Scroll': [swap_xyfinance],
-            'zkSync': [swap_xyfinance, swap_odos, swap_oneinch]
+            'zkSync': [swap_odos, swap_oneinch]
         }[self.client.network.name]
 
         current_tokens = list(TOKENS_PER_CHAIN[self.client.network.name].items())[:2]
