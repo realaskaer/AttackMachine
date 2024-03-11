@@ -955,9 +955,9 @@ MAVERICK_CONTRACTS = {
         "pool_information"      : '0x6E230D0e457Ea2398FB3A22FB7f9B7F68F06a14d',
         "position"              : '0x0d8127A01bdb311378Ed32F5b81690DD917dBa35',
         "position_inspector"    : '0x550056A68cB155b6Cc3DeF4A7FA656260e7842e2',
-        "DAI-USDbC"             : "0xdcC8A6bA71A6C0053cBB32F935e9B4B64d465ea3",
+        "DAI-USDC.e"            : "0xdcC8A6bA71A6C0053cBB32F935e9B4B64d465ea3",
         "cbETH-ETH"             : "0x2CeBCF66F023AA88003593804504a8DF882D12E6",
-        "ETH-USDbC"             : "0x06e6736cA9e922766279A22b75A600Fe8B8473B6",
+        "ETH-USDC.e"            : "0x06e6736cA9e922766279A22b75A600Fe8B8473B6",
         "DAI-USDC"              : "0x1B55d94B553475e7561fab889bf88Fe4f491D29c",
         "ETH-USDC"              : "0x3D70b2F31F75dC84acDd5e1588695221959b2d37",
         "ETH-DAI"               : "0x5BDb08Ae195C8F085704582A27D566028A719265"
