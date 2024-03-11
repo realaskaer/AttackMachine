@@ -170,7 +170,9 @@ class Stargate(Logger):
         vestg_contract = self.client.get_contract(vestg_contract_address, VESTG_ABI)
         deadline = int(int(time.time()) + (lock_time * 24 * 60 * 60))
 
-        await self.client.check_for_approved(stg_contract_address, vestg_contract_address, stake_amount_in_wei)
+        await self.client.check_for_approved(
+            stg_contract_address, vestg_contract_address, stake_amount_in_wei, unlimited_approve=True
+        )
 
         transaction = await vestg_contract.functions.create_lock(
             stake_amount_in_wei,

@@ -106,11 +106,12 @@ class Custom(Logger, RequestClient):
     async def balance_average(self):
         from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util, bitget_withdraw
 
-        self.logger_msg(*self.client.acc_info, msg=f"Stark check all balance to make average")
+        self.logger_msg(*self.client.acc_info, msg=f"Start check all balance to make average")
 
         balancer_data_copy = copy.deepcopy(CEX_BALANCER_CONFIG)
 
         count = 0
+        client = None
         for data in balancer_data_copy:
             while True:
                 try:
@@ -141,7 +142,7 @@ class Custom(Logger, RequestClient):
                             *self.client.acc_info, msg=f"Not enough balance on account, launch CEX withdraw module"
                         )
 
-                        await func(self.client, withdraw_data=(cex_network, (need_to_withdraw, need_to_withdraw)))
+                        await func(client, withdraw_data=(cex_network, (need_to_withdraw, need_to_withdraw)))
                     else:
                         self.logger_msg(
                             *self.client.acc_info, msg=f"Account have enough {dep_token} balance", type_msg='success'
@@ -152,7 +153,9 @@ class Custom(Logger, RequestClient):
                     if count == 3:
                         raise SoftwareException(f"Exception: {error}")
                     self.logger_msg(*self.client.acc_info, msg=f"Exception: {error}", type_msg='error')
-
+                finally:
+                    if client:
+                        await client.session.close()
         return True
         # else:
         #     fee = random.uniform(0.5, 1)
@@ -550,7 +553,6 @@ class Custom(Logger, RequestClient):
 
             amount = await current_client.get_smart_amount(STG_STAKE_CONFIG[1], token_name='STG', omnicheck=True)
             stake_amount = round(amount, 6)
-
             stake_amount_in_wei = current_client.to_wei(stake_amount, 18)
             lock_time = int((random.randint(*STG_STAKE_CONFIG[0]) * 30))
             if lock_time == 0:
