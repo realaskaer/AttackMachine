@@ -127,7 +127,7 @@ class Custom(Logger, RequestClient):
                     dapp_chains = [CEX_WRAPPED_ID[cex_network]]
 
                     client, index, balance, balance_in_wei, balance_data = await self.balance_searcher(
-                        chains=dapp_chains, tokens=dapp_tokens, omni_check=False,
+                        chains=dapp_chains, tokens=dapp_tokens, omni_check=False, silent_mode=True
                     )
 
                     dep_token = dapp_tokens[index]
@@ -467,7 +467,9 @@ class Custom(Logger, RequestClient):
 
         return True
 
-    async def balance_searcher(self, chains, tokens=None, omni_check:bool = True, native_check:bool = False):
+    async def balance_searcher(
+            self, chains, tokens=None, omni_check:bool = True, native_check:bool = False, silent_mode:bool = False
+    ):
         index = 0
         clients = []
         while True:
@@ -500,11 +502,12 @@ class Custom(Logger, RequestClient):
                     if index_client != index:
                         await client.session.close()
 
-                self.logger_msg(
-                    *self.client.acc_info,
-                    msg=f"Detected {round(balances[index][1], 5)} {tokens[index]} in {clients[index].network.name}",
-                    type_msg='success'
-                )
+                if not silent_mode:
+                    self.logger_msg(
+                        *self.client.acc_info,
+                        msg=f"Detected {round(balances[index][1], 5)} {tokens[index]} in {clients[index].network.name}",
+                        type_msg='success'
+                    )
 
                 return clients[index], index, balances[index][1], balances[index][0], balances_in_usd[index]
 
