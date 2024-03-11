@@ -106,11 +106,15 @@ class OKX(CEX, Logger):
 
                 url_transfer = "https://www.okx.cab/api/v5/asset/transfer"
                 headers = await self.get_headers(method="POST", request_path=url_transfer, body=str(body))
-                await self.make_request(method="POST", url=url_transfer, data=str(body), headers=headers,
-                                        module_name='SubAccount transfer')
+                await self.make_request(
+                    method="POST", url=url_transfer, data=str(body), headers=headers, module_name='SubAccount transfer'
+                )
 
-                self.logger_msg(*self.client.acc_info,
-                                msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success')
+                self.logger_msg(
+                    *self.client.acc_info, msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success'
+                )
+                if not silent_mode:
+                    break
         if flag and not silent_mode:
             self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
         return True

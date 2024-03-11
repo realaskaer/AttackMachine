@@ -145,10 +145,12 @@ class Binance(CEX, Logger):
                         else:
                             raise error
 
-                self.logger_msg(*self.client.acc_info,
-                                msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success')
-
-                break
+                self.logger_msg(
+                    *self.client.acc_info, msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success'
+                )
+                if not silent_mode:
+                    break
+                    
         if flag and not silent_mode:
             self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
         return True
@@ -220,6 +222,8 @@ class Binance(CEX, Logger):
             amount = round(await self.get_balance(ccy=ccy) * float(amount), 6)
         else:
             amount = self.client.round_amount(*amount)
+
+        await self.transfer_from_subaccounts(ccy=ccy, silent_mode=True)
 
         self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
 

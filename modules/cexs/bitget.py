@@ -104,7 +104,7 @@ class Bitget(CEX, Logger):
         headers = self.get_headers('GET', path, params=params)
         return await self.make_request(url=url, params=params, headers=headers, module_name='Main account balance')
 
-    async def transfer_from_subaccounts(self, ccy: str = 'ETH', amount: float = None):
+    async def transfer_from_subaccounts(self, ccy: str = 'ETH', amount: float = None, silent_mode:bool = False):
 
         if ccy == 'USDC.e':
             ccy = 'USDC'
@@ -125,6 +125,7 @@ class Bitget(CEX, Logger):
 
                 if ccy_sub_balance != 0.0:
                     flag = False
+                    amount = amount if amount else ccy_sub_balance
                     self.logger_msg(
                         *self.client.acc_info, msg=f'{sub_id} | subAccount balance : {ccy_sub_balance} {ccy}')
 
@@ -146,8 +147,12 @@ class Bitget(CEX, Logger):
                     await self.make_request(
                         method="POST", url=url, json=payload, headers=headers, module_name='SubAccount transfer')
 
-                    self.logger_msg(*self.client.acc_info,
-                                    msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success')
+                    self.logger_msg(
+                        *self.client.acc_info,
+                        msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success'
+                    )
+                    if not silent_mode:
+                        break
         if flag:
             self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
         return True
@@ -220,6 +225,8 @@ class Bitget(CEX, Logger):
             amount = round(await self.get_balance(ccy=ccy) * float(amount), 6)
         else:
             amount = self.client.round_amount(*amount)
+
+        await self.transfer_from_subaccounts(ccy=ccy, silent_mode=True)
 
         self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
 

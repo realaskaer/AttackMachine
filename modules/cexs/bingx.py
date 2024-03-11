@@ -103,7 +103,7 @@ class BingX(CEX, Logger):
         return await self.make_request(url=url, headers=self.headers, content_type=None,
                                        module_name='Get main account balance')
 
-    async def transfer_from_subaccounts(self, ccy: str = 'ETH', amount: float = None):
+    async def transfer_from_subaccounts(self, ccy: str = 'ETH', amount: float = None, silent_mode:bool = False):
 
         if ccy == 'USDC.e':
             ccy = 'USDC'
@@ -125,6 +125,7 @@ class BingX(CEX, Logger):
 
                 if sub_balance != 0.0:
                     flag = False
+                    amount = amount if amount else sub_balance
                     self.logger_msg(*self.client.acc_info, msg=f'{sub_name} | subAccount balance : {sub_balance} {ccy}')
 
                     params = {
@@ -142,8 +143,12 @@ class BingX(CEX, Logger):
                     await self.make_request(
                         method="POST", url=url, headers=self.headers, module_name='SubAccount transfer')
 
-                    self.logger_msg(*self.client.acc_info,
-                                    msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success')
+                    self.logger_msg(
+                        *self.client.acc_info,
+                        msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success'
+                    )
+                    if not silent_mode:
+                        break
         if flag:
             self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
         return True
@@ -236,6 +241,8 @@ class BingX(CEX, Logger):
             amount = await self.get_balance(ccy)
         else:
             amount = self.client.round_amount(*amount)
+
+        await self.transfer_from_subaccounts(ccy=ccy, silent_mode=True)
 
         self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
 
