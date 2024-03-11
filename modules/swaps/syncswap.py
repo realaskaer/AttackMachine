@@ -1,3 +1,4 @@
+import random
 from time import time
 from eth_abi import abi
 from zksync2.transaction.transaction_builders import TxFunctionCall
@@ -179,10 +180,17 @@ class SyncSwap(DEX, Logger):
             ).build_transaction(tx_params)
 
         if paymaster_mode:
+            if isinstance(ZKSYNC_PAYMASTER_TOKEN, (tuple, list)):
+                fee_token = random.choice(ZKSYNC_PAYMASTER_TOKEN)
+            elif isinstance(ZKSYNC_PAYMASTER_TOKEN, int):
+                fee_token = ZKSYNC_PAYMASTER_TOKEN
+            else:
+                raise SoftwareException('ZKSYNC_PAYMASTER_TOKEN can be only "int" or "tuple" type')
+            
             fee_token_name = {
                 0: 'USDT',
                 1: 'USDC'
-            }[ZKSYNC_PAYMASTER_TOKEN]
+            }[fee_token]
 
             fee_token_address = TOKENS_PER_CHAIN[self.client.network.name][fee_token_name]
             min_allowance = int(2000 * 10 ** 6)
