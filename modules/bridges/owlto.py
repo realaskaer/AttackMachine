@@ -1,7 +1,8 @@
 import datetime
 
 from modules import Bridge, Logger
-from modules.interfaces import BridgeExceptionWithoutRetry, SoftwareExceptionWithoutRetry, RequestClient
+from modules.interfaces import BridgeExceptionWithoutRetry, SoftwareExceptionWithoutRetry, RequestClient, \
+    SoftwareException
 from config import CHAIN_NAME_FROM_ID, OWLTO_CONTRACT, OWLTO_ABI
 from web3 import AsyncWeb3
 from utils.tools import helper, gas_checker
@@ -154,10 +155,17 @@ class Owlto(Bridge, Logger, RequestClient):
             'chainId': self.client.chain_id,
             'userAddress': self.client.address
         }
+        try:
+            response = await self.make_request(url=url, params=params)
 
-        response = await self.make_request(url=url, params=params)
+            if response['message'] == 'success':
+                self.logger_msg(*self.client.acc_info, msg=f"Successfully made check-in on Owlto", type_msg='success')
+            else:
+                raise SoftwareExceptionWithoutRetry('Bad request to Owlto API(Check-in)')
+        except (SoftwareException, SoftwareExceptionWithoutRetry):
+            self.logger_msg(
+                *self.client.acc_info, msg=f"This wallet already made check-in on Owlto", type_msg='warning'
+            )
+            return False
 
-        if response['message'] == 'success':
-            self.logger_msg(*self.client.acc_info, msg=f"Successfully made check-in on Owlto", type_msg='success')
-            return True
-        raise SoftwareExceptionWithoutRetry('Bad request to Owlto API(Check-in)')
+        return True
