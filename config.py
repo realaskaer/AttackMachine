@@ -1068,7 +1068,7 @@ BUNGEE_CONTRACTS = {
     'Gnosis':{
         'gas_refuel': '0xBE51D38547992293c89CC589105784ab60b004A9'
     },
-    'BSC':{
+    'BNB Chain':{
         'gas_refuel': '0xBE51D38547992293c89CC589105784ab60b004A9'
     },
     'Polygon':{
