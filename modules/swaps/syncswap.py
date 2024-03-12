@@ -119,11 +119,14 @@ class SyncSwap(DEX, Logger):
 
     @helper
     @gas_checker
-    async def swap(self, swapdata: tuple = None, paymaster_mode:bool = False):
+    async def swap(self, swapdata: tuple = None, help_deposit: bool = False, paymaster_mode:bool = False):
         if swapdata:
             from_token_name, to_token_name, amount, amount_in_wei = swapdata
         else:
             from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
+
+        if help_deposit:
+            to_token_name = 'ETH'
 
         self.logger_msg(*self.client.acc_info, msg=f'Swap on SyncSwap: {amount} {from_token_name} -> {to_token_name}')
 
@@ -351,8 +354,8 @@ class SyncSwap(DEX, Logger):
         min_lp_amount_out = int(amount_in_wei * total_supply / reserve_eth / 2 * 0.9965)
 
         inputs = [
-            (token_b_address, 0),
-            (ZERO_ADDRESS, amount_in_wei)
+            (token_b_address, 0, True),
+            (ZERO_ADDRESS, amount_in_wei, True)
         ]
 
         tx_params = await self.client.prepare_transaction(value=amount_in_wei)

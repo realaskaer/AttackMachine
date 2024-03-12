@@ -281,14 +281,14 @@ class Client(Logger):
         return amount_in_wei, amount_in_wei / 10 ** 18, self.network.token
 
     async def check_and_get_eth(self, settings: tuple = None) -> [float, int]:
-        from functions import swap_odos, swap_oneinch, swap_izumi, swap_syncswap, swap_rango
+        from functions import swap_odos, swap_oneinch, swap_izumi, swap_syncswap
 
         try:
             func = {
-                'Base': [swap_rango, swap_izumi, swap_odos, swap_oneinch],
+                'Base': [swap_izumi, swap_odos, swap_oneinch],
                 'Linea': [swap_izumi, swap_syncswap],
                 'Scroll': [swap_izumi, swap_syncswap],
-                'zkSync': [swap_rango, swap_izumi, swap_syncswap, swap_odos, swap_oneinch]
+                'zkSync': [swap_izumi, swap_syncswap, swap_odos, swap_oneinch]
             }[self.network.name]
 
             module_func = random.choice(func)

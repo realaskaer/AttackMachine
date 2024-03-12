@@ -90,14 +90,11 @@ class Rango(RequestClient, Logger):
 
     @helper
     @gas_checker
-    async def swap(self, help_deposit: bool = False, swapdata: tuple = None):
+    async def swap(self, swapdata: tuple = None):
         if not swapdata:
             from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount('Rango')
         else:
             from_token_name, to_token_name, amount, amount_in_wei = swapdata
-
-        if help_deposit:
-            to_token_name = 'ETH'
 
         self.logger_msg(
             *self.client.acc_info, msg=f"Swap on Rango.Exchange: {amount} {from_token_name} -> {to_token_name}")
