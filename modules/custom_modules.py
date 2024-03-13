@@ -379,7 +379,7 @@ class Custom(Logger, RequestClient):
                 chains, tokens
             )
         else:
-            current_client = self.client
+            current_client = await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[networks])
 
         funcs = {
             'Arbitrum': [swap_oneinch, swap_odos],
