@@ -29,7 +29,7 @@ from settings import (
     DST_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_HYPERLANE, WORMHOLE_TOKENS_AMOUNT, HYPERLANE_TOKENS_AMOUNT,
     DST_CHAIN_MERKLY_POLYHEDRA_REFUEL, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME,
     L0_BRIDGE_COUNT, CUSTOM_SWAP_DATA, BITGET_DEPOSIT_DATA, BITGET_WITHDRAW_DATA, STG_STAKE_CONFIG, NITRO_CHAIN_ID_FROM,
-    NITRO_TOKEN_NAME, STARGATE_DUST_CONFIG
+    NITRO_TOKEN_NAME, STARGATE_DUST_CONFIG, STARGATE_AMOUNT, COREDAO_AMOUNT
 )
 
 
@@ -235,9 +235,9 @@ class Custom(Logger, RequestClient):
     async def smart_bridge_l0(self, dapp_id:int = None, dust_mode:bool = False):
         from functions import Stargate, CoreDAO
 
-        class_name, tokens, chains = {
-            1: (Stargate, STARGATE_TOKENS, STARGATE_CHAINS),
-            2: (CoreDAO, COREDAO_TOKENS, COREDAO_CHAINS)
+        class_name, tokens, chains, amounts = {
+            1: (Stargate, STARGATE_TOKENS, STARGATE_CHAINS, STARGATE_AMOUNT),
+            2: (CoreDAO, COREDAO_TOKENS, COREDAO_CHAINS, COREDAO_AMOUNT)
         }[dapp_id]
 
         if dust_mode:
@@ -328,8 +328,7 @@ class Custom(Logger, RequestClient):
             else:
                 decimals = 18
 
-            amount_in_wei = balance_in_wei if from_token_name != 'ETH' else self.client.to_wei(
-                (await current_client.get_smart_amount(need_percent=True)), decimals)
+            amount_in_wei = self.client.to_wei((await current_client.get_smart_amount(amounts)), decimals)
 
             if dust_mode:
                 amount_in_wei = int(amount_in_wei * random.uniform(0.0000001, 0.0000003))
