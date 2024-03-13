@@ -30,7 +30,8 @@ class Bungee(Refuel, Bridge, Logger):
         async with self.client.session.get(url=url) as response:
             if response.status == 200:
                 data = await response.json()
-                return [chain for chain in data['result'] if chain['name'] == self.network][0]
+                network_name = self.network if self.network != 'BNB Chain' else 'BSC'
+                return [chain for chain in data['result'] if chain['name'] == network_name][0]
             raise SoftwareException(f'Bad request to Bungee API: {response.status}')
 
     @helper
