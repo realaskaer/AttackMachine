@@ -204,53 +204,53 @@ class Client(Logger):
         client = await self.new_client(chain_id)
         if not token_name:
             token_name = self.token
+        while True:
+            try:
+                if check_balance_on_dst:
+                    if token_address:
+                        old_balance, _, _ = await client.get_token_balance(
+                            token_name=token_name, token_address=token_address, omnicheck=omnicheck
+                        )
+                    else:
+                        old_balance, _, _ = await client.get_token_balance(token_name, omnicheck=omnicheck)
+                    return old_balance
 
-        try:
-            if check_balance_on_dst:
-                if token_address:
-                    old_balance, _, _ = await client.get_token_balance(
-                        token_name=token_name, token_address=token_address, omnicheck=omnicheck
-                    )
-                else:
-                    old_balance, _, _ = await client.get_token_balance(token_name, omnicheck=omnicheck)
-                return old_balance
+                self.logger_msg(*self.acc_info, msg=f'Waiting {token_name} to receive')
 
-            self.logger_msg(*self.acc_info, msg=f'Waiting {token_name} to receive')
-
-            new_eth_balance = 0
-            while True:
-                try:
+                while True:
                     if token_address:
                         new_eth_balance, _, _ = await client.get_token_balance(
                             token_name=token_name, token_address=token_address, omnicheck=omnicheck
                         )
                     else:
                         new_eth_balance, _, _ = await client.get_token_balance(token_name, omnicheck=omnicheck)
-                except Exception as error:
-                    self.logger_msg(
-                        *self.acc_info, msg=f'Can`t get response from RPC. Error: {error}',
-                        type_msg='warning'
-                    )
 
-                if new_eth_balance > old_balance:
-                    decimals = 18
-                    if token_name != client.network.token:
-                        if token_address:
-                            decimals = await client.get_decimals(token_address=token_address, omnicheck=omnicheck)
-                        else:
-                            decimals = await client.get_decimals(token_name, omnicheck=omnicheck)
+                    if new_eth_balance > old_balance:
+                        decimals = 18
+                        if token_name != client.network.token:
+                            if token_address:
+                                decimals = await client.get_decimals(token_address=token_address, omnicheck=omnicheck)
+                            else:
+                                decimals = await client.get_decimals(token_name, omnicheck=omnicheck)
 
-                    amount = round((new_eth_balance - old_balance) / 10 ** decimals, 6)
-                    self.logger_msg(*self.acc_info, msg=f'{amount} {token_name} was received', type_msg='success')
-                    return True
-                else:
-                    self.logger_msg(*self.acc_info, msg=f'Still waiting {token_name} to receive...', type_msg='warning')
-                    await asyncio.sleep(sleep_time)
+                        amount = round((new_eth_balance - old_balance) / 10 ** decimals, 6)
+                        self.logger_msg(*self.acc_info, msg=f'{amount} {token_name} was received', type_msg='success')
+                        return True
+                    else:
+                        self.logger_msg(
+                            *self.acc_info, msg=f'Still waiting {token_name} to receive...', type_msg='warning'
+                        )
+                        await asyncio.sleep(sleep_time)
 
-        except Exception as error:
-            raise SoftwareException(f'Error in <WAIT FOR RECEIVING> function. Error: {error}')
-        finally:
-            await client.session.close()
+            except Exception as error:
+                self.logger_msg(
+                    *self.acc_info, msg=f'Bad response from RPC, will try again in 1 min. Error: {error}',
+                    type_msg='warning'
+                )
+                await asyncio.sleep(60)
+                await client.change_rpc()
+            finally:
+                await client.session.close()
 
     async def get_token_balance(
             self, token_name: str = None, check_symbol: bool = True, omnicheck: bool = False,
