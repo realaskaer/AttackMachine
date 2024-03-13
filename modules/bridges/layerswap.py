@@ -30,8 +30,16 @@ class LayerSwap(Bridge, Logger):
             "refuel": refuel
         }
 
-        return (await self.make_request(method='POST', url=url, headers=self.headers,
-                                        data=json.dumps(swap_rate_data)))['data']
+        response = (await self.make_request(
+            method='POST', url=url, headers=self.headers, data=json.dumps(swap_rate_data)
+        ))['data']
+
+        min_amount = response['min_amount']
+        max_amount = response['max_amount']
+        fee_amount = response['fee_amount']
+        receive_amount = response['receive_amount']
+
+        return min_amount, max_amount, fee_amount, receive_amount
 
     async def get_swap_id(self, amount, source_chain, destination_chain,
                           source_asset, destination_asset, refuel):
@@ -81,7 +89,7 @@ class LayerSwap(Bridge, Logger):
 
             data = source_chain, destination_chain, source_asset, destination_asset, refuel
 
-            min_amount, max_amount, fee_amount, receive_amount = (await self.get_swap_rate(*data)).values()
+            min_amount, max_amount, fee_amount, receive_amount = await self.get_swap_rate(*data)
 
             if need_check:
                 return round(float(fee_amount), 6)
