@@ -329,7 +329,7 @@ class Custom(Logger, RequestClient):
                 decimals = 18
 
             amount_in_wei = self.client.to_wei((
-                await current_client.get_smart_amount(amounts, tokens[index], omnicheck=True)
+                await current_client.get_smart_amount(amounts, token_name=tokens[index], omnicheck=True)
             ), decimals)
 
             if dust_mode:
