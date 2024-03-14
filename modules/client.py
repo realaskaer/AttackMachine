@@ -410,6 +410,9 @@ class Client(Logger):
                 max_priority_fee_per_gas = int(await self.get_priotiry_fee() * GAS_PRICE_MULTIPLIER)
                 max_fee_per_gas = int(base_fee + max_priority_fee_per_gas * GAS_PRICE_MULTIPLIER)
 
+                if max_priority_fee_per_gas > max_fee_per_gas:
+                    max_priority_fee_per_gas = int(max_fee_per_gas * 0.95)
+
                 tx_params['maxPriorityFeePerGas'] = max_priority_fee_per_gas
                 tx_params['maxFeePerGas'] = max_fee_per_gas
                 tx_params['type'] = '0x2'
