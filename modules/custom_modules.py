@@ -328,7 +328,9 @@ class Custom(Logger, RequestClient):
             else:
                 decimals = 18
 
-            amount_in_wei = self.client.to_wei((await current_client.get_smart_amount(amounts)), decimals)
+            amount_in_wei = self.client.to_wei((
+                await current_client.get_smart_amount(amounts, tokens[index])
+            ), decimals)
 
             if dust_mode:
                 amount_in_wei = int(amount_in_wei * random.uniform(0.0000001, 0.0000003))
