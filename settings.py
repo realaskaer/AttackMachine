@@ -15,7 +15,7 @@
                                                           28 - USDC-Polygon            38 - ARB-Arbitrum One
 
     ⚠️ Софт сам отнимает комиссию от суммы депозита, при работе с нативными токенами ⚠️
-    
+
     Сумма в количестве  - (0.01, 0.02)
     Сумма в процентах   - ("10", "20") ⚠️ Значения в кавычках.
 
@@ -164,10 +164,10 @@ BUNGEE_ROUTE_TYPE = 5                       # см. BUNGEE_ROUTE_TYPE
 
 '-------------------------------------------------------LayerSwap------------------------------------------------------'
 
-LAYERSWAP_CHAIN_ID_FROM = [11]               # Исходящая сеть
-LAYERSWAP_CHAIN_ID_TO = [7]                  # Входящая сеть
-LAYERSWAP_BRIDGE_AMOUNT = (0.001, 0.001)     # (минимум, максимум) (% или кол-во)
-LAYERSWAP_TOKEN_NAME = ('USDC.e', 'ETH')     # ETH, USDC, USDC.e
+LAYERSWAP_CHAIN_ID_FROM = [8]               # Исходящая сеть
+LAYERSWAP_CHAIN_ID_TO = [1]                  # Входящая сеть
+LAYERSWAP_BRIDGE_AMOUNT = (0.003, 0.003)     # (минимум, максимум) (% или кол-во)
+LAYERSWAP_TOKEN_NAME = ('ETH', 'ETH')     # ETH, USDC, USDC.e
 
 '--------------------------------------------------------Nitro---------------------------------------------------------'
 
@@ -320,11 +320,11 @@ L0_SEARCH_DATA = 0          # Поиск балансов в сетях. 0 - STA
 STG_STAKE_CONFIG = [(2, 3), (1, 5)]
 STARGATE_DUST_CONFIG = (['USDV', 'USDV'], [31, 6])
 
-STARGATE_AMOUNT = (0.3, 0.4)
-STARGATE_CHAINS = [5, 7]
-STARGATE_TOKENS = ['USDC', 'USDC']
+STARGATE_AMOUNT = ('100', '100')
+STARGATE_CHAINS = [5, 6]
+STARGATE_TOKENS = ['USDV', 'USDV']
 
-COREDAO_AMOUNT = (0.3, 0.4)
+COREDAO_AMOUNT = ('100', '100')
 COREDAO_CHAINS = [5, 11, 33]
 COREDAO_TOKENS = ['USDC', 'USDC', 'USDC']
 
