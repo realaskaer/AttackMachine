@@ -10,7 +10,7 @@ from general_settings import AMOUNT_PERCENT_WRAPS
 from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry, CriticalException
 from utils.tools import helper, gas_checker, sleep
 from config import (
-    ETH_PRICE, TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA,
+    TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA,
     TOKENS_PER_CHAIN2, CHAIN_NAME, OKX_NETWORKS_NAME, BINGX_NETWORKS_NAME, BINANCE_NETWORKS_NAME, CEX_WRAPPED_ID,
     COINGECKO_TOKEN_API_NAMES, BITGET_NETWORKS_NAME
 )
@@ -40,21 +40,21 @@ class Custom(Logger, RequestClient):
         RequestClient.__init__(self, client)
 
     async def collect_eth_util(self):
-        from functions import swap_odos, swap_oneinch, swap_rango, swap_izumi, swap_syncswap
+        from functions import swap_odos, swap_oneinch, swap_izumi, swap_syncswap
 
         self.logger_msg(*self.client.acc_info, msg=f"Started collecting tokens in ETH")
 
         func = {
-            'Base': [swap_rango, swap_izumi, swap_odos, swap_oneinch],
+            'Base': [swap_izumi, swap_odos, swap_oneinch],
             'Linea': [swap_izumi, swap_syncswap],
             'Scroll': [swap_izumi, swap_syncswap],
-            'zkSync': [swap_rango, swap_izumi, swap_syncswap, swap_odos, swap_oneinch]
+            'zkSync': [swap_izumi, swap_syncswap, swap_odos, swap_oneinch]
         }[self.client.network.name]
 
         wallet_balance = {k: await self.client.get_token_balance(k, False)
                           for k, v in TOKENS_PER_CHAIN[self.client.network.name].items()}
         valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
-        eth_price = ETH_PRICE
+        eth_price = await self.client.get_token_price('ethereum')
 
         for token in ['ETH', 'WETH']:
             if token in valid_wallet_balance:
@@ -182,7 +182,7 @@ class Custom(Logger, RequestClient):
         for _ in range(2):
             wallet_balance = {k: await self.client.get_token_balance(k, False) for k, v in current_tokens}
             valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
-            eth_price = ETH_PRICE
+            eth_price = await self.client.get_token_price('ethereum')
 
             if 'ETH' in valid_wallet_balance:
                 valid_wallet_balance['ETH'] = valid_wallet_balance['ETH'] * eth_price
@@ -256,7 +256,9 @@ class Custom(Logger, RequestClient):
         start_chain = None
         used_chains = []
         result_list = []
-        for bridge_count in range(L0_BRIDGE_COUNT):
+        count_copy = copy.deepcopy(L0_BRIDGE_COUNT)
+        total_bridge_count = random.choice(count_copy) if isinstance(count_copy, list) else count_copy
+        for bridge_count in range(total_bridge_count):
             current_client, index, balance, balance_in_wei, balances_in_usd = await self.balance_searcher(
                 converted_chains, tokens, omni_check=True
             )
@@ -270,7 +272,7 @@ class Custom(Logger, RequestClient):
                     if not isinstance(tuple_chains, tuple) and not isinstance(chains[0], int) and len(chains) != 2:
                         raise SoftwareExceptionWithoutRetry(
                             'This mode on Stargate Bridges support only "[chain, (chain, chain)]" format')
-                    if bridge_count + 1 == L0_BRIDGE_COUNT:
+                    if bridge_count + 1 == total_bridge_count:
                         dst_chain = converted_chains[0]
                     elif converted_chains[index] == tuple_chains[1]:
                         dst_chain = tuple_chains[0]
@@ -281,7 +283,7 @@ class Custom(Logger, RequestClient):
                     else:
                         dst_chain = [chain for chain in tuple_chains if chain != converted_chains[index]]
                 elif isinstance(chains, tuple):
-                    if L0_BRIDGE_COUNT != len(chains) - 1:
+                    if total_bridge_count != len(chains) - 1:
                         raise SoftwareExceptionWithoutRetry('L0_BRIDGE_COUNT != all chains in params - 1')
                     dst_chain = converted_chains[bridge_count + 1]
                 else:
@@ -345,10 +347,10 @@ class Custom(Logger, RequestClient):
             if current_client:
                 await current_client.session.close()
 
-            if L0_BRIDGE_COUNT != 1:
+            if total_bridge_count != 1:
                 await sleep(self)
 
-        if L0_BRIDGE_COUNT != 1:
+        if total_bridge_count != 1:
             return all(result_list)
         return any(result_list)
 

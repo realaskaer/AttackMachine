@@ -139,8 +139,9 @@ class CEX(ABC):
         }[self.class_name]
 
         async with ClientSession() as session:
-            async with session.request(method=method, url=url, headers=headers, data=data, json=json,
-                                       params=params) as response:
+            async with session.request(
+                    method=method, url=url, headers=headers, data=data, json=json, params=params
+            ) as response:
                 data: dict = await response.json(content_type=content_type)
 
                 if self.class_name == 'Binance' and response.status in [200, 201]:

@@ -3244,5 +3244,3 @@ TITLE = """
 """
 
 ACCOUNT_NAMES, PRIVATE_KEYS, PROXIES, CEX_WALLETS = get_accounts_data()
-
-ETH_PRICE = asyncio.run(get_eth_price())

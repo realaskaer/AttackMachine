@@ -10,7 +10,7 @@ from web3.exceptions import TransactionNotFound
 from modules.interfaces import PriceImpactException, BlockchainException, SoftwareException
 from modules import Logger
 from utils.networks import Network
-from config import ERC20_ABI, TOKENS_PER_CHAIN, ETH_PRICE, CHAIN_IDS, TOKENS_PER_CHAIN2
+from config import ERC20_ABI, TOKENS_PER_CHAIN, CHAIN_IDS, TOKENS_PER_CHAIN2
 from web3 import AsyncHTTPProvider, AsyncWeb3
 from config import RHINO_CHAIN_INFO, ORBITER_CHAINS_INFO, LAYERSWAP_CHAIN_NAME
 from general_settings import (
@@ -314,7 +314,7 @@ class Client(Logger):
 
         wallet_balance = {k: await self.get_token_balance(k, False) for k, v in token_per_chain.items()}
         valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
-        eth_price = ETH_PRICE
+        eth_price = await self.get_token_price('ethereum')
 
         if 'ETH' in valid_wallet_balance:
             valid_wallet_balance['ETH'] = valid_wallet_balance['ETH'] * eth_price
@@ -519,7 +519,10 @@ class Client(Logger):
         await asyncio.sleep(5)  # todo поправить на 10с
         url = 'https://api.coingecko.com/api/v3/simple/price'
 
-        params = {'ids': f'{token_name}', 'vs_currencies': f'{vs_currency}'}
+        params = {
+            'ids': f'{token_name}',
+            'vs_currencies': f'{vs_currency}'
+        }
 
         async with self.session.get(url, params=params) as response:
             if response.status == 200:

@@ -1,4 +1,3 @@
-import web3
 from eth_account.messages import encode_structured_data
 from modules import DEX, Logger, Client, RequestClient
 from modules.interfaces import SoftwareException
