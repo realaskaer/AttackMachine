@@ -5,10 +5,10 @@ from eth_account import Account
 from modules import Blockchain, Logger, Client
 from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry
 from utils.tools import gas_checker, helper
-from general_settings import TRANSFER_AMOUNT, GLOBAL_NETWORK
+from general_settings import TRANSFER_AMOUNT
 from settings import (
     NATIVE_WITHDRAW_AMOUNT,
-    NATIVE_BRIDGE_AMOUNT, NATIVE_CHAIN_ID_TO,
+    NATIVE_DEPOSIT_AMOUNT, NATIVE_CHAIN_ID_TO,
 )
 from config import (
     WETH_ABI,
@@ -23,7 +23,7 @@ class SimpleEVM(Logger):
         self.client = client
         Logger.__init__(self)
 
-        self.network = CHAIN_NAME[GLOBAL_NETWORK]
+        self.network = self.client.network.name
         self.token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.network]['WETH'], WETH_ABI)
         if self.network in ['zkSync', 'Base', 'Scroll', 'Linea']:
             self.deposit_contract = self.client.get_contract(
@@ -201,7 +201,7 @@ class Scroll(Blockchain, SimpleEVM):
     @gas_checker
     async def deposit(self):
 
-        amount = await self.client.get_smart_amount(NATIVE_BRIDGE_AMOUNT)
+        amount = await self.client.get_smart_amount(NATIVE_DEPOSIT_AMOUNT)
         amount_in_wei = self.client.to_wei(amount)
 
         self.logger_msg(*self.client.acc_info, msg=f'Bridge {amount} ETH ERC20 -> Scroll')
@@ -250,10 +250,14 @@ class ZkSync(Blockchain, SimpleEVM):
         SimpleEVM.__init__(self, client)
         Blockchain.__init__(self, client)
 
-        self.deposit_contract = self.client.get_contract(NATIVE_CONTRACTS_PER_CHAIN['zkSync']['deposit'],
-                                                         NATIVE_ABI['zkSync']['deposit'])
-        self.withdraw_contract = self.client.get_contract(NATIVE_CONTRACTS_PER_CHAIN['zkSync']['withdraw'],
-                                                          NATIVE_ABI['zkSync']['withdraw'])
+        self.deposit_contract = self.client.get_contract(
+            NATIVE_CONTRACTS_PER_CHAIN['zkSync']['deposit'],
+            NATIVE_ABI['zkSync']['deposit']
+        )
+        self.withdraw_contract = self.client.get_contract(
+            NATIVE_CONTRACTS_PER_CHAIN['zkSync']['withdraw'],
+            NATIVE_ABI['zkSync']['withdraw']
+        )
 
     @helper
     @gas_checker
@@ -278,7 +282,7 @@ class ZkSync(Blockchain, SimpleEVM):
     @gas_checker
     async def deposit(self):
 
-        amount = await self.client.get_smart_amount(NATIVE_BRIDGE_AMOUNT)
+        amount = await self.client.get_smart_amount(NATIVE_DEPOSIT_AMOUNT)
         amount_in_wei = self.client.to_wei(amount)
 
         self.logger_msg(*self.client.acc_info, msg=f'Bridge on txSync: {amount} ETH ERC20 -> zkSync Era')
@@ -341,7 +345,7 @@ class Base(Blockchain, SimpleEVM):
     @gas_checker
     async def deposit(self):
 
-        amount = await self.client.get_smart_amount(NATIVE_BRIDGE_AMOUNT)
+        amount = await self.client.get_smart_amount(NATIVE_DEPOSIT_AMOUNT)
         amount_in_wei = self.client.to_wei(amount)
 
         self.logger_msg(*self.client.acc_info, msg=f'Bridge on Base Bridge: {amount} ETH ERC20 -> Base')
@@ -405,7 +409,7 @@ class Linea(Blockchain, SimpleEVM):
     @gas_checker
     async def deposit(self):
 
-        amount = await self.client.get_smart_amount(NATIVE_BRIDGE_AMOUNT)
+        amount = await self.client.get_smart_amount(NATIVE_DEPOSIT_AMOUNT)
         amount_in_wei = self.client.to_wei(amount)
 
         self.logger_msg(*self.client.acc_info, msg=f'Bridge {amount} ETH ERC20 -> Linea')
@@ -517,7 +521,7 @@ class Zora(Blockchain, SimpleEVM):
     @helper
     @gas_checker
     async def bridge(self):
-        amount = await self.client.get_smart_amount(NATIVE_BRIDGE_AMOUNT)
+        amount = await self.client.get_smart_amount(NATIVE_DEPOSIT_AMOUNT)
         amount_in_wei = self.client.to_wei(amount)
         chain_to_name = CHAIN_NAME[random.choice(NATIVE_CHAIN_ID_TO)]
         contract_address, tx_data, value = await self.get_bridge_info(amount_in_wei, chain_to_name)
