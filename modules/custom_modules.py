@@ -390,7 +390,7 @@ class Custom(Logger, RequestClient):
             'Base': [swap_odos, swap_oneinch],
             'Linea': [swap_izumi, swap_syncswap],
             'Scroll': [swap_izumi, swap_syncswap],
-            'zkSync': [swap_odos, swap_oneinch],
+            'zkSync': [swap_izumi, swap_syncswap],
             'Optimism': [swap_oneinch, swap_odos],
             # 'Polygon ZKEVM': [swap_xyfinance],
             'BNB Chain': [swap_oneinch],
