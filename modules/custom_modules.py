@@ -315,7 +315,7 @@ class Custom(Logger, RequestClient):
                             raise SoftwareExceptionWithoutRetry(
                                 'This mode on CoreDAO bridges support only "[chain, 11(CoreDAO), chain]" format')
                         dst_chain = converted_chains[-1]
-                        if len(used_chains) == 2:
+                        if len(used_chains) == 3:
                             dst_chain = converted_chains[0]
                             used_chains = []
                     else:
