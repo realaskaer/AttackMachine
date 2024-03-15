@@ -3,6 +3,7 @@ import random
 
 from faker import Faker
 
+from general_settings import SLEEP_TIME
 from modules.interfaces import SoftwareException
 from settings import DST_CHAIN_L2TELEGRAPH
 from utils.tools import sleep, gas_checker, helper
@@ -28,11 +29,17 @@ class L2Telegraph(Messenger, Logger):
         chain_id_to = random.choice(DST_CHAIN_L2TELEGRAPH)
         self.dst_chain_name, self.dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[chain_id_to]
 
-    async def get_nft_id(self, tx_hash: bytes):
+    async def get_nft_id(self, tx_hash):
         tx_receipt = await self.client.w3.eth.get_transaction_receipt(tx_hash)
-        nft_id = int((tx_receipt.logs[2].topics[3]).hex(), 16)
-        if not nft_id:
-            return int((tx_receipt.logs[3].topics[3]).hex(), 16)
+
+        if self.client.network.name == 'zkSync':
+            nft_id = int((tx_receipt.logs[2].topics[3]).hex(), 16)
+            if not nft_id:
+                nft_id = int((tx_receipt.logs[3].topics[3]).hex(), 16)
+        elif self.client.network.name == 'Polygon':
+            nft_id = int((tx_receipt.logs[1].topics[3]).hex(), 16)
+        else:
+            nft_id = int((tx_receipt.logs[0].topics[3]).hex(), 16)
         return nft_id
 
     @helper
@@ -126,7 +133,7 @@ class L2Telegraph(Messenger, Logger):
 
             nft_id = await self.get_nft_id(tx_hash)
 
-            await sleep(self, 5, 8)
+            await sleep(self, *SLEEP_TIME)
 
             self.logger_msg(
                 *self.client.acc_info,
