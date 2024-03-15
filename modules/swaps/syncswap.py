@@ -292,7 +292,7 @@ class SyncSwap(DEX, Logger):
                     "gasLimit": transaction['gas'],
                     "gasPerPubdataByteLimit": 50000,
                     "maxFeePerGas": transaction['maxFeePerGas'],
-                    "maxPriorityFeePerGas": transaction['maxFeePerGas'],
+                    "maxPriorityFeePerGas": 0,
                     "paymaster": int(self.paymaster_contract.address, 16),
                     "nonce": transaction['nonce'],
                     "value": amount_in_wei if from_token_name == 'ETH' else 0,
@@ -315,7 +315,7 @@ class SyncSwap(DEX, Logger):
                 self.paymaster_contract.address, self.client.w3.to_bytes(hexstr=paymaster_input)
             )
 
-            tx_encode = TxFunctionCall(
+            tx_eip712 = TxFunctionCall(
                 from_=self.client.w3.to_hex(hexstr=self.client.address),
                 to=self.router_contract.address,
                 value=amount_in_wei if from_token_name == 'ETH' else 0,
@@ -327,8 +327,9 @@ class SyncSwap(DEX, Logger):
                 paymaster_params=paymaster_params,
                 custom_signature=self.client.w3.to_bytes(signature),
             ).tx712(transaction['gas'])
+            tx_eip712.maxPriorityFeePerGas = 0
 
-            full_tx = f'0x{tx_encode.encode().hex()}'
+            full_tx = f'0x{tx_eip712.encode().hex()}'
 
             return await self.client.send_transaction(send_mode=True, signed_tx=full_tx)
 
