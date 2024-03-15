@@ -469,18 +469,20 @@ async def transfer_eth_to_myself(account_name, private_key, network, proxy):
 
 
 async def wrap_eth(account_name, private_key, network, proxy, *args):
-    worker = ZkSync(get_client(account_name, private_key, network, proxy))
+    worker = SimpleEVM(get_client(account_name, private_key, network, proxy))
     return await worker.wrap_eth(*args)
 
 
 async def unwrap_eth(account_name, private_key, network, proxy, *args):
-    wrap = ZkSync(get_client(account_name, private_key, network, proxy))
-    return await wrap.unwrap_eth(*args)
+    worker = SimpleEVM(get_client(account_name, private_key, network, proxy))
+    return await worker.unwrap_eth(*args)
 
 
 async def deploy_contract(account_name, private_key, network, proxy):
-    wrap = ZkSync(get_client(account_name, private_key, network, proxy))
-    return await wrap.deploy_contract()
+    blockchain = get_interface_by_chain_id(GLOBAL_NETWORK)
+
+    worker = blockchain(get_client(account_name, private_key, network, proxy))
+    return await worker.deploy_contract()
 
 
 # async  def mint_deployed_token(account_name, private_key, network, proxy, *args, **kwargs):

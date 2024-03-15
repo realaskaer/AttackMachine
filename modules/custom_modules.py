@@ -40,7 +40,7 @@ class Custom(Logger, RequestClient):
         RequestClient.__init__(self, client)
 
     async def collect_eth_util(self):
-        from functions import swap_odos, swap_oneinch, swap_izumi, swap_syncswap
+        from functions import swap_odos, swap_oneinch, swap_izumi, swap_syncswap, unwrap_eth
 
         self.logger_msg(*self.client.acc_info, msg=f"Started collecting tokens in ETH")
 
@@ -73,15 +73,21 @@ class Custom(Logger, RequestClient):
                         amount_in_usd = valid_wallet_balance[token_name]
                         if amount_in_usd > 1:
                             from_token_name, to_token_name = token_name, 'ETH'
+                            if from_token_name == 'WETH':
+                                func = unwrap_eth
                             data = from_token_name, to_token_name, amount, amount_in_wei
                             counter = 0
                             while True:
                                 result = False
                                 module_func = random.choice(func)
                                 try:
-                                    self.logger_msg(*self.client.acc_info, msg=f'Launching swap module', type_msg='warning')
-                                    result = await module_func(self.client.account_name, self.client.private_key,
-                                                               self.client.network, self.client.proxy_init, swapdata=data)
+                                    self.logger_msg(
+                                        *self.client.acc_info, msg=f'Launching swap module', type_msg='warning'
+                                    )
+                                    result = await module_func(
+                                        self.client.account_name, self.client.private_key, self.client.network,
+                                        self.client.proxy_init, swapdata=data
+                                    )
                                     if not result:
                                         counter += 1
                                 except:
