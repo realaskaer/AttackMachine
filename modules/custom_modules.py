@@ -280,16 +280,23 @@ class Custom(Logger, RequestClient):
                             if not isinstance(tuple_chains, tuple) and not isinstance(chains[0], int) and len(chains) != 2:
                                 raise SoftwareExceptionWithoutRetry(
                                     'This mode on Stargate Bridges support only "[chain, (chain, chain)]" format')
-                            if bridge_count + 1 == total_bridge_count:
-                                dst_chain = converted_chains[0]
-                            elif converted_chains[index] == tuple_chains[1]:
-                                dst_chain = tuple_chains[0]
-                            elif converted_chains[index] == tuple_chains[0]:
-                                dst_chain = tuple_chains[1]
-                            elif converted_chains[index] == converted_chains[0]:
-                                dst_chain = tuple_chains[0]
+                            if len(tuple_chains) == 2:
+                                if bridge_count + 1 == total_bridge_count:
+                                    dst_chain = converted_chains[0]
+                                elif converted_chains[index] == tuple_chains[1]:
+                                    dst_chain = tuple_chains[0]
+                                elif converted_chains[index] == tuple_chains[0]:
+                                    dst_chain = tuple_chains[1]
+                                elif converted_chains[index] == converted_chains[0]:
+                                    dst_chain = tuple_chains[0]
+                                else:
+                                    dst_chain = [chain for chain in tuple_chains if chain != converted_chains[index]]
                             else:
-                                dst_chain = [chain for chain in tuple_chains if chain != converted_chains[index]]
+                                if bridge_count + 1 == total_bridge_count:
+                                    dst_chain = converted_chains[0]
+                                else:
+                                    dst_chains = [chain for chain in tuple_chains if chain != converted_chains[index]]
+                                    dst_chain = random.choice(dst_chains)
                         elif isinstance(chains, tuple):
                             if total_bridge_count != len(chains) - 1:
                                 raise SoftwareExceptionWithoutRetry('L0_BRIDGE_COUNT != all chains in params - 1')
