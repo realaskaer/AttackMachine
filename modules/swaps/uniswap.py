@@ -69,7 +69,7 @@ class Uniswap(DEX, Logger):
     @gas_checker
     async def swap(self, swapdata: tuple = None):
         if not swapdata:
-            from_token_name, to_token_name, amount, amount_in_wei = 'MATIC', 'USDT', 1, int(1 * 10 ** 18)#await self.client.get_auto_amount()
+            from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
         else:
             from_token_name, to_token_name, amount, amount_in_wei = swapdata
 
