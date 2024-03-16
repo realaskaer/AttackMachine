@@ -365,10 +365,8 @@ class Custom(Logger, RequestClient):
                     if total_bridge_count != 1:
                         await sleep(self)
 
-                    if len(result_list) == count_copy:
+                    if len(result_list) == total_bridge_count:
                         break
-                    else:
-                        continue
 
                 except Exception as error:
                     self.logger_msg(
