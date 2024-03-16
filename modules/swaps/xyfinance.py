@@ -48,7 +48,7 @@ class XYfinance(RequestClient, Logger):
     @gas_checker
     async def swap(self, help_deposit: bool = False, swapdata: tuple = None):
         if not swapdata:
-            from_token_name, to_token_name, amount, amount_in_wei = 'WETH', 'ETH', 0.0048, int(0.0048 * 10 ** 18)  # await self.client.get_auto_amount()
+            from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
         else:
             from_token_name, to_token_name, amount, amount_in_wei = swapdata
 

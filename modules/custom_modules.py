@@ -61,7 +61,7 @@ class Custom(Logger, RequestClient):
                 valid_wallet_balance[token] *= eth_price
 
         if valid_wallet_balance['ETH'] < 0.5:
-            self.logger_msg(*self.client.acc_info, msg=f'Account has not enough ETH for swap', type_msg='warning')
+            self.logger_msg(*self.client.acc_info, msg=f'Account has not enough ETH for swap fee', type_msg='warning')
             return True
 
         if len(valid_wallet_balance.values()) > 1:
@@ -362,7 +362,7 @@ class Custom(Logger, RequestClient):
                         break
                     else:
                         continue
-                    
+
                 except Exception as error:
                     self.logger_msg(
                         *self.client.acc_info,
