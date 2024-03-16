@@ -265,96 +265,110 @@ class Custom(Logger, RequestClient):
         count_copy = copy.deepcopy(L0_BRIDGE_COUNT)
         total_bridge_count = random.choice(count_copy) if isinstance(count_copy, list) else count_copy
         for bridge_count in range(total_bridge_count):
-            current_client, index, balance, balance_in_wei, balances_in_usd = await self.balance_searcher(
-                converted_chains, tokens, omni_check=True
-            )
+            while True:
+                try:
+                    current_client, index, balance, balance_in_wei, balances_in_usd = await self.balance_searcher(
+                        converted_chains, tokens, omni_check=True
+                    )
 
-            from_token_name = tokens[index]
+                    from_token_name = tokens[index]
 
-            if dapp_id == 1:
+                    if dapp_id == 1:
 
-                if any([isinstance(path, tuple) for path in chains]):
-                    tuple_chains = chains[1]
-                    if not isinstance(tuple_chains, tuple) and not isinstance(chains[0], int) and len(chains) != 2:
-                        raise SoftwareExceptionWithoutRetry(
-                            'This mode on Stargate Bridges support only "[chain, (chain, chain)]" format')
-                    if bridge_count + 1 == total_bridge_count:
-                        dst_chain = converted_chains[0]
-                    elif converted_chains[index] == tuple_chains[1]:
-                        dst_chain = tuple_chains[0]
-                    elif converted_chains[index] == tuple_chains[0]:
-                        dst_chain = tuple_chains[1]
-                    elif converted_chains[index] == converted_chains[0]:
-                        dst_chain = tuple_chains[0]
+                        if any([isinstance(path, tuple) for path in chains]):
+                            tuple_chains = chains[1]
+                            if not isinstance(tuple_chains, tuple) and not isinstance(chains[0], int) and len(chains) != 2:
+                                raise SoftwareExceptionWithoutRetry(
+                                    'This mode on Stargate Bridges support only "[chain, (chain, chain)]" format')
+                            if bridge_count + 1 == total_bridge_count:
+                                dst_chain = converted_chains[0]
+                            elif converted_chains[index] == tuple_chains[1]:
+                                dst_chain = tuple_chains[0]
+                            elif converted_chains[index] == tuple_chains[0]:
+                                dst_chain = tuple_chains[1]
+                            elif converted_chains[index] == converted_chains[0]:
+                                dst_chain = tuple_chains[0]
+                            else:
+                                dst_chain = [chain for chain in tuple_chains if chain != converted_chains[index]]
+                        elif isinstance(chains, tuple):
+                            if total_bridge_count != len(chains) - 1:
+                                raise SoftwareExceptionWithoutRetry('L0_BRIDGE_COUNT != all chains in params - 1')
+                            dst_chain = converted_chains[bridge_count + 1]
+                        else:
+                            if not start_chain:
+                                start_chain = converted_chains[index]
+                            used_chains.append(start_chain)
+
+                            if len(used_chains) >= len(chains):
+                                dst_chain = random.choice(
+                                    [chain for chain in converted_chains if chain != converted_chains[index]])
+                            else:
+                                available_chains = [chain for chain in converted_chains if chain not in used_chains]
+                                dst_chain = random.choice(available_chains)
+
+                            used_chains.append(dst_chain)
+
                     else:
-                        dst_chain = [chain for chain in tuple_chains if chain != converted_chains[index]]
-                elif isinstance(chains, tuple):
-                    if total_bridge_count != len(chains) - 1:
-                        raise SoftwareExceptionWithoutRetry('L0_BRIDGE_COUNT != all chains in params - 1')
-                    dst_chain = converted_chains[bridge_count + 1]
-                else:
-                    if not start_chain:
-                        start_chain = converted_chains[index]
-                    used_chains.append(start_chain)
+                        if converted_chains[index] == 11:
+                            if len(converted_chains) == 2:
+                                dst_chain = random.choice([chain for chain in converted_chains if chain != 11])
+                            elif len(converted_chains) == 3:
+                                if 11 in [converted_chains[0], converted_chains[-1]] and converted_chains[1] != 11:
+                                    raise SoftwareExceptionWithoutRetry(
+                                        'This mode on CoreDAO bridges support only "[chain, 11(CoreDAO), chain]" format')
+                                dst_chain = converted_chains[-1]
+                                if len(used_chains) == 3:
+                                    dst_chain = converted_chains[0]
+                                    used_chains = []
+                            else:
+                                raise SoftwareExceptionWithoutRetry('CoreDAO bridges support only 2 or 3 chains in list')
+                        else:
+                            dst_chain = 11
 
-                    if len(used_chains) >= len(chains):
-                        dst_chain = random.choice(
-                            [chain for chain in converted_chains if chain != converted_chains[index]])
+                        used_chains.append(dst_chain)
+
+                    src_chain_name = current_client.network.name
+                    dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
+                    to_token_name = tokens[converted_chains.index(dst_chain)]
+
+                    if from_token_name != 'ETH':
+                        contract = current_client.get_contract(
+                            TOKENS_PER_CHAIN2[current_client.network.name][from_token_name])
+                        decimals = await contract.functions.decimals().call()
                     else:
-                        available_chains = [chain for chain in converted_chains if chain not in used_chains]
-                        dst_chain = random.choice(available_chains)
+                        decimals = 18
 
-                    used_chains.append(dst_chain)
+                    amount_in_wei = self.client.to_wei((
+                        await current_client.get_smart_amount(amounts, token_name=tokens[index], omnicheck=True)
+                    ), decimals)
 
-            else:
-                if converted_chains[index] == 11:
-                    if len(converted_chains) == 2:
-                        dst_chain = random.choice([chain for chain in converted_chains if chain != 11])
-                    elif len(converted_chains) == 3:
-                        if 11 in [converted_chains[0], converted_chains[-1]] and converted_chains[1] != 11:
-                            raise SoftwareExceptionWithoutRetry(
-                                'This mode on CoreDAO bridges support only "[chain, 11(CoreDAO), chain]" format')
-                        dst_chain = converted_chains[-1]
-                        if len(used_chains) == 3:
-                            dst_chain = converted_chains[0]
-                            used_chains = []
+                    if dust_mode:
+                        amount_in_wei = int(amount_in_wei * random.uniform(0.0000001, 0.0000003))
+
+                    amount = f"{amount_in_wei / 10 ** decimals:.4f}"
+
+                    swapdata = (src_chain_name, dst_chain_name, dst_chain_id,
+                                from_token_name, to_token_name, amount, amount_in_wei)
+
+                    result_list.append(await class_name(current_client).bridge(swapdata=swapdata))
+
+                    if current_client:
+                        await current_client.session.close()
+
+                    if total_bridge_count != 1:
+                        await sleep(self)
+
+                    if len(result_list) == count_copy:
+                        break
                     else:
-                        raise SoftwareExceptionWithoutRetry('CoreDAO bridges support only 2 or 3 chains in list')
-                else:
-                    dst_chain = 11
-
-                used_chains.append(dst_chain)
-
-            src_chain_name = current_client.network.name
-            dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
-            to_token_name = tokens[converted_chains.index(dst_chain)]
-
-            if from_token_name != 'ETH':
-                contract = current_client.get_contract(
-                    TOKENS_PER_CHAIN2[current_client.network.name][from_token_name])
-                decimals = await contract.functions.decimals().call()
-            else:
-                decimals = 18
-
-            amount_in_wei = self.client.to_wei((
-                await current_client.get_smart_amount(amounts, token_name=tokens[index], omnicheck=True)
-            ), decimals)
-
-            if dust_mode:
-                amount_in_wei = int(amount_in_wei * random.uniform(0.0000001, 0.0000003))
-
-            amount = f"{amount_in_wei / 10 ** decimals:.4f}"
-
-            swapdata = (src_chain_name, dst_chain_name, dst_chain_id,
-                        from_token_name, to_token_name, amount, amount_in_wei)
-
-            result_list.append(await class_name(current_client).bridge(swapdata=swapdata))
-
-            if current_client:
-                await current_client.session.close()
-
-            if total_bridge_count != 1:
-                await sleep(self)
+                        continue
+                    
+                except Exception as error:
+                    self.logger_msg(
+                        *self.client.acc_info,
+                        msg=f"Error during the route. Will try again in 1 min... Error: {error}", type_msg='warning'
+                    )
+                    await asyncio.sleep(60)
 
         if total_bridge_count != 1:
             return all(result_list)
@@ -529,6 +543,12 @@ class Custom(Logger, RequestClient):
                     *self.client.acc_info,
                     msg=f"Connection to RPC is not stable. Will try again in 1 min...",
                     type_msg='warning'
+                )
+                await asyncio.sleep(60)
+            except Exception as error:
+                self.logger_msg(
+                    *self.client.acc_info,
+                    msg=f"Bad response from RPC. Will try again in 1 min... Error: {error}", type_msg='warning'
                 )
                 await asyncio.sleep(60)
             finally:

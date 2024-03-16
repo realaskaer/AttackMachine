@@ -304,7 +304,6 @@ GnosisRPC = Network(
 CoreRPC = Network(
     name='CoreDAO',
     rpc=[
-        'https://core.public.infstones.com',
         'https://rpc.ankr.com/core',
         'https://1rpc.io/core',
         'https://rpc.coredao.org',
