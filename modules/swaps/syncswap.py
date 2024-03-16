@@ -29,10 +29,6 @@ class SyncSwap(DEX, Logger):
             SYNCSWAP_CONTRACTS[self.network]['classic_pool_factory'],
             SYNCSWAP_ABI['classic_pool_factory']
         )
-        self.paymaster_contract = self.client.get_contract(
-            SYNCSWAP_CONTRACTS[self.network]['paymaster'],
-            SYNCSWAP_ABI['paymaster']
-        )
 
     async def get_swap_permit(self, token_name:str):
         token_name_for_permit, version = {
@@ -183,6 +179,12 @@ class SyncSwap(DEX, Logger):
             ).build_transaction(tx_params)
 
         if paymaster_mode:
+
+            paymaster_contract = self.client.get_contract(
+                SYNCSWAP_CONTRACTS[self.network]['paymaster'],
+                SYNCSWAP_ABI['paymaster']
+            )
+
             if isinstance(ZKSYNC_PAYMASTER_TOKEN, (tuple, list)):
                 fee_token = random.choice(ZKSYNC_PAYMASTER_TOKEN)
             elif isinstance(ZKSYNC_PAYMASTER_TOKEN, int):
@@ -199,7 +201,7 @@ class SyncSwap(DEX, Logger):
             min_allowance = int(2000 * 10 ** 6)
             inner_input = self.client.w3.to_hex(abi.encode(['uint64'], [100]))
 
-            paymaster_input = self.paymaster_contract.encodeABI(
+            paymaster_input = paymaster_contract.encodeABI(
                 fn_name='approvalBased',
                 args=(
                     fee_token_address,
@@ -293,7 +295,7 @@ class SyncSwap(DEX, Logger):
                     "gasPerPubdataByteLimit": 50000,
                     "maxFeePerGas": transaction['maxFeePerGas'],
                     "maxPriorityFeePerGas": 0,
-                    "paymaster": int(self.paymaster_contract.address, 16),
+                    "paymaster": int(paymaster_contract.address, 16),
                     "nonce": transaction['nonce'],
                     "value": amount_in_wei if from_token_name == 'ETH' else 0,
                     "data": self.client.w3.to_bytes(hexstr=transaction['data']),
@@ -312,7 +314,7 @@ class SyncSwap(DEX, Logger):
                     self.paymaster_input = paymaster_input
 
             paymaster_params = PaymasterParams(
-                self.paymaster_contract.address, self.client.w3.to_bytes(hexstr=paymaster_input)
+                paymaster_contract.address, self.client.w3.to_bytes(hexstr=paymaster_input)
             )
 
             tx_eip712 = TxFunctionCall(
