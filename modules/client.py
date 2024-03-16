@@ -10,7 +10,7 @@ from web3.exceptions import TransactionNotFound
 from modules.interfaces import PriceImpactException, BlockchainException, SoftwareException
 from modules import Logger
 from utils.networks import Network
-from config import ERC20_ABI, TOKENS_PER_CHAIN, CHAIN_IDS, TOKENS_PER_CHAIN2
+from config import ERC20_ABI, TOKENS_PER_CHAIN, CHAIN_IDS, TOKENS_PER_CHAIN2, COINGECKO_TOKEN_API_NAMES
 from web3 import AsyncHTTPProvider, AsyncWeb3
 from config import RHINO_CHAIN_INFO, ORBITER_CHAINS_INFO, LAYERSWAP_CHAIN_NAME
 from general_settings import (
@@ -152,20 +152,8 @@ class Client(Logger):
 
         to_token_amount = await self.get_normalize_amount(to_token_name, to_token_amount_in_wei)
 
-        token_info = {
-            'DAI': 'dai',
-            'USDT': 'tether',
-            'USDC': 'usd-coin',
-            'USDB': 'usdb',
-            'USDC.e': 'bridged-usdc-polygon-pos-bridge',
-            'BUSD': 'binance-usd',
-            'ETH': 'ethereum',
-            'WETH': 'ethereum',
-            'USDbC': 'bridged-usd-coin-base'
-        }
-
-        amount1_in_usd = (await self.get_token_price(token_info[from_token_name])) * from_token_amount
-        amount2_in_usd = (await self.get_token_price(token_info[to_token_name])) * to_token_amount
+        amount1_in_usd = (await self.get_token_price(COINGECKO_TOKEN_API_NAMES[from_token_name])) * from_token_amount
+        amount2_in_usd = (await self.get_token_price(COINGECKO_TOKEN_API_NAMES[to_token_name])) * to_token_amount
         price_impact = 100 - (amount2_in_usd / amount1_in_usd) * 100
 
         if price_impact > PRICE_IMPACT:

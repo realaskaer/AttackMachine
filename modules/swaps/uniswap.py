@@ -29,10 +29,20 @@ class Uniswap(DEX, Logger):
             'Base': {
                 "USDC.e/ETH": 500,
                 "ETH/USDC.e": 500,
+            },
+            'Polygon':{
+                'USDT/MATIC': 500,
+                'MATIC/USDT': 500,
+                'USDC.e/MATIC': 500,
+                'MATIC/USDC.e': 500,
+                'USDC/MATIC': 500,
+                'MATIC/USDC': 500,
+                'MATIC/WETH': 500,
+                'WETH/MATIC': 500,
             }
         }[self.client.network.name]
 
-        if 'USDT' not in [from_token_name, to_token_name]:
+        if 'USDT' not in [from_token_name, to_token_name] or self.client.network.name == 'Polygon':
             from_token_bytes = HexBytes(from_token_address).rjust(20, b'\0')
             to_token_bytes = HexBytes(to_token_address).rjust(20, b'\0')
             fee_bytes = pool_fee_info[f"{from_token_name}/{to_token_name}"].to_bytes(3, 'big')
@@ -59,7 +69,7 @@ class Uniswap(DEX, Logger):
     @gas_checker
     async def swap(self, swapdata: tuple = None):
         if not swapdata:
-            from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
+            from_token_name, to_token_name, amount, amount_in_wei = 'MATIC', 'USDT', 1, int(1 * 10 ** 18)#await self.client.get_auto_amount()
         else:
             from_token_name, to_token_name, amount, amount_in_wei = swapdata
 
@@ -74,7 +84,7 @@ class Uniswap(DEX, Logger):
 
         await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
 
-        if from_token_name != 'ETH':
+        if from_token_name != self.client.token:
             await self.client.check_for_approved(
                 from_token_address, UNISWAP_CONTRACTS[self.network]['router'], amount_in_wei
             )
@@ -83,7 +93,7 @@ class Uniswap(DEX, Logger):
             fn_name='exactInput',
             args=[(
                 path,
-                self.client.address if to_token_name != 'ETH' else '0x0000000000000000000000000000000000000002',
+                self.client.address if to_token_name != self.client.token else '0x0000000000000000000000000000000000000002',
                 amount_in_wei,
                 min_amount_out
             )]
@@ -91,17 +101,20 @@ class Uniswap(DEX, Logger):
 
         full_data = [tx_data]
 
-        if from_token_name == 'ETH' or to_token_name == 'ETH':
+        if from_token_name == self.client.token or to_token_name == self.client.token:
             tx_additional_data = self.router_contract.encodeABI(
-                fn_name='unwrapWETH9' if from_token_name != 'ETH' else 'refundETH',
+                fn_name='unwrapWETH9' if from_token_name != self.client.token else 'refundETH',
                 args=[
                     min_amount_out,
                     self.client.address
-                ] if from_token_name != 'ETH' else None
+                ] if from_token_name != self.client.token else None
             )
             full_data.append(tx_additional_data)
 
-        tx_params = await self.client.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
+        tx_params = await self.client.prepare_transaction(
+            value=amount_in_wei if from_token_name == self.client.token else 0
+        )
+
         transaction = await self.router_contract.functions.multicall(
             full_data
         ).build_transaction(tx_params)
