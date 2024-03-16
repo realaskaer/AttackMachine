@@ -1,5 +1,6 @@
 from general_settings import SLIPPAGE
 from modules import RequestClient, Logger
+from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 from config import TOKENS_PER_CHAIN, ETH_MASK, HELP_SOFTWARE
 
@@ -47,7 +48,7 @@ class XYfinance(RequestClient, Logger):
     @gas_checker
     async def swap(self, help_deposit: bool = False, swapdata: tuple = None):
         if not swapdata:
-            from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
+            from_token_name, to_token_name, amount, amount_in_wei = 'WETH', 'ETH', 0.0048, int(0.0048 * 10 ** 18)  # await self.client.get_auto_amount()
         else:
             from_token_name, to_token_name, amount, amount_in_wei = swapdata
 
@@ -64,21 +65,28 @@ class XYfinance(RequestClient, Logger):
 
         quote_data = await self.get_quote(from_token_address, to_token_address, amount_in_wei)
 
-        swap_provider_address = quote_data["routes"][0]["srcSwapDescription"]["provider"]
+        if quote_data.get('success'):
+            swap_provider_address = quote_data["routes"][0]["srcSwapDescription"]["provider"]
 
-        transaction_data = await self.build_swap_transaction(
-            from_token_address, to_token_address, amount_in_wei, swap_provider_address
-        )
+            transaction_data = await self.build_swap_transaction(
+                from_token_address, to_token_address, amount_in_wei, swap_provider_address
+            )
 
-        contract_address = self.client.w3.to_checksum_address(transaction_data["tx"]["to"])
+            if transaction_data.get('success'):
 
-        if from_token_name != 'ETH':
-            await self.client.check_for_approved(from_token_address, contract_address, amount_in_wei)
+                contract_address = self.client.w3.to_checksum_address(transaction_data["tx"]["to"])
 
-        tx_params = (await self.client.prepare_transaction()) | {
-            "to": contract_address,
-            "data": transaction_data["tx"]["data"],
-            "value": transaction_data["tx"]["value"]
-        }
+                if from_token_name != 'ETH':
+                    await self.client.check_for_approved(from_token_address, contract_address, amount_in_wei)
 
-        return await self.client.send_transaction(tx_params)
+                tx_params = (await self.client.prepare_transaction()) | {
+                    "to": contract_address,
+                    "data": transaction_data["tx"]["data"],
+                    "value": transaction_data["tx"]["value"]
+                }
+
+                return await self.client.send_transaction(tx_params)
+
+            raise SoftwareException(f'Can`t build tx for swap {amount} {from_token_name} -> {to_token_name}')
+
+        raise SoftwareException(f'Can`t generate route for swap {amount} {from_token_name} -> {to_token_name}')
