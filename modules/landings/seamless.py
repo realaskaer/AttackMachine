@@ -82,7 +82,7 @@ class Seamless(Landing, Logger):
 
             transaction = await self.landing_contract.functions.withdrawETH(
                 SEAMLESS_CONTRACTS[self.network]['pool_proxy'],
-                2 ** 256 - 1,
+                2 ** 128 - 1,
                 self.client.address
             ).build_transaction(tx_params)
 
@@ -110,7 +110,7 @@ class Seamless(Landing, Logger):
 
             transaction = await self.proxy_contract.functions.withdraw(
                 usdb_address,
-                2 ** 256 - 1,
+                2 ** 128 - 1,
                 self.client.address
             ).build_transaction(tx_params)
 
