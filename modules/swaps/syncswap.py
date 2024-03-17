@@ -129,7 +129,7 @@ class SyncSwap(DEX, Logger):
         from_token_address = TOKENS_PER_CHAIN[self.network][from_token_name]
         to_token_address = TOKENS_PER_CHAIN[self.network][to_token_name]
 
-        withdraw_mode = 2
+        withdraw_mode = 1
         deadline = int(time()) + 1800
         pool_address = await self.pool_factory_contract.functions.getPool(from_token_address, to_token_address).call()
         min_amount_out = await self.get_min_amount_out(pool_address, from_token_address, amount_in_wei)
