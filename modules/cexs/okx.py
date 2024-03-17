@@ -129,8 +129,9 @@ class OKX(CEX, Logger):
 
         url_balance = f"https://www.okx.cab/api/v5/account/balance?ccy={ccy}"
         headers = await self.get_headers(request_path=url_balance)
-        balance = (await self.make_request(url=url_balance, headers=headers,
-                                           module_name='Trading account'))[0]["details"]
+        balance = (await self.make_request(
+            url=url_balance, headers=headers, module_name='Trading account'
+        ))[0]["details"]
 
         for ccy_item in balance:
             if ccy_item['ccy'] == ccy and ccy_item['availBal'] != '0':

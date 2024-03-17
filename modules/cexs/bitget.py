@@ -9,7 +9,7 @@ from hashlib import sha256
 from general_settings import BITGET_API_PASSPHRAS
 from modules import CEX, Logger
 from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, InsufficientBalanceException
-from utils.tools import helper, get_wallet_for_deposit
+from utils.tools import get_wallet_for_deposit
 from config import CEX_WRAPPED_ID, TOKENS_PER_CHAIN, BITGET_NETWORKS_NAME, TOKENS_PER_CHAIN2
 
 
