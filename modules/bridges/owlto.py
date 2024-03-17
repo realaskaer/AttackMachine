@@ -166,6 +166,6 @@ class Owlto(Bridge, Logger, RequestClient):
             self.logger_msg(
                 *self.client.acc_info, msg=f"This wallet already made check-in on Owlto", type_msg='warning'
             )
-            return False
+            return True
 
         return True
