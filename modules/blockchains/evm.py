@@ -318,7 +318,8 @@ class ZkSync(Blockchain, SimpleEVM):
     @gas_checker
     async def withdraw(self):
 
-        amount, amount_in_wei = await self.client.get_smart_amount(NATIVE_WITHDRAW_AMOUNT)
+        amount = await self.client.get_smart_amount(NATIVE_WITHDRAW_AMOUNT)
+        amount_in_wei = self.client.to_wei(amount)
 
         self.logger_msg(*self.client.acc_info, msg=f'Withdraw on txSync: {amount} ETH zkSync Era -> ERC20')
 
