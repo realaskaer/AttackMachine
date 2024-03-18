@@ -291,11 +291,11 @@ class ZkSync(Blockchain, SimpleEVM):
 
             gas_limit = random.randint(750000, 1000000)
 
-            base_cost_in_wei = await self.deposit_contract.functions.l2TransactionBaseCost(
+            base_cost_in_wei = int((await self.deposit_contract.functions.l2TransactionBaseCost(
                 await self.client.w3.eth.gas_price,
                 gas_limit,
                 800
-            ).call()
+            ).call()) * 1.2)
 
             tx_params = await self.client.prepare_transaction(value=amount_in_wei + base_cost_in_wei)
 
