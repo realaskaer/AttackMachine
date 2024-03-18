@@ -2,8 +2,8 @@ import uuid
 
 from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
-from config import TOKENS_PER_CHAIN, HELP_SOFTWARE
-from general_settings import SLIPPAGE, UNLIMITED_APPROVE
+from config import TOKENS_PER_CHAIN
+from general_settings import SLIPPAGE, UNLIMITED_APPROVE, HELP_SOFTWARE
 from modules import RequestClient, Logger
 
 

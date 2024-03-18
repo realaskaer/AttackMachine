@@ -3180,8 +3180,6 @@ LAYERZERO_NETWORKS_DATA = {
     46                      : ('Rarible', 235, 'ETH', 'ethereum'),
 }
 
-HELP_SOFTWARE = True  # True or False | Если True, контракт агрегатора будет переводить мне 1% от суммы свапа
-
 CHAIN_NAME = {
     0: 'OMNI-CHAIN',
     1: 'Arbitrum',

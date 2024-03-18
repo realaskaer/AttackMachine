@@ -87,7 +87,7 @@ def get_accounts_data():
                 account_name = row["Name"]
                 private_key = row["Private Key"]
                 proxy = row["Proxy"]
-                cex_address = row['OKX address']
+                cex_address = row['CEX address']
                 accounts_data[int(index) + 1] = {
                     "account_number": account_name,
                     "private_key": private_key,

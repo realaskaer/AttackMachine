@@ -70,19 +70,19 @@ class Seamless(Landing, Logger):
         if liquidity_balance != 0:
 
             self.logger_msg(
-                *self.client.acc_info, msg=f'Withdraw {liquidity_balance / 10 ** 18:.5f} aBaseETH from Seamless'
+                *self.client.acc_info, msg=f'Withdraw {liquidity_balance / 10 ** 18:.5f} sETH from Seamless'
             )
 
             await self.client.check_for_approved(
                 SEAMLESS_CONTRACTS[self.network]['weth_atoken'], SEAMLESS_CONTRACTS[self.network]['landing'],
-                liquidity_balance
+                liquidity_balance, unlimited_approve=True
             )
 
             tx_params = await self.client.prepare_transaction()
 
             transaction = await self.landing_contract.functions.withdrawETH(
                 SEAMLESS_CONTRACTS[self.network]['pool_proxy'],
-                2 ** 128 - 1,
+                2 ** 256 - 1,
                 self.client.address
             ).build_transaction(tx_params)
 
@@ -110,7 +110,7 @@ class Seamless(Landing, Logger):
 
             transaction = await self.proxy_contract.functions.withdraw(
                 usdb_address,
-                2 ** 128 - 1,
+                2 ** 256 - 1,
                 self.client.address
             ).build_transaction(tx_params)
 

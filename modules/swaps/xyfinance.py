@@ -1,8 +1,8 @@
-from general_settings import SLIPPAGE
+from general_settings import SLIPPAGE, HELP_SOFTWARE
 from modules import RequestClient, Logger
 from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
-from config import TOKENS_PER_CHAIN, ETH_MASK, HELP_SOFTWARE
+from config import TOKENS_PER_CHAIN, ETH_MASK
 
 
 class XYfinance(RequestClient, Logger):

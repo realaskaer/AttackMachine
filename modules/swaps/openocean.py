@@ -1,7 +1,7 @@
 from modules import RequestClient, Logger
 from utils.tools import gas_checker, helper
-from general_settings import SLIPPAGE
-from config import TOKENS_PER_CHAIN, ETH_MASK, HELP_SOFTWARE
+from general_settings import SLIPPAGE, HELP_SOFTWARE
+from config import TOKENS_PER_CHAIN, ETH_MASK
 
 
 class OpenOcean(RequestClient, Logger):
