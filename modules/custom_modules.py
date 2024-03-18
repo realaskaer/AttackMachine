@@ -1066,7 +1066,7 @@ class Custom(Logger, RequestClient):
                         fee_client, bridge_app_id, chain_from_id, fee_bridge_data, need_fee=True)
                     min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
                     if balance - bridge_fee - min_hold_balance > 0:
-                        if amount > bridge_fee:
+                        if amount > bridge_fee and from_token_name == client.token:
                             bridge_amount = round(amount - bridge_fee, 6)
                         else:
                             bridge_amount = amount
