@@ -121,7 +121,7 @@ class Custom(Logger, RequestClient):
         for data in balancer_data_copy:
             while True:
                 try:
-                    cex_network, wanted_balance, cex_wanted, amount = data
+                    cex_network, wanted_balance, cex_wanted = data
 
                     func, cex_config = {
                         1: (okx_withdraw_util, OKX_NETWORKS_NAME),
