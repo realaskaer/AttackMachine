@@ -316,7 +316,11 @@ class Custom(Logger, RequestClient):
                             used_chains.append(dst_chain)
 
                     else:
-                        if converted_chains[index] == 11:
+                        if isinstance(chains, tuple):
+                            if total_bridge_count != len(chains) - 1:
+                                raise SoftwareExceptionWithoutRetry('L0_BRIDGE_COUNT != all chains in params - 1')
+                            dst_chain = converted_chains[bridge_count + 1]
+                        elif converted_chains[index] == 11:
                             if len(converted_chains) == 2:
                                 dst_chain = random.choice([chain for chain in converted_chains if chain != 11])
                             elif len(converted_chains) == 3:
