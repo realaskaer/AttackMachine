@@ -21,9 +21,14 @@ class SyncSwap(DEX, Logger):
         self.client = client
         Logger.__init__(self)
         self.network = self.client.network.name
+
+        router_abi = SYNCSWAP_ABI['router']
+        if self.network == 'zkSync':
+            router_abi = SYNCSWAP_ABI['router2']
+
         self.router_contract = self.client.get_contract(
             SYNCSWAP_CONTRACTS[self.network]['router'],
-            SYNCSWAP_ABI['router']
+            router_abi
         )
         self.pool_factory_contract = self.client.get_contract(
             SYNCSWAP_CONTRACTS[self.network]['classic_pool_factory'],
@@ -149,8 +154,10 @@ class SyncSwap(DEX, Logger):
             self.client.w3.to_hex(swap_data),
             ZERO_ADDRESS,
             '0x',
-            True,
         ]
+
+        if self.client.network.name == 'zkSync':
+            steps.append(True)
 
         paths = [
             [steps],
@@ -357,9 +364,13 @@ class SyncSwap(DEX, Logger):
         min_lp_amount_out = int(amount_in_wei * total_supply / reserve_eth / 2 * 0.9965)
 
         inputs = [
-            (token_b_address, 0, True),
-            (ZERO_ADDRESS, amount_in_wei, True)
+            [token_b_address, 0],
+            [ZERO_ADDRESS, amount_in_wei]
         ]
+
+        if self.client.network.name == 'zkSync':
+            inputs[0].append(True)
+            inputs[1].append(True)
 
         tx_params = await self.client.prepare_transaction(value=amount_in_wei)
         transaction = await self.router_contract.functions.addLiquidity2(
