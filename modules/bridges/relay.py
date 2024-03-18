@@ -1,7 +1,6 @@
 from config import CHAIN_NAME_FROM_ID, ZERO_ADDRESS
 from modules import Bridge, Logger
 from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry
-from utils.tools import helper
 
 
 class Relay(Bridge, Logger):
@@ -55,10 +54,7 @@ class Relay(Bridge, Logger):
         return await self.make_request(method='POST', url=url, json=payload)
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
-        from_chain, to_chain, amount, to_chain_id, token_name, _, _, to_token_address = bridge_data
-
-        if need_check:
-            return 0
+        from_chain, to_chain, amount, to_chain_id, token_name, _, from_token_address, to_token_address = bridge_data
 
         supported_chains = [42161, 42170, 8453, 10, 324, 1, 7777777]
         if from_chain not in supported_chains or to_chain not in supported_chains:
@@ -69,17 +65,22 @@ class Relay(Bridge, Logger):
             bridge_info = f'{self.client.network.name} -> {token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
             self.logger_msg(*self.client.acc_info, msg=f'Bridge on Relay: {amount} {token_name} {bridge_info}')
 
+        decimals = 18 if token_name == self.client.token else await self.client.get_decimals(
+            token_address=from_token_address
+        )
+        amount_in_wei = self.client.to_wei(amount, decimals)
         networks_data = await self.get_bridge_config(to_chain)
+        tx_data = await self.get_bridge_data(dest_chain_id=to_chain, amount_in_wei=amount_in_wei)
+
+        if need_check:
+            fee = int(tx_data['fees']['relayer']) + int(tx_data['fees']['gas'])
+            return round(float(fee / 10 ** decimals), 6)
 
         if networks_data['enabled']:
 
             max_amount = networks_data['solver']['capacityPerRequest']
 
             if amount <= float(max_amount):
-
-                amount_in_wei = self.client.to_wei(amount)
-
-                tx_data = await self.get_bridge_data(dest_chain_id=to_chain, amount_in_wei=amount_in_wei)
 
                 transaction = (await self.client.prepare_transaction(value=amount_in_wei)) | {
                     'to': self.client.w3.to_checksum_address(tx_data["steps"][0]['items'][0]['data']['to']),
