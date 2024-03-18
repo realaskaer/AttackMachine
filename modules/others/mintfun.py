@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import random
 
 from modules import Minter, Logger, RequestClient
@@ -43,7 +44,10 @@ class MintFun(Minter, Logger, RequestClient):
     @helper
     @gas_checker
     async def mint(self):
-        for index, nft_contract in enumerate(MINTFUN_CONTRACTS):
+        mint_contracts = copy.deepcopy(MINTFUN_CONTRACTS)
+        random.shuffle(mint_contracts)
+
+        for index, nft_contract in enumerate(mint_contracts):
             try:
                 nft_contract = self.client.w3.to_checksum_address(nft_contract)
 
