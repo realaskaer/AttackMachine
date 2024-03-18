@@ -58,7 +58,8 @@ class Across(Bridge, Logger):
             bridge_info = f'{self.client.network.name} -> {token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
             self.logger_msg(*self.client.acc_info, msg=f'Bridge on Across: {amount} {token_name} {bridge_info}')
 
-        amount_in_wei = self.client.to_wei(amount)
+        decimals = await self.client.get_decimals(token_address=from_token_address)
+        amount_in_wei = self.client.to_wei(amount, decimals)
 
         min_limit, max_limit = await self.get_bridge_limits(to_chain, from_token_address)
 
@@ -94,6 +95,10 @@ class Across(Bridge, Logger):
 
                 if token_name != self.client.token:
                     value = 0
+                    await self.client.check_for_approved(
+                        TOKENS_PER_CHAIN[self.client.network.name][token_name], router_contract.address, amount_in_wei
+                    )
+
                 else:
                     value = amount_in_wei
 
