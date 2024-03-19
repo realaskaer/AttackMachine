@@ -18,9 +18,9 @@ from settings import HELP_NEW_MODULE, EXCLUDED_MODULES
 from config import ACCOUNT_NAMES, PRIVATE_KEYS, PROXIES, CHAIN_NAME
 from utils.route_generator import RouteGenerator, AVAILABLE_MODULES_INFO, get_func_by_name
 from utils.tools import clean_progress_file, clean_google_progress_file, clean_gwei_file, check_google_progress_file
-from general_settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, TG_ID, TG_TOKEN, MOBILE_PROXY,
+from general_settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME_MODULES, SOFTWARE_MODE, TG_ID, TG_TOKEN, MOBILE_PROXY,
                               MOBILE_PROXY_URL_CHANGER, WALLETS_TO_WORK, TELEGRAM_NOTIFICATIONS, GLOBAL_NETWORK,
-                              SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM, SHUFFLE_WALLETS, BREAK_ROUTE,
+                              SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_ACCOUNTS, SHUFFLE_WALLETS, BREAK_ROUTE,
                               STOP_SOFTWARE)
 
 
@@ -77,9 +77,9 @@ class Runner(Logger):
     async def smart_sleep(self, account_name, account_number, accounts_delay=False):
         if SLEEP_MODE and account_number:
             if accounts_delay:
-                duration = random.randint(*tuple(x * account_number for x in SLEEP_TIME_STREAM))
+                duration = random.randint(*tuple(x * account_number for x in SLEEP_TIME_ACCOUNTS))
             else:
-                duration = random.randint(*SLEEP_TIME)
+                duration = random.randint(*SLEEP_TIME_MODULES)
             self.logger_msg(account_name, None, f"💤 Sleeping for {duration} seconds\n")
             await asyncio.sleep(duration)
 

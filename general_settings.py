@@ -47,7 +47,7 @@ MIN_BALANCE = 0.001  # Количество ETH на аккаунте
     GOOGLE_SHEET_URL        | Ссылка на вашу Google таблицу с прогрессом аккаунтов
     GOOGLE_SHEET_PAGE_NAME  | Аналогично EXCEL_PAGE_NAME
 """
-GLOBAL_NETWORK = 11             # 26.12.2023 поддерживается все сети из OMNI-CHAIN CONTROL
+GLOBAL_NETWORK = 11             # Любая сеть, из указанных сверху
 SOFTWARE_MODE = 0               # 0 - последовательный запуск / 1 - параллельный запуск
 ACCOUNTS_IN_STREAM = 1          # Только для SOFTWARE_MODE = 1 (параллельный запуск)
 WALLETS_TO_WORK = 0             # 0 / 3 / 3, 20 / [3, 20]
@@ -55,13 +55,13 @@ SHUFFLE_WALLETS = False         # Перемешивает кошельки пе
 SHUFFLE_ROUTE = False           # Перемешивает маршрут перед запуском
 BREAK_ROUTE = False             # Прекращает выполнение маршрута, если произойдет ошибка
 STOP_SOFTWARE = False           # Прекращает выполнение всего софта, если произойдет критическая ошибка
-SAVE_PROGRESS = True            # True или False | Включает сохранение прогресса аккаунта для Classic-routes
-TELEGRAM_NOTIFICATIONS = False  # True или False | Включает уведомления в Telegram
+SAVE_PROGRESS = True            # Включает сохранение прогресса аккаунта для Classic-routes
+TELEGRAM_NOTIFICATIONS = False  # Включает уведомления в Telegram
 
 '------------------------------------------------SLEEP CONTROL---------------------------------------------------------'
 SLEEP_MODE = False               # True или False | Включает сон после каждого модуля и аккаунта
-SLEEP_TIME = (60, 80)          # (минимум, максимум) секунд | Время сна между модулями.
-SLEEP_TIME_STREAM = (40, 60)    # (минимум, максимум) секунд | Время сна между аккаунтами.
+SLEEP_TIME_MODULES = (60, 80)          # (минимум, максимум) секунд | Время сна между модулями.
+SLEEP_TIME_ACCOUNTS = (40, 60)    # (минимум, максимум) секунд | Время сна между аккаунтами.
 
 '-------------------------------------------------GAS CONTROL----------------------------------------------------------'
 GAS_CONTROL = False              # True или False | Включает контроль газа

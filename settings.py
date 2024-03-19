@@ -160,8 +160,8 @@ ACROSS_TOKEN_NAME = 'ETH'
 
 BUNGEE_CHAIN_ID_FROM = [3]                  # Исходящая сеть
 BUNGEE_CHAIN_ID_TO = [1]                    # Входящая сеть
-BUNGEE_BRIDGE_AMOUNT = (0.001, 0.001)               # (минимум, максимум) (% или кол-во)
-BUNGEE_TOKEN_NAME = ('ETH', 'ETH')       # ETH, BNB, MATIC, USDC, USDC.e, USDT
+BUNGEE_BRIDGE_AMOUNT = (0.001, 0.001)       # (минимум, максимум) (% или кол-во)
+BUNGEE_TOKEN_NAME = ('ETH', 'ETH')          # ETH, BNB, MATIC, USDC, USDC.e, USDT
 BUNGEE_ROUTE_TYPE = 5                       # см. BUNGEE_ROUTE_TYPE
 
 '-------------------------------------------------------LayerSwap------------------------------------------------------'
@@ -321,7 +321,7 @@ BRIDGE_AMOUNT_LIMITER = 0, (0, 0)  # (Ограничитель баланса, (
             
 """
 WAIT_FOR_RECEIPT = True     # Если True, будет ждать получения средств во входящей сети перед запуском очередного модуля
-ALL_DST_CHAINS = False       # Если True, то модули refuel и bridge попытаются сделать транзакцию в каждую входящую сеть
+ALL_DST_CHAINS = False      # Если True, то модули refuel и bridge попытаются сделать транзакцию в каждую входящую сеть
 L0_SEARCH_DATA = 0          # Поиск балансов в сетях. 0 - STARGATE_CHAINS, 1 - COREDAO_CHAINS
 
 '--------------------------------------------------Stargate / CoreDAO--------------------------------------------------'
@@ -471,7 +471,7 @@ CUSTOM_SWAP_DATA = ('ETH', 'USDC', (0.0007, 0.0008), 43)
 
 ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при 0 заминтит все NFT в случайном порядке
 
-ZKSYNC_PAYMASTER_TOKEN = 1  # 0 - USDT, 1 - USDC
+ZKSYNC_PAYMASTER_TOKEN = 1  # 0 - USDT, 1 - USDC, (0, 1) - случайный
 
 GRAPEDRAW_TICKETS_AMOUNT = 1
 

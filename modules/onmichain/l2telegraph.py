@@ -3,7 +3,7 @@ import random
 
 from faker import Faker
 
-from general_settings import SLEEP_TIME
+from general_settings import SLEEP_TIME_MODULES
 from modules.interfaces import SoftwareException
 from settings import DST_CHAIN_L2TELEGRAPH
 from utils.tools import sleep, gas_checker, helper
@@ -133,7 +133,7 @@ class L2Telegraph(Messenger, Logger):
 
             nft_id = await self.get_nft_id(tx_hash)
 
-            await sleep(self, *SLEEP_TIME)
+            await sleep(self, *SLEEP_TIME_MODULES)
 
             self.logger_msg(
                 *self.client.acc_info,

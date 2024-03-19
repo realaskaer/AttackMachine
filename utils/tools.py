@@ -22,7 +22,7 @@ from msoffcrypto.exceptions import DecryptionError, InvalidKeyError
 from aiohttp.client_exceptions import ClientProxyConnectionError, ClientHttpProxyError
 
 from general_settings import (
-    SLEEP_TIME,
+    SLEEP_TIME_MODULES,
     SLEEP_TIME_RETRY,
     MAXIMUM_RETRY,
     MAXIMUM_GWEI,
@@ -32,11 +32,11 @@ from general_settings import (
     CONTROL_TIMES_FOR_SLEEP,
     ACCOUNTS_IN_STREAM,
     SOFTWARE_MODE,
-    EXCEL_PAGE_NAME, SLEEP_TIME_STREAM
+    EXCEL_PAGE_NAME, SLEEP_TIME_ACCOUNTS
 )
 
 
-async def sleep(self, min_time=SLEEP_TIME[0], max_time=SLEEP_TIME[1]):
+async def sleep(self, min_time=SLEEP_TIME_MODULES[0], max_time=SLEEP_TIME_MODULES[1]):
     duration = random.randint(min_time, max_time)
     print()
     self.logger_msg(*self.client.acc_info, msg=f"💤 Sleeping for {duration} seconds")
@@ -307,7 +307,7 @@ def gas_checker(func):
                         self.client.account_name, None, f"{gas} Gwei | Gas price is good", type_msg='success')
                     if flag and counter == CONTROL_TIMES_FOR_SLEEP and SOFTWARE_MODE:
                         account_number = random.randint(1, ACCOUNTS_IN_STREAM)
-                        sleep_duration = tuple(x * account_number for x in SLEEP_TIME_STREAM)
+                        sleep_duration = tuple(x * account_number for x in SLEEP_TIME_ACCOUNTS)
                         await sleep(self, *sleep_duration)
                     return await func(self, *args, **kwargs)
 
