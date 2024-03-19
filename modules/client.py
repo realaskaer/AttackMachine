@@ -20,7 +20,7 @@ from general_settings import (
     MIN_BALANCE,
     LIQUIDITY_AMOUNT,
     PRICE_IMPACT,
-    GLOBAL_NETWORK, GAS_PRICE_MULTIPLIER,
+    GLOBAL_NETWORK, GAS_PRICE_MULTIPLIER, SLIPPAGE,
 )
 from settings import (
     ORBITER_CHAIN_ID_TO,
@@ -150,15 +150,17 @@ class Client(Logger):
             self, from_token_name: str, from_token_amount: float, to_token_name: str, to_token_amount_in_wei: int
     ):
 
+        to_token_amount_in_wei = int(to_token_amount_in_wei * (1 + SLIPPAGE / 100))
         to_token_amount = await self.get_normalize_amount(to_token_name, to_token_amount_in_wei)
 
         amount1_in_usd = (await self.get_token_price(COINGECKO_TOKEN_API_NAMES[from_token_name])) * from_token_amount
         amount2_in_usd = (await self.get_token_price(COINGECKO_TOKEN_API_NAMES[to_token_name])) * to_token_amount
-        price_impact = 100 - (amount2_in_usd / amount1_in_usd) * 100
+        dex_slippage = 100 - (amount2_in_usd / amount1_in_usd) * 100
 
-        if price_impact > PRICE_IMPACT:
+        if dex_slippage > SLIPPAGE:
             raise PriceImpactException(
-                f'DEX price impact > your wanted impact | DEX impact: {price_impact:.3}% > Your impact {PRICE_IMPACT}%')
+                f'DEX slippage > your wanted slippage | DEX slippage: {dex_slippage:.3}% > Your slippage {SLIPPAGE}%'
+            )
 
     async def get_bridge_data(self, chain_from_id: int, dapp_id: int):
         bridge_config, to_chain_ids, bridge_setting, bridge_token = {
