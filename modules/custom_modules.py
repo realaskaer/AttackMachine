@@ -402,7 +402,13 @@ class Custom(Logger, RequestClient):
 
         from_token_name, to_token_name, amount_tuple, networks = CUSTOM_SWAP_DATA
 
-        if isinstance(networks, list):
+        if isinstance(to_token_name, (list, tuple)):
+            to_token_name = random.choice(to_token_name)
+        
+        if isinstance(from_token_name, (list, tuple)):
+            from_token_name = random.choice(from_token_name)
+
+        if isinstance(networks, (list, tuple)):
             chains = networks
             tokens = [from_token_name for _ in range(len(chains))]
 
