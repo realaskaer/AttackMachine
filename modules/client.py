@@ -19,7 +19,6 @@ from general_settings import (
     AMOUNT_PERCENT,
     MIN_BALANCE,
     LIQUIDITY_AMOUNT,
-    PRICE_IMPACT,
     GLOBAL_NETWORK, GAS_PRICE_MULTIPLIER, SLIPPAGE,
 )
 from settings import (
@@ -541,6 +540,10 @@ class Client(Logger):
                             *self.acc_info, msg=f'Funds were received on destination chain', type_msg='success'
                         )
                         return True
+                    elif result["messages"][0]["status"] == "BLOCKED":
+                        self.logger_msg(
+                            *self.acc_info, msg=f'Your tx were blocked by LayerZero Relayer', type_msg='warning')
+                        return False
 
                 self.logger_msg(
                     *self.acc_info, msg=f'Waiting for funds on destination chain...', type_msg='warning')
