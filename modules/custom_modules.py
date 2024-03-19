@@ -404,7 +404,7 @@ class Custom(Logger, RequestClient):
 
         if isinstance(to_token_name, (list, tuple)):
             to_token_name = random.choice(to_token_name)
-        
+
         if isinstance(from_token_name, (list, tuple)):
             from_token_name = random.choice(from_token_name)
 

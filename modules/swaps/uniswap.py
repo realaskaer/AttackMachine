@@ -39,6 +39,8 @@ class Uniswap(DEX, Logger):
                 'MATIC/USDC': 500,
                 'MATIC/WETH': 500,
                 'WETH/MATIC': 500,
+                'USDC/USDC.e': 500,
+                'USDC.e/USDC': 500,
             }
         }[self.client.network.name]
 
