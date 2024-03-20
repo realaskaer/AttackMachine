@@ -1,6 +1,7 @@
 import asyncio
 
-from aiohttp import ClientSession
+from aiohttp import ClientSession, TCPConnector
+from aiohttp_socks import ProxyConnector
 from loguru import logger
 from sys import stderr
 from datetime import datetime
@@ -10,7 +11,7 @@ from config import CHAIN_NAME
 
 from general_settings import (LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS,
                               OKX_API_SECRET, GLOBAL_NETWORK, BINGX_API_KEY, BINGX_API_SECRET, BINANCE_API_KEY,
-                              BINANCE_API_SECRET, BITGET_API_SECRET, BITGET_API_KEY)
+                              BINANCE_API_SECRET, BITGET_API_SECRET, BITGET_API_KEY, MAIN_PROXY)
 
 
 def get_user_agent():
@@ -138,32 +139,35 @@ class CEX(ABC):
             'OKX': [58350],
         }[self.class_name]
 
-        async with ClientSession() as session:
-            async with session.request(
-                    method=method, url=url, headers=headers, data=data, json=json, params=params
-            ) as response:
-                data: dict = await response.json(content_type=content_type)
+        session = ClientSession(
+            connector=ProxyConnector.from_url(f"http://{MAIN_PROXY}", ) if MAIN_PROXY != '' else TCPConnector()
+        )
 
-                if self.class_name == 'Binance' and response.status in [200, 201]:
-                    return data
+        async with session.request(
+                method=method, url=url, headers=headers, data=data, json=json, params=params
+        ) as response:
+            data: dict = await response.json(content_type=content_type)
 
-                if int(data.get('code')) != 0:
-                    message = data.get('msg') or data.get('desc') or 'Unknown error'
-                    code = int(data['code'])
-                    if code in insf_balance_code:
-                        self.client.logger_msg(
-                            *self.client.acc_info,
-                            msg=f"Your CEX balance < your want transfer amount. Will try again in 5 min...",
-                            type_msg='warning'
-                        )
-                        await asyncio.sleep(300)
-                        raise InsufficientBalanceException('Trying request again...')
+            if self.class_name == 'Binance' and response.status in [200, 201]:
+                return data
 
-                    error = f"Error code: {data['code']} Msg: {message}"
-                    raise SoftwareException(f"Bad request to {self.class_name}({module_name}): {error}")
+            if int(data.get('code')) != 0:
+                message = data.get('msg') or data.get('desc') or 'Unknown error'
+                code = int(data['code'])
+                if code in insf_balance_code:
+                    self.client.logger_msg(
+                        *self.client.acc_info,
+                        msg=f"Your CEX balance < your want transfer amount. Will try again in 5 min...",
+                        type_msg='warning'
+                    )
+                    await asyncio.sleep(300)
+                    raise InsufficientBalanceException('Trying request again...')
 
-                # self.logger.success(f"{self.info} {module_name}")
-                return data['data']
+                error = f"Error code: {data['code']} Msg: {message}"
+                raise SoftwareException(f"Bad request to {self.class_name}({module_name}): {error}")
+
+            # self.logger.success(f"{self.info} {module_name}")
+            return data['data']
 
 
 class RequestClient(ABC):
