@@ -118,8 +118,8 @@ class Bungee(Refuel, Bridge, Logger):
                     "isContractCall": "false",
                     "showAutoRoutes": "false",
                 }
-
         response = await self.make_request(url=url, params=params, headers=self.headers)
+
         final_route = None
         if response['success']:
             all_routes = response['result']['routes']
@@ -132,7 +132,13 @@ class Bungee(Refuel, Bridge, Logger):
             if final_route and need_check:
                 return final_route
             elif not final_route and need_check:
-                return all_routes[0]
+                if all_routes:
+                    return all_routes[0]
+                from_chain_name = CHAIN_NAME_FROM_ID[self.client.chain_id]
+                to_chain_name = CHAIN_NAME_FROM_ID[to_chain_id]
+                raise SoftwareException(
+                    f'Bungee | Can`t find a route for bridge from {from_chain_name} to {to_chain_name}!'
+                )
             elif final_route:
                 if not need_check:
                     self.logger_msg(
@@ -219,7 +225,8 @@ class Bungee(Refuel, Bridge, Logger):
         old_balance_on_dst = await self.client.wait_for_receiving(
             token_address=to_token_address, token_name=to_token_name, chain_id=to_chain_id, check_balance_on_dst=True
         )
-
+        print(transaction)
+        return
         await self.client.send_transaction(transaction)
 
         self.logger_msg(*self.client.acc_info,

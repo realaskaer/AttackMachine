@@ -158,11 +158,11 @@ ACROSS_TOKEN_NAME = 'USDC'
 
 '--------------------------------------------------------Bungee--------------------------------------------------------'
 
-BUNGEE_CHAIN_ID_FROM = [3]                  # Исходящая сеть
-BUNGEE_CHAIN_ID_TO = [1]                    # Входящая сеть
-BUNGEE_BRIDGE_AMOUNT = (0.001, 0.001)       # (минимум, максимум) (% или кол-во)
+BUNGEE_CHAIN_ID_FROM = [10]                  # Исходящая сеть
+BUNGEE_CHAIN_ID_TO = [11]                    # Входящая сеть
+BUNGEE_BRIDGE_AMOUNT = (0.001, 0.003)       # (минимум, максимум) (% или кол-во)
 BUNGEE_TOKEN_NAME = ('ETH', 'ETH')          # ETH, BNB, MATIC, USDC, USDC.e, USDT
-BUNGEE_ROUTE_TYPE = 5                       # см. BUNGEE_ROUTE_TYPE
+BUNGEE_ROUTE_TYPE = 0                       # см. BUNGEE_ROUTE_TYPE
 
 '-------------------------------------------------------LayerSwap------------------------------------------------------'
 
@@ -827,7 +827,5 @@ HELPERS_CONFIG = {
 CLASSIC_WITHDRAW_DEPENDENCIES = False  # при True после каждого модуля на добавление ликвы в лендинг, будет ее выводить
 
 CLASSIC_ROUTES_MODULES_USING = [
-    ['okx_withdraw'],
-    ['bridge_layerswap', 'bridge_native'],
-    ['swap_mute', 'swap_izumi', 'mint_domain_ens', None],
+    ['bridge_bungee'],
 ]

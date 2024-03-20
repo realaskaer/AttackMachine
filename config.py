@@ -766,7 +766,7 @@ ORBITER_CONTRACTS = {
         'Linea'          :'0xD9D74a29307cc6Fc8BF424ee4217f1A587FBc8Dc',
         'Manta'          :'0xD9D74a29307cc6Fc8BF424ee4217f1A587FBc8Dc',
         'Polygon'        :'0xD9D74a29307cc6Fc8BF424ee4217f1A587FBc8Dc',
-        'Polygon ZKEVM'  :'0xD9D74a29307cc6Fc8BF424ee4217f1A587FBc8Dc',
+        'Polygon zkEVM'  :'0xD9D74a29307cc6Fc8BF424ee4217f1A587FBc8Dc',
     },
     "stark_contract"        : 0x173f81c529191726c6e7287e24626fe24760ac44dae2a1f7e02080230f8458b
 }
@@ -2728,7 +2728,7 @@ CHAIN_NAME_FROM_ID = {
     81457: 'Blast',
     534352: 'Scroll',
     'SN_MAIN': 'Starknet',
-    1101: 'Polygon ZKEVM',
+    1101: 'Polygon zkEVM',
     324: 'zkSync',
     7777777: 'Zora',
     1: 'Ethereum',
@@ -3192,7 +3192,7 @@ CHAIN_NAME = {
     7: 'Optimism',
     8: 'Scroll',
     9: 'Starknet',
-    10: 'Polygon ZKEVM',
+    10: 'Polygon zkEVM',
     11: 'zkSync',
     12: 'Zora',
     13: 'Ethereum',

@@ -1122,6 +1122,8 @@ class Custom(Logger, RequestClient):
             except Exception as error:
                 self.logger_msg(self.client.account_name, None, msg=f'{error}', type_msg='error')
                 msg = f"Software cannot continue, awaiting operator's action. Will try again in 1 min..."
+                traceback.print_exc()
+
                 self.logger_msg(self.client.account_name, None, msg=msg, type_msg='warning')
                 await asyncio.sleep(60)
             finally:
