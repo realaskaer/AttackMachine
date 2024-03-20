@@ -118,7 +118,7 @@ CEX_DEPOSIT_LIMITER = 0, (0, 0)         # (Ограничитель баланс
         Optimism = 7                    OpBNB = 28
         Scroll = 8                      Mantle = 29
         Starknet = 9                    ZKFair = 45
-        Polygon ZKEVM = 10              Blast = 49
+        Polygon zkEVM = 10              Blast = 49
                                            
     Сумма в количестве  - (0.01, 0.02)
     Сумма в процентах   - ("10", "20") ⚠️ Значения в кавычках
@@ -637,7 +637,8 @@ HELPERS_CONFIG = {
     swap_woofi                       
     swap_zkswap                 
     check_in_owlto                   # checkIn на сайте https://owlto.finance/confirm
-    wrap_eth                         # wrap/unwrap ETH через офф. контракт токена WETH. (кол-во из LIQUIDITY_AMOUNT)
+    wrap_eth                         # wrap ETH через офф. контракт токена WETH. (кол-во из LIQUIDITY_AMOUNT)
+    unwrap_eth                       # unwrap ETH через офф. контракт токена WETH. (кол-во из LIQUIDITY_AMOUNT)
     grapedraw_bid                    # создание ставки на GrapeDraw https://grapedraw.com. см. GRAPEDRAW_TICKETS_AMOUNT 
     vote_rubyscore                   # голосование на RubyScore https://rubyscore.io 
     create_omnisea                   # создание новой NFT коллекции. Все параметры будут рандомными
@@ -672,6 +673,8 @@ HELPERS_CONFIG = {
     swap_thruster
     swap_bladeswap
     swap_ambient
+    wrap_eth                         
+    unwrap_eth                       
     check_in_owlto
     deposit_abracadabra
     deposit_zerolend
@@ -687,6 +690,8 @@ HELPERS_CONFIG = {
     swap_rango
     swap_openocean
     swap_xyfinance
+    wrap_eth                         
+    unwrap_eth                       
     
 ----------------------------------------------------------BASE----------------------------------------------------------        
 
@@ -720,7 +725,9 @@ HELPERS_CONFIG = {
     random_approve
     transfer_eth                     
     transfer_eth_to_myself
-    wrap_abuser                      
+    wrap_abuser
+    wrap_eth                        
+    unwrap_eth                                  
     send_message_dmail
     withdraw_native_bridge
 
@@ -746,7 +753,9 @@ HELPERS_CONFIG = {
     random_approve
     transfer_eth                     
     transfer_eth_to_myself
-    wrap_abuser                     
+    wrap_abuser  
+    wrap_eth                      
+    unwrap_eth                                 
     send_message_dmail
     withdraw_native_bridge          
 
@@ -776,7 +785,9 @@ HELPERS_CONFIG = {
     transfer_eth                     
     transfer_eth_to_myself   
     send_message_dmail
-    wrap_abuser                     
+    wrap_abuser
+    wrap_eth                      
+    unwrap_eth                               
     withdraw_native_bridge
     
 ----------------------------------------------------------ZORA----------------------------------------------------------        
@@ -785,13 +796,17 @@ HELPERS_CONFIG = {
     mint_mintfun
     mint_zkstars
     deposit_rocketsam
+    wrap_eth                        
+    unwrap_eth                      
     transfer_eth                     
     transfer_eth_to_myself
 
 ----------------------------------------------------------NOVA----------------------------------------------------------        
     
     swap_sushiswap
-    deposit_rocketsam                          
+    deposit_rocketsam  
+    wrap_eth                        
+    unwrap_eth                                         
     transfer_eth                     
     transfer_eth_to_myself
     
