@@ -151,10 +151,10 @@ NATIVE_WITHDRAW_AMOUNT = (0.0001, 0.0002)  # (минимум, максимум) 
 
 '--------------------------------------------------------Across--------------------------------------------------------'
 
-ACROSS_CHAIN_ID_FROM = [11]                # Исходящая сеть
-ACROSS_CHAIN_ID_TO = [1]                  # Входящая сеть
-ACROSS_BRIDGE_AMOUNT = (6, 6)            # (минимум, максимум) (% или кол-во)
-ACROSS_TOKEN_NAME = 'USDC'
+ACROSS_CHAIN_ID_FROM = [6]                # Исходящая сеть
+ACROSS_CHAIN_ID_TO = [11]                  # Входящая сеть
+ACROSS_BRIDGE_AMOUNT = (1, 1)            # (минимум, максимум) (% или кол-во)
+ACROSS_TOKEN_NAME = 'USDT'
 
 '--------------------------------------------------------Bungee--------------------------------------------------------'
 
@@ -827,5 +827,7 @@ HELPERS_CONFIG = {
 CLASSIC_WITHDRAW_DEPENDENCIES = False  # при True после каждого модуля на добавление ликвы в лендинг, будет ее выводить
 
 CLASSIC_ROUTES_MODULES_USING = [
-    ['bridge_bungee'],
+    ['okx_withdraw'],
+    ['bridge_layerswap', 'bridge_native'],
+    ['swap_mute', 'swap_izumi', 'mint_domain_ens', None],
 ]
