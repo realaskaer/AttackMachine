@@ -276,13 +276,17 @@ class Custom(Logger, RequestClient):
                     if dapp_id == 1:
 
                         if any([isinstance(path, tuple) for path in chains]):
-                            tuple_chains = chains[1]
-                            if not isinstance(tuple_chains, tuple) and not isinstance(chains[0], int) and len(chains) != 2:
+                            tuple_chains = chains[-1]
+                            if not isinstance(tuple_chains, tuple) and not all(
+                                    isinstance(chain, int) for chain in chains[0: -1]
+                            ) and len(chains) != 2:
+                                setting_format = '[chain, chain, ..., (chain, chain, ...)]'
                                 raise SoftwareExceptionWithoutRetry(
-                                    'This mode on Stargate Bridges support only "[chain, (chain, chain)]" format')
+                                    f'This mode on Stargate Bridges support only {setting_format} format'
+                                )
                             if len(tuple_chains) == 2:
                                 if bridge_count + 1 == total_bridge_count:
-                                    dst_chain = converted_chains[0]
+                                    dst_chain = random.choice(chains[0: -1])
                                 elif converted_chains[index] == tuple_chains[1]:
                                     dst_chain = tuple_chains[0]
                                 elif converted_chains[index] == tuple_chains[0]:
@@ -293,7 +297,7 @@ class Custom(Logger, RequestClient):
                                     dst_chain = [chain for chain in tuple_chains if chain != converted_chains[index]]
                             else:
                                 if bridge_count + 1 == total_bridge_count:
-                                    dst_chain = converted_chains[0]
+                                    dst_chain = random.choice(chains[0: -1])
                                 else:
                                     dst_chains = [chain for chain in tuple_chains if chain != converted_chains[index]]
                                     dst_chain = random.choice(dst_chains)
