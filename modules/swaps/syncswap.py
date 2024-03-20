@@ -383,7 +383,8 @@ class SyncSwap(DEX, Logger):
             abi.encode(['address'], [self.client.address]),
             min_lp_amount_out,
             ZERO_ADDRESS,
-            '0x'
+            '0x',
+            ZERO_ADDRESS,
         ).build_transaction(tx_params)
 
         return await self.client.send_transaction(transaction)
