@@ -128,7 +128,7 @@ BaseRPC = Network(
         'https://mainnet.base.org',
     ],
     chain_id=8453,
-    eip1559_support=True,
+    eip1559_support=False,
     token='ETH',
     explorer='https://basescan.org/'
 )
