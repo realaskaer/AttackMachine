@@ -168,7 +168,7 @@ class CEX(ABC):
                 # self.logger.success(f"{self.info} {module_name}")
                 return data['data']
 
- 
+
 class RequestClient(ABC):
     def __init__(self, client):
         self.client = client

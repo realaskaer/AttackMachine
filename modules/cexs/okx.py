@@ -307,6 +307,8 @@ class OKX(CEX, Logger):
         network_raw_name = OKX_NETWORKS_NAME[deposit_network]
         split_network_data = network_raw_name.split('-')
         ccy, network_name = split_network_data[0], '-'.join(split_network_data[1:])
+        await self.transfer_from_subaccounts(ccy=ccy, silent_mode=True)
+
         if deposit_network in [29, 30]:
             ccy = f"{ccy}.e"
 
