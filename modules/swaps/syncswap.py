@@ -126,6 +126,10 @@ class SyncSwap(DEX, Logger):
         else:
             from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
+        if paymaster_mode and from_token_name != self.client.token:
+            amount = round(amount * 0.7, 3)
+            amount_in_wei = int(amount_in_wei * 0.7)
+
         if help_deposit:
             to_token_name = 'ETH'
 
