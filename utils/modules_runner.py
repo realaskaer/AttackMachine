@@ -192,17 +192,20 @@ class Runner(Logger):
             raise SoftwareException(f"{error}")
 
     async def change_ip_proxy(self):
-        try:
-            self.logger_msg(None, None, f'Trying to change IP address\n', 'info')
+        for index, proxy_url in enumerate(MOBILE_PROXY_URL_CHANGER, 1):
+            while True:
+                try:
+                    self.logger_msg(None, None, f'Trying to change IP №{index} address\n', 'info')
 
-            if not await self.make_request(url=MOBILE_PROXY_URL_CHANGER[0]):
-                await self.make_request(url=MOBILE_PROXY_URL_CHANGER[random.randint(1, 2)])
+                    await self.make_request(url=proxy_url)
 
-            self.logger_msg(None, None, f'IP address changed!\n', 'success')
-            await asyncio.sleep(15)
+                    self.logger_msg(None, None, f'IP №{index} address changed!\n', 'success')
+                    await asyncio.sleep(5)
+                    break
 
-        except Exception as error:
-            self.logger_msg(None, None, f'Bad URL for change IP. Error: {error}', 'error')
+                except Exception as error:
+                    self.logger_msg(None, None, f'Bad URL for change IP №{index}. Error: {error}', 'error')
+                    await asyncio.sleep(15)
 
     async def check_proxies_status(self):
         tasks = []
