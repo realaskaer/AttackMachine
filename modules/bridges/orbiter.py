@@ -39,13 +39,14 @@ class Orbiter(Bridge, Logger):
         raise BridgeExceptionWithoutRetry(f'That bridge is not active!')
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
-        from_chain, to_chain, amount, to_chain_id, token_name, _, from_token_address, to_token_address = bridge_data
+        (from_chain, to_chain, amount, to_chain_id, from_token_name,
+         to_token_name, from_token_address, to_token_address) = bridge_data
 
         if not need_check:
-            bridge_info = f'{amount} {token_name} from {from_chain["name"]} to {to_chain["name"]}'
+            bridge_info = f'{amount} {from_token_name} from {from_chain["name"]} to {to_chain["name"]}'
             self.logger_msg(*self.client.acc_info, msg=f'Bridge on Orbiter: {bridge_info}')
 
-        bridge_data = self.get_maker_data(from_chain['id'], to_chain['id'], token_name)
+        bridge_data = self.get_maker_data(from_chain['id'], to_chain['id'], from_token_name)
         destination_code = 9000 + to_chain['id']
         decimals = await self.client.get_decimals(token_address=from_token_address)
         fee = int(float(bridge_data['fee']) * 10 ** decimals)
@@ -57,7 +58,7 @@ class Orbiter(Bridge, Logger):
 
         min_price, max_price = bridge_data['min_amount'], bridge_data['max_amount']
 
-        if token_name != self.client.network.token:
+        if from_token_name != self.client.network.token:
             contract = self.client.get_contract(from_token_address)
 
             transaction = await contract.functions.transfer(
@@ -74,17 +75,21 @@ class Orbiter(Bridge, Logger):
                 raise SoftwareExceptionWithoutRetry('Math problem in Python. Machine will save your money =)')
 
             old_balance_on_dst = await self.client.wait_for_receiving(
-                token_address=to_token_address, chain_id=to_chain_id, check_balance_on_dst=True
+                token_address=to_token_address, token_name=to_token_name, chain_id=to_chain_id,
+                check_balance_on_dst=True
             )
 
             await self.client.send_transaction(transaction)
 
-            self.logger_msg(*self.client.acc_info,
-                            msg=f"Bridge complete. Note: wait a little for receiving funds", type_msg='success')
+            self.logger_msg(
+                *self.client.acc_info, msg=f"Bridge complete. Note: wait a little for receiving funds",
+                type_msg='success'
+            )
 
             return await self.client.wait_for_receiving(
-                token_address=to_token_address, chain_id=to_chain_id, old_balance=old_balance_on_dst
+                token_address=to_token_address, token_name=to_token_name, old_balance=old_balance_on_dst,
+                chain_id=to_chain_id
             )
 
         else:
-            raise BridgeExceptionWithoutRetry(f"Limit range for bridge: {min_price} – {max_price} {token_name}!")
+            raise BridgeExceptionWithoutRetry(f"Limit range for bridge: {min_price} – {max_price} {from_token_name}!")

@@ -62,7 +62,7 @@ class SimpleEVM(Logger):
 
         amount = await self.client.get_smart_amount(TRANSFER_AMOUNT)
         amount_in_wei = self.client.to_wei(amount)
-        
+
         self.logger_msg(*self.client.acc_info, msg=f"Transfer {amount} ETH to your own address: {self.client.address}")
 
         tx_params = await self.client.prepare_transaction(value=amount_in_wei) | {

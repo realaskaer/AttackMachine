@@ -158,7 +158,7 @@ ZoraRPC = Network(
 )
 
 Polygon_ZKEVM_RPC = Network(
-    name='Polygon ZKEVM',
+    name='Polygon zkEVM',
     rpc=[
         'https://1rpc.io/polygon/zkevm',
         'https://zkevm-rpc.com',

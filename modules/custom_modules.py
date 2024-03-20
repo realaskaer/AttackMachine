@@ -1060,7 +1060,15 @@ class Custom(Logger, RequestClient):
                 from_chain_name = client.network.name
                 to_chain_name = CHAIN_NAME[dst_chain_id]
                 from_token_addr = TOKENS_PER_CHAIN[from_chain_name][from_token_name]
-                to_token_addr = TOKENS_PER_CHAIN[to_chain_name][to_token_name]
+
+                if to_token_name == 'USDC':
+                    to_token_addr = TOKENS_PER_CHAIN[to_chain_name].get('USDC.e')
+                    if not to_token_addr:
+
+                        to_token_addr = TOKENS_PER_CHAIN[to_chain_name]['USDC']
+                else:
+
+                    to_token_addr = TOKENS_PER_CHAIN[to_chain_name][to_token_name]
 
                 balance_in_usd, token_price = balance_data
                 limit_amount, wanted_to_hold_amount = BRIDGE_AMOUNT_LIMITER

@@ -78,17 +78,17 @@ class Owlto(Bridge, Logger, RequestClient):
         return float((await self.make_request(url=url, params=params))['msg'])
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
-        from_chain, to_chain, amount, to_chain_id, token_name, _, _, _ = bridge_data
+        from_chain, to_chain, amount, to_chain_id, from_token_name, to_token_name, _, _ = bridge_data
         if not need_check:
-            bridge_info = f'{self.client.network.name} -> {token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
-            self.logger_msg(*self.client.acc_info, msg=f'Bridge on Owlto: {amount} {token_name} {bridge_info}')
+            bridge_info = f'{self.client.network.name} -> {from_token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
+            self.logger_msg(*self.client.acc_info, msg=f'Bridge on Owlto: {amount} {from_token_name} {bridge_info}')
 
         from_chain_info, to_chain_info = await self.get_chains_info(from_chain, to_chain)
-        lp_config = await self.get_lp_config(to_chain, token_name)
+        lp_config = await self.get_lp_config(to_chain, from_token_name)
         (maker_address, min_amount, max_amount, decimals,
          bridge_contract_address, from_token_address, to_token_address) = lp_config
 
-        fee = await self.get_tx_fee(from_chain_info['name'], to_chain_info['name'], amount, token_name)
+        fee = await self.get_tx_fee(from_chain_info['name'], to_chain_info['name'], amount, from_token_name)
 
         if need_check:
             return round(fee, 6)
@@ -98,7 +98,7 @@ class Owlto(Bridge, Logger, RequestClient):
         amount_in_wei = self.client.to_wei(round(amount, 6), decimals)
         full_amount = int(round(amount_in_wei + fee_in_wei, -2) + destination_code)
 
-        if token_name != self.client.network.token:
+        if from_token_name != self.client.network.token:
             contract = self.client.get_contract(from_token_address)
 
             transaction = await contract.functions.transfer(
@@ -115,7 +115,8 @@ class Owlto(Bridge, Logger, RequestClient):
                 raise SoftwareExceptionWithoutRetry('Math problem in Python. Machine will save your money =)')
 
             old_balance_on_dst = await self.client.wait_for_receiving(
-                token_address=from_token_address, chain_id=to_chain_id, check_balance_on_dst=True
+                token_address=to_token_address, token_name=to_token_name, chain_id=to_chain_id,
+                check_balance_on_dst=True
             )
 
             await self.client.send_transaction(transaction)
@@ -124,11 +125,12 @@ class Owlto(Bridge, Logger, RequestClient):
                             msg=f"Bridge complete. Note: wait a little for receiving funds", type_msg='success')
 
             return await self.client.wait_for_receiving(
-                token_address=from_token_address, old_balance=old_balance_on_dst, chain_id=to_chain_id
+                token_address=to_token_address, token_name=to_token_name, old_balance=old_balance_on_dst,
+                chain_id=to_chain_id
             )
 
         else:
-            raise BridgeExceptionWithoutRetry(f"Limit range for bridge: {min_amount} – {max_amount} {token_name}!")
+            raise BridgeExceptionWithoutRetry(f"Limit range for bridge: {min_amount} – {max_amount} {from_token_name}!")
 
     @helper
     @gas_checker

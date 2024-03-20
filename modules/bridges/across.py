@@ -39,24 +39,25 @@ class Across(Bridge, Logger):
 
         return int(limits_data['minDeposit']), int(limits_data['maxDeposit'])
 
-    async def check_available_routes(self, chain_id, token_name):
+    async def check_available_routes(self, chain_id, from_token_address, to_token_address):
         url = 'https://across.to/api/available-routes'
 
         params = {
             'originChainId': self.client.chain_id,
             'destinationChainId': chain_id,
-            'originToken': TOKENS_PER_CHAIN[self.network][token_name],
-            'destinationToken': TOKENS_PER_CHAIN[CHAIN_NAME_FROM_ID[chain_id]][token_name],
+            'originToken': from_token_address,
+            'destinationToken': to_token_address,
         }
 
         return await self.make_request(url=url, params=params)
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
-        from_chain, to_chain, amount, to_chain_id, token_name, _, from_token_address, to_token_address = bridge_data
+        (from_chain, to_chain, amount, to_chain_id, from_token_name,
+         to_token_name, from_token_address, to_token_address) = bridge_data
 
         if not need_check:
-            bridge_info = f'{self.client.network.name} -> {token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
-            self.logger_msg(*self.client.acc_info, msg=f'Bridge on Across: {amount} {token_name} {bridge_info}')
+            bridge_info = f'{self.client.network.name} -> {from_token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
+            self.logger_msg(*self.client.acc_info, msg=f'Bridge on Across: {amount} {from_token_name} {bridge_info}')
 
         decimals = await self.client.get_decimals(token_address=from_token_address)
         amount_in_wei = self.client.to_wei(amount, decimals)
@@ -65,7 +66,7 @@ class Across(Bridge, Logger):
 
         if min_limit <= amount_in_wei <= max_limit:
 
-            if await self.check_available_routes(to_chain, token_name):
+            if await self.check_available_routes(to_chain, from_token_address, to_token_address):
 
                 pool_adress, relay_fee_pct, relay_gas_fee_total, timestamp = await self.get_bridge_fee(
                     to_chain, amount_in_wei, from_token_address
@@ -93,10 +94,10 @@ class Across(Bridge, Logger):
                         contract_address=ACROSS_CONTRACT[self.network], abi=ACROSS_ABI['router']
                     )
 
-                if token_name != self.client.token:
+                if from_token_name != self.client.token:
                     value = 0
                     await self.client.check_for_approved(
-                        TOKENS_PER_CHAIN[self.client.network.name][token_name], router_contract.address, amount_in_wei
+                        TOKENS_PER_CHAIN[self.client.network.name][from_token_name], router_contract.address, amount_in_wei
                     )
 
                 else:
@@ -110,20 +111,26 @@ class Across(Bridge, Logger):
                 transaction['gas'] = int(transaction['gas'] * GAS_LIMIT_MULTIPLIER)
 
                 old_balance_on_dst = await self.client.wait_for_receiving(
-                    token_address=to_token_address, chain_id=to_chain_id, check_balance_on_dst=True
+                    token_address=to_token_address, token_name=to_token_name, chain_id=to_chain_id,
+                    check_balance_on_dst=True
                 )
 
                 await self.client.send_transaction(transaction)
 
-                self.logger_msg(*self.client.acc_info,
-                                msg=f"Bridge complete. Note: wait a little for receiving funds", type_msg='success')
+                self.logger_msg(
+                    *self.client.acc_info, msg=f"Bridge complete. Note: wait a little for receiving funds",
+                    type_msg='success'
+                )
 
                 return await self.client.wait_for_receiving(
-                    token_address=to_token_address, old_balance=old_balance_on_dst, chain_id=to_chain_id
+                    token_address=to_token_address, token_name=to_token_name, old_balance=old_balance_on_dst,
+                    chain_id=to_chain_id
                 )
 
             else:
                 raise BridgeExceptionWithoutRetry(f'Bridge route is not available!')
         else:
-            min_limit, max_limit = min_limit / 10 ** 18, max_limit / 10 ** 18
-            raise BridgeExceptionWithoutRetry(f'Limit range for bridge: {min_limit:.5f} - {max_limit:.2f} ETH!')
+            min_limit, max_limit = min_limit / 10 ** decimals, max_limit / 10 ** decimals
+            raise BridgeExceptionWithoutRetry(
+                f'Limit range for bridge: {min_limit:.5f} - {max_limit:.2f} {from_token_name}!'
+            )

@@ -54,7 +54,7 @@ class Relay(Bridge, Logger):
         return await self.make_request(method='POST', url=url, json=payload)
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
-        from_chain, to_chain, amount, to_chain_id, token_name, _, from_token_address, to_token_address = bridge_data
+        from_chain, to_chain, amount, to_chain_id, from_token_name, to_token_name, from_token_address, to_token_address = bridge_data
 
         supported_chains = [42161, 42170, 8453, 10, 324, 1, 7777777]
         if from_chain not in supported_chains or to_chain not in supported_chains:
@@ -62,10 +62,10 @@ class Relay(Bridge, Logger):
                 f'Bridge from {self.client.network.name} to {CHAIN_NAME_FROM_ID[to_chain]} is not exist')
 
         if not need_check:
-            bridge_info = f'{self.client.network.name} -> {token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
-            self.logger_msg(*self.client.acc_info, msg=f'Bridge on Relay: {amount} {token_name} {bridge_info}')
+            bridge_info = f'{self.client.network.name} -> {from_token_name} {CHAIN_NAME_FROM_ID[to_chain]}'
+            self.logger_msg(*self.client.acc_info, msg=f'Bridge on Relay: {amount} {from_token_name} {bridge_info}')
 
-        decimals = 18 if token_name == self.client.token else await self.client.get_decimals(
+        decimals = 18 if from_token_name == self.client.token else await self.client.get_decimals(
             token_address=from_token_address
         )
 
@@ -89,17 +89,22 @@ class Relay(Bridge, Logger):
                 }
 
                 old_balance_on_dst = await self.client.wait_for_receiving(
-                    token_address=to_token_address, chain_id=to_chain_id, check_balance_on_dst=True
+                    token_address=to_token_address, token_name=to_token_name, chain_id=to_chain_id,
+                    check_balance_on_dst=True
                 )
 
                 await self.client.send_transaction(transaction)
 
-                self.logger_msg(*self.client.acc_info,
-                                msg=f"Bridge complete. Note: wait a little for receiving funds", type_msg='success')
+                self.logger_msg(
+                    *self.client.acc_info, msg=f"Bridge complete. Note: wait a little for receiving funds",
+                    type_msg='success'
+                )
 
                 return await self.client.wait_for_receiving(
-                    token_address=to_token_address, old_balance=old_balance_on_dst, chain_id=to_chain_id
+                    token_address=to_token_address, token_name=to_token_name, old_balance=old_balance_on_dst,
+                    chain_id=to_chain_id
                 )
+
             else:
                 raise SoftwareException(f"Limit range for bridge: 0 - {max_amount} ETH")
         else:
