@@ -262,17 +262,20 @@ class Rhino(Bridge, Logger):
 
         raise SoftwareException(f"Deposit from {self.client.network.name} is not active!")
 
-    async def withdraw_from_rhino(self, rhino_user_config, amount, token_name, chain_to_name):
+    async def withdraw_from_rhino(self, rhino_user_config, amount, token_name, chain_to_name, need_refund:bool = False):
         decimals = await self.client.get_decimals(token_name) if token_name != 'ETH' else 8
         while True:
             await asyncio.sleep(4)
-            if int(amount * 10 ** decimals) <= int(await self.get_user_balance(token_name)):
+            if int(amount * 10 ** decimals) <= int(await self.get_user_balance(token_name)) or need_refund:
                 self.logger_msg(*self.client.acc_info, msg=f"Funds have been received to Rhino", type_msg='success')
                 break
             self.logger_msg(
                 *self.client.acc_info, msg=f"Wait a little, while the funds come into Rhino", type_msg='warning')
             await asyncio.sleep(1)
             await sleep(self, 90, 120)
+
+        if need_refund:
+            amount = int(await self.get_user_balance(token_name)) / 10 ** 8
 
         chain_name_log = chain_to_name.capitalize()
         self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount} {token_name} from Rhino to {chain_name_log}")
@@ -362,3 +365,13 @@ class Rhino(Bridge, Logger):
         return await self.client.wait_for_receiving(
             to_chain_id, old_balance_on_dst, token_name=to_token_name, token_address=to_token_address
         )
+
+    async def recovery_funds(self):
+        from settings import RHINO_CHAIN_ID_TO
+        from settings import RHINO_TOKEN_NAME
+
+        rhino_user_config = await self.get_user_config()
+        _, to_token_name = RHINO_TOKEN_NAME
+        to_chain = random.choice(RHINO_CHAIN_ID_TO)
+
+        await self.withdraw_from_rhino(rhino_user_config, 0, to_token_name, to_chain, need_refund=True)

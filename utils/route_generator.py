@@ -116,6 +116,7 @@ AVAILABLE_MODULES_INFO = {
     mint_mintfun                        : (mint_mintfun, 2, 'Mintfun mint', 0, [3, 4, 8, 11]),
     mint_hypercomic                     : (mint_hypercomic, 2, 'HyperComic mint', 0, [11]),
     claim_rewards_bungee                : (claim_rewards_bungee, 2, 'Claim Socket rewards', 0, [11]),
+    rhino_recovery_funds                : (rhino_recovery_funds, 2, 'Rhino refund', 0, [11]),
     grapedraw_bid                       : (grapedraw_bid, 2, 'Bid place on GrapeDraw', 1, [3, 11]),
     vote_rubyscore                      : (vote_rubyscore, 2, 'Vote on RubyScore', 1, [3, 4, 8, 11]),
     deploy_contract                     : (deploy_contract, 3, 'Contract deploy', 0, []),

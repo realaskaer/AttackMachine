@@ -958,3 +958,8 @@ async def claim_rewards_bungee(account_name, private_key, _, proxy):
     network = get_network_by_chain_id(1)
     worker = Bungee(get_client(account_name, private_key, network, proxy))
     return await worker.claim_rewards()
+
+
+async def rhino_recovery_funds(account_name, private_key, network, proxy):
+    worker = Rhino(get_client(account_name, private_key, network, proxy))
+    return await worker.recovery_funds()
