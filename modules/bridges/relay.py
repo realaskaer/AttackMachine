@@ -74,7 +74,7 @@ class Relay(Bridge, Logger):
         tx_data = await self.get_bridge_data(dest_chain_id=to_chain, amount_in_wei=amount_in_wei)
 
         if need_check:
-            fee = int(int(tx_data['fees']['gas']) * 100)
+            fee = int(int(tx_data['fees']['gas']))
             return round(float(fee / 10 ** decimals), 6)
 
         if networks_data['enabled']:
