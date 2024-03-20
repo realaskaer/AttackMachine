@@ -202,7 +202,6 @@ class Client(Logger):
                         )
                     else:
                         old_balance, _, _ = await client.get_token_balance(token_name, omnicheck=omnicheck)
-                    await client.session.close()
                     return old_balance
 
                 self.logger_msg(*self.acc_info, msg=f'Waiting {token_name} to receive')
@@ -240,7 +239,8 @@ class Client(Logger):
                 await asyncio.sleep(60)
                 await client.change_rpc()
             finally:
-                await client.session.close()
+                if client:
+                    await client.session.close()
 
     async def get_token_balance(
             self, token_name: str = None, check_symbol: bool = True, omnicheck: bool = False,

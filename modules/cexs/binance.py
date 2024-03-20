@@ -109,7 +109,7 @@ class Binance(CEX, Logger):
             sub_balance = 0.0 if len(asset_balances) == 0 else float(asset_balances[0]['free'])
 
             amount = amount if amount else sub_balance
-            if sub_balance == amount:
+            if sub_balance == amount and sub_balance != 0.0:
                 flag = False
                 self.logger_msg(*self.client.acc_info, msg=f'{sub_email} | subAccount balance : {sub_balance} {ccy}')
 
