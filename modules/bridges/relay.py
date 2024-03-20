@@ -68,12 +68,13 @@ class Relay(Bridge, Logger):
         decimals = 18 if token_name == self.client.token else await self.client.get_decimals(
             token_address=from_token_address
         )
+
         amount_in_wei = self.client.to_wei(amount, decimals)
         networks_data = await self.get_bridge_config(to_chain)
         tx_data = await self.get_bridge_data(dest_chain_id=to_chain, amount_in_wei=amount_in_wei)
 
         if need_check:
-            fee = int(tx_data['fees']['relayer']) + int(tx_data['fees']['gas'])
+            fee = int(int(tx_data['fees']['gas']) * 1.2)
             return round(float(fee / 10 ** decimals), 6)
 
         if networks_data['enabled']:
