@@ -225,8 +225,7 @@ class Bungee(Refuel, Bridge, Logger):
         old_balance_on_dst = await self.client.wait_for_receiving(
             token_address=to_token_address, token_name=to_token_name, chain_id=to_chain_id, check_balance_on_dst=True
         )
-        print(transaction)
-        return
+
         await self.client.send_transaction(transaction)
 
         self.logger_msg(*self.client.acc_info,
