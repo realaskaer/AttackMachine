@@ -89,10 +89,10 @@ class OKX(CEX, Logger):
                 sub_balance = float(sub_balance[0]['availBal'])
 
             await asyncio.sleep(1)
+            amount = amount if amount else sub_balance
 
-            if sub_balance != 0.0:
+            if sub_balance == amount:
                 flag = False
-                amount = amount if amount else sub_balance
                 self.logger_msg(*self.client.acc_info, msg=f'{sub_name} | subAccount balance : {sub_balance} {ccy}')
 
                 body = {

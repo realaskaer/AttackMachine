@@ -5,7 +5,7 @@ import time
 from hashlib import sha256
 from modules import CEX, Logger
 from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, InsufficientBalanceException
-from utils.tools import helper, get_wallet_for_deposit
+from utils.tools import get_wallet_for_deposit
 from config import BINANCE_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID, TOKENS_PER_CHAIN2
 
 
@@ -108,9 +108,9 @@ class Binance(CEX, Logger):
             asset_balances = [balance for balance in sub_balances['balances'] if balance['asset'] == ccy]
             sub_balance = 0.0 if len(asset_balances) == 0 else float(asset_balances[0]['free'])
 
-            if sub_balance != 0.0:
+            amount = amount if amount else sub_balance
+            if sub_balance == amount:
                 flag = False
-                amount = amount if amount else sub_balance
                 self.logger_msg(*self.client.acc_info, msg=f'{sub_email} | subAccount balance : {sub_balance} {ccy}')
 
                 params = {

@@ -124,11 +124,13 @@ class Bitget(CEX, Logger):
             if ccy_sub_balance:
                 ccy_sub_balance = float(ccy_sub_balance[0]['available'])
 
-                if ccy_sub_balance != 0.0:
+                amount = amount if amount else ccy_sub_balance
+                if ccy_sub_balance == amount:
                     flag = False
-                    amount = amount if amount else ccy_sub_balance
+
                     self.logger_msg(
-                        *self.client.acc_info, msg=f'{sub_id} | subAccount balance : {ccy_sub_balance} {ccy}')
+                        *self.client.acc_info, msg=f'{sub_id} | subAccount balance : {ccy_sub_balance} {ccy}'
+                    )
 
                     if ccy_sub_balance < amount:
                         amount = ccy_sub_balance
