@@ -5,7 +5,7 @@ from eth_account import Account
 from modules import Blockchain, Logger, Client
 from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry
 from utils.tools import gas_checker, helper
-from general_settings import TRANSFER_AMOUNT
+from general_settings import TRANSFER_AMOUNT, LIQUIDITY_AMOUNT
 from settings import (
     NATIVE_WITHDRAW_AMOUNT,
     NATIVE_DEPOSIT_AMOUNT, NATIVE_CHAIN_ID_TO,
@@ -105,7 +105,7 @@ class SimpleEVM(Logger):
     async def wrap_eth(self, amount_in_wei: int = None):
 
         if not amount_in_wei:
-            amount = await self.client.get_smart_amount()
+            amount = await self.client.get_smart_amount(LIQUIDITY_AMOUNT)
             amount_in_wei = self.client.to_wei(amount)
         else:
             amount = round(amount_in_wei / 10 ** 18, 5)
