@@ -345,9 +345,6 @@ class SyncSwap(DEX, Logger):
 
             return await self.client.send_transaction(send_mode=True, signed_tx=full_tx)
 
-        print(transaction)
-        return
-
         return await self.client.send_transaction(transaction)
 
     @helper
