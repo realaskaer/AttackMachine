@@ -41,7 +41,7 @@ class SyncSwap(DEX, Logger):
             'USDC': ("USD Coin" if self.client.network.name == "Scroll" else 'USDC', 2)
         }[token_name]
 
-        deadline = int(time()) + 10800
+        deadline = int(time()) + 11800
 
         permit_data = {
             "types": {
@@ -103,8 +103,7 @@ class SyncSwap(DEX, Logger):
         }
 
         text_encoded = encode_structured_data(permit_data)
-        sing_data = self.client.w3.eth.account.sign_message(text_encoded,
-                                                            private_key=self.client.private_key)
+        sing_data = self.client.w3.eth.account.sign_message(text_encoded, self.client.private_key)
 
         return deadline, sing_data.v, hex(sing_data.r), hex(sing_data.s)
 
@@ -139,7 +138,7 @@ class SyncSwap(DEX, Logger):
         to_token_address = TOKENS_PER_CHAIN[self.network][to_token_name]
 
         withdraw_mode = 1
-        deadline = int(time()) + 1800
+        deadline = int(time()) + 11850
         pool_address = await self.pool_factory_contract.functions.getPool(from_token_address, to_token_address).call()
         min_amount_out = await self.get_min_amount_out(pool_address, from_token_address, amount_in_wei)
 
@@ -147,7 +146,7 @@ class SyncSwap(DEX, Logger):
 
         if from_token_name != 'ETH':
             await self.client.check_for_approved(
-                from_token_address, SYNCSWAP_CONTRACTS[self.network]['router'], amount_in_wei
+                from_token_address, SYNCSWAP_CONTRACTS[self.network]['router'], amount_in_wei, unlimited_approve=True
             )
 
         swap_data = abi.encode(['address', 'address', 'uint8'],
@@ -173,7 +172,7 @@ class SyncSwap(DEX, Logger):
 
         if self.client.network.name == 'Scroll' and from_token_name != 'ETH':
             transaction = await self.router_contract.functions.swapWithPermit(
-                paths,
+                [paths],
                 min_amount_out,
                 deadline,
                 [
@@ -345,6 +344,9 @@ class SyncSwap(DEX, Logger):
             full_tx = f'0x{tx_eip712.encode().hex()}'
 
             return await self.client.send_transaction(send_mode=True, signed_tx=full_tx)
+
+        print(transaction)
+        return
 
         return await self.client.send_transaction(transaction)
 
