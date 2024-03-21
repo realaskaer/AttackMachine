@@ -296,30 +296,41 @@ def gas_checker(func):
 
             self.logger_msg(self.client.account_name, None, f"Checking for gas price")
 
-            w3 = AsyncWeb3(AsyncHTTPProvider(random.choice(EthereumRPC.rpc),
-                                             request_kwargs=self.client.request_kwargs))
+            w3 = AsyncWeb3(AsyncHTTPProvider(
+                random.choice(EthereumRPC.rpc), request_kwargs=self.client.request_kwargs)
+            )
             while True:
-                gas = round(AsyncWeb3.from_wei(await w3.eth.gas_price, 'gwei'), 3)
+                try:
+                    gas = round(AsyncWeb3.from_wei(await w3.eth.gas_price, 'gwei'), 3)
 
-                if gas < get_max_gwei_setting():
+                    if gas < get_max_gwei_setting():
 
-                    self.logger_msg(
-                        self.client.account_name, None, f"{gas} Gwei | Gas price is good", type_msg='success')
-                    if flag and counter == CONTROL_TIMES_FOR_SLEEP and SOFTWARE_MODE:
-                        account_number = random.randint(1, ACCOUNTS_IN_STREAM)
-                        sleep_duration = tuple(x * account_number for x in SLEEP_TIME_ACCOUNTS)
-                        await sleep(self, *sleep_duration)
-                    return await func(self, *args, **kwargs)
+                        self.logger_msg(
+                            self.client.account_name, None, f"{gas} Gwei | Gas price is good", type_msg='success')
+                        if flag and counter == CONTROL_TIMES_FOR_SLEEP and SOFTWARE_MODE:
+                            account_number = random.randint(1, ACCOUNTS_IN_STREAM)
+                            sleep_duration = tuple(x * account_number for x in SLEEP_TIME_ACCOUNTS)
+                            await sleep(self, *sleep_duration)
+                        return await func(self, *args, **kwargs)
 
-                else:
+                    else:
 
-                    flag = True
-                    counter += 1
-                    self.logger_msg(
-                        self.client.account_name, None,
-                        f"{gas} Gwei | Gas is too high. Next check in {SLEEP_TIME_GAS} second", type_msg='warning')
+                        flag = True
+                        counter += 1
+                        self.logger_msg(
+                            self.client.account_name, None,
+                            f"{gas} Gwei | Gas is too high. Next check in {SLEEP_TIME_GAS} second", type_msg='warning')
 
-                    await asyncio.sleep(SLEEP_TIME_GAS)
+                        await asyncio.sleep(SLEEP_TIME_GAS)
+                except (
+                        ClientProxyConnectionError, TimeoutError, ClientHttpProxyError, ProxyError, ClientResponseError
+                ) as error:
+                        self.logger_msg(
+                            *self.client.acc_info,
+                            msg=f"Connection to RPC is not stable. Will try again in 1 min...",
+                            type_msg='warning'
+                        )
+                        await asyncio.sleep(60)
         return await func(self, *args, **kwargs)
 
     return wrapper
