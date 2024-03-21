@@ -57,12 +57,20 @@ class Client(Logger):
         self.acc_info = account_name, self.address
 
     @staticmethod
-    def round_amount(min_amount: float, max_amount: float) -> float:
+    def custom_round(number:int | float, decimals:int = 0) -> float:
+        number = float(number)
+        str_number = f"{number}".split('.')
+        str_number_to_round = str_number[1]
+        rounded_number = str_number_to_round[:decimals]
+        final_number = float('.'.join([str_number[0], rounded_number]))
+        return final_number
+
+    def round_amount(self, min_amount: float, max_amount: float) -> float:
         if not isinstance(min_amount, float | int) or not isinstance(max_amount, float | int):
             raise SoftwareException('This setting does not support % amounts')
         decimals = max(len(str(min_amount)) - 1, len(str(max_amount)) - 1) + 1
         max_decimals = 6
-        return round(random.uniform(min_amount, max_amount), decimals if decimals <= max_decimals else 6)
+        return self.custom_round(random.uniform(min_amount, max_amount), decimals if decimals <= max_decimals else 6)
 
     @staticmethod
     def get_normalize_error(error: Exception) -> Exception | str:
@@ -140,7 +148,7 @@ class Client(Logger):
         if isinstance(settings[0], str) or need_percent:
             _, amount, _ = await self.get_token_balance(token_name, omnicheck=omnicheck)
             percent = round(random.uniform(float(settings[0]), float(settings[1])), 6) / 100
-            amount = round(amount * percent, 6)
+            amount = self.custom_round(amount * percent, 6)
         else:
             amount = self.round_amount(*settings)
         return amount
@@ -222,7 +230,7 @@ class Client(Logger):
                             else:
                                 decimals = await client.get_decimals(token_name, omnicheck=omnicheck)
 
-                        amount = round((new_eth_balance - old_balance) / 10 ** decimals, 6)
+                        amount = self.custom_round((new_eth_balance - old_balance) / 10 ** decimals, 6)
                         self.logger_msg(*self.acc_info, msg=f'{amount} {token_name} was received', type_msg='success')
                         return True
                     else:
@@ -314,7 +322,7 @@ class Client(Logger):
 
         if sum(valid_wallet_balance.values()) > MIN_BALANCE * eth_price:
 
-            valid_wallet_balance = {k: round(v, 7) for k, v in valid_wallet_balance.items()}
+            valid_wallet_balance = {k: self.custom_round(v, 7) for k, v in valid_wallet_balance.items()}
 
             biggest_token_balance_name = max(valid_wallet_balance, key=lambda x: valid_wallet_balance[x])
 
@@ -354,7 +362,7 @@ class Client(Logger):
             else:
                 percent = 1
 
-            amount = round(amount_from_token_on_balance * percent, 7)
+            amount = self.custom_round(amount_from_token_on_balance * percent, 7)
             amount_in_wei = int(amount_from_token_on_balance_in_wei * percent)
 
             return biggest_token_balance_name, random_to_token_name, amount, amount_in_wei

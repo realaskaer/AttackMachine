@@ -3,7 +3,7 @@ import time
 from eth_abi import abi
 
 from config import STARGATE_ABI, STARGATE_CONTRACTS, STARGATE_POOLS_ID, TOKENS_PER_CHAIN2, USDV_ABI, ZERO_ADDRESS, \
-    STG_ABI, L0_ENDPOINT_ABI, STARGATE_STG_CONFIG_CHECKERS, VESTG_ADDRESS, VESTG_ABI
+    STG_ABI, L0_ENDPOINT_ABI, STARGATE_STG_CONFIG_CHECKERS, VESTG_ADDRESS, VESTG_ABI, MAV_ABI
 from modules import Logger, Client
 from modules.interfaces import SoftwareExceptionWithoutRetry
 from utils.tools import helper, gas_checker
@@ -62,6 +62,55 @@ class Stargate(Logger):
                 adapter_params
             ).build_transaction(await self.client.prepare_transaction(value=int(estimate_fee * 1.05)))
 
+        elif from_token_name == 'MAV':
+            contracts = STARGATE_CONTRACTS[self.network]
+            otf_wrapper_contract = self.client.get_contract(contracts['otf_wrapper'], STARGATE_ABI['MAV'])
+            mav_contact = self.client.get_contract(TOKENS_PER_CHAIN2[self.network]['MAV'], MAV_ABI)
+
+            await self.client.check_for_approved(mav_contact.address, otf_wrapper_contract.address, amount_in_wei)
+
+            min_gas_limit = await mav_contact.functions.minDstGasLookup(
+                dst_chain_id,
+                0
+            ).call()
+
+            adapter_params = abi.encode(["uint16", "uint64"], [1, min_gas_limit])
+            adapter_params = self.client.w3.to_hex(adapter_params[30:])
+            try:
+                estimate_fee = (await otf_wrapper_contract.functions.estimateSendFee(
+                    mav_contact.address,
+                    dst_chain_id,
+                    dst_native_addr,
+                    0,
+                    False,
+                    adapter_params,
+                    (
+                        dst_native_amount,
+                        ZERO_ADDRESS,
+                        '0x0000'
+                    )
+                ).call())[0]
+
+                transaction = await otf_wrapper_contract.functions.sendOFT(
+                    mav_contact.address,
+                    dst_chain_id,
+                    self.client.address,
+                    amount_in_wei,
+                    min_amount_out,
+                    self.client.address,
+                    ZERO_ADDRESS,
+                    adapter_params,
+                    (
+                        dst_native_amount,
+                        ZERO_ADDRESS,
+                        '0x0000'
+                    )
+                ).build_transaction(await self.client.prepare_transaction(value=int(estimate_fee * 1.05)))
+            except Exception as error:
+                if '0xf4d678b8' in str(error):
+                    raise SoftwareExceptionWithoutRetry('Insufficient balance in this chain!')
+                else:
+                    raise error
         elif from_token_name == 'USDV':
             router_contract = self.client.get_contract(TOKENS_PER_CHAIN2[self.network]['USDV'], USDV_ABI)
             msg_contract_address = await router_contract.functions.getRole(3).call()
@@ -178,5 +227,6 @@ class Stargate(Logger):
             stake_amount_in_wei,
             deadline
         ).build_transaction(await self.client.prepare_transaction())
-
+        print(transaction)
+        return
         return await self.client.send_transaction(transaction)

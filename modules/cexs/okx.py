@@ -234,7 +234,7 @@ class OKX(CEX, Logger):
         await self.transfer_from_subs(ccy=ccy, silent_mode=True)
 
         if isinstance(amount, str):
-            amount = round(await self.get_balance(ccy=ccy) * float(amount), 6)
+            amount = self.client.custom_round(await self.get_balance(ccy=ccy) * float(amount), 6)
         else:
             amount = self.client.round_amount(*amount)
 

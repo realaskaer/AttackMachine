@@ -238,7 +238,8 @@ BRIDGE_AMOUNT_LIMITER = 0, (0, 0)  # (Ограничитель баланса, (
     
     STARGATE_AMOUNT | Определяет какую сумму нужно отправлять через мост. Поддерживается % и количественное указание
     STARGATE_CHAINS | Выберите чейны, между которыми будут производиться бриджи
-    STARGATE_TOKENS | Выберите монеты, между которыми будут производиться свапы. Доступны: ETH, USDT, USDC, USDV, STG. 
+    STARGATE_TOKENS | Выберите монеты, между которыми будут производиться свапы. 
+                      Доступны: ETH, USDT, USDC, USDV, STG, MAV
     STARGATE_DUST_CONFIG |  Пример: (['USDV', 'USDV'], [31, 6]). Софт отправит 0.000000(1-3)% от баланса токена в сети с
                             наибольшим балансом. Применяется только к модулю bridge_stargate_dust
     
@@ -332,8 +333,8 @@ STG_STAKE_CONFIG = [(1, 1), ('100', '100')]
 STARGATE_DUST_CONFIG = (['USDV', 'USDV'], [31, 6])
 
 STARGATE_AMOUNT = ('100', '100')
-STARGATE_CHAINS = [6, 31]
-STARGATE_TOKENS = ['USDV', 'USDV']
+STARGATE_CHAINS = [43, 7]
+STARGATE_TOKENS = ['MAV', 'MAV']
 
 COREDAO_AMOUNT = ('100', '100')
 COREDAO_CHAINS = [5, 11, 33]

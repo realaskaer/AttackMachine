@@ -205,7 +205,7 @@ class Custom(Logger, RequestClient):
 
             percent = round(random.uniform(*AMOUNT_PERCENT_WRAPS), 9) / 100 if max_token == 'ETH' else 1
             amount_in_wei = int(wallet_balance[max_token][0] * percent)
-            amount = float(f"{amount_in_wei / 10 ** 18:.6f}")
+            amount = self.client.custom_round(amount_in_wei / 10 ** 18, 6)
 
             if max_token == 'ETH':
                 msg = f'Wrap {amount:.6f} ETH'
@@ -489,7 +489,7 @@ class Custom(Logger, RequestClient):
                 if isinstance(chain_to_id, list):
                     chain_to_id = random.choice(chain_to_id)
                 attack_data = {
-                    chain_to_id: (amount, round(amount * 1.1, 7))
+                    chain_to_id: (amount, self.client.custom_round(amount * 1.1, 7))
                 }
             elif dapp_mode == 2:
                 chain_id_from, chain_to_id = attack_info
@@ -599,7 +599,7 @@ class Custom(Logger, RequestClient):
             )
 
             amount = await current_client.get_smart_amount(STG_STAKE_CONFIG[1], token_name='STG', omnicheck=True)
-            stake_amount = round(amount, 6)
+            stake_amount = self.client.custom_round(amount, 6)
             stake_amount_in_wei = current_client.to_wei(stake_amount, 18)
             lock_time = int((random.randint(*STG_STAKE_CONFIG[0]) * 30))
             if lock_time == 0:
@@ -904,7 +904,7 @@ class Custom(Logger, RequestClient):
                     network, amount = current_data
 
                     if isinstance(amount[0], str):
-                        amount = f"{round(random.uniform(float(amount[0]), float(amount[1])), 6) / 100}"
+                        amount = f"{self.client.custom_round(random.uniform(float(amount[0]), float(amount[1])), 6) / 100}"
 
                     result_list.append(await func(self.client, withdraw_data=(network, amount)))
 
@@ -994,7 +994,7 @@ class Custom(Logger, RequestClient):
 
                         if balance_in_usd >= dep_amount_in_usd:
 
-                            deposit_data = dep_network, round(dep_amount, 6)
+                            deposit_data = dep_network, self.client.custom_round(dep_amount, 6)
 
                             if len(deposit_data_copy) == 1:
                                 return await cex_deposit_util(client, dapp_id=class_id, deposit_data=deposit_data)
@@ -1086,12 +1086,12 @@ class Custom(Logger, RequestClient):
                     min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
                     if balance - bridge_fee - min_hold_balance > 0:
                         if amount > bridge_fee and from_token_name == client.token:
-                            bridge_amount = round(amount - bridge_fee, 6)
+                            bridge_amount = self.client.custom_round(amount - bridge_fee, 6)
                         else:
                             bridge_amount = amount
                         if balance - bridge_amount < min_hold_balance:
                             need_to_freeze_amount = min_hold_balance - (balance - bridge_amount)
-                            bridge_amount = round(bridge_amount - need_to_freeze_amount, 6)
+                            bridge_amount = self.client.custom_round(bridge_amount - need_to_freeze_amount, 6)
 
                         if bridge_amount < 0:
                             raise CriticalException(
@@ -1110,7 +1110,7 @@ class Custom(Logger, RequestClient):
                         info = f"{balance_in_usd:.2f}$ < {bridge_amount_in_usd:.2f}$"
                         raise CriticalException(f'Account {token_name} balance < wanted bridge amount: {info}')
 
-                    full_need_amount = round(bridge_fee + min_hold_balance, 6)
+                    full_need_amount = self.client.custom_round(bridge_fee + min_hold_balance, 6)
                     info = f"{balance:.2f} {token_name} < {full_need_amount:.2f} {token_name}"
                     raise CriticalException(f'Account {token_name} balance < bridge fee + hold amount: {info}')
 
