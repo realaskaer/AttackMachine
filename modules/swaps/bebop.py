@@ -148,6 +148,9 @@ class Bebop(DEX, Logger, RequestClient):
         if from_token_name == 'ETH':
             await wrap_eth(self.client.account_name, self.client.private_key, self.client.network,
                            self.client.proxy_init, amount_in_wei)
+            await self.client.check_for_approved(
+                TOKENS_PER_CHAIN[self.network]['WETH'], self.router_address, amount_in_wei
+            )
 
         if from_token_name != 'ETH':
             await self.client.check_for_approved(from_token_address, self.router_address, amount_in_wei)
