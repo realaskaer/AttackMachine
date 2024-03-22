@@ -3153,7 +3153,8 @@ COINGECKO_TOKEN_API_NAMES = {
      'USDbC': 'bridged-usd-coin-base',
      'STG': 'stargate-finance',
      'MAV': 'maverick-protocol',
-     'USDB': 'usdb'
+     'USDB': 'usdb',
+     'ARB': 'arbitrum',
 }
 
 LAYERZERO_NETWORKS_DATA = {
