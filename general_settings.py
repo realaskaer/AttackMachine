@@ -131,3 +131,6 @@ ONEINCH_API_KEY = ""
 
 # LAYERSWAP API KEY https://www.layerswap.io/dashboard
 LAYERSWAP_API_KEY = ""
+
+'---------------------------------------------------OTHER--------------------------------------------------------------'
+COINGECKO_CACHE_TTL = 120             # Как долго цена токена будет браться из кеша в секундах
