@@ -3140,7 +3140,8 @@ COINGECKO_TOKEN_API_NAMES = {
      'WETH': 'ethereum',
      'USDbC': 'bridged-usd-coin-base',
      'STG': 'stargate-finance',
-     'MAV': 'maverick-protocol'
+     'MAV': 'maverick-protocol',
+     'USDB': 'usdb'
 }
 
 LAYERZERO_NETWORKS_DATA = {
