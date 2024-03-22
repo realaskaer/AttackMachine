@@ -2885,9 +2885,9 @@ OKX_NETWORKS_NAME = {
     # 35                      : 'STG-Avalanche C-Chain',
     # 36                      : 'STG-Fantom',
     # 37                      : 'USDV-BSC',
-    38                      : 'ARB-ARBITRUM',
+    38                       : 'ARB-Arbitrum One',
     # 39                      : "MAV-BASE",
-    # 40                          : "MAV-ZKSYNCERA",
+    # 40                      : "MAV-ZKSYNCERA",
 }
 
 BINGX_NETWORKS_NAME = {
