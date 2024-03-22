@@ -23,7 +23,15 @@ class Merkly(Refuel, Minter, Logger):
     async def get_nft_id(self, tx_hash: HexStr):
         tx_receipt = await self.client.w3.eth.get_transaction_receipt(tx_hash)
 
-        return int((tx_receipt.logs[0].topics[3]).hex(), 16)
+        if self.client.network.name == 'zkSync':
+            nft_id = int((tx_receipt.logs[2].topics[3]).hex(), 16)
+            if not nft_id:
+                nft_id = int((tx_receipt.logs[3].topics[3]).hex(), 16)
+        elif self.client.network.name == 'Polygon':
+            nft_id = int((tx_receipt.logs[1].topics[3]).hex(), 16)
+        else:
+            nft_id = int((tx_receipt.logs[0].topics[3]).hex(), 16)
+        return nft_id
 
     async def get_estimate_send_fee(self, contract, adapter_params, dst_chain_id, nft_id):
         estimate_gas_bridge_fee = (await contract.functions.estimateSendFee(
