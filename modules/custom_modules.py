@@ -149,6 +149,7 @@ class Custom(Logger, RequestClient):
                         )
 
                         await func(client, withdraw_data=(cex_network, (need_to_withdraw, need_to_withdraw)))
+                        break
                     else:
                         self.logger_msg(
                             *self.client.acc_info, msg=f"Account have enough {dep_token} balance", type_msg='success'
