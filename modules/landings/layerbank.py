@@ -10,8 +10,12 @@ class LayerBank(Landing, Logger):
         Logger.__init__(self)
 
         self.network = self.client.network.name
-        self.landing_contract = self.client.get_contract(LAYERBANK_CONTRACTS[self.network]['landing'], LAYERBANK_ABI)
-        self.pool_contract = self.client.get_contract(LAYERBANK_CONTRACTS[self.network]['pool'])
+        self.landing_contract = self.client.get_contract(
+            LAYERBANK_CONTRACTS[self.network]['landing'], LAYERBANK_ABI['landing']
+        )
+        self.pool_contract = self.client.get_contract(
+            LAYERBANK_CONTRACTS[self.network]['pool'], LAYERBANK_ABI['pool']
+        )
 
     @helper
     @gas_checker
