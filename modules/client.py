@@ -528,8 +528,8 @@ class Client(Logger):
                 return float(data[token_name][vs_currency])
             elif response.status == 429:
                 self.logger_msg(
-                    *self.acc_info, msg=f'CoinGecko API got rate limit. Next try in 60 second', type_msg='warning')
-                await asyncio.sleep(60)
+                    *self.acc_info, msg=f'CoinGecko API got rate limit. Next try in 300 second', type_msg='warning')
+                await asyncio.sleep(300)
             raise SoftwareException(f'Bad request to CoinGecko API: {response.status}')
 
     async def wait_for_l0_received(self, tx_hash: HexStr) -> bool:
