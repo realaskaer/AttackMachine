@@ -2468,6 +2468,7 @@ LAYERSWAP_CHAIN_NAME = {
     15                      : 'BSC_MAINNET',
     28                      : 'OPBNB_MAINNET',
     29                      : 'MANTLE_MAINNET',
+    49                      : 'BLAST_MAINNET',
 }
 
 COREDAO_CONTRACS = {
