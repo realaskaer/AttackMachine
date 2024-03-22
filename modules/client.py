@@ -514,7 +514,7 @@ class Client(Logger):
                 await asyncio.sleep(poll_latency)
 
     async def get_token_price(self, token_name: str, vs_currency: str = 'usd') -> float:
-        await asyncio.sleep(5)  # todo поправить на 10с
+        await asyncio.sleep(10)  # todo поправить на 10с
         url = 'https://api.coingecko.com/api/v3/simple/price'
 
         params = {

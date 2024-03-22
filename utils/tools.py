@@ -223,8 +223,8 @@ def helper(func):
                         msg = f"Setting '{error}' for this module is not exist in software!"
 
                     elif 'rate limit' in str(error) or '429' in str(error):
-                        msg = f'Rate limit exceeded. Will try again in 1 min...'
-                        await asyncio.sleep(60)
+                        msg = f'Rate limit exceeded. Will try again in 5 min...'
+                        await asyncio.sleep(300)
                         no_sleep_flag = True
 
                     elif isinstance(error, (
