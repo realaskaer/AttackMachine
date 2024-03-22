@@ -195,7 +195,7 @@ class Scroll(Blockchain, SimpleEVM):
 
         if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
-            bridge_fee = await self.oracle_contract.functions.estimateCrossDomainMessageFee(168000).call()
+            bridge_fee = int(await self.oracle_contract.functions.estimateCrossDomainMessageFee(168000).call() * 1.2)
 
             tx_params = await self.client.prepare_transaction(value=amount_in_wei + bridge_fee)
 
