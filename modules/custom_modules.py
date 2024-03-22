@@ -112,7 +112,7 @@ class Custom(Logger, RequestClient):
     async def balance_average(self):
         from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util, bitget_withdraw
 
-        self.logger_msg(*self.client.acc_info, msg=f"Start check all balance to make average")
+        self.logger_msg(*self.client.acc_info, msg=f"Start checking all balances to make it average")
 
         balancer_data_copy = copy.deepcopy(CEX_BALANCER_CONFIG)
 
@@ -149,12 +149,11 @@ class Custom(Logger, RequestClient):
                         )
 
                         await func(client, withdraw_data=(cex_network, (need_to_withdraw, need_to_withdraw)))
-                        break
                     else:
                         self.logger_msg(
                             *self.client.acc_info, msg=f"Account have enough {dep_token} balance", type_msg='success'
                         )
-                        return True
+                    break
                 except Exception as error:
                     count += 1
                     if count == 3:
@@ -976,7 +975,7 @@ class Custom(Logger, RequestClient):
                         deposit_fee = await client.simulate_transfer(token_name=dep_token, omnicheck=omnicheck)
                         min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
 
-                        if dep_token == client.token:
+                        if dep_token == client.token and balance < dep_amount + deposit_fee:
                             dep_amount = dep_amount - deposit_fee
 
                         if balance - dep_amount < 0:
@@ -1086,7 +1085,7 @@ class Custom(Logger, RequestClient):
                         fee_client, bridge_app_id, chain_from_id, fee_bridge_data, need_fee=True)
                     min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
                     if balance - bridge_fee - min_hold_balance > 0:
-                        if amount > bridge_fee and from_token_name == client.token:
+                        if balance < amount + bridge_fee and from_token_name == client.token:
                             bridge_amount = self.client.custom_round(amount - bridge_fee, 6)
                         else:
                             bridge_amount = amount
