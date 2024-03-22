@@ -757,9 +757,9 @@ async def swap_uniswap(account_name, private_key, network, proxy, **kwargs):
     return await worker.swap(**kwargs)
 
 
-async def swap_bladeswap(account_name, private_key, network, proxy):
+async def swap_bladeswap(account_name, private_key, network, proxy, **kwargs):
     worker = BladeSwap(get_client(account_name, private_key, network, proxy))
-    return await worker.swap()
+    return await worker.swap(**kwargs)
 
 
 async def swap_sushiswap(account_name, private_key, network, proxy):
