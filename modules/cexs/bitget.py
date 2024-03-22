@@ -259,9 +259,7 @@ class Bitget(CEX, Logger):
 
                         ccy = f"{ccy}.e" if network_id in [29, 30] else ccy
 
-                        omnicheck = False
-                        if ccy in ['USDV', 'STG']:
-                            omnicheck = True
+                        omnicheck = True if ccy in ['USDV', 'STG', 'MAV'] else False
 
                         old_balance_on_dst = await self.client.wait_for_receiving(
                             dst_chain_id, token_name=ccy, omnicheck=omnicheck, check_balance_on_dst=True
@@ -304,9 +302,7 @@ class Bitget(CEX, Logger):
 
         await self.transfer_from_subaccounts(ccy=ccy, silent_mode=True)
 
-        omnicheck = False
-        if ccy in ['USDV', 'STG']:
-            omnicheck = True
+        omnicheck = True if ccy in ['USDV', 'STG', 'MAV'] else False
 
         self.logger_msg(
             *self.client.acc_info, msg=f"Deposit {amount} {ccy} from {network_name} to Bitget wallet: {info}")

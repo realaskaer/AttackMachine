@@ -2884,6 +2884,8 @@ OKX_NETWORKS_NAME = {
     # 36                      : 'STG-Fantom',
     # 37                      : 'USDV-BSC',
     38                      : 'ARB-ARBITRUM',
+    # 39                      : "MAV-BASE",
+    # 40                          : "MAV-ZKSYNCERA",
 }
 
 BINGX_NETWORKS_NAME = {
@@ -2925,6 +2927,8 @@ BINGX_NETWORKS_NAME = {
     # 36                      : 'STG-FTM',
     # 37                      : 'USDV-BSC',
     38                      : 'ARB-ARBITRUM',
+    # 39                      : "MAV-BASE",
+    40                      : "MAV-ZKSYNCERA",
 }
 
 BINANCE_NETWORKS_NAME = {
@@ -2966,6 +2970,8 @@ BINANCE_NETWORKS_NAME = {
     36                      : 'STG-FTM',
     # 37                      : 'USDV-BSC',
     38                      : 'ARB-ARBITRUM',
+    39                      : "MAV-BASE",
+    40                      : "MAV-ZKSYNCERA",
 }
 
 BITGET_NETWORKS_NAME = {
@@ -3007,6 +3013,8 @@ BITGET_NETWORKS_NAME = {
     # 36                      : 'STG-C-Chain',
     37                      : 'USDV-BEP20',
     38                      : 'ARB-ArbitrumOne',
+    # 39                      : "MAV-BASE",
+    # 40                      : "MAV-ZKSYNCERA",
 }
 
 CEX_WRAPPED_ID = {
@@ -3048,6 +3056,8 @@ CEX_WRAPPED_ID = {
      36                         : 33,
      37                         : 15,
      38                         : 1,
+     39                         : 3,
+     40                         : 11,
 }
 
 LAYERZERO_WRAPED_NETWORKS = {
