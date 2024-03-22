@@ -1,5 +1,6 @@
 import asyncio
 import random
+import time
 
 from asyncio import sleep
 from aiohttp import ClientSession, TCPConnector
@@ -20,6 +21,7 @@ from general_settings import (
     MIN_BALANCE,
     LIQUIDITY_AMOUNT,
     GLOBAL_NETWORK, GAS_PRICE_MULTIPLIER, SLIPPAGE,
+    COINGECKO_CACHE_TTL
 )
 from settings import (
     ORBITER_CHAIN_ID_TO,
@@ -55,6 +57,7 @@ class Client(Logger):
         self.private_key = private_key
         self.address = AsyncWeb3.to_checksum_address(self.w3.eth.account.from_key(private_key).address)
         self.acc_info = account_name, self.address
+        self.coingecko_cache = {}
 
     @staticmethod
     def custom_round(number:int | float, decimals:int = 0) -> float:
@@ -514,7 +517,12 @@ class Client(Logger):
                 await asyncio.sleep(poll_latency)
 
     async def get_token_price(self, token_name: str, vs_currency: str = 'usd') -> float:
-        await asyncio.sleep(5)  # todo поправить на 10с
+        if token_name in self.coingecko_cache:
+            cache = self.coingecko_cache[token_name]
+            if cache['ttl'] > time.time():
+                return cache['price']
+
+        await asyncio.sleep(10)
         url = 'https://api.coingecko.com/api/v3/simple/price'
 
         params = {
@@ -525,7 +533,9 @@ class Client(Logger):
         async with self.session.get(url, params=params) as response:
             if response.status == 200:
                 data = await response.json()
-                return float(data[token_name][vs_currency])
+                price = float(data[token_name][vs_currency])
+                self.coingecko_cache[token_name] = {'ttl': time.time() + COINGECKO_CACHE_TTL, 'price': price}
+                return price
             elif response.status == 429:
                 self.logger_msg(
                     *self.acc_info, msg=f'CoinGecko API got rate limit. Next try in 60 second', type_msg='warning')
