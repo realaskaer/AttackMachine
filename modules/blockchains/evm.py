@@ -25,36 +25,8 @@ class SimpleEVM(Logger):
 
         self.network = self.client.network.name
         self.token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.network]['WETH'], WETH_ABI)
-        if self.network in ['zkSync', 'Base', 'Scroll', 'Linea']:
-            self.deposit_contract = self.client.get_contract(
-                NATIVE_CONTRACTS_PER_CHAIN[self.network]['deposit'],
-                NATIVE_ABI[self.network]['deposit'])
-            self.withdraw_contract = self.client.get_contract(
-                NATIVE_CONTRACTS_PER_CHAIN[self.network]['withdraw'],
-                NATIVE_ABI[self.network]['withdraw'])
-        else:
-            pass
-
-    @helper
-    @gas_checker
-    async def deploy_contract(self):
-
-        try:
-            with open('data/services/contact_data.json') as file:
-                from json import load
-                contract_data = load(file)
-        except:
-            raise SoftwareException("Bad data in contract_json.json")
-
-        self.logger_msg(*self.client.acc_info, msg=f"Deploy contract on {self.client.network.name}")
-
-        tx_data = await self.client.prepare_transaction()
-
-        contract = self.client.w3.eth.contract(abi=contract_data['abi'], bytecode=contract_data['bytecode'])
-
-        transaction = await contract.constructor().build_transaction(tx_data)
-
-        return await self.client.send_transaction(transaction)
+        self.deposit_contract = None
+        self.withdraw_contract = None
 
     @helper
     @gas_checker
@@ -144,9 +116,11 @@ class SimpleEVM(Logger):
     @helper
     @gas_checker
     async def random_approve(self):
-        from config import (IZUMI_CONTRACTS, MAVERICK_CONTRACTS, MUTE_CONTRACTS, ODOS_CONTRACTS, ONEINCH_CONTRACTS,
-                            OPENOCEAN_CONTRACTS, PANCAKE_CONTRACTS, SPACEFI_CONTRACTS, SUSHISWAP_CONTRACTS,
-                            UNISWAP_CONTRACTS, VELOCORE_CONTRACTS, WOOFI_CONTRACTS, XYFINANCE_CONTRACTS, TOKENS_PER_CHAIN)
+        from config import (
+            IZUMI_CONTRACTS, MAVERICK_CONTRACTS, MUTE_CONTRACTS, ODOS_CONTRACTS, ONEINCH_CONTRACTS, OPENOCEAN_CONTRACTS,
+            PANCAKE_CONTRACTS, SPACEFI_CONTRACTS, SUSHISWAP_CONTRACTS, UNISWAP_CONTRACTS, VELOCORE_CONTRACTS,
+            WOOFI_CONTRACTS, XYFINANCE_CONTRACTS, TOKENS_PER_CHAIN
+        )
 
         all_contracts = {
             "iZumi":IZUMI_CONTRACTS,
@@ -196,9 +170,19 @@ class Scroll(Blockchain, SimpleEVM):
     def __init__(self, client):
         SimpleEVM.__init__(self, client)
         Blockchain.__init__(self, client)
+        self.deposit_contract = self.client.get_contract(
+            NATIVE_CONTRACTS_PER_CHAIN['Scroll']['deposit'],
+            NATIVE_ABI['Scroll']['deposit']
+        )
+        self.withdraw_contract = self.client.get_contract(
+            NATIVE_CONTRACTS_PER_CHAIN['Scroll']['withdraw'],
+            NATIVE_ABI['Scroll']['withdraw']
+        )
+
         self.oracle_contract = self.client.get_contract(
-            NATIVE_CONTRACTS_PER_CHAIN[self.network]["oracle"],
-            NATIVE_ABI[self.network]['oracle'])
+            NATIVE_CONTRACTS_PER_CHAIN['Scroll']["oracle"],
+            NATIVE_ABI['Scroll']['oracle']
+        )
 
     @helper
     @gas_checker
@@ -346,6 +330,15 @@ class Base(Blockchain, SimpleEVM):
         SimpleEVM.__init__(self, client)
         Blockchain.__init__(self, client)
 
+        self.deposit_contract = self.client.get_contract(
+            NATIVE_CONTRACTS_PER_CHAIN['Base']['deposit'],
+            NATIVE_ABI['Base']['deposit']
+        )
+        self.withdraw_contract = self.client.get_contract(
+            NATIVE_CONTRACTS_PER_CHAIN['Base']['withdraw'],
+            NATIVE_ABI['Base']['withdraw']
+        )
+
     @helper
     @gas_checker
     async def deposit(self):
@@ -402,7 +395,16 @@ class Linea(Blockchain, SimpleEVM):
         SimpleEVM.__init__(self, client)
         Blockchain.__init__(self, client)
 
-    async def get_bridge_fee(self, from_l1:bool = True):
+        self.deposit_contract = self.client.get_contract(
+            NATIVE_CONTRACTS_PER_CHAIN['Linea']['deposit'],
+            NATIVE_ABI['Linea']['deposit']
+        )
+        self.withdraw_contract = self.client.get_contract(
+            NATIVE_CONTRACTS_PER_CHAIN['Linea']['withdraw'],
+            NATIVE_ABI['Linea']['withdraw']
+        )
+
+    async def get_bridge_fee(self, from_l1: bool = True):
         margin = 2
         gas_limit = 106000
         new_client = await self.client.new_client(4 if from_l1 else 13)
@@ -529,8 +531,10 @@ class Zora(Blockchain, SimpleEVM):
     @helper
     @gas_checker
     async def bridge(self):
+
         amount = await self.client.get_smart_amount(NATIVE_DEPOSIT_AMOUNT)
         amount_in_wei = self.client.to_wei(amount)
+
         chain_to_name = CHAIN_NAME[random.choice(NATIVE_CHAIN_ID_TO)]
         contract_address, tx_data, value = await self.get_bridge_info(amount_in_wei, chain_to_name)
 
