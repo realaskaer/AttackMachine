@@ -41,10 +41,10 @@ class LayerBank(Landing, Logger):
 
         liquidity_balance = f"{liquidity_balance_in_wei / 10 ** 18:.4f}"
 
-        self.client.logger_msg(*self.client.acc_info, msg=f'Withdraw {liquidity_balance} ETH from LayerBank')
-
         if liquidity_balance_in_wei != 0:
 
+            self.client.logger_msg(*self.client.acc_info, msg=f'Withdraw {liquidity_balance} ETH from LayerBank')
+            
             tx_params = await self.client.prepare_transaction()
 
             transaction = await self.landing_contract.functions.redeemUnderlying(
