@@ -102,11 +102,10 @@ class Thruster(DEX, Logger, RequestClient):
                 ] if from_token_name != 'ETH' else None
             )
             full_data.append(tx_additional_data)
-        print(full_data)
+
         tx_params = await self.client.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
         transaction = await self.router_contract.functions.multicall(
             full_data
         ).build_transaction(tx_params)
-        print(transaction)
-        return
+
         return await self.client.send_transaction(transaction)
