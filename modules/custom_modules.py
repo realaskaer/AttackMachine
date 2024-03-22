@@ -960,7 +960,7 @@ class Custom(Logger, RequestClient):
 
                     balance_in_usd, token_price = balance_data
                     dep_token = dapp_tokens[chain_index]
-                    omnicheck = True if ccy in ['USDV', 'STG', 'MAV'] else False
+                    omnicheck = True if dep_token in ['USDV', 'STG', 'MAV'] else False
 
                     dep_network = networks if isinstance(networks, int) else networks[chain_index]
                     limit_amount, wanted_to_hold_amount = CEX_DEPOSIT_LIMITER
