@@ -318,7 +318,7 @@ class SyncSwap(DEX, Logger):
             signature = self.client.w3.eth.account.sign_message(
                 text_encoded, private_key=self.client.private_key
             ).signature
-            
+
             class PaymasterParams:
                 def __init__(self, paymaster_address, paymaster_input):
                     self.paymaster = paymaster_address

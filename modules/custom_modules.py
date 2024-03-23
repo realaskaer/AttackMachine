@@ -559,8 +559,8 @@ class Custom(Logger, RequestClient):
                     type_msg='warning'
                 )
                 await asyncio.sleep(60)
-            except SoftwareException:
-                raise SoftwareException
+            except SoftwareException as error:
+                raise error
             except Exception as error:
                 self.logger_msg(
                     *self.client.acc_info,
