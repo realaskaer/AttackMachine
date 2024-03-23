@@ -62,6 +62,8 @@ class Client(Logger):
     def custom_round(number:int | float, decimals:int = 0) -> float:
         number = float(number)
         str_number = f"{number}".split('.')
+        if len(str_number) != 2:
+            return round(number, 6)
         str_number_to_round = str_number[1]
         rounded_number = str_number_to_round[:decimals]
         final_number = float('.'.join([str_number[0], rounded_number]))
