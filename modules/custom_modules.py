@@ -158,6 +158,8 @@ class Custom(Logger, RequestClient):
                             *self.client.acc_info,
                             msg=f"Account have enough {dep_token} balance in {client.network.name}", type_msg='success'
                         )
+                    await client.session.close()
+                    await asyncio.sleep(10)
                     break
                 except Exception as error:
                     count += 1
@@ -165,7 +167,7 @@ class Custom(Logger, RequestClient):
                         raise SoftwareException(f"Exception: {error}")
                     self.logger_msg(*self.client.acc_info, msg=f"Exception: {error}", type_msg='error')
                 finally:
-                    if client:
+                    if not client.session.closed:
                         await client.session.close()
         return True
         # else:
