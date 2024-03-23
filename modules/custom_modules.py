@@ -148,13 +148,15 @@ class Custom(Logger, RequestClient):
                         need_to_withdraw = float(f"{(wanted_amount_in_usd - balance_in_usd) / token_price:.6f}")
 
                         self.logger_msg(
-                            *self.client.acc_info, msg=f"Not enough balance on account, launch CEX withdraw module"
+                            *self.client.acc_info,
+                            msg=f"Not enough balance on account in {client.network.name}, launch CEX withdraw module"
                         )
 
                         await func(client, withdraw_data=(cex_network, (need_to_withdraw, need_to_withdraw)))
                     else:
                         self.logger_msg(
-                            *self.client.acc_info, msg=f"Account have enough {dep_token} balance", type_msg='success'
+                            *self.client.acc_info,
+                            msg=f"Account have enough {dep_token} balance in {client.network.name}", type_msg='success'
                         )
                     break
                 except Exception as error:
