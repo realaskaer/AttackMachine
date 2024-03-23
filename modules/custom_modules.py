@@ -526,7 +526,7 @@ class Custom(Logger, RequestClient):
                     tokens = [client.token for client in clients]
 
                 balances = [await client.get_token_balance(
-                    omnicheck=omni_check if token not in ['USDV', 'STG'] else True, token_name=token,
+                    omnicheck=omni_check if token not in ['USDV', 'STG', 'MAV'] else True, token_name=token,
                 )
                             for client, token in zip(clients, tokens)]
 

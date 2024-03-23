@@ -46,8 +46,10 @@ class Client(Logger):
         self.chain_id = network.chain_id
 
         self.proxy_init = proxy
-        self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}", verify_ssl=False)
-                                     if proxy else TCPConnector(verify_ssl=False))
+        self.session = ClientSession(
+            connector=ProxyConnector.from_url(f"http://{proxy}", verify_ssl=False)
+            if proxy else TCPConnector(verify_ssl=False)
+        )
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
         self.rpc = random.choice(network.rpc)
         self.w3 = AsyncWeb3(AsyncHTTPProvider(self.rpc, request_kwargs=self.request_kwargs))
@@ -322,7 +324,7 @@ class Client(Logger):
 
         if sum(valid_wallet_balance.values()) > MIN_BALANCE * eth_price:
 
-            valid_wallet_balance = {k: self.custom_round(v, 7) for k, v in valid_wallet_balance.items()}
+            valid_wallet_balance = {k: self.custom_round(v, 6) for k, v in valid_wallet_balance.items()}
 
             biggest_token_balance_name = max(valid_wallet_balance, key=lambda x: valid_wallet_balance[x])
 
@@ -514,7 +516,7 @@ class Client(Logger):
                 await asyncio.sleep(poll_latency)
 
     async def get_token_price(self, token_name: str, vs_currency: str = 'usd') -> float:
-        await asyncio.sleep(10)  # todo поправить на 10с
+        await asyncio.sleep(10)  # todo поправить на 20с
         url = 'https://api.coingecko.com/api/v3/simple/price'
 
         params = {
