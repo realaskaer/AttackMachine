@@ -93,12 +93,12 @@ class OKX(CEX, Logger):
 
             if sub_balance == amount and sub_balance != 0.0:
                 flag = False
-                self.logger_msg(*self.client.acc_info, msg=f'{sub_name} | subAccount balance : {sub_balance} {ccy}')
+                self.logger_msg(*self.client.acc_info, msg=f'{sub_name} | subAccount balance : {sub_balance:.8f} {ccy}')
 
                 body = {
                     "ccy": ccy,
                     "type": "2",
-                    "amt": f"{amount}",
+                    "amt": f"{amount:.10f}",
                     "from": "6",
                     "to": "6",
                     "subAcct": sub_name
@@ -106,12 +106,13 @@ class OKX(CEX, Logger):
 
                 url_transfer = "https://www.okx.cab/api/v5/asset/transfer"
                 headers = await self.get_headers(method="POST", request_path=url_transfer, body=str(body))
+
                 await self.make_request(
                     method="POST", url=url_transfer, data=str(body), headers=headers, module_name='SubAccount transfer'
                 )
 
                 self.logger_msg(
-                    *self.client.acc_info, msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success'
+                    *self.client.acc_info, msg=f"Transfer {amount:.8f} {ccy} to main account complete", type_msg='success'
                 )
                 if not silent_mode:
                     break
@@ -302,6 +303,7 @@ class OKX(CEX, Logger):
         cex_wallet = get_wallet_for_deposit(self)
         info = f"{cex_wallet[:10]}....{cex_wallet[-6:]}"
         deposit_network, amount = deposit_data
+        amount = 0.000000931377
         network_raw_name = OKX_NETWORKS_NAME[deposit_network]
         split_network_data = network_raw_name.split('-')
         ccy, network_name = split_network_data[0], '-'.join(split_network_data[1:])

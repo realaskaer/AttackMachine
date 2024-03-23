@@ -138,7 +138,7 @@ class Bitget(CEX, Logger):
                     payload = {
                         "fromType": "spot",
                         "toType": "spot",
-                        "amount": f"{amount}",
+                        "amount": f"{amount:.10f}",
                         "coin": f"{ccy}",
                         "fromUserId": f"{sub_id}",
                         "toUserId": f"{main_id}",
@@ -231,7 +231,7 @@ class Bitget(CEX, Logger):
 
         await self.transfer_from_subaccounts(ccy=ccy, silent_mode=True)
 
-        self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount:.5f} {ccy} to {network_name}")
+        self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount:.8f} {ccy} to {network_name}")
 
         while True:
             try:
