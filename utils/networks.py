@@ -97,9 +97,6 @@ EthereumRPC = Network(
     name='Ethereum',
     rpc=[
         'https://rpc.ankr.com/eth',
-        'https://ethereum.publicnode.com',
-        'https://rpc.flashbots.net',
-        'https://1rpc.io/eth',
         'https://eth.drpc.org'
     ],
     chain_id=1,
