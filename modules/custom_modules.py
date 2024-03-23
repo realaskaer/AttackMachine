@@ -137,7 +137,7 @@ class Custom(Logger, RequestClient):
                     dapp_chains = [CEX_WRAPPED_ID[cex_network]]
 
                     client, index, balance, balance_in_wei, balance_data = await self.balance_searcher(
-                        chains=dapp_chains, tokens=dapp_tokens, omni_check=False, silent_mode=True
+                        chains=dapp_chains, tokens=dapp_tokens, omni_check=False, silent_mode=True, balancer_mode=True
                     )
 
                     dep_token = dapp_tokens[index]
@@ -158,7 +158,6 @@ class Custom(Logger, RequestClient):
                             *self.client.acc_info,
                             msg=f"Account have enough {dep_token} balance in {client.network.name}", type_msg='success'
                         )
-                    await client.session.close()
                     await asyncio.sleep(10)
                     break
                 except Exception as error:
@@ -167,7 +166,7 @@ class Custom(Logger, RequestClient):
                         raise SoftwareException(f"Exception: {error}")
                     self.logger_msg(*self.client.acc_info, msg=f"Exception: {error}", type_msg='error')
                 finally:
-                    if not client.session.closed:
+                    if client:
                         await client.session.close()
         return True
         # else:
@@ -512,7 +511,8 @@ class Custom(Logger, RequestClient):
         return True
 
     async def balance_searcher(
-            self, chains, tokens=None, omni_check:bool = True, native_check:bool = False, silent_mode:bool = False
+            self, chains, tokens=None, omni_check:bool = True, native_check:bool = False, silent_mode:bool = False,
+            balancer_mode:bool=False
     ):
         index = 0
         clients = []
@@ -529,7 +529,7 @@ class Custom(Logger, RequestClient):
                 )
                             for client, token in zip(clients, tokens)]
 
-                if all(balance_in_wei == 0 for balance_in_wei, _, _ in balances):
+                if all(balance_in_wei == 0 for balance_in_wei, _, _ in balances) and not balancer_mode:
                     raise SoftwareException('Insufficient balances in all networks!')
 
                 balances_in_usd = []
