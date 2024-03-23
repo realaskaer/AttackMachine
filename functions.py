@@ -520,9 +520,9 @@ async def swap_izumi(account_name, private_key, network, proxy, **kwargs):
     return await worker.swap(**kwargs)
 
 
-async def swap_ambient(account_name, private_key, network, proxy):
+async def swap_ambient(account_name, private_key, network, proxy, **kwargs):
     worker = Ambient(get_client(account_name, private_key, network, proxy))
-    return await worker.swap()
+    return await worker.swap(**kwargs)
 
 
 async def swap_zebra(account_name, private_key, network, proxy):

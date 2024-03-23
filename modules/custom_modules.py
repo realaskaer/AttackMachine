@@ -40,7 +40,9 @@ class Custom(Logger, RequestClient):
         RequestClient.__init__(self, client)
 
     async def collect_eth_util(self):
-        from functions import swap_odos, swap_oneinch, swap_izumi, swap_syncswap, swap_bladeswap, unwrap_eth
+        from functions import (
+            swap_odos, swap_oneinch, swap_izumi, swap_syncswap, swap_bladeswap, unwrap_eth, swap_ambient
+        )
 
         self.logger_msg(*self.client.acc_info, msg=f"Started collecting tokens in ETH")
 
@@ -48,7 +50,7 @@ class Custom(Logger, RequestClient):
             'Base': [swap_izumi, swap_odos, swap_oneinch],
             'Blast': [swap_bladeswap],
             'Linea': [swap_izumi, swap_syncswap],
-            'Scroll': [swap_izumi, swap_syncswap],
+            'Scroll': [swap_izumi, swap_ambient],
             'zkSync': [swap_izumi, swap_syncswap, swap_odos, swap_oneinch]
         }[self.client.network.name]
 
