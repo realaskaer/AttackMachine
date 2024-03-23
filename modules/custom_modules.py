@@ -6,7 +6,7 @@ import aiohttp.client_exceptions
 import python_socks
 
 from modules import Logger, RequestClient, Client
-from general_settings import AMOUNT_PERCENT_WRAPS
+from general_settings import AMOUNT_PERCENT_WRAPS, VOLUME_MODE
 from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry, CriticalException
 from utils.tools import helper, gas_checker, sleep
 from config import (
@@ -1012,10 +1012,13 @@ class Custom(Logger, RequestClient):
                 except CriticalException as error:
                     raise error
                 except Exception as error:
-                    self.logger_msg(self.client.account_name, None, msg=f'{error}', type_msg='error')
-                    msg = f"Software cannot continue, awaiting operator's action. Will try again in 1 min..."
-                    self.logger_msg(self.client.account_name, None, msg=msg, type_msg='warning')
-                    await asyncio.sleep(60)
+                    if VOLUME_MODE:
+                        self.logger_msg(self.client.account_name, None, msg=f'{error}', type_msg='error')
+                        msg = f"Software cannot continue, awaiting operator's action. Will try again in 1 min..."
+                        self.logger_msg(self.client.account_name, None, msg=msg, type_msg='warning')
+                        await asyncio.sleep(60)
+                    else:
+                        raise error
                 finally:
                     if client:
                         await client.session.close()
@@ -1119,12 +1122,15 @@ class Custom(Logger, RequestClient):
             except CriticalException as error:
                 raise error
             except Exception as error:
-                self.logger_msg(self.client.account_name, None, msg=f'{error}', type_msg='error')
-                msg = f"Software cannot continue, awaiting operator's action. Will try again in 1 min..."
-                traceback.print_exc()
+                if VOLUME_MODE:
+                    self.logger_msg(self.client.account_name, None, msg=f'{error}', type_msg='error')
+                    msg = f"Software cannot continue, awaiting operator's action. Will try again in 1 min..."
+                    traceback.print_exc()
 
-                self.logger_msg(self.client.account_name, None, msg=msg, type_msg='warning')
-                await asyncio.sleep(60)
+                    self.logger_msg(self.client.account_name, None, msg=msg, type_msg='warning')
+                    await asyncio.sleep(60)
+                else:
+                    raise error
             finally:
                 if client:
                     await client.session.close()
