@@ -283,13 +283,13 @@ class Client(Logger):
         return amount_in_wei, amount_in_wei / 10 ** 18, self.network.token
 
     async def check_and_get_eth(self, settings: tuple = None) -> [float, int]:
-        from functions import swap_odos, swap_oneinch, swap_izumi, swap_syncswap
+        from functions import swap_odos, swap_oneinch, swap_izumi, swap_syncswap, swap_ambient
 
         try:
             func = {
                 'Base': [swap_izumi, swap_odos, swap_oneinch],
                 'Linea': [swap_izumi, swap_syncswap],
-                'Scroll': [swap_izumi, swap_syncswap],
+                'Scroll': [swap_izumi, swap_ambient],
                 'zkSync': [swap_izumi, swap_syncswap, swap_odos, swap_oneinch]
             }[self.network.name]
 
@@ -299,8 +299,8 @@ class Client(Logger):
             if data is False:
                 self.logger_msg(*self.acc_info, msg=f'Not enough ETH! Launching swap module', type_msg='warning')
                 await module_func(self.account_name, self.private_key, self.network, self.proxy_init, help_deposit=True)
-        except:
-            pass
+        except Exception as error:
+            self.logger_msg(*self.acc_info, msg=f'Error in <check_and_get_eth> func: {error}', type_msg='warning')
 
         amount = await self.get_smart_amount(settings if settings else LIQUIDITY_AMOUNT)
         amount_in_wei = self.to_wei(amount)

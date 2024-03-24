@@ -96,12 +96,13 @@ class SimpleEVM(Logger):
 
     @helper
     @gas_checker
-    async def unwrap_eth(self, amount_in_wei: int = None):
+    async def unwrap_eth(self, swapdata: int = None):
 
-        if not amount_in_wei:
+        if not swapdata:
             amount_in_wei, amount, _ = await self.client.get_token_balance('WETH', check_symbol=False)
         else:
-            amount = round(amount_in_wei / 10 ** 18, 5)
+            amount = round(swapdata / 10 ** 18, 5)
+            amount_in_wei = swapdata
 
         self.logger_msg(*self.client.acc_info, msg=f'Unwrap {amount:.6f} WETH')
 

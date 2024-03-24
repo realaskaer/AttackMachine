@@ -76,9 +76,10 @@ class Custom(Logger, RequestClient):
                         amount_in_usd = valid_wallet_balance[token_name]
                         if amount_in_usd > 1:
                             from_token_name, to_token_name = token_name, 'ETH'
+                            data = from_token_name, to_token_name, amount, amount_in_wei
                             if from_token_name == 'WETH':
                                 func = [unwrap_eth]
-                            data = from_token_name, to_token_name, amount, amount_in_wei
+                                data = amount_in_wei
                             counter = 0
                             while True:
                                 result = False

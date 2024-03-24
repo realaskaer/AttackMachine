@@ -473,9 +473,9 @@ async def wrap_eth(account_name, private_key, network, proxy, *args):
     return await worker.wrap_eth(*args)
 
 
-async def unwrap_eth(account_name, private_key, network, proxy, *args):
+async def unwrap_eth(account_name, private_key, network, proxy, **kwargs):
     worker = SimpleEVM(get_client(account_name, private_key, network, proxy))
-    return await worker.unwrap_eth(*args)
+    return await worker.unwrap_eth(**kwargs)
 
 
 async def deploy_contract(account_name, private_key, network, proxy):

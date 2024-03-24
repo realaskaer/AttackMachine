@@ -171,6 +171,6 @@ class Bebop(DEX, Logger, RequestClient):
 
         if from_token_name != 'ETH':
             await unwrap_eth(self.client.account_name, self.client.private_key, self.client.network,
-                             self.client.proxy_init, amount_in_wei)
+                             self.client.proxy_init, swapdata=amount_in_wei)
 
         return await self.client.send_transaction(tx_hash=tx_hash)

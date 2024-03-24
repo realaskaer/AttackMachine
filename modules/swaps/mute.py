@@ -88,6 +88,9 @@ class Mute(DEX, Logger):
         usdc_balance_in_wei, usdc_balance, _ = await self.client.get_token_balance('USDC')
 
         if usdc_balance < (amount / 2):
+            self.logger_msg(
+                *self.client.acc_info, msg=f'Not enough USDC balance, launch {amount} ETH -> USDC swap'
+            )
             await self.swap(help_add_liquidity=True, amount_to_help=round(amount / 2 * 1.1, 8))
 
         amount_in_wei = self.client.to_wei(amount)
