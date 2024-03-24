@@ -86,8 +86,9 @@ class Mute(DEX, Logger):
         amount, amount_in_wei = await self.client.check_and_get_eth()
 
         usdc_balance_in_wei, usdc_balance, _ = await self.client.get_token_balance('USDC')
+        eth_price = await self.client.get_token_price('ethereum')
 
-        if usdc_balance < (amount / 2):
+        if usdc_balance < (amount / eth_price / 2):
             self.logger_msg(
                 *self.client.acc_info, msg=f'Not enough USDC balance, launch {amount} ETH -> USDC swap'
             )
