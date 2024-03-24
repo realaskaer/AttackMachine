@@ -60,13 +60,16 @@ class ZeroLend(Landing, Logger):
     @helper
     @gas_checker
     async def withdraw(self):
-        self.logger_msg(*self.client.acc_info, msg=f'Withdraw liquidity from ZeroLend')
 
         liquidity_balance = await self.client.get_contract(
             ZEROLEND_CONTRACTS[self.network]['weth_atoken']
         ).functions.balanceOf(self.client.address).call()
 
         if liquidity_balance != 0:
+
+            self.logger_msg(
+                *self.client.acc_info, msg=f'Withdraw {liquidity_balance / 10 ** 18:.5f} liquidity from ZeroLend'
+            )
 
             await self.client.check_for_approved(
                 ZEROLEND_CONTRACTS[self.network]['weth_atoken'], ZEROLEND_CONTRACTS[self.network]['landing'],

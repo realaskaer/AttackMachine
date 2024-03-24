@@ -1012,7 +1012,7 @@ ZEROLEND_CONTRACTS = {
     'Blast':{
         "landing"               : '0xFaDFb0BC400427663020887e7c8073D03A35dc3c',
         "pool_proxy"            : '0xa70B0F3C2470AbBE104BdB3F3aaa9C7C54BEA7A8',
-        "weth_atoken"           : '0x9002ecb8a06060e3b56669c6B8F18E1c3b119914'
+        "weth_atoken"           : '0x53a3Aa617afE3C12550a93BA6262430010037B04'
     }
 }
 
