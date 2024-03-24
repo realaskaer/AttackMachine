@@ -93,7 +93,10 @@ class Custom(Logger, RequestClient):
                                     )
                                     if not result:
                                         counter += 1
-                                except:
+                                except Exception as error:
+                                    self.logger_msg(
+                                        *self.client.acc_info, msg=f'Error in collector: {error}', type_msg='warning'
+                                    )
                                     counter += 1
                                     pass
                                 if result or counter == 3:
