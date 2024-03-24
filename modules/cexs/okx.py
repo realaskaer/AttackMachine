@@ -303,7 +303,6 @@ class OKX(CEX, Logger):
         cex_wallet = get_wallet_for_deposit(self)
         info = f"{cex_wallet[:10]}....{cex_wallet[-6:]}"
         deposit_network, amount = deposit_data
-        amount = 0.000000931377
         network_raw_name = OKX_NETWORKS_NAME[deposit_network]
         split_network_data = network_raw_name.split('-')
         ccy, network_name = split_network_data[0], '-'.join(split_network_data[1:])
