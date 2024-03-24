@@ -2897,6 +2897,7 @@ OKX_NETWORKS_NAME = {
     38                       : 'ARB-Arbitrum One',
     # 39                      : "MAV-BASE",
     # 40                      : "MAV-ZKSYNCERA",
+    41                      : "OP-Optimism",
 }
 
 BINGX_NETWORKS_NAME = {
@@ -2940,6 +2941,7 @@ BINGX_NETWORKS_NAME = {
     38                      : 'ARB-ARBITRUM',
     # 39                      : "MAV-BASE",
     40                      : "MAV-ZKSYNCERA",
+    41                      : "OP-OPTIMISM",
 }
 
 BINANCE_NETWORKS_NAME = {
@@ -2983,6 +2985,7 @@ BINANCE_NETWORKS_NAME = {
     38                      : 'ARB-ARBITRUM',
     39                      : "MAV-BASE",
     40                      : "MAV-ZKSYNCERA",
+    41                      : "OP-OPTIMISM",
 }
 
 BITGET_NETWORKS_NAME = {
@@ -3026,6 +3029,7 @@ BITGET_NETWORKS_NAME = {
     38                      : 'ARB-ArbitrumOne',
     # 39                      : "MAV-BASE",
     # 40                      : "MAV-ZKSYNCERA",
+    41                      : "OP-Optimism",
 }
 
 CEX_WRAPPED_ID = {
@@ -3069,6 +3073,7 @@ CEX_WRAPPED_ID = {
      38                         : 1,
      39                         : 3,
      40                         : 11,
+     41                         : 7,
 }
 
 LAYERZERO_WRAPED_NETWORKS = {
@@ -3164,6 +3169,7 @@ COINGECKO_TOKEN_API_NAMES = {
      'MAV': 'maverick-protocol',
      'USDB': 'usdb',
      'ARB': 'arbitrum',
+     'OP': 'optimism',
 }
 
 LAYERZERO_NETWORKS_DATA = {

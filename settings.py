@@ -13,6 +13,7 @@
     8 - BNB-BSC                  18 - MATIC-Polygon       28 - USDC-Polygon              38 - ARB-Arbitrum One
     9 - BNB-OPBNB                19 - USDT-Arbitrum One   29 - USDC-Optimism (Bridged)   39 - MAV-Base
     10 - CELO-CELO               20 - USDT-Avalanche      30 - USDC-Polygon (Bridged)    40 - MAV-zkSync Era
+                                                                                         41 - OP-Optimism
 
     ⚠️ Софт сам отнимает комиссию от суммы депозита, при работе с нативными токенами ⚠️
 
