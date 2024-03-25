@@ -409,7 +409,7 @@ class Client(Logger):
             if self.network.eip1559_support:
 
                 base_fee = await self.w3.eth.gas_price
-                max_priority_fee_per_gas = int(await self.get_priotiry_fee() * GAS_PRICE_MULTIPLIER)
+                max_priority_fee_per_gas = await self.get_priotiry_fee()
                 max_fee_per_gas = int(base_fee + max_priority_fee_per_gas * 1.05 * GAS_PRICE_MULTIPLIER)
 
                 if max_priority_fee_per_gas > max_fee_per_gas:
