@@ -140,6 +140,18 @@ class Across(Bridge, Logger):
     @helper
     @gas_checker
     async def claim_rewards(self):
+        url = 'https://public.api.across.to/rewards/op-rebates/summary'
+
+        params = {
+            'userAddress': self.client.address
+        }
+
+        response = await self.make_request(url=url, params=params)
+
+        if not int(response['claimableRewards']):
+            self.logger_msg(*self.client.acc_info, msg=f'No tokens are available for claiming', type_msg='warning')
+            return True
+        
         url = 'https://public.api.across.to/airdrop/merkle-distributor-proofs'
 
         params = {
@@ -153,10 +165,6 @@ class Across(Bridge, Logger):
         claim_contract = self.client.get_contract(ACROSS_CLAIM_CONTRACTS[self.network], ACROSS_ABI['claim'])
 
         amount_in_wei = int(response['payload']['amountBreakdown']['opRewards'])
-
-        if amount_in_wei == 0:
-            self.logger_msg(*self.client.acc_info, msg=f'No tokens are available for claiming', type_msg='warning')
-            return True
 
         amount = amount_in_wei / 10 ** 18
 
