@@ -155,7 +155,12 @@ class Custom(Logger, RequestClient):
                         need_to_withdraw = float(f"{(wanted_amount_in_usd - balance_in_usd) / token_price:.6f}")
 
                         if need_to_withdraw < 1:
-                            raise SoftwareExceptionWithoutRetry('Need to withdraw lower than 1$')
+                            self.logger_msg(
+                                *self.client.acc_info,
+                                msg=f"Amount to withdraw lower than 1$, will continue checking...",
+                                type_msg='warning'
+                            )
+                            continue
 
                         self.logger_msg(
                             *self.client.acc_info,
