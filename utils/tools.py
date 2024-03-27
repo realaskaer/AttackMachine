@@ -276,9 +276,15 @@ def helper(func):
                             await sleep(self, *SLEEP_TIME_RETRY)
 
                 except Exception as error:
-                    msg = f'Unknown Error. Description: {error}'
+                    msg = f'Unknown Error. Description: {error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
                     self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
                     traceback.print_exc()
+
+                    if attempts > MAXIMUM_RETRY and not infinity_flag:
+                        self.logger_msg(
+                            self.client.account_name, None,
+                            msg=f"Tries are over, software will stop module\n", type_msg='error'
+                        )
         finally:
             await self.client.session.close()
         return False

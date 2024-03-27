@@ -154,6 +154,9 @@ class Custom(Logger, RequestClient):
                     if wanted_amount_in_usd > balance_in_usd:
                         need_to_withdraw = float(f"{(wanted_amount_in_usd - balance_in_usd) / token_price:.6f}")
 
+                        if need_to_withdraw < 1:
+                            raise SoftwareExceptionWithoutRetry('Need to withdraw lower than 1$')
+
                         self.logger_msg(
                             *self.client.acc_info,
                             msg=f"Not enough balance on account in {client.network.name}, launch CEX withdraw module"

@@ -438,8 +438,10 @@ class Client(Logger):
 
         return await self.send_transaction(transaction)
 
-    async def check_for_approved(self, token_address: str, spender_address: str, amount_in_wei: int,
-                                 without_bal_check: bool = False, unlimited_approve:bool = UNLIMITED_APPROVE) -> bool:
+    async def check_for_approved(
+            self, token_address: str, spender_address: str, amount_in_wei: int, without_bal_check: bool = False,
+            unlimited_approve:bool = UNLIMITED_APPROVE
+    ) -> bool:
         try:
             contract = self.get_contract(token_address)
 
