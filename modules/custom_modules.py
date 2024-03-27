@@ -154,7 +154,7 @@ class Custom(Logger, RequestClient):
                     if wanted_amount_in_usd > balance_in_usd:
                         need_to_withdraw = float(f"{(wanted_amount_in_usd - balance_in_usd) / token_price:.6f}")
 
-                        if need_to_withdraw < 1:
+                        if need_to_withdraw * token_price < 1:
                             self.logger_msg(
                                 *self.client.acc_info,
                                 msg=f"Amount lower than 1$, will set 1$ to withdraw", type_msg='warning'
