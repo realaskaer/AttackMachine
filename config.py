@@ -1641,6 +1641,7 @@ STARGATE_CONTRACTS = {
         'metis.USDT': '0x68C6c27fB0e02285829e69240BE16f32C5f8bEFe',
         'lp_staking': '0x3052A0F6ab15b4AE1df39962d5DdEFacA86DaB47',
         'lp_staking_time_metis': '0x2c6dcEd426D265045737Ff55C2D746C11b2F457a',
+        'otf_wrapper': '0x86355F02119bdBC28ED6A4D5E0cA327Ca7730fFF',
     },
     'Avalanche':{
         'router': '0x45A01E4e04F14f7A4a6702c74187c5F6222033cd',
