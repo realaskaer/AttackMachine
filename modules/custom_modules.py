@@ -643,14 +643,13 @@ class Custom(Logger, RequestClient):
             try:
                 from config import (IZUMI_CONTRACTS, MAVERICK_CONTRACTS, RANGO_CONTRACTS, ODOS_CONTRACTS, ONEINCH_CONTRACTS,
                                     OPENOCEAN_CONTRACTS, PANCAKE_CONTRACTS, SUSHISWAP_CONTRACTS,
-                                    UNISWAP_CONTRACTS, STARGATE_CONTRACTS, WOOFI_CONTRACTS, XYFINANCE_CONTRACTS, TOKENS_PER_CHAIN)
+                                    UNISWAP_CONTRACTS, WOOFI_CONTRACTS, XYFINANCE_CONTRACTS, TOKENS_PER_CHAIN)
 
                 all_contracts = {
                     "Rango.Exchange": RANGO_CONTRACTS,
                     "Maverick": MAVERICK_CONTRACTS,
                     "SushiSwap": SUSHISWAP_CONTRACTS,
                     "Uniswap": UNISWAP_CONTRACTS,
-                    "Stargate": STARGATE_CONTRACTS,
                     "PancakeSwap": PANCAKE_CONTRACTS,
                     "WooFi": WOOFI_CONTRACTS,
                     "iZumi": IZUMI_CONTRACTS,
