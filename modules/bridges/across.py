@@ -87,7 +87,7 @@ class Across(Bridge, Logger):
                     2**256-1
                 ]
 
-                if from_chain in [324, 137]:
+                if from_chain in [324, 137, 59144]:
                     router_contract = self.client.get_contract(contract_address=pool_adress, abi=ACROSS_ABI['pool'])
                 else:
                     data.insert(0, pool_adress)
@@ -98,7 +98,8 @@ class Across(Bridge, Logger):
                 if from_token_name != self.client.token:
                     value = 0
                     await self.client.check_for_approved(
-                        TOKENS_PER_CHAIN[self.client.network.name][from_token_name], router_contract.address, amount_in_wei
+                        TOKENS_PER_CHAIN[self.client.network.name][from_token_name], router_contract.address,
+                        amount_in_wei
                     )
 
                 else:
@@ -141,13 +142,17 @@ class Across(Bridge, Logger):
     async def claim_rewards(self):
         url = 'https://public.api.across.to/airdrop/merkle-distributor-proofs'
 
-        payload = f'address={self.client.address}&startWindowIndex=0&rewardsType=op-rewards'
+        params = {
+            'address': self.client.address,
+            'startWindowIndex': 0,
+            'rewardsType': 'op-rewards',
+        }
 
-        response = (await self.make_request(url=url, data=payload))[0]
+        response = (await self.make_request(url=url, params=params))[0]
 
         claim_contract = self.client.get_contract(ACROSS_CLAIM_CONTRACTS[self.network], ACROSS_ABI['claim'])
 
-        amount_in_wei = response['payload']['amountBreakdown']['opRewards']
+        amount_in_wei = int(response['payload']['amountBreakdown']['opRewards'])
 
         if amount_in_wei == 0:
             self.logger_msg(*self.client.acc_info, msg=f'No tokens are available for claiming', type_msg='warning')
@@ -155,21 +160,23 @@ class Across(Bridge, Logger):
 
         amount = amount_in_wei / 10 ** 18
 
-        self.logger_msg(*self.client.acc_info, msg=f'Available to claim {amount} $OP on Optimism chain')
+        self.logger_msg(*self.client.acc_info, msg=f'Available to claim {amount:.2f} $OP on Optimism chain')
 
         merkle_proof = response['proof']
-        account_index = response['accountIndex']
-        window_index = response['windowIndex']
+        account_index = int(response['accountIndex'])
+        window_index = int(response['windowIndex'])
 
-        self.logger_msg(*self.client.acc_info, msg=f'Start claiming {amount} $OP on Optimism chain')
+        self.logger_msg(*self.client.acc_info, msg=f'Start claiming {amount:.2f} $OP on Optimism chain')
 
         transaction = await claim_contract.functions.claimMulti(
             [
-                window_index,
-                amount_in_wei,
-                account_index,
-                self.client.address,
-                merkle_proof
+                [
+                    window_index,
+                    amount_in_wei,
+                    account_index,
+                    self.client.address,
+                    merkle_proof
+                ]
             ]
         ).build_transaction(await self.client.prepare_transaction())
 
