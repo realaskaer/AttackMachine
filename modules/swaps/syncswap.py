@@ -171,16 +171,34 @@ class SyncSwap(DEX, Logger):
         tx_params = await self.client.prepare_transaction(value=amount_in_wei if from_token_name == 'ETH' else 0)
 
         if self.client.network.name == 'Scroll' and from_token_name != 'ETH':
-            transaction = await self.router_contract.functions.swapWithPermit(
-                [paths],
-                min_amount_out,
-                deadline,
-                [
-                    from_token_address,
-                    2 ** 256 - 1,
-                    *(await self.get_swap_permit(from_token_name))
-                ]
-            ).build_transaction(tx_params)
+            try:
+                transaction = await self.router_contract.functions.swapWithPermit(
+                    [paths],
+                    min_amount_out,
+                    deadline,
+                    [
+                        from_token_address,
+                        2 ** 256 - 1,
+                        *(await self.get_swap_permit(from_token_name))
+                    ]
+                ).build_transaction(tx_params)
+            except Exception as error:
+                if 'invalid signature' in str(error):
+                    self.logger_msg(
+                        *self.client.acc_info, msg=f'This account can`t swap via Permit, try use common swap',
+                        type_msg='warning'
+                    )
+                else:
+                    self.logger_msg(
+                        *self.client.acc_info, msg=f'Autism response from RPC, try use common swap', type_msg='warning'
+                    )
+
+                transaction = await self.router_contract.functions.swap(
+                    [paths],
+                    min_amount_out,
+                    deadline,
+                ).build_transaction(tx_params)
+
         else:
             transaction = await self.router_contract.functions.swap(
                 [paths],
