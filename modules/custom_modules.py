@@ -157,15 +157,14 @@ class Custom(Logger, RequestClient):
                         if need_to_withdraw < 1:
                             self.logger_msg(
                                 *self.client.acc_info,
-                                msg=f"Amount to withdraw lower than 1$, will continue checking...",
-                                type_msg='warning'
+                                msg=f"Amount lower than 1$, will set 1$ to withdraw", type_msg='warning'
                             )
-                            continue
-
-                        self.logger_msg(
-                            *self.client.acc_info,
-                            msg=f"Not enough balance on account in {client.network.name}, launch CEX withdraw module"
-                        )
+                            need_to_withdraw = round(random.uniform(1.0, 1.1), 6)
+                        else:
+                            self.logger_msg(
+                                *self.client.acc_info,
+                                msg=f"Not enough balance on account in {client.network.name}, launch CEX withdraw module"
+                            )
 
                         await func(client, withdraw_data=(cex_network, (need_to_withdraw, need_to_withdraw)))
                     else:
