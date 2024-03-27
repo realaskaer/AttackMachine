@@ -92,7 +92,7 @@ class Mute(DEX, Logger):
             self.logger_msg(
                 *self.client.acc_info, msg=f'Not enough USDC balance, launch {amount} ETH -> USDC swap'
             )
-            await self.swap(help_add_liquidity=True, amount_to_help=round(amount / 2 * 1.1, 8))
+            await self.swap(help_add_liquidity=True, amount_to_help=round(amount / 2 * 1.1, 6))
 
         amount_in_wei = self.client.to_wei(amount)
 

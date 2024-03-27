@@ -61,7 +61,7 @@ class Client(Logger):
     @staticmethod
     def custom_round(number:int | float, decimals:int = 0) -> float:
         number = float(number)
-        str_number = f"{number}".split('.')
+        str_number = f"{number:.18f}".split('.')
         if len(str_number) != 2:
             return round(number, 6)
         str_number_to_round = str_number[1]
@@ -282,7 +282,7 @@ class Client(Logger):
         amount_in_wei = await self.w3.eth.get_balance(self.address)
         return amount_in_wei, amount_in_wei / 10 ** 18, self.network.token
 
-    async def check_and_get_eth(self, settings: tuple = None) -> [float, int]:
+    async def check_and_get_eth(self, settings=None) -> [float, int]:
         from functions import swap_odos, swap_oneinch, swap_izumi, swap_syncswap, swap_ambient
 
         try:

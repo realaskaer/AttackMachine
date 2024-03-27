@@ -185,12 +185,13 @@ class SyncSwap(DEX, Logger):
             except Exception as error:
                 if 'invalid signature' in str(error):
                     self.logger_msg(
-                        *self.client.acc_info, msg=f'This account can`t swap via Permit, try use common swap',
+                        *self.client.acc_info, msg=f'This account can`t swap via Permit, try to use common swap',
                         type_msg='warning'
                     )
                 else:
                     self.logger_msg(
-                        *self.client.acc_info, msg=f'Autism response from RPC, try use common swap', type_msg='warning'
+                        *self.client.acc_info, msg=f'Autism response from RPC, try to use common swap',
+                        type_msg='warning'
                     )
 
                 transaction = await self.router_contract.functions.swap(
