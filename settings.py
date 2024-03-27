@@ -854,5 +854,7 @@ HELPERS_CONFIG = {
 CLASSIC_WITHDRAW_DEPENDENCIES = False  # при True после каждого модуля на добавление ликвы в лендинг, будет ее выводить
 
 CLASSIC_ROUTES_MODULES_USING = [
-    ['add_liquidity_mute']
+    ['okx_withdraw'],
+    ['bridge_layerswap', 'bridge_native'],
+    ['swap_mute', 'swap_izumi', 'mint_domain_ens', None],
 ]
