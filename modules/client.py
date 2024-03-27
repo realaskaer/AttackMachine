@@ -518,6 +518,20 @@ class Client(Logger):
                 await asyncio.sleep(poll_latency)
 
     async def get_token_price(self, token_name: str, vs_currency: str = 'usd') -> float:
+
+        stables = [
+            'dai',
+            'tether',
+            'usd-coin',
+            'bridged-usdc-polygon-pos-bridge',
+            'binance-usd',
+            'bridged-usd-coin-base',
+            'usdb',
+        ]
+
+        if token_name in stables:
+            return 1.0
+
         await asyncio.sleep(10)  # todo поправить на 20с
         url = 'https://api.coingecko.com/api/v3/simple/price'
 

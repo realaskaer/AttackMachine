@@ -19,7 +19,7 @@ from settings import (
     SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_WITHDRAW_DATA, BINANCE_DEPOSIT_DATA,
     BINGX_WITHDRAW_DATA, SHUFFLE_NFT_ATTACK, BINANCE_WITHDRAW_DATA, ALL_DST_CHAINS,
     CEX_DEPOSIT_LIMITER, RHINO_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, ORBITER_CHAIN_ID_FROM,
-    ACROSS_CHAIN_ID_FROM, BRIDGE_AMOUNT_LIMITER, WHALE_ATTACK_NFT, RELAY_CHAIN_ID_FROM, SRC_CHAIN_MERKLY,
+    ACROSS_CHAIN_ID_FROM, WHALE_ATTACK_NFT, RELAY_CHAIN_ID_FROM, SRC_CHAIN_MERKLY,
     SRC_CHAIN_L2PASS, SRC_CHAIN_ZERIUS, DST_CHAIN_MERKLY_REFUEL, DST_CHAIN_L2PASS_REFUEL, DST_CHAIN_ZERIUS_REFUEL,
     SRC_CHAIN_WHALE, DST_CHAIN_WHALE_REFUEL, DST_CHAIN_MERKLY_NFT, DST_CHAIN_L2PASS_NFT, DST_CHAIN_ZERIUS_NFT,
     DST_CHAIN_WHALE_NFT, MERKLY_ATTACK_NFT, L2PASS_ATTACK_REFUEL, MERKLY_ATTACK_REFUEL, WHALE_ATTACK_REFUEL,
@@ -29,7 +29,9 @@ from settings import (
     DST_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_HYPERLANE, WORMHOLE_TOKENS_AMOUNT, HYPERLANE_TOKENS_AMOUNT,
     DST_CHAIN_MERKLY_POLYHEDRA_REFUEL, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME,
     L0_BRIDGE_COUNT, CUSTOM_SWAP_DATA, BITGET_DEPOSIT_DATA, BITGET_WITHDRAW_DATA, STG_STAKE_CONFIG, NITRO_CHAIN_ID_FROM,
-    NITRO_TOKEN_NAME, STARGATE_DUST_CONFIG, STARGATE_AMOUNT, COREDAO_AMOUNT
+    NITRO_TOKEN_NAME, STARGATE_DUST_CONFIG, STARGATE_AMOUNT, COREDAO_AMOUNT, ACROSS_AMOUNT_LIMITER,
+    BUNGEE_AMOUNT_LIMITER, LAYERSWAP_AMOUNT_LIMITER, NITRO_AMOUNT_LIMITER, ORBITER_AMOUNT_LIMITER, OWLTO_AMOUNT_LIMITER,
+    RELAY_AMOUNT_LIMITER, RHINO_AMOUNT_LIMITER
 )
 
 
@@ -1039,15 +1041,15 @@ class Custom(Logger, RequestClient):
             try:
                 from functions import bridge_utils
 
-                bridge_app_id, dapp_chains, dapp_tokens = {
-                    1: (1, ACROSS_CHAIN_ID_FROM, ACROSS_TOKEN_NAME),
-                    2: (2, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME),
-                    3: (3, LAYERSWAP_CHAIN_ID_FROM, LAYERSWAP_TOKEN_NAME),
-                    4: (4, NITRO_CHAIN_ID_FROM, NITRO_TOKEN_NAME),
-                    5: (5, ORBITER_CHAIN_ID_FROM, ORBITER_TOKEN_NAME),
-                    6: (6, OWLTO_CHAIN_ID_FROM, OWLTO_TOKEN_NAME),
-                    7: (7, RELAY_CHAIN_ID_FROM, RELAY_TOKEN_NAME),
-                    8: (8, RHINO_CHAIN_ID_FROM, RHINO_TOKEN_NAME),
+                bridge_app_id, dapp_chains, dapp_tokens, limiter = {
+                    1: (1, ACROSS_CHAIN_ID_FROM, ACROSS_TOKEN_NAME, ACROSS_AMOUNT_LIMITER),
+                    2: (2, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME, BUNGEE_AMOUNT_LIMITER),
+                    3: (3, LAYERSWAP_CHAIN_ID_FROM, LAYERSWAP_TOKEN_NAME, LAYERSWAP_AMOUNT_LIMITER),
+                    4: (4, NITRO_CHAIN_ID_FROM, NITRO_TOKEN_NAME, NITRO_AMOUNT_LIMITER),
+                    5: (5, ORBITER_CHAIN_ID_FROM, ORBITER_TOKEN_NAME, ORBITER_AMOUNT_LIMITER),
+                    6: (6, OWLTO_CHAIN_ID_FROM, OWLTO_TOKEN_NAME, OWLTO_AMOUNT_LIMITER),
+                    7: (7, RELAY_CHAIN_ID_FROM, RELAY_TOKEN_NAME, RELAY_AMOUNT_LIMITER),
+                    8: (8, RHINO_CHAIN_ID_FROM, RHINO_TOKEN_NAME, RHINO_AMOUNT_LIMITER),
                 }[dapp_id]
 
                 if len(dapp_tokens) == 2:
@@ -1082,7 +1084,7 @@ class Custom(Logger, RequestClient):
                     to_token_addr = TOKENS_PER_CHAIN[to_chain_name][to_token_name]
 
                 balance_in_usd, token_price = balance_data
-                limit_amount, wanted_to_hold_amount = BRIDGE_AMOUNT_LIMITER
+                limit_amount, wanted_to_hold_amount = limiter
                 min_wanted_amount, max_wanted_amount = min(wanted_to_hold_amount), max(wanted_to_hold_amount)
                 fee_bridge_data = (source_chain_name, destination_chain, amount, dst_chain_id,
                                    from_token_name, to_token_name, from_token_addr, to_token_addr)
