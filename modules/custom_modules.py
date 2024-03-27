@@ -159,7 +159,7 @@ class Custom(Logger, RequestClient):
                                 *self.client.acc_info,
                                 msg=f"Amount lower than 1$, will set 1$ to withdraw", type_msg='warning'
                             )
-                            need_to_withdraw = round(random.uniform(1.0, 1.1), 6)
+                            need_to_withdraw = round(random.uniform(1.0, 1.1) / token_price, 6)
                         else:
                             self.logger_msg(
                                 *self.client.acc_info,
