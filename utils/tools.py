@@ -276,6 +276,7 @@ def helper(func):
                             await sleep(self, *SLEEP_TIME_RETRY)
 
                 except Exception as error:
+                    attempts += 1
                     msg = f'Unknown Error. Description: {error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
                     self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
                     traceback.print_exc()
