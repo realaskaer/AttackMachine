@@ -160,32 +160,38 @@ class Across(Bridge, Logger):
             'rewardsType': 'op-rewards',
         }
 
-        response = (await self.make_request(url=url, params=params))[0]
+        response = await self.make_request(url=url, params=params)
 
-        claim_contract = self.client.get_contract(ACROSS_CLAIM_CONTRACTS[self.network], ACROSS_ABI['claim'])
+        if response:
+            response = response[0]
 
-        amount_in_wei = int(response['payload']['amountBreakdown']['opRewards'])
+            claim_contract = self.client.get_contract(ACROSS_CLAIM_CONTRACTS[self.network], ACROSS_ABI['claim'])
 
-        amount = amount_in_wei / 10 ** 18
+            amount_in_wei = int(response['payload']['amountBreakdown']['opRewards'])
 
-        self.logger_msg(*self.client.acc_info, msg=f'Available to claim {amount:.2f} $OP on Optimism chain')
+            amount = amount_in_wei / 10 ** 18
 
-        merkle_proof = response['proof']
-        account_index = int(response['accountIndex'])
-        window_index = int(response['windowIndex'])
+            self.logger_msg(*self.client.acc_info, msg=f'Available to claim {amount:.2f} $OP on Optimism chain')
 
-        self.logger_msg(*self.client.acc_info, msg=f'Start claiming {amount:.2f} $OP on Optimism chain')
+            merkle_proof = response['proof']
+            account_index = int(response['accountIndex'])
+            window_index = int(response['windowIndex'])
 
-        transaction = await claim_contract.functions.claimMulti(
-            [
+            self.logger_msg(*self.client.acc_info, msg=f'Start claiming {amount:.2f} $OP on Optimism chain')
+
+            transaction = await claim_contract.functions.claimMulti(
                 [
-                    window_index,
-                    amount_in_wei,
-                    account_index,
-                    self.client.address,
-                    merkle_proof
+                    [
+                        window_index,
+                        amount_in_wei,
+                        account_index,
+                        self.client.address,
+                        merkle_proof
+                    ]
                 ]
-            ]
-        ).build_transaction(await self.client.prepare_transaction())
+            ).build_transaction(await self.client.prepare_transaction())
 
-        return await self.client.send_transaction(transaction)
+            return await self.client.send_transaction(transaction)
+
+        self.logger_msg(*self.client.acc_info, msg=f'No available tokens for claiming', type_msg='warning')
+        return True
