@@ -41,6 +41,7 @@ from .onmichain import Stargate
 from .onmichain import L2Pass
 from .onmichain import CoreDAO
 from .onmichain import Whale
+from .onmichain import Nogem
 from .others import Dmail
 from .others import EraDomainService
 from .others import GnosisSafe

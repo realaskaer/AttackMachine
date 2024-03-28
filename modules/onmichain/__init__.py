@@ -6,3 +6,4 @@ from .stargate import Stargate
 from .l2pass import L2Pass
 from .coredao import CoreDAO
 from .whale import Whale
+from .nogem import Nogem

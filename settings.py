@@ -47,7 +47,8 @@
     «Х» - Софт проверит количество этого токена в этой сети, согласно списку в группе «CEX CONTROL»
     Если количество токена меньше значения «Y», то происходит вывод с биржи «Z» токена «Х» в сумме равной разнице
     между балансом и желаемом количестве токенов на балансе.
-    «Z» значение - биржа для вывода. 1 - OKX, 2 - BingX, 3 - Binance, 4 - Bitget. Модуль (make_balance_to_average).
+    «Z» значение - биржа для вывода. 1 - OKX, 2 - BingX, 3 - Binance, 4 - Bitget. Можно указать несколько в скобках,
+    софт выберет одну биржу. Модуль (make_balance_to_average).
 
     Пример:
     CEX_BALANCER_CONFIG = [
@@ -342,10 +343,11 @@ BRIDGE_SWITCH_CONTROL = {
 
     Сумму нужно указывать в нативном токене входящей сети. Указывайте на 10% меньше от лимита, указанного на сайте,
     во избежания ошибок работы технологии LayerZero. Смотреть лимиты можно здесь: 
-            1) L2Pass - https://l2pass.com/refuel  
-            2) Merkly - https://minter.merkly.com/gas  
-            3) Whale  - https://whale-app.com/refuel
-            4) Zerius - https://zerius.io/refuel
+            1) L2Pass    - https://l2pass.com/refuel  
+            2) nogem.app - https://nogem.app
+            3) Merkly    - https://minter.merkly.com/gas  
+            4) Whale     - https://whale-app.com/refuel
+            5) Zerius    - https://zerius.io/refuel
             
 """
 WAIT_FOR_RECEIPT = True     # Если True, будет ждать получения средств во входящей сети перед запуском очередного модуля
@@ -373,6 +375,14 @@ SRC_CHAIN_L2PASS = [6]          # Исходящая сеть для L2Pass
 DST_CHAIN_L2PASS_NFT = [20]       # Входящая сеть для L2Pass Mint NFT
 DST_CHAIN_L2PASS_REFUEL = {
     20: (0.6, 0.61),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
+}
+
+'--------------------------------------------------------nogem.app-----------------------------------------------------'
+
+SRC_CHAIN_NOGEM = [22]             # Исходящая сеть для nogem.app
+DST_CHAIN_NOGEM_NFT = [3]       # Входящая сеть для nogem.app Mint NFT
+DST_CHAIN_NOGEM_REFUEL = {
+    3: (0.0006, 0.00061),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
 }
 
 '--------------------------------------------------------Merkly--------------------------------------------------------'
@@ -442,8 +452,13 @@ L2PASS_ATTACK_REFUEL = [
     [33, 5, 0.0001],
 ]
 
-MERKLY_ATTACK_REFUEL = [
+NOGEM_ATTACK_REFUEL = [
     ([43, 3, 0.0001], None),  # Пример возможности исключить модуль из маршрута
+    [33, 5, 0.0001],
+]
+
+MERKLY_ATTACK_REFUEL = [
+    [28, 17, 0.00001],
     [33, 5, 0.0001],
 ]
 
@@ -462,6 +477,10 @@ L2PASS_ATTACK_NFT = [
     [17, 18],
 ]
 
+NOGEM_ATTACK_NFT = [
+    [17, 18],
+]
+
 MERKLY_ATTACK_NFT = [
     [43, 3],
 ]
@@ -474,10 +493,17 @@ ZERIUS_ATTACK_NFT = [
     [43, 3],
 ]
 
-'-------------------------------------------------LAYERZERO GAS STATION------------------------------------------------'
+'--------------------------------------------LAYERZERO GAS STATION & FILLER--------------------------------------------'
 
 L2PASS_GAS_STATION_ID_FROM = [33]
 L2PASS_GAS_STATION_DATA = [
+    ([35, 0.0000001], None),   # Пример возможности исключить модуль из маршрута
+    [[34,36, 35], 0.0000001],  # Пример разных входящих сетей
+    [34, 0.0000001],
+]
+
+NOGEM_FILLER_ID_FROM = [33]
+NOGEM_FILLER_DATA = [
     ([35, 0.0000001], None),   # Пример возможности исключить модуль из маршрута
     [[34,36, 35], 0.0000001],  # Пример разных входящих сетей
     [34, 0.0000001],
@@ -590,11 +616,13 @@ HELPERS_CONFIG = {
 --------------------------------------------------OMNI-CHAIN------------------------------------------------------------            
     
     bridge_l2pass                    # bridge последней NFT on L2Pass
+    bridge_nogem                     # bridge последней NFT on nogem.app
     bridge_merkly                    # bridge последней NFT on Merkly
     bridge_whale                     # bridge последней NFT on Whale
     bridge_zerius                    # bridge последней NFT on Zerius
-    
+        
     refuel_l2pass                    # смотри OMNI-CHAIN CONTROL
+    refuel_nogem                     # смотри OMNI-CHAIN CONTROL
     refuel_merkly                    # смотри OMNI-CHAIN CONTROL
     refuel_whale                     # смотри OMNI-CHAIN CONTROL
     refuel_zerius                    # смотри OMNI-CHAIN CONTROL
@@ -608,17 +636,20 @@ HELPERS_CONFIG = {
     mint_and_bridge_l2telegraph      # mint и bridge NFT через L2Telegraph. См. OMNI-CHAIN CONTROLE
     send_message_l2telegraph         # смотри OMNI-CHAIN CONTROL
     
-    l2pass_refuel_attack             # Refuel атака на L2Pass. Делает много рефьелов в разные сети. См. OMNI-CHAIN CONTROLE
-    merkly_refuel_attack             # Refuel атака на Merkly. Делает много рефьелов в разные сети. См. OMNI-CHAIN CONTROLE
-    whale_refuel_attack              # Refuel атака на Whale. Делает много рефьелов в разные сети. См. OMNI-CHAIN CONTROLE
-    zerius_refuel_attack             # Refuel атака на Zerius. Делает много рефьелов в разные сети. См. OMNI-CHAIN CONTROLE
+    l2pass_refuel_attack             # Refuel атака на L2Pass. См. OMNI-CHAIN CONTROLE
+    nogem_refuel_attack              # Refuel атака на nogem.app 
+    merkly_refuel_attack             # Refuel атака на Merkly
+    whale_refuel_attack              # Refuel атака на Whale
+    zerius_refuel_attack             # Refuel атака на Zerius 
     
-    l2pass_nft_attack                # NFT Bridge атака на L2Pass.
-    merkly_nft_attack                # NFT Bridge атака на Merkly.
-    whale_nft_attack                 # NFT Bridge атака на Whale.
-    zerius_nft_attack                # NFT Bridge атака на Zerius.
+    l2pass_nft_attack                # NFT Bridge атака на L2Pass. См. OMNI-CHAIN CONTROLE
+    nogem_nft_attack                 # NFT Bridge атака на nogem.app
+    merkly_nft_attack                # NFT Bridge атака на Merkly
+    whale_nft_attack                 # NFT Bridge атака на Whale
+    zerius_nft_attack                # NFT Bridge атака на Zerius
     
     gas_station_l2pass               # Refuel в несколько сетей с помощью 1 транзакции. см. L2PASS_GAS_STATION_DATA     
+    filler_nogem                     # Refuel в несколько сетей с помощью 1 транзакции. см. NOGEM_FILLER_DATA
     
 --------------------------------------------------------WORMHOLE--------------------------------------------------------            
 

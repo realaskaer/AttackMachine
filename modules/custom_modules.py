@@ -31,7 +31,8 @@ from settings import (
     L0_BRIDGE_COUNT, CUSTOM_SWAP_DATA, BITGET_DEPOSIT_DATA, BITGET_WITHDRAW_DATA, STG_STAKE_CONFIG, NITRO_CHAIN_ID_FROM,
     NITRO_TOKEN_NAME, STARGATE_DUST_CONFIG, STARGATE_AMOUNT, COREDAO_AMOUNT, ACROSS_AMOUNT_LIMITER,
     BUNGEE_AMOUNT_LIMITER, LAYERSWAP_AMOUNT_LIMITER, NITRO_AMOUNT_LIMITER, ORBITER_AMOUNT_LIMITER, OWLTO_AMOUNT_LIMITER,
-    RELAY_AMOUNT_LIMITER, RHINO_AMOUNT_LIMITER, BRIDGE_SWITCH_CONTROL
+    RELAY_AMOUNT_LIMITER, RHINO_AMOUNT_LIMITER, BRIDGE_SWITCH_CONTROL, SRC_CHAIN_NOGEM, DST_CHAIN_NOGEM_REFUEL,
+    DST_CHAIN_NOGEM_NFT, NOGEM_ATTACK_REFUEL, NOGEM_ATTACK_NFT
 )
 
 
@@ -132,6 +133,8 @@ class Custom(Logger, RequestClient):
             while True:
                 try:
                     cex_network, wanted_balance, cex_wanted = data
+                    if isinstance(cex_network, (tuple, list)):
+                        cex_wanted = random.choice(cex_wanted)
 
                     func, cex_config = {
                         1: (okx_withdraw_util, OKX_NETWORKS_NAME),
@@ -470,9 +473,10 @@ class Custom(Logger, RequestClient):
 
         class_id, attack_data = {
             1: (1, (L2PASS_ATTACK_REFUEL, L2PASS_ATTACK_NFT)),
-            2: (2, (MERKLY_ATTACK_REFUEL, MERKLY_ATTACK_NFT)),
-            3: (3, (WHALE_ATTACK_REFUEL, WHALE_ATTACK_NFT)),
-            4: (4, (ZERIUS_ATTACK_REFUEL, ZERIUS_ATTACK_NFT)),
+            2: (2, (NOGEM_ATTACK_REFUEL, NOGEM_ATTACK_NFT)),
+            3: (3, (MERKLY_ATTACK_REFUEL, MERKLY_ATTACK_NFT)),
+            4: (4, (WHALE_ATTACK_REFUEL, WHALE_ATTACK_NFT)),
+            5: (5, (ZERIUS_ATTACK_REFUEL, ZERIUS_ATTACK_NFT)),
         }[dapp_id]
 
         attack_data_without_none = []
@@ -723,9 +727,10 @@ class Custom(Logger, RequestClient):
 
         class_id, src_chains, dst_tuple_data = {
             1: (1, SRC_CHAIN_L2PASS, (DST_CHAIN_L2PASS_REFUEL, DST_CHAIN_L2PASS_NFT)),
-            2: (2, SRC_CHAIN_MERKLY, (DST_CHAIN_MERKLY_REFUEL, DST_CHAIN_MERKLY_NFT)),
-            3: (3, SRC_CHAIN_WHALE, (DST_CHAIN_WHALE_REFUEL, DST_CHAIN_WHALE_NFT)),
-            4: (4, SRC_CHAIN_ZERIUS, (DST_CHAIN_ZERIUS_REFUEL, DST_CHAIN_ZERIUS_NFT)),
+            2: (2, SRC_CHAIN_NOGEM, (DST_CHAIN_NOGEM_REFUEL, DST_CHAIN_NOGEM_NFT)),
+            3: (3, SRC_CHAIN_MERKLY, (DST_CHAIN_MERKLY_REFUEL, DST_CHAIN_MERKLY_NFT)),
+            4: (4, SRC_CHAIN_WHALE, (DST_CHAIN_WHALE_REFUEL, DST_CHAIN_WHALE_NFT)),
+            5: (5, SRC_CHAIN_ZERIUS, (DST_CHAIN_ZERIUS_REFUEL, DST_CHAIN_ZERIUS_NFT)),
         }[dapp_id]
 
         dst_datas, module_name = {
