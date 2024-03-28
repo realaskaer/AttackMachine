@@ -140,17 +140,17 @@ class Across(Bridge, Logger):
     @helper
     @gas_checker
     async def claim_rewards(self):
-        url = 'https://public.api.across.to/rewards/op-rebates/summary'
-
-        params = {
-            'userAddress': self.client.address
-        }
-
-        response = await self.make_request(url=url, params=params)
-
-        if int(response['claimableRewards']) == 0:
-            self.logger_msg(*self.client.acc_info, msg=f'No tokens are available for claiming', type_msg='warning')
-            return True
+        # url = 'https://public.api.across.to/rewards/op-rebates/summary'
+        #
+        # params = {
+        #     'userAddress': self.client.address
+        # }
+        #
+        # response = await self.make_request(url=url, params=params)
+        #
+        # if int(response['claimableRewards']) == 0:
+        #     self.logger_msg(*self.client.acc_info, msg=f'No tokens are available for claiming', type_msg='warning')
+        #     return True
 
         url = 'https://public.api.across.to/airdrop/merkle-distributor-proofs'
 
