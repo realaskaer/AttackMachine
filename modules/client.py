@@ -556,6 +556,7 @@ class Client(Logger):
         if not WAIT_FOR_RECEIPT:
             return True
 
+        await asyncio.sleep(10)
         url = f"https://api-mainnet.layerzero-scan.com/tx/{tx_hash}"
 
         while True:
