@@ -36,6 +36,8 @@ ScrollRPC = Network(
     name='Scroll',
     rpc=[
         'https://rpc.scroll.io',
+        'https://rpc.ankr.com/scroll',
+        'https://scroll.drpc.org',
     ],
     chain_id=534352,
     eip1559_support=False,
