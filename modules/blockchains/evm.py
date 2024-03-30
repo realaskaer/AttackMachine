@@ -30,6 +30,18 @@ class SimpleEVM(Logger):
 
     @helper
     @gas_checker
+    async def deploy_contract(self):
+
+        self.logger_msg(*self.client.acc_info, msg=f"Deploy '0x' contract on {self.client.network.name}")
+
+        transaction = await self.client.prepare_transaction() | {
+            'data': 'Ox'
+        }
+
+        return await self.client.send_transaction(transaction)
+
+    @helper
+    @gas_checker
     async def transfer_eth_to_myself(self):
 
         amount = await self.client.get_smart_amount(TRANSFER_AMOUNT)

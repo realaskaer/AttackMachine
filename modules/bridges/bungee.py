@@ -18,11 +18,7 @@ class Bungee(Refuel, Bridge, Logger):
         self.client = client
         Logger.__init__(self)
         Bridge.__init__(self, client)
-
         self.network = self.client.network.name
-        self.refuel_contract = self.client.get_contract(
-            BUNGEE_CONTRACTS[self.network]['gas_refuel'], BUNGEE_ABI['refuel']
-        )
 
     async def get_limits_data(self):
         url = 'https://refuel.socket.tech/chains'
@@ -37,6 +33,8 @@ class Bungee(Refuel, Bridge, Logger):
     @helper
     @gas_checker
     async def refuel(self):
+        refuel_contract = self.client.get_contract(BUNGEE_CONTRACTS[self.network]['gas_refuel'], BUNGEE_ABI['refuel'])
+
         dst_data = random.choice(list(DST_CHAIN_BUNGEE_REFUEL.items()))
         dst_chain_name, _, dst_native_name, _ = LAYERZERO_NETWORKS_DATA[dst_data[0]]
         dst_amount = await self.client.get_smart_amount(dst_data[1])
@@ -70,7 +68,7 @@ class Bungee(Refuel, Bridge, Logger):
 
                         tx_params = await self.client.prepare_transaction(value=amount_in_wei)
 
-                        transaction = await self.refuel_contract.functions.depositNativeToken(
+                        transaction = await refuel_contract.functions.depositNativeToken(
                             dst_chain_id,
                             self.client.address
                         ).build_transaction(tx_params)

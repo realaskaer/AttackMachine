@@ -91,6 +91,7 @@ AVAILABLE_MODULES_INFO = {
     swap_sushiswap                      : (swap_sushiswap, 2, 'SushiSwap swap', 1, [2, 3]),
     swap_bridged_usdc                   : (swap_bridged_usdc, 2, 'Swap USDC to Bridged', 0, [0]),
     wrap_eth                            : (wrap_eth, 2, 'Wrap ETH', 0, []),
+    unwrap_eth                          : (unwrap_eth, 2, 'Unwrap ETH', 0, []),
     random_approve                      : (random_approve, 2, 'Random approve', 0, []),
     smart_random_approve                : (smart_random_approve, 2, 'Smart random approve', 0, []),
     disable_collateral_basilisk         : (disable_collateral_basilisk, 3, 'Disable Basilisk collateral', 1, [11]),
