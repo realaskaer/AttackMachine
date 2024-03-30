@@ -860,7 +860,7 @@ class Custom(Logger, RequestClient):
 
                         result = await omnichain_util(
                             self.client.account_name, self.client.private_key, self.client.proxy_init,
-                            chain_from_id=src_chain, dapp_id=2, dapp_mode=func_mode, attack_data=attack_data
+                            chain_from_id=src_chain, dapp_id=3, dapp_mode=func_mode, attack_data=attack_data
                         )
 
                         if not ALL_DST_CHAINS:
