@@ -600,6 +600,8 @@ HELPERS_CONFIG = {
     bridge_rhino                     # смотри BRIDGE CONTROL
     bridge_native                    # смотри BRIDGE CONTROL (кол-во из NATIVE_DEPOSIT_AMOUNT) 
     
+    rhino_recovery_funds             # вывод средств из Rhino.fi, работает по вашим по настройкам из BRIDGE CONTROL
+    
     okx_deposit                      # ввод средств на биржу + сбор средств на субАккаунтов на основной счет
     bingx_deposit                    # ввод средств на биржу + сбор средств на субАккаунтов на основной счет
     binance_deposit                  # ввод средств на биржу + сбор средств на субАккаунтов на основной счет
