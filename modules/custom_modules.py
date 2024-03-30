@@ -121,7 +121,7 @@ class Custom(Logger, RequestClient):
 
     @helper
     async def balance_average(self):
-        from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util, bitget_withdraw
+        from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util, bitget_withdraw_util
 
         self.logger_msg(*self.client.acc_info, msg=f"Start checking all balances to make it average")
 
@@ -140,7 +140,7 @@ class Custom(Logger, RequestClient):
                         1: (okx_withdraw_util, OKX_NETWORKS_NAME),
                         2: (bingx_withdraw_util, BINGX_NETWORKS_NAME),
                         3: (binance_withdraw_util, BINGX_NETWORKS_NAME),
-                        4: (bitget_withdraw, BITGET_NETWORKS_NAME),
+                        4: (bitget_withdraw_util, BITGET_NETWORKS_NAME),
                     }[cex_wanted]
 
                     dapp_tokens = [f"{cex_config[cex_network].split('-')[0]}{'.e' if cex_network in [29, 30] else ''}"]
