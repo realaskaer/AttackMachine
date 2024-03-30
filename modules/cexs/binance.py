@@ -133,7 +133,7 @@ class Binance(CEX, Logger):
 
                         break
                     except Exception as error:
-                        if 'not reached the required block confirmations' in str(error):
+                        if 'not reached the required block confirmations' in str(error) or '-9000' in str(error):
                             self.logger_msg(
                                 *self.client.acc_info,
                                 msg=f"Deposit not reached the required block confirmations. Will try again in 1 min...",
