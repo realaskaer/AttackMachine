@@ -369,10 +369,11 @@ class Rhino(Bridge, Logger):
     async def recovery_funds(self):
         from settings import RHINO_CHAIN_ID_TO
         from settings import RHINO_TOKEN_NAME
+        from config import RHINO_CHAIN_INFO
 
         self.nonce, self.signature = self.get_authentication_data()
         rhino_user_config = await self.get_user_config()
         _, to_token_name = RHINO_TOKEN_NAME
-        to_chain = random.choice(RHINO_CHAIN_ID_TO)
+        to_chain = RHINO_CHAIN_INFO[random.choice(RHINO_CHAIN_ID_TO)]
 
         await self.withdraw_from_rhino(rhino_user_config, 0, to_token_name, to_chain, need_refund=True)
