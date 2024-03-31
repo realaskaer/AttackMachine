@@ -227,12 +227,12 @@ RHINO_AMOUNT_LIMITER = 0, (0, 0)
 
 BRIDGE_SWITCH_CONTROL = {
     1: 1,  # ACROSS
-    2: 2,  # LAYERSWAP
-    3: 3,  # ORBITER
-    4: 4,  # RELAY
-    5: 5,  # BUNGEE
-    6: 6,  # NITRO
-    7: 7,  # OWLTO
+    2: 2,  # BUNGEE
+    3: 3,  # LAYERSWAP
+    4: 4,  # NITRO
+    5: 5,  # ORBITER
+    6: 6,  # OWLTO
+    7: 7,  # RELAY
     8: 8,  # RHINO
 }
 
