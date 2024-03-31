@@ -1052,16 +1052,18 @@ class Custom(Logger, RequestClient):
             try:
                 from functions import bridge_utils
 
-                bridge_app_id, dapp_chains, dapp_tokens, limiter = {
-                    1: (1, ACROSS_CHAIN_ID_FROM, ACROSS_TOKEN_NAME, ACROSS_AMOUNT_LIMITER),
-                    2: (2, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME, BUNGEE_AMOUNT_LIMITER),
-                    3: (3, LAYERSWAP_CHAIN_ID_FROM, LAYERSWAP_TOKEN_NAME, LAYERSWAP_AMOUNT_LIMITER),
-                    4: (4, NITRO_CHAIN_ID_FROM, NITRO_TOKEN_NAME, NITRO_AMOUNT_LIMITER),
-                    5: (5, ORBITER_CHAIN_ID_FROM, ORBITER_TOKEN_NAME, ORBITER_AMOUNT_LIMITER),
-                    6: (6, OWLTO_CHAIN_ID_FROM, OWLTO_TOKEN_NAME, OWLTO_AMOUNT_LIMITER),
-                    7: (7, RELAY_CHAIN_ID_FROM, RELAY_TOKEN_NAME, RELAY_AMOUNT_LIMITER),
-                    8: (8, RHINO_CHAIN_ID_FROM, RHINO_TOKEN_NAME, RHINO_AMOUNT_LIMITER),
-                }.get(BRIDGE_SWITCH_CONTROL.get(dapp_id, dapp_id))
+                dapp_chains, dapp_tokens, limiter = {
+                    1: (ACROSS_CHAIN_ID_FROM, ACROSS_TOKEN_NAME, ACROSS_AMOUNT_LIMITER),
+                    2: (BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME, BUNGEE_AMOUNT_LIMITER),
+                    3: (LAYERSWAP_CHAIN_ID_FROM, LAYERSWAP_TOKEN_NAME, LAYERSWAP_AMOUNT_LIMITER),
+                    4: (NITRO_CHAIN_ID_FROM, NITRO_TOKEN_NAME, NITRO_AMOUNT_LIMITER),
+                    5: (ORBITER_CHAIN_ID_FROM, ORBITER_TOKEN_NAME, ORBITER_AMOUNT_LIMITER),
+                    6: (OWLTO_CHAIN_ID_FROM, OWLTO_TOKEN_NAME, OWLTO_AMOUNT_LIMITER),
+                    7: (RELAY_CHAIN_ID_FROM, RELAY_TOKEN_NAME, RELAY_AMOUNT_LIMITER),
+                    8: (RHINO_CHAIN_ID_FROM, RHINO_TOKEN_NAME, RHINO_AMOUNT_LIMITER),
+                }[dapp_id]
+
+                dapp_id = BRIDGE_SWITCH_CONTROL.get(dapp_id, dapp_id)
 
                 if len(dapp_tokens) == 2:
                     from_token_name, to_token_name = dapp_tokens
@@ -1078,7 +1080,7 @@ class Custom(Logger, RequestClient):
                 chain_from_id, token_name = dapp_chains[chain_index], from_token_name
 
                 source_chain_name, destination_chain, amount, dst_chain_id = await client.get_bridge_data(
-                    chain_from_id=chain_from_id, dapp_id=bridge_app_id
+                    chain_from_id=chain_from_id, dapp_id=dapp_id
                 )
 
                 from_chain_name = client.network.name
@@ -1102,7 +1104,7 @@ class Custom(Logger, RequestClient):
 
                 if balance_in_usd >= limit_amount:
                     bridge_fee = await bridge_utils(
-                        fee_client, bridge_app_id, chain_from_id, fee_bridge_data, need_fee=True)
+                        fee_client, dapp_id, chain_from_id, fee_bridge_data, need_fee=True)
                     min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
                     if balance - bridge_fee - min_hold_balance > 0:
                         if balance < amount + bridge_fee and from_token_name == client.token:
@@ -1125,7 +1127,7 @@ class Custom(Logger, RequestClient):
 
                         if balance_in_usd >= bridge_amount_in_usd:
 
-                            return await bridge_utils(client, bridge_app_id, chain_from_id, bridge_data)
+                            return await bridge_utils(client, dapp_id, chain_from_id, bridge_data)
 
                         info = f"{balance_in_usd:.2f}$ < {bridge_amount_in_usd:.2f}$"
                         raise CriticalException(f'Account {token_name} balance < wanted bridge amount: {info}')
