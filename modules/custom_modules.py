@@ -543,7 +543,7 @@ class Custom(Logger, RequestClient):
                     tokens = [client.token for client in clients]
 
                 balances = [await client.get_token_balance(
-                    omnicheck=omni_check if token not in ['USDV', 'STG', 'MAV'] else True, token_name=token,
+                    omnicheck=omni_check if token not in ['USDV', 'STG', 'MAV', 'CORE'] else True, token_name=token,
                 )
                             for client, token in zip(clients, tokens)]
 
@@ -980,7 +980,7 @@ class Custom(Logger, RequestClient):
 
                     balance_in_usd, token_price = balance_data
                     dep_token = dapp_tokens[chain_index]
-                    omnicheck = True if dep_token in ['USDV', 'STG', 'MAV'] else False
+                    omnicheck = True if dep_token in ['USDV', 'STG', 'MAV', 'CORE'] else False
 
                     dep_network = networks if isinstance(networks, int) else networks[chain_index]
                     limit_amount, wanted_to_hold_amount = CEX_DEPOSIT_LIMITER

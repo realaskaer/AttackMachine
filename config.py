@@ -3457,6 +3457,7 @@ COINGECKO_TOKEN_API_NAMES = {
      'USDB': 'usdb',
      'ARB': 'arbitrum',
      'OP': 'optimism',
+     'CORE': 'coredaoorg',
 }
 
 LAYERZERO_NETWORKS_DATA = {

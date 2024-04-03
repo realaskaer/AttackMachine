@@ -428,7 +428,7 @@ class Client(Logger):
                     gas_price = await self.w3.eth.gas_price
                     if self.network.name == ['Scroll', 'Optimism']:
                         gas_price = int(gas_price / GAS_PRICE_MULTIPLIER * 1.1)
-                    
+
                     tx_params['gasPrice'] = int(gas_price * GAS_PRICE_MULTIPLIER)
 
             return tx_params
