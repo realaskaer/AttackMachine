@@ -966,10 +966,10 @@ class Custom(Logger, RequestClient):
                             continue
 
                     networks, amount, limit_amount, wanted_to_hold_amount = current_data
-                    if (not isinstance(networks, int) or not isinstance(amount, tuple)
+                    if (not isinstance(networks, (int, tuple)) or not isinstance(amount, tuple)
                             or not isinstance(limit_amount, int) or not isinstance(wanted_to_hold_amount, tuple)):
                         raise CriticalException(
-                            'Software only support [1, (1, 1), 0, (1, 1)] deposit format. See CEX CONTROL'
+                            'Software only support [0 or (0, 0), (0, 0), 0, (1, 1)] deposit format. See CEX CONTROL'
                         )
 
                     if isinstance(networks, tuple):
