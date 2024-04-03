@@ -270,7 +270,7 @@ class Runner(Logger):
 
             if SAVE_PROGRESS:
                 current_step = self.load_routes()[str(account_name)]["current_step"]
-
+            ' Please, try to fix your settings in files'
             module_info = AVAILABLE_MODULES_INFO
             info = CHAIN_NAME[GLOBAL_NETWORK]
 

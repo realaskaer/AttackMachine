@@ -18,7 +18,7 @@ from settings import (
     CEX_BALANCER_CONFIG, STARGATE_CHAINS, STARGATE_TOKENS, L2PASS_ATTACK_NFT, ZERIUS_ATTACK_NFT,
     SHUFFLE_ATTACK, COREDAO_CHAINS, COREDAO_TOKENS, OKX_WITHDRAW_DATA, BINANCE_DEPOSIT_DATA,
     BINGX_WITHDRAW_DATA, SHUFFLE_NFT_ATTACK, BINANCE_WITHDRAW_DATA, ALL_DST_CHAINS,
-    CEX_DEPOSIT_LIMITER, RHINO_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, ORBITER_CHAIN_ID_FROM,
+    RHINO_CHAIN_ID_FROM, LAYERSWAP_CHAIN_ID_FROM, ORBITER_CHAIN_ID_FROM,
     ACROSS_CHAIN_ID_FROM, WHALE_ATTACK_NFT, RELAY_CHAIN_ID_FROM, SRC_CHAIN_MERKLY,
     SRC_CHAIN_L2PASS, SRC_CHAIN_ZERIUS, DST_CHAIN_MERKLY_REFUEL, DST_CHAIN_L2PASS_REFUEL, DST_CHAIN_ZERIUS_REFUEL,
     SRC_CHAIN_WHALE, DST_CHAIN_WHALE_REFUEL, DST_CHAIN_MERKLY_NFT, DST_CHAIN_L2PASS_NFT, DST_CHAIN_ZERIUS_NFT,
@@ -530,7 +530,7 @@ class Custom(Logger, RequestClient):
 
     async def balance_searcher(
             self, chains, tokens=None, omni_check:bool = True, native_check:bool = False, silent_mode:bool = False,
-            balancer_mode:bool=False
+            balancer_mode:bool = False
     ):
         index = 0
         clients = []
@@ -965,7 +965,13 @@ class Custom(Logger, RequestClient):
                         if not current_data:
                             continue
 
-                    networks, amount = current_data
+                    networks, amount, limit_amount, wanted_to_hold_amount = current_data
+                    if (not isinstance(networks, int) or not isinstance(amount, tuple)
+                            or not isinstance(limit_amount, int) or not isinstance(wanted_to_hold_amount, tuple)):
+                        raise CriticalException(
+                            'Software only support [1, (1, 1), 0, (1, 1)] deposit format. See CEX CONTROL'
+                        )
+
                     if isinstance(networks, tuple):
                         dapp_tokens = [f"{cex_config[network].split('-')[0]}{'.e' if network in [29, 30] else ''}"
                                        for network in networks]
@@ -983,7 +989,6 @@ class Custom(Logger, RequestClient):
                     omnicheck = True if dep_token in ['USDV', 'STG', 'MAV', 'CORE'] else False
 
                     dep_network = networks if isinstance(networks, int) else networks[chain_index]
-                    limit_amount, wanted_to_hold_amount = CEX_DEPOSIT_LIMITER
                     min_wanted_amount, max_wanted_amount = min(wanted_to_hold_amount), max(wanted_to_hold_amount)
 
                     if balance_in_usd >= limit_amount:
