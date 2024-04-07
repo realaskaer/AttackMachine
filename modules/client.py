@@ -173,17 +173,28 @@ class Client(Logger):
                 f'DEX slippage > your wanted slippage | DEX slippage: {dex_slippage:.3}% > Your slippage {SLIPPAGE}%'
             )
 
-    async def get_bridge_data(self, chain_from_id: int, dapp_id: int):
-        bridge_config, to_chain_ids, bridge_setting, bridge_token = {
-            1: (CHAIN_IDS, ACROSS_CHAIN_ID_TO, ACROSS_BRIDGE_AMOUNT, ACROSS_TOKEN_NAME),
-            2: (CHAIN_IDS, BUNGEE_CHAIN_ID_TO, BUNGEE_BRIDGE_AMOUNT, BUNGEE_TOKEN_NAME),
-            3: (LAYERSWAP_CHAIN_NAME, LAYERSWAP_CHAIN_ID_TO, LAYERSWAP_BRIDGE_AMOUNT, LAYERSWAP_TOKEN_NAME),
-            4: (CHAIN_IDS, NITRO_CHAIN_ID_TO, NITRO_BRIDGE_AMOUNT, NITRO_TOKEN_NAME),
-            5: (ORBITER_CHAINS_INFO, ORBITER_CHAIN_ID_TO, ORBITER_BRIDGE_AMOUNT, ORBITER_TOKEN_NAME),
-            6: (CHAIN_IDS, OWLTO_CHAIN_ID_TO, OWLTO_BRIDGE_AMOUNT, OWLTO_TOKEN_NAME),
-            7: (CHAIN_IDS, RELAY_CHAIN_ID_TO, RELAY_BRIDGE_AMOUNT, RELAY_TOKEN_NAME),
-            8: (RHINO_CHAIN_INFO, RHINO_CHAIN_ID_TO, RHINO_BRIDGE_AMOUNT, RHINO_TOKEN_NAME),
+    async def get_bridge_data(self, chain_from_id: int, dapp_id: int, settings_id: int):
+        bridge_config = {
+            1: CHAIN_IDS,
+            2: CHAIN_IDS,
+            3: LAYERSWAP_CHAIN_NAME,
+            4: CHAIN_IDS,
+            5: ORBITER_CHAINS_INFO,
+            6: CHAIN_IDS,
+            7: CHAIN_IDS,
+            8: RHINO_CHAIN_INFO,
         }[dapp_id]
+
+        to_chain_ids, bridge_setting, bridge_token = {
+            1: (ACROSS_CHAIN_ID_TO, ACROSS_BRIDGE_AMOUNT, ACROSS_TOKEN_NAME),
+            2: (BUNGEE_CHAIN_ID_TO, BUNGEE_BRIDGE_AMOUNT, BUNGEE_TOKEN_NAME),
+            3: (LAYERSWAP_CHAIN_ID_TO, LAYERSWAP_BRIDGE_AMOUNT, LAYERSWAP_TOKEN_NAME),
+            4: (NITRO_CHAIN_ID_TO, NITRO_BRIDGE_AMOUNT, NITRO_TOKEN_NAME),
+            5: (ORBITER_CHAIN_ID_TO, ORBITER_BRIDGE_AMOUNT, ORBITER_TOKEN_NAME),
+            6: (OWLTO_CHAIN_ID_TO, OWLTO_BRIDGE_AMOUNT, OWLTO_TOKEN_NAME),
+            7: (RELAY_CHAIN_ID_TO, RELAY_BRIDGE_AMOUNT, RELAY_TOKEN_NAME),
+            8: (RHINO_CHAIN_ID_TO, RHINO_BRIDGE_AMOUNT, RHINO_TOKEN_NAME),
+        }[settings_id]
 
         source_chain = bridge_config[chain_from_id]
         dst_chain_id = random.choice([chain for chain in to_chain_ids if chain != chain_from_id])

@@ -1086,11 +1086,11 @@ class Custom(Logger, RequestClient):
                 fee_client = await client.new_client(dapp_chains[chain_index])
                 chain_from_id, token_name = dapp_chains[chain_index], from_token_name
 
-                source_chain_name, destination_chain, amount, dst_chain_id = await client.get_bridge_data(
-                    chain_from_id=chain_from_id, dapp_id=dapp_id
-                )
+                settings_id = BRIDGE_SWITCH_CONTROL.get(dapp_id, dapp_id)
 
-                dapp_id = BRIDGE_SWITCH_CONTROL.get(dapp_id, dapp_id)
+                source_chain_name, destination_chain, amount, dst_chain_id = await client.get_bridge_data(
+                    chain_from_id=chain_from_id, dapp_id=dapp_id, settings_id=settings_id
+                )
 
                 from_chain_name = client.network.name
                 to_chain_name = CHAIN_NAME[dst_chain_id]
