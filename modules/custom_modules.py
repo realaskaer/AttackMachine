@@ -1086,10 +1086,10 @@ class Custom(Logger, RequestClient):
                 fee_client = await client.new_client(dapp_chains[chain_index])
                 chain_from_id, token_name = dapp_chains[chain_index], from_token_name
 
-                settings_id = BRIDGE_SWITCH_CONTROL.get(dapp_id, dapp_id)
+                switch_id = BRIDGE_SWITCH_CONTROL.get(dapp_id, dapp_id)
 
                 source_chain_name, destination_chain, amount, dst_chain_id = await client.get_bridge_data(
-                    chain_from_id=chain_from_id, dapp_id=dapp_id, settings_id=settings_id
+                    chain_from_id=chain_from_id, dapp_id=switch_id, settings_id=dapp_id
                 )
 
                 from_chain_name = client.network.name
@@ -1112,7 +1112,7 @@ class Custom(Logger, RequestClient):
 
                 if balance_in_usd >= limit_amount:
                     bridge_fee = await bridge_utils(
-                        fee_client, dapp_id, chain_from_id, fee_bridge_data, need_fee=True)
+                        fee_client, switch_id, chain_from_id, fee_bridge_data, need_fee=True)
                     min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
                     if balance - bridge_fee - min_hold_balance > 0:
                         if balance < amount + bridge_fee and from_token_name == client.token:
@@ -1134,7 +1134,7 @@ class Custom(Logger, RequestClient):
                                        from_token_name, to_token_name, from_token_addr, to_token_addr)
 
                         if balance_in_usd >= bridge_amount_in_usd:
-                            return await bridge_utils(client, dapp_id, chain_from_id, bridge_data)
+                            return await bridge_utils(client, switch_id, chain_from_id, bridge_data)
 
                         info = f"{balance_in_usd:.2f}$ < {bridge_amount_in_usd:.2f}$"
                         raise CriticalException(f'Account {token_name} balance < wanted bridge amount: {info}')
