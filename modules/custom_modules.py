@@ -261,7 +261,7 @@ class Custom(Logger, RequestClient):
         return True
 
     @helper
-    async def smart_bridge_l0(self, dapp_id:int = None, dust_mode:bool = False):
+    async def smart_bridge_l0(self, dapp_id: int = None, dust_mode: bool = False):
         from functions import Stargate, CoreDAO
 
         class_name, tokens, chains, amounts = {
@@ -352,7 +352,8 @@ class Custom(Logger, RequestClient):
                                     dst_chain = converted_chains[0]
                                     used_chains = []
                             else:
-                                raise SoftwareExceptionWithoutRetry('CoreDAO bridges support only 2 or 3 chains in list')
+                                raise SoftwareExceptionWithoutRetry(
+                                    'CoreDAO bridges support only 2 or 3 chains in list')
                         else:
                             dst_chain = 11
 
@@ -468,7 +469,7 @@ class Custom(Logger, RequestClient):
 
     @helper
     @gas_checker
-    async def layerzero_attack(self, dapp_id:int = None, dapp_mode:int = None):
+    async def layerzero_attack(self, dapp_id: int = None, dapp_mode: int = None):
         from functions import omnichain_util
 
         class_id, attack_data = {
@@ -520,8 +521,8 @@ class Custom(Logger, RequestClient):
                 raise SoftwareExceptionWithoutRetry(f'This dapp mode is not exist: {dapp_mode}')
 
             await omnichain_util(
-               self.client.account_name, self.client.private_key, self.client.proxy_init,
-               chain_id_from, attack_data=attack_data, dapp_id=class_id, dapp_mode=dapp_mode
+                self.client.account_name, self.client.private_key, self.client.proxy_init,
+                chain_id_from, attack_data=attack_data, dapp_id=class_id, dapp_mode=dapp_mode
             )
 
             await sleep(self)
@@ -529,8 +530,8 @@ class Custom(Logger, RequestClient):
         return True
 
     async def balance_searcher(
-            self, chains, tokens=None, omni_check:bool = True, native_check:bool = False, silent_mode:bool = False,
-            balancer_mode:bool = False
+            self, chains, tokens=None, omni_check: bool = True, native_check: bool = False, silent_mode: bool = False,
+            balancer_mode: bool = False
     ):
         index = 0
         clients = []
@@ -652,7 +653,8 @@ class Custom(Logger, RequestClient):
         while True:
             client = None
             try:
-                from config import (IZUMI_CONTRACTS, MAVERICK_CONTRACTS, RANGO_CONTRACTS, ODOS_CONTRACTS, ONEINCH_CONTRACTS,
+                from config import (IZUMI_CONTRACTS, MAVERICK_CONTRACTS, RANGO_CONTRACTS, ODOS_CONTRACTS,
+                                    ONEINCH_CONTRACTS,
                                     OPENOCEAN_CONTRACTS, PANCAKE_CONTRACTS, SUSHISWAP_CONTRACTS,
                                     UNISWAP_CONTRACTS, WOOFI_CONTRACTS, XYFINANCE_CONTRACTS, TOKENS_PER_CHAIN)
 
@@ -805,12 +807,13 @@ class Custom(Logger, RequestClient):
 
     @helper
     @gas_checker
-    async def merkly_omnichain_util(self, dapp_mode:int, dapp_function:int):
+    async def merkly_omnichain_util(self, dapp_mode: int, dapp_function: int):
         from functions import omnichain_util
 
         module_name, src_chains, dst_chains, token_amounts, refuel_data = {
             1: ('Wormhole', SRC_CHAIN_MERKLY_WORMHOLE, DST_CHAIN_MERKLY_WORMHOLE, WORMHOLE_TOKENS_AMOUNT, 0),
-            2: ('Polyhedra', SRC_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_POLYHEDRA, 0, DST_CHAIN_MERKLY_POLYHEDRA_REFUEL),
+            2: (
+            'Polyhedra', SRC_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_POLYHEDRA, 0, DST_CHAIN_MERKLY_POLYHEDRA_REFUEL),
             3: ('Hyperlane', SRC_CHAIN_MERKLY_HYPERLANE, DST_CHAIN_MERKLY_HYPERLANE, HYPERLANE_TOKENS_AMOUNT, 0),
         }[dapp_mode]
 
@@ -897,10 +900,11 @@ class Custom(Logger, RequestClient):
         return result
 
     @helper
-    async def smart_cex_withdraw(self, dapp_id:int):
+    async def smart_cex_withdraw(self, dapp_id: int):
         while True:
             try:
-                from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util, bitget_withdraw_util
+                from functions import okx_withdraw_util, bingx_withdraw_util, binance_withdraw_util, \
+                    bitget_withdraw_util
 
                 func, withdraw_data = {
                     1: (okx_withdraw_util, OKX_WITHDRAW_DATA),
@@ -942,7 +946,7 @@ class Custom(Logger, RequestClient):
 
     @helper
     @gas_checker
-    async def smart_cex_deposit(self, dapp_id:int):
+    async def smart_cex_deposit(self, dapp_id: int):
         from functions import cex_deposit_util
 
         class_id, deposit_data, cex_config = {
@@ -1050,7 +1054,7 @@ class Custom(Logger, RequestClient):
 
     @helper
     @gas_checker
-    async def smart_bridge(self, dapp_id:int = None):
+    async def smart_bridge(self, dapp_id: int = None):
         client = None
         fee_client = None
         while True:
@@ -1067,8 +1071,6 @@ class Custom(Logger, RequestClient):
                     7: (RELAY_CHAIN_ID_FROM, RELAY_TOKEN_NAME, RELAY_AMOUNT_LIMITER),
                     8: (RHINO_CHAIN_ID_FROM, RHINO_TOKEN_NAME, RHINO_AMOUNT_LIMITER),
                 }[dapp_id]
-
-                dapp_id = BRIDGE_SWITCH_CONTROL.get(dapp_id, dapp_id)
 
                 if len(dapp_tokens) == 2:
                     from_token_name, to_token_name = dapp_tokens
@@ -1088,6 +1090,8 @@ class Custom(Logger, RequestClient):
                     chain_from_id=chain_from_id, dapp_id=dapp_id
                 )
 
+                dapp_id = BRIDGE_SWITCH_CONTROL.get(dapp_id, dapp_id)
+
                 from_chain_name = client.network.name
                 to_chain_name = CHAIN_NAME[dst_chain_id]
                 from_token_addr = TOKENS_PER_CHAIN[from_chain_name][from_token_name]
@@ -1095,7 +1099,6 @@ class Custom(Logger, RequestClient):
                 if to_token_name == 'USDC':
                     to_token_addr = TOKENS_PER_CHAIN[to_chain_name].get('USDC.e')
                     if not to_token_addr:
-
                         to_token_addr = TOKENS_PER_CHAIN[to_chain_name]['USDC']
                 else:
 
@@ -1131,7 +1134,6 @@ class Custom(Logger, RequestClient):
                                        from_token_name, to_token_name, from_token_addr, to_token_addr)
 
                         if balance_in_usd >= bridge_amount_in_usd:
-
                             return await bridge_utils(client, dapp_id, chain_from_id, bridge_data)
 
                         info = f"{balance_in_usd:.2f}$ < {bridge_amount_in_usd:.2f}$"
