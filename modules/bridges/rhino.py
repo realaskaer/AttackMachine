@@ -280,8 +280,6 @@ class Rhino(Bridge, Logger):
         chain_name_log = chain_to_name.capitalize()
         self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount} {token_name} from Rhino to {chain_name_log}")
 
-        url = "https://api.rhino.fi/v1/trading/bridgedWithdrawals"
-
         deversifi_address = rhino_user_config["DVF"]['deversifiAddress']
         receiver_data = (await self.get_vault_id_and_stark_key(token_name, deversifi_address)).values()
         receiver_vault_id, receiver_public_key = receiver_data
@@ -301,29 +299,58 @@ class Rhino(Bridge, Logger):
 
         headers = self.make_headers()
 
-        payload = {
-            "chain": chain_to_name,
-            "token": token_name,
-            "amount": f"{amount_in_wei}",
-            "tx": {
-                "amount": amount_in_wei,
-                "senderPublicKey": sender_public_key,
-                "receiverPublicKey": receiver_public_key,
-                "receiverVaultId": receiver_vault_id,
-                "senderVaultId": sender_vault_id,
-                "signature": {
-                    "r": r_signature,
-                    "s": s_signature
+        if chain_to_name == 'ETHEREUM':
+            url = 'https://api.rhino.fi/v1/trading/w/transferAndWithdraw'
+
+            payload = {
+                "tx": {
+                    "amount": f"{amount_in_wei}",
+                    "senderPublicKey": sender_public_key,
+                    "receiverPublicKey": receiver_public_key,
+                    "receiverVaultId": receiver_vault_id,
+                    "senderVaultId": sender_vault_id,
+                    "token": token_address,
+                    "feeInfoUser": {
+                        "feeLimit": "0",
+                        "sourceVaultId": sender_vault_id,
+                        "tokenId": token_address
+                    },
+                    "type": "TransferRequest",
+                    "nonce": tx_nonce,
+                    "expirationTimestamp": expiration_timestamp,
+                    "signature": {
+                        "r": r_signature,
+                        "s": s_signature,
+                    }
                 },
-                "token": token_address,
-                "type": "TransferRequest",
-                "nonce": tx_nonce,
-                "expirationTimestamp": expiration_timestamp
-            },
-            "nonce": payload_nonce,
-            "recipientEthAddress": self.client.address,
-            "isBridge": False,
-        }
+                "nonce": payload_nonce
+            }
+        else:
+            url = "https://api.rhino.fi/v1/trading/bridgedWithdrawals"
+
+            payload = {
+                "chain": chain_to_name,
+                "token": token_name,
+                "amount": f"{amount_in_wei}",
+                "tx": {
+                    "amount": amount_in_wei,
+                    "senderPublicKey": sender_public_key,
+                    "receiverPublicKey": receiver_public_key,
+                    "receiverVaultId": receiver_vault_id,
+                    "senderVaultId": sender_vault_id,
+                    "signature": {
+                        "r": r_signature,
+                        "s": s_signature
+                    },
+                    "token": token_address,
+                    "type": "TransferRequest",
+                    "nonce": tx_nonce,
+                    "expirationTimestamp": expiration_timestamp
+                },
+                "nonce": payload_nonce,
+                "recipientEthAddress": self.client.address,
+                "isBridge": False,
+            }
 
         await self.make_request(method='POST', url=url, headers=headers, json=payload)
 
