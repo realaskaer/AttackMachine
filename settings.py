@@ -92,12 +92,11 @@ BINANCE_DEPOSIT_DATA = [
 '--------------------------------------------------------BitGet--------------------------------------------------------'
 
 BITGET_WITHDRAW_DATA = [
-    [8, (0.004, 0.00411)],
-    [37, ('100', '100')],
+    [33, ('100', '100')],
 ]
 
 BITGET_DEPOSIT_DATA = [
-    [37, ('100', '100'), 0, (0, 0)],
+    [33, ('100', '100'), 0, (0, 0)],
 ]
 
 '-------------------------------------------------------Control--------------------------------------------------------'
@@ -154,10 +153,10 @@ CEX_BALANCER_CONFIG = [
 
 '-----------------------------------------------------Native Bridge----------------------------------------------------'
 
-NATIVE_CHAIN_ID_FROM = [1]                # Исходящая сеть. 21.01.2024 Применимо только для bridge_zora
-NATIVE_CHAIN_ID_TO = [12]                  # Входящая сеть. 21.01.2024 Применимо только для bridge_zora
-NATIVE_DEPOSIT_AMOUNT = (0.001, 0.001)      # (минимум, максимум) (% или кол-во)
-NATIVE_WITHDRAW_AMOUNT = (0.0001, 0.0002)  # (минимум, максимум) (% или кол-во)
+NATIVE_CHAIN_ID_FROM = [1]                 # Исходящая сеть. Применимо только для bridge_zora, остальные из Ethereum
+NATIVE_CHAIN_ID_TO = [12]                  # Входящая сеть.  Применимо только для bridge_zora, остальные в Ethereum
+NATIVE_DEPOSIT_AMOUNT = (0.001, 0.001)     # (минимум, максимум) (% или кол-во)
+NATIVE_WITHDRAW_AMOUNT = (0.0005, 0.0005)  # (минимум, максимум) (% или кол-во)
 
 '--------------------------------------------------------Across--------------------------------------------------------'
 
@@ -219,10 +218,10 @@ RELAY_AMOUNT_LIMITER = 0, (0, 0)
 
 '--------------------------------------------------------Rhino---------------------------------------------------------'
 
-RHINO_CHAIN_ID_FROM = [7]                # Исходящая сеть
+RHINO_CHAIN_ID_FROM = [4]                # Исходящая сеть
 RHINO_CHAIN_ID_TO = [11]                 # Входящая сеть
-RHINO_BRIDGE_AMOUNT = (1, 1.8)           # (минимум, максимум) (% или кол-во)
-RHINO_TOKEN_NAME = ('USDC', 'ETH')       # ETH, BNB, MATIC, USDC, USDT
+RHINO_BRIDGE_AMOUNT = (0.003, 0.003)           # (минимум, максимум) (% или кол-во)
+RHINO_TOKEN_NAME = ('ETH', 'ETH')       # ETH, BNB, MATIC, USDC, USDT
 RHINO_AMOUNT_LIMITER = 0, (0, 0)
 
 BRIDGE_SWITCH_CONTROL = {
@@ -360,8 +359,8 @@ STG_STAKE_CONFIG = [(1, 1), ('100', '100')]
 STARGATE_DUST_CONFIG = (['USDV', 'USDV'], [31, 6])
 
 STARGATE_AMOUNT = ('100', '100')
-STARGATE_CHAINS = [43, 7]
-STARGATE_TOKENS = ['MAV', 'MAV']
+STARGATE_CHAINS = [1, 31]
+STARGATE_TOKENS = ['STG', 'STG']
 
 COREDAO_AMOUNT = ('100', '100')
 COREDAO_CHAINS = [5, 11, 33]
@@ -599,6 +598,7 @@ HELPERS_CONFIG = {
     bridge_relay                     # смотри BRIDGE CONTROL
     bridge_rhino                     # смотри BRIDGE CONTROL
     bridge_native                    # смотри BRIDGE CONTROL (кол-во из NATIVE_DEPOSIT_AMOUNT) 
+    withdraw_native_bridge           # Вывод в Ethereum из GLOBAL_NETWORK (кол-во из NATIVE_WITHDRAW_AMOUNT).
     
     rhino_recovery_funds             # вывод средств из Rhino.fi, работает по вашим по настройкам из BRIDGE CONTROL
     
@@ -632,6 +632,7 @@ HELPERS_CONFIG = {
     
     smart_stake_stg                  # стейк на Stargate. STG_STAKE_CONFIG. См. OMNI-CHAIN CONTROLE
     bridge_stargate                  # бриджи на Stargate. STARGATE_CHAINS, STARGATE_TOKENS. См. OMNI-CHAIN CONTROLE
+    bridge_stargate_dust             # отправка пыли на Stargate. См. STARGATE_DUST_CONFIG и OMNI-CHAIN CONTROLE
     bridge_coredao                   # бриджи на CoreDAO. COREDAO_CHAINS, COREDAO_TOKENS. См. OMNI-CHAIN CONTROLE
     smart_random_approve             # рандомный апрув для сети с наибольшим балансом из L0_SEARCH_DATA 
     

@@ -35,7 +35,7 @@ class SimpleEVM(Logger):
         self.logger_msg(*self.client.acc_info, msg=f"Deploy '0x' contract on {self.client.network.name}")
 
         transaction = await self.client.prepare_transaction() | {
-            'data': 'Ox'
+            'data': '0x' if self.client.network.name != 'Scroll' else ''
         }
 
         return await self.client.send_transaction(transaction)
@@ -208,12 +208,14 @@ class Scroll(Blockchain, SimpleEVM):
 
         if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
-            bridge_fee = int(await self.oracle_contract.functions.estimateCrossDomainMessageFee(168000).call() * 1.2)
+            bridge_fee = int(0.0002076 * 10 ** 18)
 
             tx_params = await self.client.prepare_transaction(value=amount_in_wei + bridge_fee)
 
-            transaction = await self.deposit_contract.functions.depositETH(
+            transaction = await self.deposit_contract.functions.sendMessage(
+                self.client.address,
                 amount_in_wei,
+                '0x',
                 168000,
             ).build_transaction(tx_params)
 

@@ -33,8 +33,11 @@ table.field_names = FIELDS
 class TxChecker:
     async def make_request(self, method: str = 'GET', url: str = None, headers: dict = None, params: dict = None,
                            data: str = None, json: dict = None):
+        if PROXIES:
+            proxy = random.choice(PROXIES)
+        else:
+            proxy = None
 
-        proxy = random.choice(PROXIES)
         headers = (headers or {}) | {'User-Agent': get_user_agent()}
 
         async with ClientSession() as session:
@@ -204,6 +207,10 @@ async def main():
         directory = './data/accounts_stats/'
         if not os.path.exists(directory):
             os.makedirs(directory)
+
+        with open('./data/accounts_stats/wallets_stats.xlsx', 'w') as file:
+            file.truncate(0)
+
         xlsx_data.to_excel('./data/accounts_stats/wallets_stats.xlsx', index=False)
 
         [table.add_row(data.values()) for data in wallet_data]

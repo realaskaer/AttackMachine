@@ -391,19 +391,23 @@ class SyncSwap(DEX, Logger):
             [ZERO_ADDRESS, amount_in_wei]
         ]
 
-        if self.client.network.name == 'zkSync':
-            inputs[0].append(True)
-            inputs[1].append(True)
-
-        tx_params = await self.client.prepare_transaction(value=amount_in_wei)
-        transaction = await self.router_contract.functions.addLiquidity2(
+        tx_data = [
             pool_address,
             inputs,
             abi.encode(['address'], [self.client.address]),
             min_lp_amount_out,
             ZERO_ADDRESS,
             '0x',
-            ZERO_ADDRESS,
+        ]
+
+        if self.client.network.name == 'zkSync':
+            inputs[0].append(True)
+            inputs[1].append(True)
+            tx_data.append(ZERO_ADDRESS)
+
+        tx_params = await self.client.prepare_transaction(value=amount_in_wei)
+        transaction = await self.router_contract.functions.addLiquidity2(
+            *tx_data
         ).build_transaction(tx_params)
 
         return await self.client.send_transaction(transaction)
