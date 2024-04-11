@@ -294,7 +294,7 @@ class Rhino(Bridge, Logger):
         amount_in_wei = int(amount * 10 ** decimals)
 
         r_signature, s_signature = await self.get_stark_signature(amount_in_wei, expiration_timestamp, tx_nonce,
-                                                                  receiver_public_key,receiver_vault_id,
+                                                                  receiver_public_key, receiver_vault_id,
                                                                   sender_vault_id, token_address)
 
         headers = self.make_headers()
@@ -307,7 +307,7 @@ class Rhino(Bridge, Logger):
                     "amount": f"{amount_in_wei}",
                     "senderPublicKey": sender_public_key,
                     "receiverPublicKey": receiver_public_key,
-                    "receiverVaultId": receiver_vault_id,
+                    "receiverVaultId": 0,
                     "senderVaultId": sender_vault_id,
                     "token": token_address,
                     "feeInfoUser": {
