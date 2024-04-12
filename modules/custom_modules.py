@@ -108,6 +108,7 @@ class Custom(Logger, RequestClient):
                                     break
                         else:
                             self.logger_msg(*self.client.acc_info, msg=f"{token_name} balance < 1$")
+                    await sleep(self, 10, 50)
             except Exception as error:
                 self.logger_msg(*self.client.acc_info, msg=f"Error in collector route. Error: {error}")
         else:
