@@ -782,6 +782,8 @@ class Custom(Logger, RequestClient):
                             if result:
                                 break
 
+                        await sleep(self)
+
                 except SoftwareException as error:
                     raise error
                 except Exception as error:
@@ -813,8 +815,7 @@ class Custom(Logger, RequestClient):
 
         module_name, src_chains, dst_chains, token_amounts, refuel_data = {
             1: ('Wormhole', SRC_CHAIN_MERKLY_WORMHOLE, DST_CHAIN_MERKLY_WORMHOLE, WORMHOLE_TOKENS_AMOUNT, 0),
-            2: (
-            'Polyhedra', SRC_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_POLYHEDRA, 0, DST_CHAIN_MERKLY_POLYHEDRA_REFUEL),
+            2: ('Polyhedra', SRC_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_POLYHEDRA, 0, DST_CHAIN_MERKLY_POLYHEDRA_REFUEL),
             3: ('Hyperlane', SRC_CHAIN_MERKLY_HYPERLANE, DST_CHAIN_MERKLY_HYPERLANE, HYPERLANE_TOKENS_AMOUNT, 0),
         }[dapp_mode]
 
@@ -876,6 +877,8 @@ class Custom(Logger, RequestClient):
                             random.shuffle(src_chains)
                             if result:
                                 break
+
+                        await sleep(self)
 
                 except SoftwareException as error:
                     raise error
