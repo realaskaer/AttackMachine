@@ -306,7 +306,7 @@ class Rhino(Bridge, Logger):
                 "tx": {
                     "amount": f"{amount_in_wei}",
                     "senderPublicKey": sender_public_key,
-                    "receiverPublicKey": self.client.address,
+                    "receiverPublicKey": self.client.address.lower(),
                     "receiverVaultId": 0,
                     "senderVaultId": sender_vault_id,
                     "token": token_address,
