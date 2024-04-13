@@ -46,10 +46,11 @@ class Client(Logger):
         self.chain_id = network.chain_id
 
         self.proxy_init = proxy
-        self.session = ClientSession(
+        self.session: ClientSession = ClientSession(
             connector=ProxyConnector.from_url(f"http://{proxy}", verify_ssl=False)
             if proxy else TCPConnector(verify_ssl=False)
         )
+
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
         self.rpc = random.choice(network.rpc)
         self.w3 = AsyncWeb3(AsyncHTTPProvider(self.rpc, request_kwargs=self.request_kwargs))

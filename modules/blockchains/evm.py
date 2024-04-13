@@ -136,19 +136,19 @@ class SimpleEVM(Logger):
         )
 
         all_contracts = {
-            "iZumi":IZUMI_CONTRACTS,
-            "Maverick":MAVERICK_CONTRACTS,
-            "Mute":MUTE_CONTRACTS,
-            "ODOS":ODOS_CONTRACTS,
-            "1inch":ONEINCH_CONTRACTS,
-            "OpenOcean":OPENOCEAN_CONTRACTS,
-            "PancakeSwap":PANCAKE_CONTRACTS,
-            "SpaceFi":SPACEFI_CONTRACTS,
-            "SushiSwap":SUSHISWAP_CONTRACTS,
-            "Uniswap":UNISWAP_CONTRACTS,
-            "Velocore":VELOCORE_CONTRACTS,
-            "WooFi":WOOFI_CONTRACTS,
-            "XYfinance":XYFINANCE_CONTRACTS,
+            "iZumi": IZUMI_CONTRACTS,
+            "Maverick": MAVERICK_CONTRACTS,
+            "Mute": MUTE_CONTRACTS,
+            "ODOS": ODOS_CONTRACTS,
+            "1inch": ONEINCH_CONTRACTS,
+            "OpenOcean": OPENOCEAN_CONTRACTS,
+            "PancakeSwap": PANCAKE_CONTRACTS,
+            "SpaceFi": SPACEFI_CONTRACTS,
+            "SushiSwap": SUSHISWAP_CONTRACTS,
+            "Uniswap": UNISWAP_CONTRACTS,
+            "Velocore": VELOCORE_CONTRACTS,
+            "WooFi": WOOFI_CONTRACTS,
+            "XYfinance": XYFINANCE_CONTRACTS,
         }
 
         amount = random.uniform(1, 1000)
@@ -500,7 +500,7 @@ class Blast(Blockchain, SimpleEVM):
 
 
 class Zora(Blockchain, SimpleEVM):
-    def __init__(self, client):
+    def __init__(self, client: Client):
         SimpleEVM.__init__(self, client)
         Blockchain.__init__(self, client)
 
@@ -511,15 +511,33 @@ class Zora(Blockchain, SimpleEVM):
             "accept": "application/json, text/plain, */*",
             "accept-language": "ru,en;q=0.9,en-GB;q=0.8,en-US;q=0.7",
             "content-type": "application/json",
-            "sec-ch-ua": '"Chromium";v="122", "Not(A:Brand";v="24", "Microsoft Edge";v="122""',
+            "sec-ch-ua": '"Microsoft Edge";v="123", "Not:A-Brand";v="8", "Chromium";v="123"',
             "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
             "Origin": "https://bridge.zora.energy",
             "Referer": "https://bridge.zora.energy/",
-            "sec-ch-ua-platform": "Windows",
+            "sec-fetch-site": "cross-site",
+            "x-rkc-version": "1.11.2",
+            "referrer": "https://bridge.zora.energy/",
+            "referrerPolicy": "strict-origin-when-cross-origin",
+            "method": "POST",
+            "mode": "cors",
+            "credentials": "omit"
+        }
+
+        options_headres = {
+            "accept": "*/*",
+            "accept-language": "ru,en;q=0.9,en-GB;q=0.8,en-US;q=0.7",
             "sec-fetch-dest": "empty",
             "sec-fetch-mode": "cors",
             "sec-fetch-site": "cross-site",
-            "x-rkc-version": "1.11.2"
+            "referrer": "https://bridge.zora.energy/",
+            "referrerPolicy": "strict-origin-when-cross-origin",
+            "method": "OPTIONS",
+            "mode": "cors",
+            "credentials": "omit"
         }
 
         payload = {
@@ -534,8 +552,11 @@ class Zora(Blockchain, SimpleEVM):
             "originChainId": self.client.network.chain_id
         }
 
+        await self.client.session.options(url=url, headers=options_headres)
+
         data = (await self.make_request(
-            method='POST', url=url, headers=headers, json=payload))["steps"][0]["items"][0]["data"]
+            method='POST', url=url, headers=headers, json=payload
+        ))["steps"][0]["items"][0]["data"]
 
         contract_address = self.client.w3.to_checksum_address(data["to"])
         tx_data = data["data"]

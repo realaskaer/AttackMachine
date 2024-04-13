@@ -17,7 +17,7 @@ from general_settings import (LAYERSWAP_API_KEY, OKX_API_KEY, OKX_API_PASSPHRAS,
 def get_user_agent():
     random_version = f"{uniform(520, 540):.2f}"
     return (f'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/{random_version} (KHTML, like Gecko)'
-            f' Chrome/119.0.0.0 Safari/{random_version} Edg/119.0.0.0')
+            f' Chrome/123.0.0.0 Safari/{random_version} Edg/123.0.0.0')
 
 
 class PriceImpactException(Exception):
