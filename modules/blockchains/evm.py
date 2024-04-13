@@ -208,7 +208,10 @@ class Scroll(Blockchain, SimpleEVM):
 
         if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
-            bridge_fee = int(0.0002076 * 10 ** 18)
+            gas_limit = 168000
+            gas_price = await self.client.w3.eth.gas_price
+
+            bridge_fee = int(gas_limit * gas_price)
 
             tx_params = await self.client.prepare_transaction(value=amount_in_wei + bridge_fee)
 
