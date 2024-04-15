@@ -78,6 +78,7 @@ def get_network_by_chain_id(chain_id):
         47: InEVM_RPC,
         48: RaribleRPC,
         49: BlastRPC,
+        50: ModeRPC,
     }[chain_id]
 
 

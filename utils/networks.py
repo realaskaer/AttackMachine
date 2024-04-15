@@ -611,6 +611,17 @@ BlastRPC = Network(
     explorer='https://blastscan.io/'
 )
 
+ModeRPC = Network(
+    name='Blast',
+    rpc=[
+        'https://1rpc.io/mode',
+    ],
+    chain_id=34443,
+    eip1559_support=False,
+    token='ETH',
+    explorer='https://explorer.mode.network/'
+)
+
 
 RaribleRPC = Network(
     name='Rarible',

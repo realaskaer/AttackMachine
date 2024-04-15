@@ -431,6 +431,12 @@ TOKENS_PER_CHAIN = {
         "WETH"              : "0x0Dc808adcE2099A9F62AA87D9670745AbA741746",
         "USDT"              : "0xf417F5A458eC102B90352F697D6e2Ac3A3d2851f",
         "USDC"              : "0xb73603C5d87fA094B7314C74ACE2e64D165016fb",
+    },
+    "Mode":{
+        "ETH"               : "0x4200000000000000000000000000000000000006",
+        "WETH"              : "0x4200000000000000000000000000000000000006",
+        "USDT"              : "0xf0F161fDA2712DB8b566946122a5af183995e2eD",
+        "USDC"              : "0xd988097fb8612cc24eeC14542bC03424c656005f",
     }
 }
 
@@ -2829,7 +2835,8 @@ ORBITER_CHAINS_INFO = {
     28: {'name': 'OpBNB',          'chainId': 204,          'id': 25},
     29: {'name': 'Mantle',         'chainId': 5000,         'id': 24},
     45: {'name': 'ZKFair',         'chainId': 42766,        'id': 38},
-    49: {'name': 'Blast',          'chainId': 81457,        'id': 40}
+    49: {'name': 'Blast',          'chainId': 81457,        'id': 40},
+    50: {'name': 'Mode',           'chainId': 34443,        'id': 47},
 }
 
 TOKENS_PER_CHAIN2 = {
@@ -2996,6 +3003,7 @@ CHAIN_IDS = {
     47: 2525,
     48: 0,
     49: 2525,
+    50: 34443,
 }
 
 RHINO_CHAIN_INFO = {
@@ -3562,6 +3570,7 @@ CHAIN_NAME = {
     47: 'inEVM',
     48: 'Rarible',
     49: 'Blast',
+    50: 'Mode',
 }
 
 

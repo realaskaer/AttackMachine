@@ -110,7 +110,7 @@ CEX_BALANCER_CONFIG = [
     Проверьте руками, работает ли сеть на сайте. (Софт сам проверит, но зачем его напрягать?)
     Не забудьте вставить API ключ для LayerSwap снизу. Для каждого моста поддерживается уникальная настройка
        
-        Arbitrum = 1                    zkSync Era = 11     
+        Arbitrum = 1                    zkSync Era = 11        Mode = 50
         Arbitrum Nova = 2               Zora = 12 
         Base = 3                        Ethereum = 13
         Linea = 4                       Avalanche = 14
@@ -153,7 +153,7 @@ CEX_BALANCER_CONFIG = [
 
 '-----------------------------------------------------Native Bridge----------------------------------------------------'
 
-NATIVE_CHAIN_ID_FROM = [1]                 # Исходящая сеть. Применимо только для bridge_zora, остальные из Ethereum
+NATIVE_CHAIN_ID_FROM = [3]                 # Исходящая сеть. Применимо только для bridge_zora, остальные из Ethereum
 NATIVE_CHAIN_ID_TO = [12]                  # Входящая сеть.  Применимо только для bridge_zora, остальные в Ethereum
 NATIVE_DEPOSIT_AMOUNT = (0.001, 0.001)     # (минимум, максимум) (% или кол-во)
 NATIVE_WITHDRAW_AMOUNT = (0.0005, 0.0005)  # (минимум, максимум) (% или кол-во)
@@ -218,8 +218,8 @@ RELAY_AMOUNT_LIMITER = 0, (0, 0)
 
 '--------------------------------------------------------Rhino---------------------------------------------------------'
 
-RHINO_CHAIN_ID_FROM = [4]                # Исходящая сеть
-RHINO_CHAIN_ID_TO = [11]                 # Входящая сеть
+RHINO_CHAIN_ID_FROM = [1]                # Исходящая сеть
+RHINO_CHAIN_ID_TO = [13]                 # Входящая сеть
 RHINO_BRIDGE_AMOUNT = (0.003, 0.003)           # (минимум, максимум) (% или кол-во)
 RHINO_TOKEN_NAME = ('ETH', 'ETH')       # ETH, BNB, MATIC, USDC, USDT
 RHINO_AMOUNT_LIMITER = 0, (0, 0)
