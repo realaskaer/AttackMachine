@@ -32,7 +32,7 @@ from general_settings import (
     CONTROL_TIMES_FOR_SLEEP,
     ACCOUNTS_IN_STREAM,
     SOFTWARE_MODE,
-    EXCEL_PAGE_NAME, SLEEP_TIME_ACCOUNTS
+    EXCEL_PAGE_NAME, SLEEP_TIME_ACCOUNTS, EXCEL_FILE_PATH
 )
 
 
@@ -46,7 +46,7 @@ async def sleep(self, min_time=SLEEP_TIME_MODULES[0], max_time=SLEEP_TIME_MODULE
 def get_accounts_data():
     try:
         decrypted_data = io.BytesIO()
-        with open('./data/accounts_data.xlsx', 'rb') as file:
+        with open(EXCEL_FILE_PATH, 'rb') as file:
             if EXCEL_PASSWORD:
                 cprint('⚔️ Enter the password degen', color='light_blue')
                 password = getpass()
