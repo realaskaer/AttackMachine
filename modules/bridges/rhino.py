@@ -275,7 +275,7 @@ class Rhino(Bridge, Logger):
             await sleep(self, 90, 120)
 
         if need_refund:
-            amount = int(await self.get_user_balance(token_name)) / 10 ** 8
+            amount = int(await self.get_user_balance(token_name)) / 10 ** decimals
 
         chain_name_log = chain_to_name.capitalize()
         self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount} {token_name} from Rhino to {chain_name_log}")
@@ -293,13 +293,12 @@ class Rhino(Bridge, Logger):
         tx_nonce = random.randint(1, 2**31 - 1)
         amount_in_wei = int(amount * 10 ** decimals)
 
-        r_signature, s_signature = await self.get_stark_signature(amount_in_wei, expiration_timestamp, tx_nonce,
-                                                                  receiver_public_key, receiver_vault_id,
-                                                                  sender_vault_id, token_address)
-
         headers = self.make_headers()
 
         if chain_to_name == 'ETHEREUM':
+            r_signature, s_signature = await self.get_stark_signature(amount_in_wei, expiration_timestamp, tx_nonce,
+                                                                      self.client.address.lower(), 0,
+                                                                      sender_vault_id, token_address)
             url = 'https://api.rhino.fi/v1/trading/w/transferAndWithdraw'
 
             payload = {
@@ -326,6 +325,10 @@ class Rhino(Bridge, Logger):
                 "nonce": payload_nonce
             }
         else:
+            r_signature, s_signature = await self.get_stark_signature(amount_in_wei, expiration_timestamp, tx_nonce,
+                                                                      receiver_public_key, receiver_vault_id,
+                                                                      sender_vault_id, token_address)
+
             url = "https://api.rhino.fi/v1/trading/bridgedWithdrawals"
 
             payload = {
