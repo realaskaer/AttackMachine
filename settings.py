@@ -766,8 +766,6 @@ HELPERS_CONFIG = {
     swap_oneinch
     swap_openocean
     swap_xyfinance
-    deposit_rocketsam
-    withdraw_rocketsam
     deposit_seamless
     withdraw_seamless
     deposit_usdbc_seamless
@@ -804,8 +802,6 @@ HELPERS_CONFIG = {
     swap_xyfinance
     deposit_layerbank
     withdraw_layerbank
-    deposit_rocketsam
-    withdraw_rocketsam
     create_omnisea
     check_in_owlto
     mint_zkstars
@@ -836,8 +832,6 @@ HELPERS_CONFIG = {
     check_in_owlto
     deposit_layerbank
     withdraw_layerbank
-    deposit_rocketsam
-    withdraw_rocketsam
     create_omnisea
     mint_zkstars
     deploy_contract
@@ -856,7 +850,6 @@ HELPERS_CONFIG = {
     bridge_zora
     mint_mintfun
     mint_zkstars
-    deposit_rocketsam
     wrap_eth                        
     unwrap_eth                      
     transfer_eth                     
@@ -865,7 +858,6 @@ HELPERS_CONFIG = {
 ----------------------------------------------------------NOVA----------------------------------------------------------        
     
     swap_sushiswap
-    deposit_rocketsam  
     wrap_eth                        
     unwrap_eth                                         
     transfer_eth                     
