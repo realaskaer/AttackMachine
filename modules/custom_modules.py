@@ -311,8 +311,12 @@ class Custom(Logger, RequestClient):
 
                             if bridge_count + 1 == total_bridge_count:
                                 final_chains = [chain for chain in chains if isinstance(chain, int)]
-                                available_chains = [chain for chain in final_chains if chain != converted_chains[index]]
+                                available_chains = [
+                                    chain for chain in final_chains if chain != converted_chains[index]
+                                ]
                                 dst_chain = random.choice(available_chains)
+                            elif bridge_count + 1 == 1:
+                                dst_chain = tuple_chains[0]
                             else:
                                 available_tuple_chains = [
                                     chain for chain in tuple_chains if chain != converted_chains[index]
@@ -975,7 +979,7 @@ class Custom(Logger, RequestClient):
 
                     networks, amount, limit_amount, wanted_to_hold_amount = current_data
                     if (not isinstance(networks, (int, tuple)) or not isinstance(amount, tuple)
-                            or not isinstance(limit_amount, int) or not isinstance(wanted_to_hold_amount, tuple)):
+                            or not isinstance(limit_amount, (int, float)) or not isinstance(wanted_to_hold_amount, tuple)):
                         raise CriticalException(
                             'Software only support [0 or (0, 0), (0, 0), 0, (1, 1)] deposit format. See CEX CONTROL'
                         )
