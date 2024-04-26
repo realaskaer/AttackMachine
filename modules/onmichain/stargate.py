@@ -227,6 +227,5 @@ class Stargate(Logger):
             stake_amount_in_wei,
             deadline
         ).build_transaction(await self.client.prepare_transaction())
-        print(transaction)
-        return
+ 
         return await self.client.send_transaction(transaction)
