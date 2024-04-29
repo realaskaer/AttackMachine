@@ -51,7 +51,7 @@ class Client(Logger):
             if proxy else TCPConnector(verify_ssl=False)
         )
 
-        self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
+        self.request_kwargs = {"proxy": f"http://{proxy}", "verify_ssl": False} if proxy else {"verify_ssl": False}
         self.rpc = random.choice(network.rpc)
         self.w3 = AsyncWeb3(AsyncHTTPProvider(self.rpc, request_kwargs=self.request_kwargs))
         self.account_name = str(account_name)
