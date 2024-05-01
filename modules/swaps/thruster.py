@@ -29,7 +29,7 @@ class Thruster(DEX, Logger, RequestClient):
         return from_token_bytes + fee_bytes + to_token_bytes
 
     async def get_min_amount_out(self, amount_in_wei, token_in, token_out):
-        url = f"https://thruster-api-fmzkxtajbq-uc.a.run.app/quote"
+        url = f"https://api.thruster.finance/quote"
 
         headers = {
             "accept": "*/*",

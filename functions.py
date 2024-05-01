@@ -2,7 +2,7 @@ import random
 
 from modules import *
 from utils.networks import *
-from config import LAYERZERO_WRAPED_NETWORKS
+from config import OMNICHAIN_WRAPED_NETWORKS
 from general_settings import GLOBAL_NETWORK
 from settings import (SRC_CHAIN_MERKLY, SRC_CHAIN_ZERIUS, SRC_CHAIN_L2PASS, SRC_CHAIN_BUNGEE,
                       SRC_CHAIN_L2TELEGRAPH, NATIVE_CHAIN_ID_FROM, L2PASS_GAS_STATION_ID_FROM, SRC_CHAIN_WHALE,
@@ -189,7 +189,7 @@ async def omnichain_util(
         } if dapp_mode == 1 else chain_to
 
     source_chain_id = random.choice(src_chain) if not chain_from_id else chain_from_id
-    wrapped_chain_id = LAYERZERO_WRAPED_NETWORKS[source_chain_id]
+    wrapped_chain_id = OMNICHAIN_WRAPED_NETWORKS[source_chain_id]
     network = get_network_by_chain_id(wrapped_chain_id)
     worker = class_name(get_client(account_name, private_key, network, proxy))
 
@@ -200,10 +200,6 @@ async def omnichain_util(
         }[dapp_mode]
     else:
         func = {
-            'bridge NFT Wormhole': worker.wnft_bridge,
-            'bridge Token Wormhole': worker.wt_bridge,
-            'bridge NFT Polyhedra': worker.pnft_bridge,
-            'refuel Polyhedra': worker.p_refuel,
             'bridge NFT Hyperlane': worker.hnft_bridge,
             'bridge Token Hyperlane': worker.ht_bridge,
         }[dapp_mode]
@@ -369,26 +365,6 @@ async def refuel_whale(account_name, private_key, network, proxy):
 async def refuel_zerius(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_layerzero_util(dapp_id=5, dapp_mode=1)
-
-
-async def bridge_wormhole_nft(account_name, private_key, network, proxy):
-    worker = Custom(get_client(account_name, private_key, network, proxy))
-    return await worker.merkly_omnichain_util(dapp_mode=1, dapp_function=2)
-
-
-async def bridge_wormhole_token(account_name, private_key, network, proxy):
-    worker = Custom(get_client(account_name, private_key, network, proxy))
-    return await worker.merkly_omnichain_util(dapp_mode=1, dapp_function=3)
-
-
-async def refuel_polyhedra(account_name, private_key, network, proxy):
-    worker = Custom(get_client(account_name, private_key, network, proxy))
-    return await worker.merkly_omnichain_util(dapp_mode=2, dapp_function=1)
-
-
-async def bridge_polyhedra_nft(account_name, private_key, network, proxy):
-    worker = Custom(get_client(account_name, private_key, network, proxy))
-    return await worker.merkly_omnichain_util(dapp_mode=2, dapp_function=2)
 
 
 async def bridge_hyperlane_nft(account_name, private_key, network, proxy):
@@ -664,21 +640,6 @@ async def withdraw_basilisk(account_name, private_key, network, proxy):
     return await worker.withdraw()
 
 
-async def deposit_abracadabra(account_name, private_key, network, proxy):
-    worker = Abracadabra(get_client(account_name, private_key, network, proxy))
-    return await worker.deposit()
-
-
-async def deposit_abracadabra_with_lock(account_name, private_key, network, proxy):
-    worker = Abracadabra(get_client(account_name, private_key, network, proxy))
-    return await worker.deposit(lock=True)
-
-
-async def withdraw_abracadabra(account_name, private_key, network, proxy):
-    worker = Abracadabra(get_client(account_name, private_key, network, proxy))
-    return await worker.withdraw()
-
-
 async def enable_collateral_basilisk(account_name, private_key, network, proxy):
     worker = Basilisk(get_client(account_name, private_key, network, proxy))
     return await worker.enable_collateral()
@@ -697,6 +658,11 @@ async def deposit_zerolend(account_name, private_key, network, proxy):
 async def deposit_usdb_zerolend(account_name, private_key, network, proxy):
     worker = ZeroLend(get_client(account_name, private_key, network, proxy))
     return await worker.deposit_usdb()
+
+
+async def withdraw_usdb_zerolend(account_name, private_key, network, proxy):
+    worker = ZeroLend(get_client(account_name, private_key, network, proxy))
+    return await worker.withdraw_usdb()
 
 
 async def deposit_seamless(account_name, private_key, network, proxy):
@@ -735,7 +701,7 @@ async def mint_domain_ens(account_name, private_key, network, proxy):
 
 
 async def gas_station_l2pass(account_name, private_key, _, proxy):
-    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(L2PASS_GAS_STATION_ID_FROM)]
+    chain_from_id = OMNICHAIN_WRAPED_NETWORKS[random.choice(L2PASS_GAS_STATION_ID_FROM)]
     network = get_network_by_chain_id(chain_from_id)
 
     worker = L2Pass(get_client(account_name, private_key, network, proxy))
@@ -743,7 +709,7 @@ async def gas_station_l2pass(account_name, private_key, _, proxy):
 
 
 async def filler_nogem(account_name, private_key, _, proxy):
-    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(NOGEM_FILLER_ID_FROM)]
+    chain_from_id = OMNICHAIN_WRAPED_NETWORKS[random.choice(NOGEM_FILLER_ID_FROM)]
     network = get_network_by_chain_id(chain_from_id)
 
     worker = Nogem(get_client(account_name, private_key, network, proxy))
@@ -751,7 +717,7 @@ async def filler_nogem(account_name, private_key, _, proxy):
 
 
 async def refuel_bungee(account_name, private_key, _, proxy):
-    chain_from_id = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_BUNGEE)]
+    chain_from_id = OMNICHAIN_WRAPED_NETWORKS[random.choice(SRC_CHAIN_BUNGEE)]
     network = get_network_by_chain_id(chain_from_id)
 
     worker = Bungee(get_client(account_name, private_key, network, proxy))
@@ -764,7 +730,7 @@ async def mint_mailzero(account_name, private_key, network, proxy):
 
 
 async def send_message_l2telegraph(account_name, private_key, _, proxy):
-    chain_id_from = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_L2TELEGRAPH)]
+    chain_id_from = OMNICHAIN_WRAPED_NETWORKS[random.choice(SRC_CHAIN_L2TELEGRAPH)]
     network = get_network_by_chain_id(chain_id_from)
 
     worker = L2Telegraph(get_client(account_name, private_key, network, proxy))
@@ -772,7 +738,7 @@ async def send_message_l2telegraph(account_name, private_key, _, proxy):
 
 
 async def mint_and_bridge_l2telegraph(account_name, private_key, _, proxy):
-    chain_id_from = LAYERZERO_WRAPED_NETWORKS[random.choice(SRC_CHAIN_L2TELEGRAPH)]
+    chain_id_from = OMNICHAIN_WRAPED_NETWORKS[random.choice(SRC_CHAIN_L2TELEGRAPH)]
     network = get_network_by_chain_id(chain_id_from)
 
     worker = L2Telegraph(get_client(account_name, private_key, network, proxy))
@@ -991,7 +957,7 @@ async def check_in_owlto(account_name, private_key, network, proxy):
 
 
 async def custom_swap(account_name, private_key, _, proxy):
-    network = get_network_by_chain_id(LAYERZERO_WRAPED_NETWORKS[CUSTOM_SWAP_DATA[-1]])
+    network = get_network_by_chain_id(OMNICHAIN_WRAPED_NETWORKS[CUSTOM_SWAP_DATA[-1]])
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.custom_swap()
 

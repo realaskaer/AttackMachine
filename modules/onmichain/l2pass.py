@@ -1,14 +1,13 @@
 import random
 
 from modules import Refuel, Logger, Client
-from modules.interfaces import BlockchainException, SoftwareException, Minter
-from settings import L2PASS_GAS_STATION_DATA
+from modules.interfaces import Minter
 from eth_abi import encode
-from utils.tools import gas_checker, helper, sleep
+from utils.tools import helper, sleep
 from config import (
     L2PASS_CONTRACTS_PER_CHAINS,
     L2PASS_ABI,
-    LAYERZERO_NETWORKS_DATA, ZERO_ADDRESS, LAYERZERO_WRAPED_NETWORKS
+    OMNICHAIN_NETWORKS_DATA, ZERO_ADDRESS, OMNICHAIN_WRAPED_NETWORKS
 )
 
 
@@ -42,7 +41,7 @@ class L2Pass(Refuel, Minter, Logger):
             self, chain_from_id: int, attack_data: dict, google_mode: bool = False, need_check: bool = False
     ):
         dst_data = random.choice(list(attack_data.items()))
-        dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
+        dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = OMNICHAIN_NETWORKS_DATA[dst_data[0]]
         dst_amount = await self.client.get_smart_amount(dst_data[1])
 
         if not need_check:
@@ -53,7 +52,7 @@ class L2Pass(Refuel, Minter, Logger):
         refuel_contract = self.client.get_contract(l2pass_contracts['refuel'], L2PASS_ABI['refuel'])
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
-        dst_contract_address = L2PASS_CONTRACTS_PER_CHAINS[LAYERZERO_WRAPED_NETWORKS[dst_data[0]]]['refuel']
+        dst_contract_address = L2PASS_CONTRACTS_PER_CHAINS[OMNICHAIN_WRAPED_NETWORKS[dst_data[0]]]['refuel']
 
         try:
             estimate_send_fee = (await refuel_contract.functions.estimateGasRefuelFee(
@@ -83,12 +82,12 @@ class L2Pass(Refuel, Minter, Logger):
                     result = await self.client.wait_for_l0_received(tx_result)
 
             if google_mode:
-                return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+                return OMNICHAIN_WRAPED_NETWORKS[chain_from_id], dst_chain_id
             return result
 
         except Exception as error:
             if not need_check:
-                raise BlockchainException(f'{error}')
+                await self.client.handling_rpc_errors(error)
 
     async def mint(self, chain_from_id):
         onft_contract = self.client.get_contract(L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], L2PASS_ABI['ONFT'])
@@ -122,7 +121,7 @@ class L2Pass(Refuel, Minter, Logger):
     ):
         dst_chain = attack_data
         onft_contract = self.client.get_contract(L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], L2PASS_ABI['ONFT'])
-        dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
+        dst_chain_name, dst_chain_id, _, _ = OMNICHAIN_NETWORKS_DATA[dst_chain]
 
         if not need_check:
             nft_id = await self.get_nft_id(onft_contract)
@@ -148,10 +147,12 @@ class L2Pass(Refuel, Minter, Logger):
             send_price = await onft_contract.functions.sendPrice().call()
 
             estimate_send_fee = await self.get_estimate_send_fee(onft_contract, adapter_params, dst_chain_id, nft_id)
-            value = int(estimate_send_fee + send_price)
+            mint_price = await onft_contract.functions.mintPrice().call()
+
+            value = int(estimate_send_fee + send_price + 0.0002)
 
             if need_check:
-                if await self.client.w3.eth.get_balance(self.client.address) > value:
+                if await self.client.w3.eth.get_balance(self.client.address) > value + mint_price:
                     return True
                 return False
 
@@ -180,66 +181,9 @@ class L2Pass(Refuel, Minter, Logger):
                     result = await self.client.wait_for_l0_received(tx_result)
 
             if google_mode:
-                return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+                return OMNICHAIN_WRAPED_NETWORKS[chain_from_id], dst_chain_id
             return result
 
         except Exception as error:
             if not need_check:
-                raise BlockchainException(f'{error}')
-
-    @helper
-    @gas_checker
-    async def gas_station(self, chain_from_id):
-
-        gas_data = L2PASS_GAS_STATION_DATA
-        random.shuffle(gas_data)
-        total_gas = 0
-        refuel_list = []
-
-        gas_contract = self.client.get_contract(
-            L2PASS_CONTRACTS_PER_CHAINS[chain_from_id]['gas_station'], L2PASS_ABI['gas_station']
-        )
-
-        for refuel_data in gas_data:
-            if isinstance(refuel_data, tuple):
-                refuel_data = random.choice(refuel_data)
-            if not refuel_data:
-                continue
-
-            chain_id_to, amount = refuel_data
-            if isinstance(chain_id_to, list):
-                chain_id_to = random.choice(chain_id_to)
-
-            dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[chain_id_to]
-            dst_amount = int(self.client.round_amount(*(amount, amount * 1.2)) * 10 ** 18)
-            adapter_params = await gas_contract.functions.createAdapterParams(
-                dst_chain_id,
-                dst_amount,
-                self.client.address
-            ).call()
-
-            gas_for_refuel = await gas_contract.functions.estimateFees(
-                dst_chain_id,
-                adapter_params
-            ).call()
-
-            refuel_list.append([dst_chain_id, dst_amount])
-            total_gas += gas_for_refuel
-
-        self.logger_msg(
-            *self.client.acc_info,
-            msg=f"Refuel with Gas Station from {self.client.network.name}. LayerZero transactions: {len(refuel_list)}")
-
-        try:
-            transaction = await gas_contract.functions.useGasStation(
-                refuel_list,
-                self.client.address
-            ).build_transaction(await self.client.prepare_transaction(value=int(total_gas * 1.01)))
-
-            tx_hash = await self.client.send_transaction(transaction, need_hash=True)
-
-            if self.client.network.name != 'Polygon':
-                return await self.client.wait_for_l0_received(tx_hash)
-            return True if tx_hash else False
-        except Exception as error:
-            raise SoftwareException(f'Problem during the Gas Station: {error}')
+                await self.client.handling_rpc_errors(error)

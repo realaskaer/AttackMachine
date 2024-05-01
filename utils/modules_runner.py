@@ -12,10 +12,10 @@ from modules import Logger
 from aiohttp import ClientSession
 from utils.networks import EthereumRPC
 from web3 import AsyncWeb3, AsyncHTTPProvider
-from functions import get_network_by_chain_id
 from modules.interfaces import SoftwareException, CriticalException
 from settings import HELP_NEW_MODULE, EXCLUDED_MODULES
 from config import ACCOUNT_NAMES, PRIVATE_KEYS, PROXIES, CHAIN_NAME
+from functions import get_network_by_chain_id
 from utils.route_generator import RouteGenerator, AVAILABLE_MODULES_INFO, get_func_by_name
 from utils.tools import clean_progress_file, clean_google_progress_file, clean_gwei_file, check_google_progress_file
 from general_settings import (USE_PROXY, SLEEP_MODE, SLEEP_TIME_MODULES, SOFTWARE_MODE, TG_ID, TG_TOKEN, MOBILE_PROXY,
@@ -255,15 +255,15 @@ class Runner(Logger):
                 return None, False
 
     async def run_account_modules(
-            self, account_name:str, private_key:str, network, proxy:str | None, smart_route_type:bool, index:int,
+            self, account_name:str, private_key:str, proxy:str | None, smart_route_type:bool, index:int,
             parallel_mode: bool = False):
         message_list, result_list, used_modules, route_paths, break_flag, module_counter = [], [], [], [], False, 0
         try:
             route_data = self.load_routes().get(str(account_name), {}).get('route', [])
 
             if GLOBAL_NETWORK == 0:
-                route_paths = [i.split()[2].split('-') for i in route_data]
-            route_modules = [[i.split()[0], 0] for i in route_data]
+                route_paths = [i.split()[2].split(':') for i in route_data]
+            route_modules = [[*i.split()] for i in route_data]
 
             current_step = 0
             used_modules.extend(route_modules + EXCLUDED_MODULES)
@@ -285,6 +285,7 @@ class Runner(Logger):
             while current_step < len(route_modules):
                 module_counter += 1
                 module_name = route_modules[current_step][0]
+                network = get_network_by_chain_id(int(route_modules[current_step][1]))
                 module_helper_type = route_modules[current_step][1]
                 module_func = get_func_by_name(module_name)
                 module_name_tg = AVAILABLE_MODULES_INFO[module_func][2]
@@ -419,8 +420,10 @@ class Runner(Logger):
                 account_name, private_key = data
                 tasks.append(asyncio.create_task(
                     self.run_account_modules(
-                        account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK),
-                        self.get_proxy_for_account(account_name), smart_route, index, parallel_mode=True)))
+                        account_name, private_key, self.get_proxy_for_account(account_name),
+                        smart_route, index, parallel_mode=True
+                    )
+                ))
 
             result_list = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -448,8 +451,8 @@ class Runner(Logger):
                 clean_progress_file()
                 await self.generate_smart_routes(route_generator, (account_name, private_key))
 
-            result = await self.run_account_modules(account_name, private_key, get_network_by_chain_id(GLOBAL_NETWORK),
-                                                    self.get_proxy_for_account(account_name), smart_route_type, index=1)
+            result = await self.run_account_modules(account_name, private_key, self.get_proxy_for_account(account_name),
+                                                    smart_route_type, index=1)
 
             if len(accounts_data) > 1 and result:
                 await self.smart_sleep(account_name, account_number=1, accounts_delay=True)

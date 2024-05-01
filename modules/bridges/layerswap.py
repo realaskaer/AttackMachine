@@ -11,61 +11,82 @@ class LayerSwap(Bridge, Logger):
         Bridge.__init__(self, client)
 
     async def get_networks_data(self):
-        url = "https://api.layerswap.io/api/available_networks"
+        url = "https://api.layerswap.io/api/v2/networks"
 
-        headers = {
-            'Content-Type': 'application/json'
+        return (await self.make_request(url=url, headers=self.headers))['data']
+
+    async def get_swap_limits(self, source_chain, destination_chain, source_asset, destination_asset, _):
+        url = "https://api.layerswap.io/api/v2/limits"
+
+        params = {
+            "source_network": source_chain,
+            "source_token": source_asset,
+            "destination_network": destination_chain,
+            "destination_token": destination_asset,
         }
 
-        return (await self.make_request(url=url, headers=headers))['data']
-
-    async def get_swap_rate(self, source_chain, destination_chain, source_asset, destination_asset, refuel):
-        url = "https://api.layerswap.io/api/swap_rate"
-
-        swap_rate_data = {
-            "source": source_chain,
-            "destination": destination_chain,
-            "source_asset": source_asset,
-            "destination_asset": destination_asset,
-            "refuel": refuel
-        }
-
-        response = (await self.make_request(
-            method='POST', url=url, headers=self.headers, data=json.dumps(swap_rate_data)
-        ))['data']
+        response = (await self.make_request(url=url, headers=self.headers, params=params))['data']
 
         min_amount = response['min_amount']
         max_amount = response['max_amount']
-        fee_amount = response['fee_amount']
-        receive_amount = response['receive_amount']
 
-        return min_amount, max_amount, fee_amount, receive_amount
+        return min_amount, max_amount
 
-    async def get_swap_id(self, amount, source_chain, destination_chain,
-                          source_asset, destination_asset, refuel):
-        url = "https://api.layerswap.io/api/swaps"
+    async def get_swap_fee(self, source_chain, destination_chain, source_asset, destination_asset, amount):
+        url = "https://api.layerswap.io/api/v2/quote"
 
-        create_swap_data = {
-            "source": source_chain,
-            "destination": destination_chain,
-            "source_asset": source_asset,
-            "destination_asset": destination_asset,
+        params = {
+            "source_network": source_chain,
+            "destination_network": destination_chain,
+            "source_token": source_asset,
+            "destination_token": destination_asset,
             "amount": amount,
-            "destination_address": self.client.address,
-            "refuel": refuel
         }
 
-        return (await self.make_request(method='POST', url=url, headers=self.headers,
-                                        data=json.dumps(create_swap_data)))['data']
+        response = (await self.make_request(url=url, headers=self.headers, params=params))['data']['quote']
 
-    async def create_tx(self, swap_id):
-        url = f"https://api.layerswap.io/api/swaps/{swap_id}/prepare_src_transaction"
+        fee_amount = response['total_fee']
+        receive_amount = response['min_receive_amount']
+
+        return fee_amount, receive_amount
+
+    async def get_swap_data(
+            self, amount, source_chain, destination_chain, source_asset, destination_asset, refuel
+    ):
+
+        url = "https://api.layerswap.io/api/v2/swaps"
+
+        create_swap_data = {
+            "source_network": source_chain,
+            "destination_network": destination_chain,
+            "source_token": source_asset,
+            "destination_token": destination_asset,
+            "amount": amount,
+            "source_address": self.client.address,
+            "destination_address": self.client.address,
+
+        }
+
+        return await self.make_request(
+            method='POST', url=url, headers=self.headers, json=create_swap_data
+        )
+
+    async def create_tx(self, swap_data):
+
+        swap_id = swap_data['data']['swap']['id']
+
+        url = f"https://api.layerswap.io/api/v2/swaps/{swap_id}"
 
         params = {
             'from_address': f"{self.client.address}"
         }
 
-        return (await self.make_request(url=url, headers=self.headers, params=params))['data']
+        response = await self.make_request(url=url, headers=self.headers, params=params, json=swap_data)
+
+        call_data = response['data']['deposit_actions'][0]['call_data']
+        to_address = response['data']['deposit_actions'][0]['to_address']
+
+        return call_data, to_address
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
         (source_chain, destination_chain, amount, to_chain_id, from_token_name,
@@ -79,17 +100,18 @@ class LayerSwap(Bridge, Logger):
         networks_data = await self.get_networks_data()
 
         available_for_swap = {
-            chain['name']: (assets['asset'], assets['decimals'])
+            chain['name']: [(asset['symbol'], asset['decimals']) for asset in chain['tokens']
+                            if asset['symbol'] in [from_token_name, to_token_name]][0]
             for chain in networks_data if chain['name'] in [source_chain, destination_chain]
-            for assets in chain['currencies'] if assets['asset'] in [source_asset, destination_asset]
         }
 
-        if (len(available_for_swap) == 2 and source_asset in available_for_swap[source_chain]
-                and destination_asset in available_for_swap[destination_chain]):
+        if (len(available_for_swap) == 2 and available_for_swap[source_chain]
+                and available_for_swap[destination_chain]):
 
-            data = source_chain, destination_chain, source_asset, destination_asset, refuel
+            data = source_chain, destination_chain, source_asset, destination_asset, amount
 
-            min_amount, max_amount, fee_amount, receive_amount = await self.get_swap_rate(*data)
+            min_amount, max_amount = await self.get_swap_limits(*data)
+            fee_amount, receive_amount = await self.get_swap_fee(*data)
 
             if need_check:
                 return round(float(fee_amount), 6)
@@ -98,8 +120,8 @@ class LayerSwap(Bridge, Logger):
 
                 amount_in_wei = self.client.to_wei(amount, available_for_swap[source_chain][1])
 
-                swap_id = await self.get_swap_id(amount, *data)
-                tx_data = await self.create_tx(swap_id['swap_id'])
+                swap_data = await self.get_swap_data(amount, *data)
+                call_data, to_address = await self.create_tx(swap_data)
 
                 if from_token_name != self.client.token:
                     value = 0
@@ -107,8 +129,8 @@ class LayerSwap(Bridge, Logger):
                     value = amount_in_wei
 
                 transaction = (await self.client.prepare_transaction(value=value)) | {
-                    'to': self.client.w3.to_checksum_address(tx_data['to_address']),
-                    'data': tx_data['data']
+                    'to': self.client.w3.to_checksum_address(to_address),
+                    'data': call_data
                 }
 
                 old_balance_on_dst = await self.client.wait_for_receiving(

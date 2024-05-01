@@ -8,7 +8,7 @@ from config import (
     BUNGEE_CONTRACTS,
     BUNGEE_ABI,
     BUNGEE_CHAINS_IDS,
-    LAYERZERO_NETWORKS_DATA,
+    OMNICHAIN_NETWORKS_DATA,
     CHAIN_NAME_FROM_ID, ETH_MASK, COINGECKO_TOKEN_API_NAMES
 )
 
@@ -36,7 +36,7 @@ class Bungee(Refuel, Bridge, Logger):
         refuel_contract = self.client.get_contract(BUNGEE_CONTRACTS[self.network]['gas_refuel'], BUNGEE_ABI['refuel'])
 
         dst_data = random.choice(list(DST_CHAIN_BUNGEE_REFUEL.items()))
-        dst_chain_name, _, dst_native_name, _ = LAYERZERO_NETWORKS_DATA[dst_data[0]]
+        dst_chain_name, _, dst_native_name, _ = OMNICHAIN_NETWORKS_DATA[dst_data[0]]
         dst_amount = await self.client.get_smart_amount(dst_data[1])
 
         refuel_info = f'{dst_amount} {self.client.network.token} from {self.client.network.name} to {dst_chain_name}'

@@ -16,7 +16,7 @@ from config import (
     L2TELEGRAPH_DST_CHAIN_MESSENGER_CONTRACTS,
     L2TELEGRAPH_SRC_CHAIN_BRIDGE_CONTRACTS,
     L2TELEGRAPH_DST_CHAIN_BRIDGE_CONTRACTS,
-    LAYERZERO_NETWORKS_DATA, L2TELEGRAPH_ADD_VALUE,
+    OMNICHAIN_NETWORKS_DATA, L2TELEGRAPH_ADD_VALUE,
 )
 
 
@@ -27,7 +27,7 @@ class L2Telegraph(Messenger, Logger):
 
         self.network = self.client.network.name
         chain_id_to = random.choice(DST_CHAIN_L2TELEGRAPH)
-        self.dst_chain_name, self.dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[chain_id_to]
+        self.dst_chain_name, self.dst_chain_id, _, _ = OMNICHAIN_NETWORKS_DATA[chain_id_to]
 
     async def get_nft_id(self, tx_hash):
         tx_receipt = await self.client.w3.eth.get_transaction_receipt(tx_hash)

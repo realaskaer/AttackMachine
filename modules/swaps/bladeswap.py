@@ -100,7 +100,7 @@ class BladeSwap(DEX, Logger):
                 abi.encode(['address'], [to_token_address]),
             ],
             [
-                amount_in_wei,
+                amount_in_wei if from_token_name != 'ETH' else 0,
                 0
             ],
             [

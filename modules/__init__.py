@@ -59,7 +59,6 @@ from .landings import ZeroLend
 from .landings import ReactorFusion
 from .landings import Basilisk
 from .landings import LayerBank
-from .landings import Abracadabra
 from .landings import Moonwell
 from .landings import Seamless
 from .cexs import OKX

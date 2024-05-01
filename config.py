@@ -479,7 +479,7 @@ AMBIENT_CONTRACT = {
 
 ABRACADABRA_CONTRACTS = {
     'Blast':{
-        'landing': '0xa64B73699Cc7334810E382A4C09CAEc53636Ab96'
+        'landing': '0xC8f5Eb8A632f9600D1c7BC91e97dAD5f8B1e3748'
     }
 }
 
@@ -1027,7 +1027,8 @@ ZEROLEND_CONTRACTS = {
     'Blast':{
         "landing"               : '0xFaDFb0BC400427663020887e7c8073D03A35dc3c',
         "pool_proxy"            : '0xa70B0F3C2470AbBE104BdB3F3aaa9C7C54BEA7A8',
-        "weth_atoken"           : '0x53a3Aa617afE3C12550a93BA6262430010037B04'
+        "weth_atoken"           : '0x53a3Aa617afE3C12550a93BA6262430010037B04',
+        "usdb_atoken"           : '0x23A58cbe25E36e26639bdD969B0531d3aD5F9c34'
     }
 }
 
@@ -1850,7 +1851,7 @@ NOGEM_CONTRACTS_PER_CHAINS = {
     3: {  # BaseRPC
         'refuel'                : '0xC2b7ED18184d3EAa08bD03418d2929D452dbd6Fa',
         'gas_station'           : '0xFb7EF0BbD8bFB5f129F995FbC34F4D786cCC63CF',
-        'ONFT'                  : '0x9cE5f55c5CF1EA63D1CB3ac4EfC7FBe07e83916B',
+        'ONFT'                  : '0x8D5ba31f120157369ED4474338beA521109B1200',
         'endpoint'              : '0xF882c982a95F4D3e8187eFE12713835406d11840'
     },
     4: {  # LineaRPC
@@ -3045,6 +3046,7 @@ CHAIN_NAME_FROM_ID = {
     10: 'Optimism',
     81457: 'Blast',
     534352: 'Scroll',
+    56: 'BNB Chain',
     'SN_MAIN': 'Starknet',
     1101: 'Polygon zkEVM',
     324: 'zkSync',
@@ -3373,7 +3375,7 @@ CEX_WRAPPED_ID = {
      41                         : 7,
 }
 
-LAYERZERO_WRAPED_NETWORKS = {
+OMNICHAIN_WRAPED_NETWORKS = {
     1                       : 1,
     2                       : 2,
     3                       : 27,
@@ -3470,7 +3472,7 @@ COINGECKO_TOKEN_API_NAMES = {
      'CORE': 'coredaoorg',
 }
 
-LAYERZERO_NETWORKS_DATA = {
+OMNICHAIN_NETWORKS_DATA = {
     1                       : ('Arbitrum', 110, 'ETH', 'ethereum'),
     2                       : ('Arbitrum Nova', 175, 'ETH', 'ethereum'),
     3                       : ('Astar', 210, 'ASTR', 'astar'),

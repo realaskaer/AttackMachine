@@ -48,12 +48,7 @@ AVAILABLE_MODULES_INFO = {
     deposit_rocketsam                   : (deposit_rocketsam, 2, 'RocketSam deposit', 0, [0]),
     deposit_moonwell                    : (deposit_moonwell, 2, 'Moonwell deposit', 0, [0]),
     deposit_seamless                    : (deposit_seamless, 2, 'Seamless deposit', 0, [0]),
-    withdraw_seamless                   : (withdraw_seamless, 2, 'Seamless withdraw', 0, [0]),
     deposit_usdbc_seamless              : (deposit_usdbc_seamless, 2, 'Seamless USDbC deposit', 0, [0]),
-    withdraw_usdbc_seamless             : (withdraw_usdbc_seamless, 2, 'Seamless USDbC withdraw', 0, [0]),
-    deposit_abracadabra                 : (deposit_abracadabra, 2, 'Abracadabra USDB deposit', 0, [0]),
-    deposit_abracadabra_with_lock       : (deposit_abracadabra_with_lock, 2, 'Abracadabra USDB deposit + lock', 0, [0]),
-    withdraw_abracadabra                : (withdraw_abracadabra, 2, 'Abracadabra USDB withdraw', 0, [0]),
     enable_collateral_basilisk          : (enable_collateral_basilisk, 2, 'Enable Basilisk collateral', 1, [11]),
     enable_collateral_eralend           : (enable_collateral_eralend, 2, 'Enable EraLend collateral', 1, [11]),
     enable_collateral_reactorfusion     : (enable_collateral_reactorfusion, 2, 'Enable ReactorFusion collateral', 1, [11]),
@@ -103,10 +98,6 @@ AVAILABLE_MODULES_INFO = {
     create_omnisea                      : (create_omnisea, 2, 'Omnisea create NFT', 0, [4, 8, 11]),
     create_safe                         : (create_safe, 2, 'Gnosis Safe', 0, [3, 11]),
     mint_and_bridge_l2telegraph         : (mint_and_bridge_l2telegraph, 3, 'L2Telegraph NFT bridge', 0, []),
-    bridge_wormhole_nft                 : (bridge_wormhole_nft, 3, 'Merkly Wormhole NFT bridge', 0, []),
-    bridge_wormhole_token               : (bridge_wormhole_token, 3, 'Merkly Wormhole Tokens bridge', 0, []),
-    refuel_polyhedra                    : (refuel_polyhedra, 3, 'Merkly Polyhedra refuel', 0, []),
-    bridge_polyhedra_nft                : (bridge_polyhedra_nft, 3, 'Merkly Polyhedra NFT bridge', 0, []),
     bridge_hyperlane_nft                : (bridge_hyperlane_nft, 3, 'Merkly Hyperlane NFT bridge', 0, []),
     bridge_hyperlane_token              : (bridge_hyperlane_token, 3, 'Merkly Hyperlane Tokens bridge', 0, []),
     mint_domain_ens                     : (mint_domain_ens, 2, 'ENS domain mint', 0, [11]),
@@ -171,6 +162,9 @@ AVAILABLE_MODULES_INFO = {
     withdraw_rocketsam                  : (withdraw_rocketsam, 3, 'RocketSam withdraw', 0, []),
     withdraw_moonwell                   : (withdraw_moonwell, 3, 'Moonwell withdraw', 0, []),
     withdraw_native_bridge              : (withdraw_native_bridge, 3, 'Native Bridge withdraw', 0, []),
+    withdraw_seamless                   : (withdraw_seamless, 3, 'Seamless withdraw', 0, [0]),
+    withdraw_usdbc_seamless             : (withdraw_usdbc_seamless, 3, 'Seamless USDbC withdraw', 0, [0]),
+    withdraw_usdb_zerolend              : (withdraw_usdb_zerolend, 3, 'ZeroLend USDB withdraw', 0, [0]),
     wrap_abuser                         : (wrap_abuser, 2, 'Wrap Abuse =)', 0, []),
     collector_eth                       : (collector_eth, 4, 'Collect ETH from tokens', 0, []),
     okx_deposit                         : (okx_deposit, 5, 'OKX deposit', 0, []),
@@ -204,6 +198,7 @@ class RouteGenerator(Logger):
     @staticmethod
     def classic_generate_route():
         route = []
+        rpc = GLOBAL_NETWORK
         deposit_modules = [
             'deposit_basilisk',
             'deposit_eralend',
@@ -217,13 +212,17 @@ class RouteGenerator(Logger):
             'deposit_usdbc_seamless',
             'deposit_abracadabra',
         ]
+
         for i in CLASSIC_ROUTES_MODULES_USING:
             module_name = random.choice(i)
             if module_name is None:
                 continue
+            if ':' in module_name:
+                module_name, rpc = module_name.split(':')
+
             module = get_func_by_name(module_name)
             if module:
-                route.append(module.__name__)
+                route.append(f"{module.__name__} {rpc}")
             else:
                 raise SoftwareException(f'There is no module with the name "{module_name}" in the software.')
             if CLASSIC_WITHDRAW_DEPENDENCIES and module_name in deposit_modules:

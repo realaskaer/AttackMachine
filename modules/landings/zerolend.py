@@ -68,7 +68,7 @@ class ZeroLend(Landing, Logger):
         if liquidity_balance != 0:
 
             self.logger_msg(
-                *self.client.acc_info, msg=f'Withdraw {liquidity_balance / 10 ** 18:.5f} liquidity from ZeroLend'
+                *self.client.acc_info, msg=f'Withdraw {liquidity_balance / 10 ** 18:.5f} z0WETH liquidity from ZeroLend'
             )
 
             await self.client.check_for_approved(
@@ -83,6 +83,31 @@ class ZeroLend(Landing, Logger):
                 liquidity_balance,
                 self.client.address
             ).build_transaction(tx_params)
+
+            return await self.client.send_transaction(transaction)
+
+        else:
+            raise SoftwareException('Insufficient balance on ZeroLend!')
+
+    @helper
+    @gas_checker
+    async def withdraw_usdb(self):
+
+        liquidity_balance = await self.client.get_contract(
+            ZEROLEND_CONTRACTS[self.network]['usdb_atoken']
+        ).functions.balanceOf(self.client.address).call()
+
+        if liquidity_balance != 0:
+
+            self.logger_msg(
+                *self.client.acc_info, msg=f'Withdraw {liquidity_balance / 10 ** 18:.5f} z0USDB liquidity from ZeroLend'
+            )
+
+            transaction = await self.proxy_contract.functions.withdraw(
+                TOKENS_PER_CHAIN[self.network]['USDB'],
+                2 ** 256 - 1,
+                self.client.address
+            ).build_transaction(await self.client.prepare_transaction())
 
             return await self.client.send_transaction(transaction)
 

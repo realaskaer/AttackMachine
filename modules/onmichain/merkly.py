@@ -10,8 +10,8 @@ from utils.tools import helper, sleep
 from config import (
     MERKLY_CONTRACTS_PER_CHAINS,
     MERKLY_ABI,
-    LAYERZERO_NETWORKS_DATA, MERKLY_NFT_WORMHOLE_INFO, MERKLY_WRAPPED_NETWORK,
-    MERKLY_TOKENS_WORMHOLE_INFO, LAYERZERO_WRAPED_NETWORKS, ZERO_ADDRESS, CHAIN_NAME, CHAIN_IDS
+    OMNICHAIN_NETWORKS_DATA, MERKLY_NFT_WORMHOLE_INFO, MERKLY_WRAPPED_NETWORK,
+    MERKLY_TOKENS_WORMHOLE_INFO, OMNICHAIN_WRAPED_NETWORKS, ZERO_ADDRESS, CHAIN_NAME, CHAIN_IDS
 )
 
 
@@ -63,7 +63,7 @@ class Merkly(Refuel, Minter, Logger):
             self, chain_from_id: int, attack_data: dict, google_mode:bool = False, need_check:bool = False
     ):
         dst_data = random.choice(list(attack_data.items()))
-        dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
+        dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = OMNICHAIN_NETWORKS_DATA[dst_data[0]]
         dst_amount = await self.client.get_smart_amount(dst_data[1])
 
         if not need_check:
@@ -75,7 +75,7 @@ class Merkly(Refuel, Minter, Logger):
         refuel_contract = self.client.get_contract(merkly_contracts['refuel'], MERKLY_ABI['refuel'])
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
-        dst_contract_address = MERKLY_CONTRACTS_PER_CHAINS[LAYERZERO_WRAPED_NETWORKS[dst_data[0]]]['refuel']
+        dst_contract_address = MERKLY_CONTRACTS_PER_CHAINS[OMNICHAIN_WRAPED_NETWORKS[dst_data[0]]]['refuel']
 
         gas_limit = await refuel_contract.functions.minDstGasLookup(dst_chain_id, 0).call()
 
@@ -113,7 +113,7 @@ class Merkly(Refuel, Minter, Logger):
                     result = await self.client.wait_for_l0_received(tx_result)
 
             if google_mode:
-                return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+                return OMNICHAIN_WRAPED_NETWORKS[chain_from_id], dst_chain_id
             return result
 
         except Exception as error:
@@ -125,7 +125,7 @@ class Merkly(Refuel, Minter, Logger):
             self, chain_from_id: int, attack_data: int, google_mode:bool = False, need_check:bool = False
     ):
         onft_contract = self.client.get_contract(MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], MERKLY_ABI['ONFT'])
-        dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[attack_data]
+        dst_chain_name, dst_chain_id, _, _ = OMNICHAIN_NETWORKS_DATA[attack_data]
 
         if not need_check:
             tx_hash = await self.mint(chain_from_id, onft_contract)
@@ -175,7 +175,7 @@ class Merkly(Refuel, Minter, Logger):
                     result = await self.client.wait_for_l0_received(tx_result)
 
             if google_mode:
-                return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+                return OMNICHAIN_WRAPED_NETWORKS[chain_from_id], dst_chain_id
             return result
 
         except Exception as error:
@@ -321,7 +321,7 @@ class Merkly(Refuel, Minter, Logger):
             self, chain_from_id: int, attack_data: int, google_mode: bool = False, need_check: bool = False
     ):
         onft_contract = self.client.get_contract(MERKLY_CONTRACTS_PER_CHAINS[chain_from_id]['PNFT'], MERKLY_ABI['ONFT'])
-        dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[attack_data]
+        dst_chain_name, dst_chain_id, _, _ = OMNICHAIN_NETWORKS_DATA[attack_data]
 
         mint_price = await onft_contract.functions.fee().call()
 
@@ -368,7 +368,7 @@ class Merkly(Refuel, Minter, Logger):
                     result = await self.client.wait_for_l0_received(tx_result)
 
             if google_mode:
-                return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+                return OMNICHAIN_WRAPED_NETWORKS[chain_from_id], dst_chain_id
             return result
 
         except Exception as error:
@@ -380,7 +380,7 @@ class Merkly(Refuel, Minter, Logger):
             self, chain_from_id: int, attack_data: dict, google_mode: bool = False, need_check: bool = False
     ):
         dst_data = random.choice(list(attack_data.items()))
-        dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
+        dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = OMNICHAIN_NETWORKS_DATA[dst_data[0]]
         dst_amount = self.client.round_amount(*dst_data[1])
 
         if not need_check:
@@ -392,7 +392,7 @@ class Merkly(Refuel, Minter, Logger):
         refuel_contract = self.client.get_contract(merkly_contracts['p_refuel'], MERKLY_ABI['refuel'])
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
-        dst_contract_address = MERKLY_CONTRACTS_PER_CHAINS[LAYERZERO_WRAPED_NETWORKS[dst_data[0]]]['p_refuel']
+        dst_contract_address = MERKLY_CONTRACTS_PER_CHAINS[OMNICHAIN_WRAPED_NETWORKS[dst_data[0]]]['p_refuel']
 
         gas_limit = await refuel_contract.functions.minDstGasLookup(dst_chain_id, 0).call()
 
@@ -430,7 +430,7 @@ class Merkly(Refuel, Minter, Logger):
                     result = await self.client.wait_for_l0_received(tx_result)
 
             if google_mode:
-                return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+                return OMNICHAIN_WRAPED_NETWORKS[chain_from_id], dst_chain_id
             return result
 
         except Exception as error:

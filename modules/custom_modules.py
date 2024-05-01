@@ -10,7 +10,7 @@ from general_settings import AMOUNT_PERCENT_WRAPS, VOLUME_MODE
 from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry, CriticalException
 from utils.tools import helper, gas_checker, sleep
 from config import (
-    TOKENS_PER_CHAIN, LAYERZERO_WRAPED_NETWORKS, LAYERZERO_NETWORKS_DATA,
+    TOKENS_PER_CHAIN, OMNICHAIN_WRAPED_NETWORKS, OMNICHAIN_NETWORKS_DATA,
     TOKENS_PER_CHAIN2, CHAIN_NAME, OKX_NETWORKS_NAME, BINGX_NETWORKS_NAME, BINANCE_NETWORKS_NAME, CEX_WRAPPED_ID,
     COINGECKO_TOKEN_API_NAMES, BITGET_NETWORKS_NAME
 )
@@ -25,11 +25,9 @@ from settings import (
     DST_CHAIN_WHALE_NFT, MERKLY_ATTACK_NFT, L2PASS_ATTACK_REFUEL, MERKLY_ATTACK_REFUEL, WHALE_ATTACK_REFUEL,
     ZERIUS_ATTACK_REFUEL, L0_SEARCH_DATA, OWLTO_CHAIN_ID_FROM, ACROSS_TOKEN_NAME, ORBITER_TOKEN_NAME, OWLTO_TOKEN_NAME,
     LAYERSWAP_TOKEN_NAME, RELAY_TOKEN_NAME, RHINO_TOKEN_NAME, OKX_DEPOSIT_DATA, BINGX_DEPOSIT_DATA,
-    SRC_CHAIN_MERKLY_WORMHOLE, SRC_CHAIN_MERKLY_POLYHEDRA, SRC_CHAIN_MERKLY_HYPERLANE, DST_CHAIN_MERKLY_WORMHOLE,
-    DST_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_HYPERLANE, WORMHOLE_TOKENS_AMOUNT, HYPERLANE_TOKENS_AMOUNT,
-    DST_CHAIN_MERKLY_POLYHEDRA_REFUEL, BUNGEE_CHAIN_ID_FROM, BUNGEE_TOKEN_NAME,
-    L0_BRIDGE_COUNT, CUSTOM_SWAP_DATA, BITGET_DEPOSIT_DATA, BITGET_WITHDRAW_DATA, STG_STAKE_CONFIG, NITRO_CHAIN_ID_FROM,
-    NITRO_TOKEN_NAME, STARGATE_DUST_CONFIG, STARGATE_AMOUNT, COREDAO_AMOUNT, ACROSS_AMOUNT_LIMITER,
+    SRC_CHAIN_MERKLY_HYPERLANE, DST_CHAIN_MERKLY_HYPERLANE, HYPERLANE_TOKENS_AMOUNT, BUNGEE_CHAIN_ID_FROM,
+    BUNGEE_TOKEN_NAME, L0_BRIDGE_COUNT, CUSTOM_SWAP_DATA, BITGET_DEPOSIT_DATA, BITGET_WITHDRAW_DATA, STG_STAKE_CONFIG,
+    NITRO_CHAIN_ID_FROM, NITRO_TOKEN_NAME, STARGATE_DUST_CONFIG, STARGATE_AMOUNT, COREDAO_AMOUNT, ACROSS_AMOUNT_LIMITER,
     BUNGEE_AMOUNT_LIMITER, LAYERSWAP_AMOUNT_LIMITER, NITRO_AMOUNT_LIMITER, ORBITER_AMOUNT_LIMITER, OWLTO_AMOUNT_LIMITER,
     RELAY_AMOUNT_LIMITER, RHINO_AMOUNT_LIMITER, BRIDGE_SWITCH_CONTROL, SRC_CHAIN_NOGEM, DST_CHAIN_NOGEM_REFUEL,
     DST_CHAIN_NOGEM_NFT, NOGEM_ATTACK_REFUEL, NOGEM_ATTACK_NFT
@@ -365,8 +363,13 @@ class Custom(Logger, RequestClient):
                         used_chains.append(dst_chain)
 
                     src_chain_name = current_client.network.name
-                    dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
+                    dst_chain_name, dst_chain_id, _, _ = OMNICHAIN_NETWORKS_DATA[dst_chain]
                     to_token_name = tokens[converted_chains.index(dst_chain)]
+
+                    if src_chain_name == dst_chain_name:
+                        raise SoftwareException(
+                            f'Can`t bridge into same network: SRC Chain:{src_chain_name}, DST Chain:{dst_chain_name}'
+                        )
 
                     if from_token_name != 'ETH':
                         contract = current_client.get_contract(
@@ -442,7 +445,7 @@ class Custom(Logger, RequestClient):
                 chains, tokens
             )
         else:
-            current_client = await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[networks])
+            current_client = await self.client.new_client(OMNICHAIN_WRAPED_NETWORKS[networks])
 
         funcs = {
             'Arbitrum': [swap_oneinch, swap_odos],
@@ -542,7 +545,7 @@ class Custom(Logger, RequestClient):
         clients = []
         while True:
             try:
-                clients = [await self.client.new_client(LAYERZERO_WRAPED_NETWORKS[chain] if omni_check else chain)
+                clients = [await self.client.new_client(OMNICHAIN_WRAPED_NETWORKS[chain] if omni_check else chain)
                            for chain in chains]
 
                 if native_check:
@@ -751,7 +754,7 @@ class Custom(Logger, RequestClient):
         result = False
         action_flag = False
         for dst_data in dst_datas:
-            chain_name_to = CHAIN_NAME[LAYERZERO_WRAPED_NETWORKS[dst_data if dapp_mode == 2 else dst_data[0]]]
+            chain_name_to = CHAIN_NAME[OMNICHAIN_WRAPED_NETWORKS[dst_data if dapp_mode == 2 else dst_data[0]]]
             for src_chain in src_chains:
                 try:
                     attack_data = {
@@ -765,7 +768,7 @@ class Custom(Logger, RequestClient):
                     )
 
                     if action_flag:
-                        chain_name_from = CHAIN_NAME[LAYERZERO_WRAPED_NETWORKS[src_chain]]
+                        chain_name_from = CHAIN_NAME[OMNICHAIN_WRAPED_NETWORKS[src_chain]]
                         self.logger_msg(
                             *self.client.acc_info,
                             msg=f"Detected funds to {module_name} into {chain_name_to} from {chain_name_from}",
@@ -818,13 +821,10 @@ class Custom(Logger, RequestClient):
         from functions import omnichain_util
 
         module_name, src_chains, dst_chains, token_amounts, refuel_data = {
-            1: ('Wormhole', SRC_CHAIN_MERKLY_WORMHOLE, DST_CHAIN_MERKLY_WORMHOLE, WORMHOLE_TOKENS_AMOUNT, 0),
-            2: ('Polyhedra', SRC_CHAIN_MERKLY_POLYHEDRA, DST_CHAIN_MERKLY_POLYHEDRA, 0, DST_CHAIN_MERKLY_POLYHEDRA_REFUEL),
             3: ('Hyperlane', SRC_CHAIN_MERKLY_HYPERLANE, DST_CHAIN_MERKLY_HYPERLANE, HYPERLANE_TOKENS_AMOUNT, 0),
         }[dapp_mode]
 
         dst_datas, module_func_name = {
-            1: (list(refuel_data.items()) if dapp_function == 1 else 0, 'refuel'),
             2: (dst_chains, 'bridge NFT'),
             3: (dst_chains, 'bridge Token')
         }[dapp_function]
@@ -836,7 +836,7 @@ class Custom(Logger, RequestClient):
         result = False
         action_flag = False
         for dst_data in dst_datas:
-            chain_name_to = CHAIN_NAME[LAYERZERO_WRAPED_NETWORKS[dst_data if dapp_function != 1 else dst_data[0]]]
+            chain_name_to = CHAIN_NAME[OMNICHAIN_WRAPED_NETWORKS[dst_data if dapp_function != 1 else dst_data[0]]]
             for src_chain in src_chains:
                 try:
                     if dapp_function == 1:
@@ -861,7 +861,7 @@ class Custom(Logger, RequestClient):
                     )
 
                     if action_flag:
-                        chain_name_from = CHAIN_NAME[LAYERZERO_WRAPED_NETWORKS[src_chain]]
+                        chain_name_from = CHAIN_NAME[OMNICHAIN_WRAPED_NETWORKS[src_chain]]
                         self.logger_msg(
                             *self.client.acc_info,
                             msg=f"Detected funds to {module_func_name} into {chain_name_to} from {chain_name_from}",

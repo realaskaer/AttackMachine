@@ -22,7 +22,8 @@ class Bebop(DEX, Logger, RequestClient):
             'buy_tokens': to_token_address,
             'sell_tokens': from_token_address,
             'sell_amounts': amount_in_wei,
-            'taker_address': self.client.address
+            'taker_address': self.client.address,
+            'receiver_address': self.client.address
         }
 
         response = await self.make_request(url=url, params=params)
@@ -134,7 +135,7 @@ class Bebop(DEX, Logger, RequestClient):
 
         from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
 
-        self.logger_msg(*self.client.acc_info, msg=f'Swap on SpaceFi: {amount} {from_token_name} -> {to_token_name}')
+        self.logger_msg(*self.client.acc_info, msg=f'Swap on bebop: {amount} {from_token_name} -> {to_token_name}')
 
         from_token_address = TOKENS_PER_CHAIN[self.network][from_token_name]
         to_token_address = TOKENS_PER_CHAIN[self.network][to_token_name]
@@ -146,6 +147,7 @@ class Bebop(DEX, Logger, RequestClient):
         await self.client.price_impact_defender(from_token_name, amount, to_token_name, min_amount_out)
 
         if from_token_name == 'ETH':
+            self.logger_msg(*self.client.acc_info, msg=f'Need wrap ETH -> WETH, launch wrap module...')
             await wrap_eth(self.client.account_name, self.client.private_key, self.client.network,
                            self.client.proxy_init, amount_in_wei)
             await self.client.check_for_approved(

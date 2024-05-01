@@ -3,12 +3,12 @@ import random
 from eth_abi import abi
 from utils.tools import sleep, helper
 from modules import Refuel, Logger, RequestClient
-from modules.interfaces import BlockchainException, SoftwareException
+from modules.interfaces import SoftwareException
 from config import (
     WHALE_CONTRACTS_PER_CHAINS,
     WHALE_ABI,
-    LAYERZERO_NETWORKS_DATA,
-    LAYERZERO_WRAPED_NETWORKS,
+    OMNICHAIN_NETWORKS_DATA,
+    OMNICHAIN_WRAPED_NETWORKS,
     ZERO_ADDRESS
 )
 
@@ -65,7 +65,7 @@ class Whale(Refuel, Logger, RequestClient):
             self, chain_from_id: int, attack_data: dict, google_mode: bool = False, need_check: bool = False
     ):
         dst_data = random.choice(list(attack_data.items()))
-        dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
+        dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = OMNICHAIN_NETWORKS_DATA[dst_data[0]]
         dst_amount = await self.client.get_smart_amount(dst_data[1])
 
         if not need_check:
@@ -77,7 +77,7 @@ class Whale(Refuel, Logger, RequestClient):
         refuel_contract = self.client.get_contract(whale_contracts['refuel'], WHALE_ABI['refuel'])
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
-        dst_contract_address = WHALE_CONTRACTS_PER_CHAINS[LAYERZERO_WRAPED_NETWORKS[dst_data[0]]]['refuel']
+        dst_contract_address = WHALE_CONTRACTS_PER_CHAINS[OMNICHAIN_WRAPED_NETWORKS[dst_data[0]]]['refuel']
 
         gas_limit = await refuel_contract.functions.minDstGasLookup(dst_chain_id, 0).call()
 
@@ -115,13 +115,12 @@ class Whale(Refuel, Logger, RequestClient):
                     result = await self.client.wait_for_l0_received(tx_result)
 
             if google_mode:
-                return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+                return OMNICHAIN_WRAPED_NETWORKS[chain_from_id], dst_chain_id
             return result
 
         except Exception as error:
             if not need_check:
-                raise BlockchainException(f'{error}')
-
+                await self.client.handling_rpc_errors(error)
     async def mint(self, chain_id_from):
         onft_contract = self.client.get_contract(WHALE_CONTRACTS_PER_CHAINS[chain_id_from]['ONFT'], WHALE_ABI['ONFT'])
         mint_price = await onft_contract.functions.fee().call()
@@ -150,7 +149,7 @@ class Whale(Refuel, Logger, RequestClient):
     ):
         dst_chain = attack_data
         onft_contract = self.client.get_contract(WHALE_CONTRACTS_PER_CHAINS[chain_from_id]['ONFT'], WHALE_ABI['ONFT'])
-        dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
+        dst_chain_name, dst_chain_id, _, _ = OMNICHAIN_NETWORKS_DATA[dst_chain]
 
         if not need_check:
             nft_id = await self.get_nft_id()
@@ -175,7 +174,9 @@ class Whale(Refuel, Logger, RequestClient):
             estimate_send_fee = await self.get_estimate_send_fee(onft_contract, adapter_params, dst_chain_id, nft_id)
 
             if need_check:
-                if await self.client.w3.eth.get_balance(self.client.address) > estimate_send_fee:
+                mint_price = await onft_contract.functions.fee().call()
+                value = int(estimate_send_fee + 0.0002)
+                if await self.client.w3.eth.get_balance(self.client.address) > value + mint_price:
                     return True
                 return False
 
@@ -201,9 +202,9 @@ class Whale(Refuel, Logger, RequestClient):
                     result = await self.client.wait_for_l0_received(tx_result)
 
             if google_mode:
-                return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+                return OMNICHAIN_WRAPED_NETWORKS[chain_from_id], dst_chain_id
             return result
 
         except Exception as error:
             if not need_check:
-                raise BlockchainException(f'{error}')
+                await self.client.handling_rpc_errors(error)

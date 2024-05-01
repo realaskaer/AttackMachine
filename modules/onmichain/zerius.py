@@ -1,11 +1,11 @@
 import random
 
-from modules.interfaces import BlockchainException, SoftwareException, Refuel
+from modules.interfaces import SoftwareException, Refuel
 from utils.tools import sleep, helper
 from eth_abi import encode
 from modules import Minter, Logger, Client
-from config import (ZERIUS_CONTRACT_PER_CHAINS, ZERIUS_ABI, ZERO_ADDRESS, LAYERZERO_NETWORKS_DATA,
-                    LAYERZERO_WRAPED_NETWORKS)
+from config import (ZERIUS_CONTRACT_PER_CHAINS, ZERIUS_ABI, ZERO_ADDRESS, OMNICHAIN_NETWORKS_DATA,
+                    OMNICHAIN_WRAPED_NETWORKS)
 
 
 class Zerius(Refuel, Minter, Logger):
@@ -38,7 +38,7 @@ class Zerius(Refuel, Minter, Logger):
             self, chain_from_id: int, attack_data: dict, google_mode: bool = False, need_check: bool = False
     ):
         dst_data = random.choice(list(attack_data.items()))
-        dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = LAYERZERO_NETWORKS_DATA[dst_data[0]]
+        dst_chain_name, dst_chain_id, dst_native_name, dst_native_api_name = OMNICHAIN_NETWORKS_DATA[dst_data[0]]
         dst_amount = await self.client.get_smart_amount(dst_data[1])
 
         if not need_check:
@@ -49,7 +49,7 @@ class Zerius(Refuel, Minter, Logger):
         refuel_contract = self.client.get_contract(l2pass_contracts['refuel'], ZERIUS_ABI['refuel'])
 
         dst_native_gas_amount = int(dst_amount * 10 ** 18)
-        dst_contract_address = ZERIUS_CONTRACT_PER_CHAINS[LAYERZERO_WRAPED_NETWORKS[dst_data[0]]]['refuel']
+        dst_contract_address = ZERIUS_CONTRACT_PER_CHAINS[OMNICHAIN_WRAPED_NETWORKS[dst_data[0]]]['refuel']
 
         gas_limit = await refuel_contract.functions.minDstGasLookup(dst_chain_id, 0).call()
 
@@ -89,12 +89,12 @@ class Zerius(Refuel, Minter, Logger):
                     result = await self.client.wait_for_l0_received(tx_result)
 
             if google_mode:
-                return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+                return OMNICHAIN_WRAPED_NETWORKS[chain_from_id], dst_chain_id
             return result
 
         except Exception as error:
             if not need_check:
-                raise BlockchainException(f'{error}')
+                await self.client.handling_rpc_errors(error)
 
     async def mint(self, chain_from_id):
         onft_contract = self.client.get_contract(ZERIUS_CONTRACT_PER_CHAINS[chain_from_id]['ONFT'], ZERIUS_ABI['ONFT'])
@@ -127,7 +127,7 @@ class Zerius(Refuel, Minter, Logger):
         dst_chain = attack_data
         onft_contract = self.client.get_contract(ZERIUS_CONTRACT_PER_CHAINS[chain_from_id]['ONFT'], ZERIUS_ABI['ONFT'])
 
-        dst_chain_name, dst_chain_id, _, _ = LAYERZERO_NETWORKS_DATA[dst_chain]
+        dst_chain_name, dst_chain_id, _, _ = OMNICHAIN_NETWORKS_DATA[dst_chain]
 
         if not need_check:
             nft_id = await self.get_nft_id(onft_contract)
@@ -152,14 +152,16 @@ class Zerius(Refuel, Minter, Logger):
 
             base_bridge_fee = await onft_contract.functions.bridgeFee().call()
             estimate_send_fee = await self.get_estimate_send_fee(onft_contract, adapter_params, dst_chain_id, nft_id)
-            value = int(estimate_send_fee + base_bridge_fee)
 
             if need_check:
-                if await self.client.w3.eth.get_balance(self.client.address) > value:
+                mint_price = await onft_contract.functions.mintFee().call()
+                value = int(estimate_send_fee + base_bridge_fee + 0.0002)
+
+                if await self.client.w3.eth.get_balance(self.client.address) > value + mint_price:
                     return True
                 return False
 
-            tx_params = await self.client.prepare_transaction(value=value)
+            tx_params = await self.client.prepare_transaction(value=int(base_bridge_fee + estimate_send_fee))
 
             transaction = await onft_contract.functions.sendFrom(
                 self.client.address,
@@ -181,9 +183,9 @@ class Zerius(Refuel, Minter, Logger):
                     result = await self.client.wait_for_l0_received(tx_result)
 
             if google_mode:
-                return LAYERZERO_WRAPED_NETWORKS[chain_from_id], dst_chain_id
+                return OMNICHAIN_WRAPED_NETWORKS[chain_from_id], dst_chain_id
             return result
 
         except Exception as error:
             if not need_check:
-                raise BlockchainException(f'{error}')
+                await self.client.handling_rpc_errors(error)

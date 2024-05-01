@@ -177,12 +177,11 @@ BUNGEE_AMOUNT_LIMITER = 0, (0, 0)
 
 '-------------------------------------------------------LayerSwap------------------------------------------------------'
 
-LAYERSWAP_CHAIN_ID_FROM = [8]               # Исходящая сеть
+LAYERSWAP_CHAIN_ID_FROM = [3]               # Исходящая сеть
 LAYERSWAP_CHAIN_ID_TO = [1]                  # Входящая сеть
-LAYERSWAP_BRIDGE_AMOUNT = (0.003, 0.003)     # (минимум, максимум) (% или кол-во)
+LAYERSWAP_BRIDGE_AMOUNT = (0.0012, 0.0012)     # (минимум, максимум) (% или кол-во)
 LAYERSWAP_TOKEN_NAME = ('ETH', 'ETH')     # ETH, USDC, USDC.e
 LAYERSWAP_AMOUNT_LIMITER = 0, (0, 0)
-
 
 '--------------------------------------------------------Nitro---------------------------------------------------------'
 
@@ -416,20 +415,6 @@ DST_CHAIN_BUNGEE_REFUEL = {
     5: (0.0003, 0.00031),  # Chain ID: (минимум, максимум) в нативном токене исходящей сети (кол-во)
 }
 
-'---------------------------------------------------Merkly Wormhole----------------------------------------------------'
-
-SRC_CHAIN_MERKLY_WORMHOLE = [9]   # Исходящая сеть для Merkly Wormhole
-DST_CHAIN_MERKLY_WORMHOLE = [21, 14]  # Входящая сеть для Merkly Wormhole
-WORMHOLE_TOKENS_AMOUNT = (1, 1)   # Кол-во токенов для минта и бриджа на Merkly через Wormhole
-
-'---------------------------------------------------Merkly Polyhedra---------------------------------------------------'
-
-SRC_CHAIN_MERKLY_POLYHEDRA = [9]   # Исходящая сеть для Merkly Polyhedra
-DST_CHAIN_MERKLY_POLYHEDRA = [28]   # Входящая сеть для Merkly Polyhedra
-DST_CHAIN_MERKLY_POLYHEDRA_REFUEL = {
-     28: (0.000001, 0.00002),        # Chain ID: (минимум, максимум) в нативном токене входящей сети (кол-во)
-}
-
 '---------------------------------------------------Merkly Hyperlane---------------------------------------------------'
 
 SRC_CHAIN_MERKLY_HYPERLANE = [9]   # Исходящая сеть для Merkly Hyperlane
@@ -654,16 +639,6 @@ HELPERS_CONFIG = {
     gas_station_l2pass               # Refuel в несколько сетей с помощью 1 транзакции. см. L2PASS_GAS_STATION_DATA     
     filler_nogem                     # Refuel в несколько сетей с помощью 1 транзакции. см. NOGEM_FILLER_DATA
     
---------------------------------------------------------WORMHOLE--------------------------------------------------------            
-
-    bridge_wormhole_nft     # минт и бридж NFT на Merkly через Wormhole 
-    bridge_wormhole_token   # минт и бридж токенов на Merkly через Wormhole 
-    
--------------------------------------------------------POLYHEDRA--------------------------------------------------------            
-
-    bridge_polyhedra_nft     # минт и бридж NFT на Merkly через Polyhedra 
-    refuel_polyhedra         # refuel на Merkly через Polyhedra 
-    
 -------------------------------------------------------HYPERLANE--------------------------------------------------------            
 
     bridge_hyperlane_nft     # минт и бридж NFT на Merkly через Hyperlane 
@@ -737,11 +712,10 @@ HELPERS_CONFIG = {
     wrap_eth                         
     unwrap_eth                       
     check_in_owlto
-    deposit_abracadabra
-    deposit_zerolend
-    deposit_usdb_zerolend
-    deposit_abracadabra_with_lock
-    withdraw_abracadabra
+    deposit_zerolend                # депозит ETH на ZeroLend
+    deposit_usdb_zerolend           # депозит USDB на ZeroLend
+    withdraw_zerolend               # вывод ETH из ZeroLend
+    withdraw_usdb_zerolend          # вывод USDB из ZeroLend
     
 ------------------------------------------------------Polygon zkEVM-----------------------------------------------------  
     
@@ -875,6 +849,22 @@ HELPERS_CONFIG = {
         ['swap_mute', 'swap_izumi', 'mint_domain_ens', None],
         ...
     ]
+    
+    Сети для работы с разными проектами, позволят сделать вам маршрут сразу во всех активных сетях под ретро.
+    Пример заполнения (сети указаны снизу):
+    
+    CLASSIC_ROUTES_MODULES_USING = [
+        ['swap_syncswap:3'], # после знака ':' номер сети для работы
+    ]
+
+    Arbitrum = 1            Scroll = 8
+    Arbitrum Nova = 2       Starknet = 9
+    Base = 3                Polygon ZKEVM = 10
+    Linea = 4               zkSync Era = 11
+    Manta = 5               Zora = 12
+    Polygon = 6             Ethereum = 13
+    Optimism = 7            Blast = 49
+    
 """
 
 CLASSIC_WITHDRAW_DEPENDENCIES = False  # при True после каждого модуля на добавление ликвы в лендинг, будет ее выводить
