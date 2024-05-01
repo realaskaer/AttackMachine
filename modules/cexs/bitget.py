@@ -223,13 +223,14 @@ class Bitget(CEX, Logger):
         network_raw_name = BITGET_NETWORKS_NAME[network_id]
         split_network_data = network_raw_name.split('-')
         ccy, network_name = split_network_data[0], '-'.join(split_network_data[1:])
+
+        await self.transfer_from_subaccounts(ccy=ccy, silent_mode=True)
+
         dst_chain_id = CEX_WRAPPED_ID[network_id]
         if isinstance(amount, str):
             amount = self.client.custom_round(await self.get_balance(ccy=ccy) * float(amount), 6)
         else:
             amount = self.client.round_amount(*amount)
-
-        await self.transfer_from_subaccounts(ccy=ccy, silent_mode=True)
 
         self.logger_msg(*self.client.acc_info, msg=f"Withdraw {amount:.8f} {ccy} to {network_name}")
 
