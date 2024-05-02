@@ -471,8 +471,9 @@ class RouteGenerator(Logger):
         random.shuffle(smart_route)
 
         if GLOBAL_NETWORK != 0:
+            default_rpc = GLOBAL_NETWORK
             smart_route_with_priority = [
-                i[0].__name__ for i in sorted(list(filter(None, smart_route)), key=lambda x: x[1])
+                f"{i[0].__name__} {default_rpc}" for i in sorted(list(filter(None, smart_route)), key=lambda x: x[1])
             ]
         else:
             smart_route_with_priority = [(i[0][0].__name__, i[1]) for i in list(filter(None, smart_route))]
