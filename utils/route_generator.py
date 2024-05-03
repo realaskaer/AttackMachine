@@ -228,7 +228,7 @@ class RouteGenerator(Logger):
             if CLASSIC_WITHDRAW_DEPENDENCIES and module_name in deposit_modules:
                 withdraw_module_name = module_name.replace('deposit', 'withdraw')
                 withdraw_module = get_func_by_name(withdraw_module_name)
-                route.append(withdraw_module.__name__)
+                route.append(f"{withdraw_module.__name__} {rpc}")
         return route
 
     def get_account_name_list(self):
