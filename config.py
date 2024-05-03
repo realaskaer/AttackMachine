@@ -1062,6 +1062,11 @@ RHINO_CONTRACTS = {
 }
 
 SAFE_CONTRACTS = {
+    'Ethereum':{
+        "proxy_factory"     : '0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2',
+        "gnosis_safe"       : '0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552',
+        "fallback_handler"  : '0xf48f2B2d2a534e402487b3ee7C18c33Aec0Fe5e4'
+    },
     'zkSync':{
         "proxy_factory"     : '0xDAec33641865E4651fB43181C6DB6f7232Ee91c2',
         "gnosis_safe"       : '0x1727c2c531cf966f902E5927b98490fDFb3b2b70',
