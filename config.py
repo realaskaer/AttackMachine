@@ -3046,6 +3046,7 @@ CHAIN_NAME_FROM_ID = {
     42170: 'Arbitrum Nova',
     8453: 'Base',
     59144: 'Linea',
+    34443: 'Mode',
     169: 'Manta',
     137: 'Polygon',
     10: 'Optimism',
