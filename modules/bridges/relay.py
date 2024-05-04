@@ -56,7 +56,7 @@ class Relay(Bridge, Logger):
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
         from_chain, to_chain, amount, to_chain_id, from_token_name, to_token_name, from_token_address, to_token_address = bridge_data
 
-        supported_chains = [42161, 42170, 8453, 10, 324, 1, 7777777]
+        supported_chains = [42161, 42170, 8453, 10, 324, 1, 7777777, 34443]
         if from_chain not in supported_chains or to_chain not in supported_chains:
             raise SoftwareExceptionWithoutRetry(
                 f'Bridge from {self.client.network.name} to {CHAIN_NAME_FROM_ID[to_chain]} is not exist')
