@@ -9,7 +9,7 @@ from config import (
     BUNGEE_ABI,
     BUNGEE_CHAINS_IDS,
     OMNICHAIN_NETWORKS_DATA,
-    CHAIN_NAME_FROM_ID, ETH_MASK, COINGECKO_TOKEN_API_NAMES
+    CHAIN_NAME_FROM_ID, ETH_MASK, COINGECKO_TOKEN_API_NAMES, TOKENS_PER_CHAIN2, ZERO_ADDRESS
 )
 
 
@@ -199,10 +199,15 @@ class Bungee(Refuel, Bridge, Logger):
         decimals = await self.client.get_decimals(token_address=from_token_address)
         amount_in_wei = self.client.to_wei(amount, decimals=decimals)
 
-        if from_token_name == 'ETH':
+        if from_token_name == self.client.token:
             from_token_address = ETH_MASK
-        if to_token_name == 'ETH':
+        else:
+            from_token_address = TOKENS_PER_CHAIN2[self.client.network.name][from_token_name]
+
+        if to_token_name in ['BNB', 'MATIC', 'AVAX', 'ETH']:
             to_token_address = ETH_MASK
+        else:
+            to_token_address = TOKENS_PER_CHAIN2[CHAIN_NAME_FROM_ID[to_chain]][to_token_name]
 
         route_data = await self.get_quote(to_chain, from_token_address, to_token_address, amount_in_wei, need_check)
 

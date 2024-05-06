@@ -545,9 +545,9 @@ async def swap_skydrome(account_name, private_key, network, proxy):
     return await worker.swap()
 
 
-async def swap_maverick(account_name, private_key, network, proxy):
+async def swap_maverick(account_name, private_key, network, proxy, **kwargs):
     worker = Maverick(get_client(account_name, private_key, network, proxy))
-    return await worker.swap()
+    return await worker.swap(**kwargs)
 
 
 async def swap_zkswap(account_name, private_key, network, proxy):
