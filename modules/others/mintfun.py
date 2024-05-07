@@ -6,7 +6,7 @@ from modules import Minter, Logger, RequestClient
 from config import MINTFUN_ABI
 from modules.interfaces import SoftwareException
 from utils.tools import helper, gas_checker
-from settings import MINTFUN_CONTRACTS
+from settings import MINTFUN_CONTRACTS, MINTFUN_MINT_COUNT
 
 
 class MintFun(Minter, Logger, RequestClient):
@@ -46,8 +46,9 @@ class MintFun(Minter, Logger, RequestClient):
     async def mint(self):
         mint_contracts = copy.deepcopy(MINTFUN_CONTRACTS)
         random.shuffle(mint_contracts)
+        mints_count = random.randint(*copy.deepcopy(MINTFUN_MINT_COUNT))
 
-        for index, nft_contract in enumerate(mint_contracts):
+        for index, nft_contract in enumerate(mint_contracts[:mints_count]):
             try:
                 nft_contract = self.client.w3.to_checksum_address(nft_contract)
 

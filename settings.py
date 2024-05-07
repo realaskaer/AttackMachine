@@ -209,8 +209,8 @@ OWLTO_AMOUNT_LIMITER = 0, (0, 0)
 
 '--------------------------------------------------------Relay---------------------------------------------------------'
 
-RELAY_CHAIN_ID_FROM = [11]                # Исходящая сеть
-RELAY_CHAIN_ID_TO = [7]                   # Входящая сеть
+RELAY_CHAIN_ID_FROM = [1]                # Исходящая сеть
+RELAY_CHAIN_ID_TO = [50]                   # Входящая сеть
 RELAY_BRIDGE_AMOUNT = (0.001, 0.001)      # (минимум, максимум) (% или кол-во)
 RELAY_TOKEN_NAME = 'ETH'
 RELAY_AMOUNT_LIMITER = 0, (0, 0)
@@ -498,6 +498,7 @@ NOGEM_FILLER_DATA = [
 
     ZKSTARS_NFT_CONTRACTS | Укажите какие NFT ID будут участвовать в минте. Все что в скобках, будут использованы
     MINTFUN_CONTRACTS | Список контрактов для минта в выбранной сети (GLOBAL NETWORK)
+    MINTFUN_MINT_COUNT | Количество минтов для MINTFUN_CONTRACTS, софт выберет случайное число внутри указанного списка 
     GRAPEGRAW_TICKETS_AMOUNT | Количество билетов для покупки в одной транзакции на сайте https://grapedraw.com/
     ZKSYNC_PAYMASTER_TOKEN | Укажите каким токеном вы будете совершать оплату за газ при использовании paymaster 
     CUSTOM_SWAP_DATA | ('токен для обмена', 'токен для получения', (сумма от и до), сеть запуска(см. OMNI-CHAIN)), 
@@ -516,6 +517,8 @@ GRAPEDRAW_TICKETS_AMOUNT = 1
 MINTFUN_CONTRACTS = [
     '0xEb3805E0776180A783aD7f637e08172D40240311',
 ]
+
+MINTFUN_MINT_COUNT = [1, 1]  # от и до
 
 """
 -------------------------------------------------GOOGLE-ROUTES CONTROL--------------------------------------------------
