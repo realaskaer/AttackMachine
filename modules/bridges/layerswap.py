@@ -2,6 +2,7 @@ import json
 
 from modules import Bridge, Logger
 from modules.interfaces import BridgeExceptionWithoutRetry
+from settings import WAIT_FOR_RECEIPT_BRIDGE
 
 
 class LayerSwap(Bridge, Logger):
@@ -143,10 +144,12 @@ class LayerSwap(Bridge, Logger):
                 self.logger_msg(*self.client.acc_info,
                                 msg=f"Bridge complete. Note: wait a little for receiving funds", type_msg='success')
 
-                return await self.client.wait_for_receiving(
-                    token_address=to_token_address, token_name=to_token_name,
-                    old_balance=old_balance_on_dst, chain_id=to_chain_id
-                )
+                if WAIT_FOR_RECEIPT_BRIDGE:
+                    return await self.client.wait_for_receiving(
+                        token_address=to_token_address, token_name=to_token_name,
+                        old_balance=old_balance_on_dst, chain_id=to_chain_id
+                    )
+                return True
 
             else:
                 raise BridgeExceptionWithoutRetry(f"Limit range for bridge: {min_amount} - {max_amount} ETH")

@@ -2,6 +2,7 @@ from modules import Bridge, Logger
 from modules.interfaces import BridgeExceptionWithoutRetry
 from config import TOKENS_PER_CHAIN, ACROSS_ABI, CHAIN_NAME_FROM_ID, ACROSS_CONTRACT, ACROSS_CLAIM_CONTRACTS
 from general_settings import GAS_LIMIT_MULTIPLIER
+from settings import WAIT_FOR_RECEIPT_BRIDGE
 from utils.tools import helper, gas_checker
 
 
@@ -124,10 +125,12 @@ class Across(Bridge, Logger):
                     type_msg='success'
                 )
 
-                return await self.client.wait_for_receiving(
-                    token_address=to_token_address, token_name=to_token_name, old_balance=old_balance_on_dst,
-                    chain_id=to_chain_id
-                )
+                if WAIT_FOR_RECEIPT_BRIDGE:
+                    return await self.client.wait_for_receiving(
+                        token_address=to_token_address, token_name=to_token_name, old_balance=old_balance_on_dst,
+                        chain_id=to_chain_id
+                    )
+                return True
 
             else:
                 raise BridgeExceptionWithoutRetry(f'Bridge route is not available!')

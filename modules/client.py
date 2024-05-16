@@ -32,7 +32,7 @@ from settings import (
     ACROSS_BRIDGE_AMOUNT, WAIT_FOR_RECEIPT, RELAY_CHAIN_ID_TO, RELAY_BRIDGE_AMOUNT, OWLTO_CHAIN_ID_TO,
     OWLTO_BRIDGE_AMOUNT, BUNGEE_CHAIN_ID_TO, BUNGEE_BRIDGE_AMOUNT, NITRO_CHAIN_ID_TO, NITRO_BRIDGE_AMOUNT,
     ACROSS_TOKEN_NAME, BUNGEE_TOKEN_NAME, LAYERSWAP_TOKEN_NAME, NITRO_TOKEN_NAME, ORBITER_TOKEN_NAME, OWLTO_TOKEN_NAME,
-    RELAY_TOKEN_NAME, RHINO_TOKEN_NAME
+    RELAY_TOKEN_NAME, RHINO_TOKEN_NAME, NATIVE_CHAIN_ID_TO, NATIVE_BRIDGE_AMOUNT, NATIVE_TOKEN_NAME
 )
 
 
@@ -184,6 +184,7 @@ class Client(Logger):
             6: CHAIN_IDS,
             7: CHAIN_IDS,
             8: RHINO_CHAIN_INFO,
+            9: CHAIN_IDS,
         }[dapp_id]
 
         to_chain_ids, bridge_setting, bridge_token = {
@@ -195,6 +196,7 @@ class Client(Logger):
             6: (OWLTO_CHAIN_ID_TO, OWLTO_BRIDGE_AMOUNT, OWLTO_TOKEN_NAME),
             7: (RELAY_CHAIN_ID_TO, RELAY_BRIDGE_AMOUNT, RELAY_TOKEN_NAME),
             8: (RHINO_CHAIN_ID_TO, RHINO_BRIDGE_AMOUNT, RHINO_TOKEN_NAME),
+            9: (NATIVE_CHAIN_ID_TO, NATIVE_BRIDGE_AMOUNT, NATIVE_TOKEN_NAME),
         }[settings_id]
 
         source_chain = bridge_config[chain_from_id]
@@ -432,7 +434,7 @@ class Client(Logger):
                     max_priority_fee_per_gas = int(max_fee_per_gas * 0.95)
 
                 tx_params['maxPriorityFeePerGas'] = max_priority_fee_per_gas
-                tx_params['maxFeePerGas'] = max_fee_per_gas
+                tx_params['maxFeePerGas'] = int(max_fee_per_gas * 1.2)
                 tx_params['type'] = '0x2'
             else:
                 if self.network.name == 'BNB Chain':
@@ -442,7 +444,7 @@ class Client(Logger):
                     if self.network.name == ['Scroll', 'Optimism']:
                         gas_price = int(gas_price / GAS_PRICE_MULTIPLIER * 1.1)
 
-                    tx_params['gasPrice'] = int(gas_price * GAS_PRICE_MULTIPLIER)
+                    tx_params['gasPrice'] = int(gas_price * 1.2 * GAS_PRICE_MULTIPLIER)
 
             return tx_params
         except Exception as error:

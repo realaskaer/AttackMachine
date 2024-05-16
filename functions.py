@@ -19,6 +19,7 @@ def get_interface_by_chain_id(chain_id):
         3: Base,
         4: Linea,
         8: Scroll,
+        10: PolygonZkEVM,
         11: ZkSync,
         12: Zora,
         13: Ethereum,
@@ -124,6 +125,7 @@ async def bridge_utils(current_client, dapp_id, chain_from_id, bridge_data, need
         6: Owlto,
         7: Relay,
         8: Rhino,
+        9: NativeBridge,
     }[dapp_id]
 
     return await class_bridge(current_client).bridge(chain_from_id, bridge_data, need_check=need_fee)
@@ -167,6 +169,11 @@ async def bridge_relay(account_name, private_key, network, proxy):
 async def bridge_rhino(account_name, private_key, network, proxy):
     worker = Custom(get_client(account_name, private_key, network, proxy))
     return await worker.smart_bridge(dapp_id=8)
+
+
+async def bridge_native(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.smart_bridge(dapp_id=9)
 
 
 async def omnichain_util(
@@ -446,14 +453,6 @@ async def send_message_dmail(account_name, private_key, _, proxy):
     network = get_network_by_chain_id(GLOBAL_NETWORK)
     worker = Dmail(get_client(account_name, private_key, network, proxy))
     return await worker.send_message()
-
-
-async def bridge_native(account_name, private_key, _, proxy, *args, **kwargs):
-    network = get_network_by_chain_id(13)
-    blockchain = get_interface_by_chain_id(GLOBAL_NETWORK)
-
-    worker = blockchain(get_client(account_name, private_key, network, proxy))
-    return await worker.deposit(*args, **kwargs)
 
 
 async def withdraw_native_bridge(account_name, private_key, _, proxy):

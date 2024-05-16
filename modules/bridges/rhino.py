@@ -10,6 +10,7 @@ from modules import Bridge, Logger, Client
 from datetime import datetime, timezone
 
 from modules.interfaces import SoftwareException
+from settings import WAIT_FOR_RECEIPT_BRIDGE
 from utils.tools import sleep
 from eth_account.messages import encode_defunct, encode_structured_data
 from utils.stark_signature.stark_singature import sign, pedersen_hash, EC_ORDER, private_to_stark_key
@@ -392,9 +393,11 @@ class Rhino(Bridge, Logger):
 
         await self.withdraw_from_rhino(rhino_user_config, amount, to_token_name, to_chain)
 
-        return await self.client.wait_for_receiving(
-            to_chain_id, old_balance_on_dst, token_name=to_token_name, token_address=to_token_address
-        )
+        if WAIT_FOR_RECEIPT_BRIDGE:
+            return await self.client.wait_for_receiving(
+                to_chain_id, old_balance_on_dst, token_name=to_token_name, token_address=to_token_address
+            )
+        return True
 
     async def recovery_funds(self):
         from settings import RHINO_CHAIN_ID_TO

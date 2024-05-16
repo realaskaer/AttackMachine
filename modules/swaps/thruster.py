@@ -84,7 +84,7 @@ class Thruster(DEX, Logger, RequestClient):
             fn_name='exactInput',
             args=[(
                 path,
-                self.client.address if to_token_name != 'ETH' else '0x0000000000000000000000000000000000000002',
+                self.client.address if to_token_name != 'ETH' else '0x0000000000000000000000000000000000000000',
                 deadline,
                 amount_in_wei,
                 min_amount_out

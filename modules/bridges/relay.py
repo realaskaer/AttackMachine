@@ -1,6 +1,7 @@
 from config import CHAIN_NAME_FROM_ID, ZERO_ADDRESS
 from modules import Bridge, Logger
 from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry
+from settings import WAIT_FOR_RECEIPT_BRIDGE
 
 
 class Relay(Bridge, Logger):
@@ -56,7 +57,7 @@ class Relay(Bridge, Logger):
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
         from_chain, to_chain, amount, to_chain_id, from_token_name, to_token_name, from_token_address, to_token_address = bridge_data
 
-        supported_chains = [42161, 42170, 8453, 10, 324, 1, 7777777, 34443, 81457]
+        supported_chains = [42161, 42170, 8453, 10, 324, 1, 7777777, 34443, 81457, 534352]
         if from_chain not in supported_chains or to_chain not in supported_chains:
             raise SoftwareExceptionWithoutRetry(
                 f'Bridge from {self.client.network.name} to {CHAIN_NAME_FROM_ID[to_chain]} is not exist')
@@ -100,11 +101,12 @@ class Relay(Bridge, Logger):
                     type_msg='success'
                 )
 
-                return await self.client.wait_for_receiving(
-                    token_address=to_token_address, token_name=to_token_name, old_balance=old_balance_on_dst,
-                    chain_id=to_chain_id
-                )
-
+                if WAIT_FOR_RECEIPT_BRIDGE:
+                    return await self.client.wait_for_receiving(
+                        token_address=to_token_address, token_name=to_token_name, old_balance=old_balance_on_dst,
+                        chain_id=to_chain_id
+                    )
+                return True
             else:
                 raise SoftwareException(f"Limit range for bridge: 0 - {max_amount} ETH")
         else:

@@ -2,7 +2,7 @@ import random
 
 from modules import Refuel, Logger, Client
 from modules.interfaces import SoftwareException, Bridge, BridgeExceptionWithoutRetry
-from settings import DST_CHAIN_BUNGEE_REFUEL, BUNGEE_ROUTE_TYPE
+from settings import DST_CHAIN_BUNGEE_REFUEL, BUNGEE_ROUTE_TYPE, WAIT_FOR_RECEIPT_BRIDGE
 from utils.tools import gas_checker, helper
 from config import (
     BUNGEE_CONTRACTS,
@@ -234,10 +234,12 @@ class Bungee(Refuel, Bridge, Logger):
         self.logger_msg(*self.client.acc_info,
                         msg=f"Bridge complete. Note: wait a little for receiving funds", type_msg='success')
 
-        return await self.client.wait_for_receiving(
-            token_address=to_token_address, token_name=to_token_name, old_balance=old_balance_on_dst,
-            chain_id=to_chain_id
-        )
+        if WAIT_FOR_RECEIPT_BRIDGE:
+            return await self.client.wait_for_receiving(
+                token_address=to_token_address, token_name=to_token_name, old_balance=old_balance_on_dst,
+                chain_id=to_chain_id
+            )
+        return True
 
     @helper
     @gas_checker

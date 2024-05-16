@@ -151,12 +151,15 @@ CEX_BALANCER_CONFIG = [
                                             
 """
 
+WAIT_FOR_RECEIPT_BRIDGE = True  # Если True, будет ждать получения средств во входящей сети после бриджа
+
 '-----------------------------------------------------Native Bridge----------------------------------------------------'
 
 NATIVE_CHAIN_ID_FROM = [3]                 # Исходящая сеть. Применимо только для bridge_zora, остальные из Ethereum
-NATIVE_CHAIN_ID_TO = [12]                  # Входящая сеть.  Применимо только для bridge_zora, остальные в Ethereum
-NATIVE_DEPOSIT_AMOUNT = (0.001, 0.001)     # (минимум, максимум) (% или кол-во)
-NATIVE_WITHDRAW_AMOUNT = (0.0005, 0.0005)  # (минимум, максимум) (% или кол-во)
+NATIVE_CHAIN_ID_TO = [13]                  # Входящая сеть.  Применимо только для bridge_zora, остальные в Ethereum
+NATIVE_BRIDGE_AMOUNT = (0.001, 0.001)      # (минимум, максимум) (% или кол-во)
+NATIVE_TOKEN_NAME = 'ETH'
+NATIVE_AMOUNT_LIMITER = 0, (0, 0)
 
 '--------------------------------------------------------Across--------------------------------------------------------'
 
@@ -201,9 +204,9 @@ ORBITER_AMOUNT_LIMITER = 0, (0, 0)
 
 '--------------------------------------------------------Owlto---------------------------------------------------------'
 
-OWLTO_CHAIN_ID_FROM = [11]                 # Исходящая сеть
-OWLTO_CHAIN_ID_TO = [4]                    # Входящая сеть
-OWLTO_BRIDGE_AMOUNT = (0.002, 0.003)       # (минимум, максимум) (% или кол-во)
+OWLTO_CHAIN_ID_FROM = [1]                 # Исходящая сеть
+OWLTO_CHAIN_ID_TO = [11]                    # Входящая сеть
+OWLTO_BRIDGE_AMOUNT = (0.001, 0.001)       # (минимум, максимум) (% или кол-во)
 OWLTO_TOKEN_NAME = 'ETH'
 OWLTO_AMOUNT_LIMITER = 0, (0, 0)
 
@@ -585,8 +588,7 @@ HELPERS_CONFIG = {
     bridge_orbiter                   # смотри BRIDGE CONTROL
     bridge_relay                     # смотри BRIDGE CONTROL
     bridge_rhino                     # смотри BRIDGE CONTROL
-    bridge_native                    # смотри BRIDGE CONTROL (кол-во из NATIVE_DEPOSIT_AMOUNT) 
-    withdraw_native_bridge           # Вывод в Ethereum из GLOBAL_NETWORK (кол-во из NATIVE_WITHDRAW_AMOUNT).
+    bridge_native                    # смотри BRIDGE CONTROL
     
     rhino_recovery_funds             # вывод средств из Rhino.fi, работает по вашим по настройкам из BRIDGE CONTROL
     
@@ -824,7 +826,6 @@ HELPERS_CONFIG = {
     
 ----------------------------------------------------------ZORA----------------------------------------------------------        
     
-    bridge_zora
     mint_mintfun
     mint_zkstars
     wrap_eth                        

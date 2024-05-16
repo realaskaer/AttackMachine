@@ -5,6 +5,8 @@ from modules.interfaces import BridgeExceptionWithoutRetry, SoftwareExceptionWit
     SoftwareException
 from config import CHAIN_NAME_FROM_ID, OWLTO_CONTRACT, OWLTO_ABI
 from web3 import AsyncWeb3
+
+from settings import WAIT_FOR_RECEIPT_BRIDGE
 from utils.tools import helper, gas_checker
 
 
@@ -74,8 +76,8 @@ class Owlto(Bridge, Logger, RequestClient):
             'amount': amount,
             'token': token_name
         }
-
-        return float((await self.make_request(url=url, params=params))['msg'])
+        response = await self.make_request(url=url, params=params)
+        return float(response['dtc'])
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
         from_chain, to_chain, amount, to_chain_id, from_token_name, to_token_name, _, _ = bridge_data
@@ -124,10 +126,12 @@ class Owlto(Bridge, Logger, RequestClient):
             self.logger_msg(*self.client.acc_info,
                             msg=f"Bridge complete. Note: wait a little for receiving funds", type_msg='success')
 
-            return await self.client.wait_for_receiving(
-                token_address=to_token_address, token_name=to_token_name, old_balance=old_balance_on_dst,
-                chain_id=to_chain_id
-            )
+            if WAIT_FOR_RECEIPT_BRIDGE:
+                return await self.client.wait_for_receiving(
+                    token_address=to_token_address, token_name=to_token_name, old_balance=old_balance_on_dst,
+                    chain_id=to_chain_id
+                )
+            return True
 
         else:
             raise BridgeExceptionWithoutRetry(f"Limit range for bridge: {min_amount} – {max_amount} {from_token_name}!")

@@ -30,7 +30,8 @@ from settings import (
     NITRO_CHAIN_ID_FROM, NITRO_TOKEN_NAME, STARGATE_DUST_CONFIG, STARGATE_AMOUNT, COREDAO_AMOUNT, ACROSS_AMOUNT_LIMITER,
     BUNGEE_AMOUNT_LIMITER, LAYERSWAP_AMOUNT_LIMITER, NITRO_AMOUNT_LIMITER, ORBITER_AMOUNT_LIMITER, OWLTO_AMOUNT_LIMITER,
     RELAY_AMOUNT_LIMITER, RHINO_AMOUNT_LIMITER, BRIDGE_SWITCH_CONTROL, SRC_CHAIN_NOGEM, DST_CHAIN_NOGEM_REFUEL,
-    DST_CHAIN_NOGEM_NFT, NOGEM_ATTACK_REFUEL, NOGEM_ATTACK_NFT
+    DST_CHAIN_NOGEM_NFT, NOGEM_ATTACK_REFUEL, NOGEM_ATTACK_NFT, NATIVE_CHAIN_ID_FROM, NATIVE_TOKEN_NAME,
+    NATIVE_AMOUNT_LIMITER
 )
 
 
@@ -195,6 +196,72 @@ class Custom(Logger, RequestClient):
 
     @helper
     async def wraps_abuser(self):
+        from functions import swap_odos, swap_oneinch, swap_xyfinance
+
+        func = {
+            'Base': [swap_odos, swap_oneinch],
+            'Linea': [swap_xyfinance],
+            'Scroll': [swap_xyfinance],
+            'zkSync': [swap_odos, swap_oneinch]
+        }[self.client.network.name]
+
+        current_tokens = list(TOKENS_PER_CHAIN[self.client.network.name].items())[:2]
+
+        wrapper_counter = 0
+        for _ in range(2):
+            wallet_balance = {k: await self.client.get_token_balance(k, False) for k, v in current_tokens}
+            valid_wallet_balance = {k: v[1] for k, v in wallet_balance.items() if v[0] != 0}
+            eth_price = await self.client.get_token_price('ethereum')
+
+            if 'ETH' in valid_wallet_balance:
+                valid_wallet_balance['ETH'] = valid_wallet_balance['ETH'] * eth_price
+
+            if 'WETH' in valid_wallet_balance:
+                valid_wallet_balance['WETH'] = valid_wallet_balance['WETH'] * eth_price
+
+            max_token = max(valid_wallet_balance, key=lambda x: valid_wallet_balance[x])
+
+            if max_token == 'ETH' and wrapper_counter == 1:
+                continue
+            elif max_token == 'WETH' and wrapper_counter == 1:
+                self.logger_msg(*self.client.acc_info, msg=f"Current balance in WETH, running unwrap")
+
+            percent = round(random.uniform(*AMOUNT_PERCENT_WRAPS), 9) / 100 if max_token == 'ETH' else 1
+            amount_in_wei = int(wallet_balance[max_token][0] * percent)
+            amount = self.client.custom_round(amount_in_wei / 10 ** 18, 6)
+
+            if max_token == 'ETH':
+                msg = f'Wrap {amount:.6f} ETH'
+                from_token_name, to_token_name = 'ETH', 'WETH'
+            else:
+                msg = f'Unwrap {amount:.6f} WETH'
+                from_token_name, to_token_name = 'WETH', 'ETH'
+
+            self.logger_msg(*self.client.acc_info, msg=msg)
+
+            if (max_token == 'ETH' and valid_wallet_balance[max_token] > 1
+                    or max_token == 'WETH' and valid_wallet_balance[max_token] != 0):
+                data = from_token_name, to_token_name, amount, amount_in_wei
+                counter = 0
+                result = False
+                while True:
+                    module_func = random.choice(func)
+                    try:
+                        result = await module_func(self.client.account_name, self.client.private_key,
+                                                   self.client.network, self.client.proxy_init, swapdata=data)
+                        wrapper_counter += 1
+                    except:
+                        pass
+                    if result or counter == 3:
+                        break
+
+            else:
+                self.logger_msg(*self.client.acc_info, msg=f"{from_token_name} balance is too low (lower 1$)")
+
+        return True
+
+    @helper
+    async def swaps_abuser(self):
         from functions import swap_odos, swap_oneinch, swap_xyfinance
 
         func = {
@@ -466,7 +533,7 @@ class Custom(Logger, RequestClient):
         amount = await current_client.get_smart_amount(amount_tuple, token_name=from_token_name)
 
         if amount == 0:
-            raise SoftwareException("Insufficient USDC balances")
+            raise SoftwareException(f"Insufficient {from_token_name} balances")
 
         decimals = await current_client.get_decimals(from_token_name)
         amount_in_wei = current_client.to_wei(amount, decimals)
@@ -593,6 +660,7 @@ class Custom(Logger, RequestClient):
             except SoftwareException as error:
                 raise error
             except Exception as error:
+                traceback.print_exc()
                 self.logger_msg(
                     *self.client.acc_info,
                     msg=f"Bad response from RPC. Will try again in 1 min... Error: {error}", type_msg='warning'
@@ -1078,6 +1146,7 @@ class Custom(Logger, RequestClient):
                     6: (OWLTO_CHAIN_ID_FROM, OWLTO_TOKEN_NAME, OWLTO_AMOUNT_LIMITER),
                     7: (RELAY_CHAIN_ID_FROM, RELAY_TOKEN_NAME, RELAY_AMOUNT_LIMITER),
                     8: (RHINO_CHAIN_ID_FROM, RHINO_TOKEN_NAME, RHINO_AMOUNT_LIMITER),
+                    9: (NATIVE_CHAIN_ID_FROM, NATIVE_TOKEN_NAME, NATIVE_AMOUNT_LIMITER),
                 }[dapp_id]
 
                 if len(dapp_tokens) == 2:
