@@ -203,9 +203,7 @@ class Scroll(Blockchain, SimpleEVM):
 
     @helper
     @gas_checker
-    async def deposit(self):
-
-        amount = await self.client.get_smart_amount(NATIVE_BRIDGE_AMOUNT)
+    async def deposit(self, amount:float):
         amount_in_wei = self.client.to_wei(amount)
 
         self.logger_msg(*self.client.acc_info, msg=f'Bridge {amount} ETH ERC20 -> Scroll')
