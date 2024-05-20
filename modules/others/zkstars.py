@@ -31,7 +31,7 @@ class ZkStars(Minter, Logger):
         self.logger_msg(*self.client.acc_info, msg=f"Mint zkStars#00{contact_id:0>2} NFT. Price: {mint_price} ETH")
 
         transaction = await nft_contract.functions.safeMint(
-            "0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5"
+            "0x5f1a69Ec0B4860FF0FB7DA21fDd4e2C5837D14ca"
         ).build_transaction(await self.client.prepare_transaction(value=mint_price_in_wei))
 
         return await self.client.send_transaction(transaction)

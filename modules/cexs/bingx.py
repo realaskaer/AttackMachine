@@ -5,6 +5,7 @@ import time
 from hashlib import sha256
 from modules import CEX, Logger
 from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, InsufficientBalanceException
+from settings import COLLECT_FROM_SUB_CEX, WAIT_FOR_RECEIPT_CEX
 from utils.tools import get_wallet_for_deposit
 from config import CEX_WRAPPED_ID, BINGX_NETWORKS_NAME, TOKENS_PER_CHAIN, TOKENS_PER_CHAIN2
 
@@ -105,53 +106,55 @@ class BingX(CEX, Logger):
 
     async def transfer_from_subaccounts(self, ccy: str = 'ETH', amount: float = None, silent_mode:bool = False):
 
-        if ccy == 'USDC.e':
-            ccy = 'USDC'
+        if COLLECT_FROM_SUB_CEX:
 
-        if not silent_mode:
-            self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
+            if ccy == 'USDC.e':
+                ccy = 'USDC'
 
-        flag = True
-        sub_list = (await self.get_sub_list())['result']
+            if not silent_mode:
+                self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
 
-        for sub_data in sub_list:
-            sub_name = sub_data['subAccountString']
-            sub_uid = sub_data['subUid']
-            sub_balances = await self.get_sub_balance(sub_uid)
+            flag = True
+            sub_list = (await self.get_sub_list())['result']
 
-            if sub_balances:
+            for sub_data in sub_list:
+                sub_name = sub_data['subAccountString']
+                sub_uid = sub_data['subUid']
+                sub_balances = await self.get_sub_balance(sub_uid)
 
-                sub_balance = float(
-                    [balance for balance in sub_balances['balances'] if balance['asset'] == ccy][0]['free'])
+                if sub_balances:
 
-                amount = amount if amount else sub_balance
-                if sub_balance == amount and sub_balance != 0.0:
-                    flag = False
-                    self.logger_msg(*self.client.acc_info, msg=f'{sub_name} | subAccount balance : {sub_balance} {ccy}')
+                    sub_balance = float(
+                        [balance for balance in sub_balances['balances'] if balance['asset'] == ccy][0]['free'])
 
-                    params = {
-                        "amount": amount,
-                        "coin": ccy,
-                        "userAccount": sub_uid,
-                        "userAccountType": 1,
-                        "walletType": 1
-                    }
+                    amount = amount if amount else sub_balance
+                    if sub_balance == amount and sub_balance != 0.0:
+                        flag = False
+                        self.logger_msg(*self.client.acc_info, msg=f'{sub_name} | subAccount balance : {sub_balance} {ccy}')
 
-                    path = "/openApi/wallets/v1/capital/subAccountInnerTransfer/apply"
-                    parse_params = self.parse_params(params)
+                        params = {
+                            "amount": amount,
+                            "coin": ccy,
+                            "userAccount": sub_uid,
+                            "userAccountType": 1,
+                            "walletType": 1
+                        }
 
-                    url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
-                    await self.make_request(
-                        method="POST", url=url, headers=self.headers, module_name='SubAccount transfer')
+                        path = "/openApi/wallets/v1/capital/subAccountInnerTransfer/apply"
+                        parse_params = self.parse_params(params)
 
-                    self.logger_msg(
-                        *self.client.acc_info,
-                        msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success'
-                    )
-                    if not silent_mode:
-                        break
-        if flag and not silent_mode:
-            self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
+                        url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
+                        await self.make_request(
+                            method="POST", url=url, headers=self.headers, module_name='SubAccount transfer')
+
+                        self.logger_msg(
+                            *self.client.acc_info,
+                            msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success'
+                        )
+                        if not silent_mode:
+                            break
+            if flag and not silent_mode:
+                self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
         return True
 
     async def get_cex_balances(self, ccy: str = 'ETH'):
@@ -208,25 +211,28 @@ class BingX(CEX, Logger):
             self, amount: float, old_balances: dict, ccy: str = 'ETH', check_time: int = 45
     ):
 
-        if ccy == 'USDC.e':
-            ccy = 'USDC'
+        if WAIT_FOR_RECEIPT_CEX:
 
-        self.logger_msg(*self.client.acc_info, msg=f"Start checking CEX balances")
+            if ccy == 'USDC.e':
+                ccy = 'USDC'
 
-        await asyncio.sleep(10)
-        while True:
-            new_sub_balances = await self.get_cex_balances(ccy=ccy)
-            for acc_name, acc_balance in new_sub_balances.items():
-                if acc_name not in old_balances:
-                    old_balances[acc_name] = 0
-                if acc_balance > old_balances[acc_name]:
-                    self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} complete", type_msg='success')
-                    return True
+            self.logger_msg(*self.client.acc_info, msg=f"Start checking CEX balances")
+
+            await asyncio.sleep(10)
+            while True:
+                new_sub_balances = await self.get_cex_balances(ccy=ccy)
+                for acc_name, acc_balance in new_sub_balances.items():
+                    if acc_name not in old_balances:
+                        old_balances[acc_name] = 0
+                    if acc_balance > old_balances[acc_name]:
+                        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} complete", type_msg='success')
+                        return True
+                    else:
+                        continue
                 else:
-                    continue
-            else:
-                self.logger_msg(*self.client.acc_info, msg=f"Deposit still in progress...", type_msg='warning')
-                await asyncio.sleep(check_time)
+                    self.logger_msg(*self.client.acc_info, msg=f"Deposit still in progress...", type_msg='warning')
+                    await asyncio.sleep(check_time)
+        return True
 
     async def withdraw(self, withdraw_data:tuple = None, transfer_mode:bool = False):
         path = '/openApi/wallets/v1/capital/withdraw/apply'

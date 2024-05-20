@@ -111,9 +111,7 @@ class Nogem(Refuel, Minter, Logger):
 
         tx_params = await self.client.prepare_transaction(value=mint_price)
 
-        transaction = await onft_contract.functions.mint(
-            '0x000000a679C2FB345dDEfbaE3c42beE92c0Fb7A5'
-        ).build_transaction(tx_params)
+        transaction = await onft_contract.functions.mint().build_transaction(tx_params)
 
         result = await self.client.send_transaction(transaction)
 

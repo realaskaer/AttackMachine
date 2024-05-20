@@ -7,6 +7,7 @@ from modules import CEX, Logger
 from datetime import datetime, timezone
 
 from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, InsufficientBalanceException
+from settings import COLLECT_FROM_SUB_CEX, WAIT_FOR_RECEIPT_CEX
 from utils.tools import helper, get_wallet_for_deposit
 from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID, TOKENS_PER_CHAIN2
 
@@ -61,7 +62,6 @@ class OKX(CEX, Logger):
 
     @helper
     async def transfer_from_subaccounts(self, ccy:str = 'ETH', amount:float = None, silent_mode:bool = False):
-
         if ccy == 'USDC.e':
             ccy = 'USDC'
 
@@ -118,7 +118,6 @@ class OKX(CEX, Logger):
                     break
         if flag and not silent_mode:
             self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
-        return True
 
     @helper
     async def transfer_from_spot_to_funding(self, ccy:str = 'ETH'):
@@ -204,24 +203,26 @@ class OKX(CEX, Logger):
             self, amount:float, old_sub_balances:dict, ccy:str = 'ETH', check_time:int = 45
     ):
 
-        if ccy == 'USDC.e':
-            ccy = 'USDC'
+        if WAIT_FOR_RECEIPT_CEX:
+            if ccy == 'USDC.e':
+                ccy = 'USDC'
 
-        self.logger_msg(*self.client.acc_info, msg=f"Start checking CEX balances")
+            self.logger_msg(*self.client.acc_info, msg=f"Start checking CEX balances")
 
-        await asyncio.sleep(10)
-        while True:
-            new_sub_balances = await self.get_cex_balances(ccy=ccy)
-            for sub_name, sub_balance in new_sub_balances.items():
+            await asyncio.sleep(10)
+            while True:
+                new_sub_balances = await self.get_cex_balances(ccy=ccy)
+                for sub_name, sub_balance in new_sub_balances.items():
 
-                if sub_balance > old_sub_balances[sub_name]:
-                    self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} complete", type_msg='success')
-                    return True
+                    if sub_balance > old_sub_balances[sub_name]:
+                        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} complete", type_msg='success')
+                        return True
+                    else:
+                        continue
                 else:
-                    continue
-            else:
-                self.logger_msg(*self.client.acc_info, msg=f"Deposit still in progress...", type_msg='warning')
-                await asyncio.sleep(check_time)
+                    self.logger_msg(*self.client.acc_info, msg=f"Deposit still in progress...", type_msg='warning')
+                    await asyncio.sleep(check_time)
+        return True
 
     async def withdraw(self, withdraw_data:tuple = None):
         url = 'https://www.okx.cab/api/v5/asset/withdrawal'
@@ -370,6 +371,8 @@ class OKX(CEX, Logger):
                 continue
 
     async def transfer_from_subs(self, ccy, amount: float = None, silent_mode:bool = False):
-        await self.transfer_from_subaccounts(ccy=ccy, amount=amount, silent_mode=silent_mode)
+        if COLLECT_FROM_SUB_CEX:
+            await self.transfer_from_subaccounts(ccy=ccy, amount=amount, silent_mode=silent_mode)
+            return await self.transfer_from_spot_to_funding(ccy=ccy)
 
-        await self.transfer_from_spot_to_funding(ccy=ccy)
+        return True

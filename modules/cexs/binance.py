@@ -5,6 +5,7 @@ import time
 from hashlib import sha256
 from modules import CEX, Logger
 from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, InsufficientBalanceException
+from settings import WAIT_FOR_RECEIPT_CEX, COLLECT_FROM_SUB_CEX
 from utils.tools import get_wallet_for_deposit
 from config import BINANCE_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID, TOKENS_PER_CHAIN2
 
@@ -92,67 +93,69 @@ class Binance(CEX, Logger):
                                        module_name='Get main account balance')
 
     async def transfer_from_subaccounts(self, ccy: str = 'ETH', amount: float = None, silent_mode:bool = False):
-        if ccy == 'USDC.e':
-            ccy = 'USDC'
+        if COLLECT_FROM_SUB_CEX:
 
-        if not silent_mode:
-            self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
+            if ccy == 'USDC.e':
+                ccy = 'USDC'
 
-        flag = True
-        sub_list = (await self.get_sub_list())['subAccounts']
+            if not silent_mode:
+                self.logger_msg(*self.client.acc_info, msg=f'Checking subAccounts balance')
 
-        for sub_data in sub_list:
-            sub_email = sub_data['email']
+            flag = True
+            sub_list = (await self.get_sub_list())['subAccounts']
 
-            sub_balances = await self.get_sub_balance(sub_email)
-            asset_balances = [balance for balance in sub_balances['balances'] if balance['asset'] == ccy]
-            sub_balance = 0.0 if len(asset_balances) == 0 else float(asset_balances[0]['free'])
+            for sub_data in sub_list:
+                sub_email = sub_data['email']
 
-            amount = amount if amount else sub_balance
-            if sub_balance == amount and sub_balance != 0.0:
-                flag = False
-                self.logger_msg(*self.client.acc_info, msg=f'{sub_email} | subAccount balance : {sub_balance} {ccy}')
+                sub_balances = await self.get_sub_balance(sub_email)
+                asset_balances = [balance for balance in sub_balances['balances'] if balance['asset'] == ccy]
+                sub_balance = 0.0 if len(asset_balances) == 0 else float(asset_balances[0]['free'])
 
-                params = {
-                    "amount": amount,
-                    "asset": ccy,
-                    "fromAccountType": "SPOT",
-                    "toAccountType": "SPOT",
-                    "fromEmail": sub_email
-                }
+                amount = amount if amount else sub_balance
+                if sub_balance == amount and sub_balance != 0.0:
+                    flag = False
+                    self.logger_msg(*self.client.acc_info, msg=f'{sub_email} | subAccount balance : {sub_balance} {ccy}')
 
-                path = "/sapi/v1/sub-account/universalTransfer"
+                    params = {
+                        "amount": amount,
+                        "asset": ccy,
+                        "fromAccountType": "SPOT",
+                        "toAccountType": "SPOT",
+                        "fromEmail": sub_email
+                    }
 
-                while True:
-                    try:
-                        parse_params = self.parse_params(params)
-                        url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
-                        await self.make_request(
-                            method="POST", url=url, headers=self.headers, module_name='SubAccount transfer'
-                        )
+                    path = "/sapi/v1/sub-account/universalTransfer"
 
-                        break
-                    except Exception as error:
-                        if 'not reached the required block confirmations' in str(error) or '-9000' in str(error):
-                            self.logger_msg(
-                                *self.client.acc_info,
-                                msg=f"Deposit not reached the required block confirmations. Will try again in 1 min...",
-                                type_msg='warning'
+                    while True:
+                        try:
+                            parse_params = self.parse_params(params)
+                            url = f"{self.api_url}{path}?{parse_params}&signature={self.get_sign(parse_params)}"
+                            await self.make_request(
+                                method="POST", url=url, headers=self.headers, module_name='SubAccount transfer'
                             )
-                            await asyncio.sleep(60)
-                        elif '-8012 Msg' in str(error):
-                            return True
-                        else:
-                            raise error
 
-                self.logger_msg(
-                    *self.client.acc_info, msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success'
-                )
-                if not silent_mode:
-                    break
+                            break
+                        except Exception as error:
+                            if 'not reached the required block confirmations' in str(error) or '-9000' in str(error):
+                                self.logger_msg(
+                                    *self.client.acc_info,
+                                    msg=f"Deposit not reached the required block confirmations. Will try again in 1 min...",
+                                    type_msg='warning'
+                                )
+                                await asyncio.sleep(60)
+                            elif '-8012 Msg' in str(error):
+                                return True
+                            else:
+                                raise error
 
-        if flag and not silent_mode:
-            self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
+                    self.logger_msg(
+                        *self.client.acc_info, msg=f"Transfer {amount} {ccy} to main account complete", type_msg='success'
+                    )
+                    if not silent_mode:
+                        break
+
+            if flag and not silent_mode:
+                self.logger_msg(*self.client.acc_info, msg=f'subAccounts balance: 0 {ccy}', type_msg='warning')
         return True
 
     async def get_cex_balances(self, ccy: str = 'ETH'):
@@ -189,24 +192,26 @@ class Binance(CEX, Logger):
     async def wait_deposit_confirmation(
             self, amount: float, old_balances: dict, ccy: str = 'ETH', check_time: int = 45
     ):
+        if WAIT_FOR_RECEIPT_CEX:
 
-        if ccy == 'USDC.e':
-            ccy = 'USDC'
+            if ccy == 'USDC.e':
+                ccy = 'USDC'
 
-        self.logger_msg(*self.client.acc_info, msg=f"Start checking CEX balances")
+            self.logger_msg(*self.client.acc_info, msg=f"Start checking CEX balances")
 
-        await asyncio.sleep(10)
-        while True:
-            new_sub_balances = await self.get_cex_balances(ccy=ccy)
-            for acc_name, acc_balance in new_sub_balances.items():
-                if acc_balance > old_balances[acc_name]:
-                    self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} complete", type_msg='success')
-                    return True
+            await asyncio.sleep(10)
+            while True:
+                new_sub_balances = await self.get_cex_balances(ccy=ccy)
+                for acc_name, acc_balance in new_sub_balances.items():
+                    if acc_balance > old_balances[acc_name]:
+                        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} complete", type_msg='success')
+                        return True
+                    else:
+                        continue
                 else:
-                    continue
-            else:
-                self.logger_msg(*self.client.acc_info, msg=f"Deposit still in progress...", type_msg='warning')
-                await asyncio.sleep(check_time)
+                    self.logger_msg(*self.client.acc_info, msg=f"Deposit still in progress...", type_msg='warning')
+                    await asyncio.sleep(check_time)
+        return True
 
     async def withdraw(self, withdraw_data:tuple = None, transfer_mode:bool = False):
         path = '/sapi/v1/capital/withdraw/apply'
