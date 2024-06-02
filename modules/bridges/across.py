@@ -88,7 +88,7 @@ class Across(Bridge, Logger):
                     2**256-1
                 ]
 
-                if from_chain in [324, 137, 59144]:
+                if from_chain in [324, 137, 59144] or from_token_name == 'USDT':
                     router_contract = self.client.get_contract(contract_address=pool_adress, abi=ACROSS_ABI['pool'])
                 else:
                     data.insert(0, pool_adress)

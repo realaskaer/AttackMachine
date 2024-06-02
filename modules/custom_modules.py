@@ -53,7 +53,7 @@ class Custom(Logger, RequestClient):
             'Blast': [swap_bladeswap],
             'Linea': [swap_izumi, swap_syncswap],
             'Scroll': [swap_izumi, swap_ambient],
-            'zkSync': [swap_izumi, swap_syncswap, swap_odos, swap_oneinch]
+            'zkSync': [swap_izumi, swap_syncswap, swap_oneinch]
         }[self.client.network.name]
 
         wallet_balance = {k: await self.client.get_token_balance(k, False)
