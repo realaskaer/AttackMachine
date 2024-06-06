@@ -215,7 +215,7 @@ def helper(func):
                 ) as err:
                     error = err
                     attempts += 1
-
+                    # traceback.print_exc()
                     msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
 
                     if isinstance(error, KeyError):
@@ -236,6 +236,7 @@ def helper(func):
                             msg=f"Connection to RPC is not stable. Will try again in 1 min...",
                             type_msg='warning'
                         )
+                        await self.client.change_rpc()
                         await asyncio.sleep(60)
                         attempts -= 1
                         no_sleep_flag = True
