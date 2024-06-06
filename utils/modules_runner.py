@@ -284,9 +284,11 @@ class Runner(Logger):
 
             while current_step < len(route_modules):
                 module_counter += 1
+                module_helper_type = False
                 module_name = route_modules[current_step][0]
                 network = get_network_by_chain_id(int(route_modules[current_step][1]))
-                module_helper_type = route_modules[current_step][1]
+                if len(route_modules[current_step]) == 3:
+                    module_helper_type = route_modules[current_step][3]
                 module_func = get_func_by_name(module_name)
                 module_name_tg = AVAILABLE_MODULES_INFO[module_func][2]
 
@@ -350,7 +352,7 @@ class Runner(Logger):
 
                         info = f"Adding new module in route. Module name: {module_for_help[2]}"
                         self.logger_msg(account_name, None, info, 'warning')
-                        route_modules.append([module_for_help[0].__name__, 1])
+                        route_modules.append([module_for_help[0].__name__, GLOBAL_NETWORK, 1])
                     elif BREAK_ROUTE:
                         message_list.extend([f'❌   {module_name_tg}\n', f'💀   The route was stopped!\n'])
                         if GLOBAL_NETWORK == 0:

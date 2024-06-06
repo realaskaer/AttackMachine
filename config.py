@@ -671,6 +671,30 @@ ZKSTARS_CONTRACTS = {
     }
 }
 
+WOOFI_CONTRACTS = {
+    'zkSync':{
+        "router"                : '0x09873bfECA34F1Acd0a7e55cDA591f05d8a75369'
+    },
+    'Linea':{
+        "router"                : '0x4c4AF8DBc524681930a27b2F1Af5bcC8062E6fB7'
+    },
+    'Base':{
+        "router"                : '0x4c4AF8DBc524681930a27b2F1Af5bcC8062E6fB7'
+    },
+    'Polygon':{
+        "router"                : '0x817Eb46D60762442Da3D931Ff51a30334CA39B74'
+    },
+    'Arbitrum':{
+        "router"                : '0x4c4AF8DBc524681930a27b2F1Af5bcC8062E6fB7'
+    },
+    'Optimism':{
+        "router"                : '0x4c4AF8DBc524681930a27b2F1Af5bcC8062E6fB7'
+    },
+    'Polygon zkEVM':{
+        "router"                : '0x39d361E66798155813b907A70D6c2e3FdaFB0877'
+    }
+}
+
 
 PANCAKE_CONTRACTS = {
     'zkSync':{
@@ -690,24 +714,6 @@ PANCAKE_CONTRACTS = {
 ZKFAIR_CONTRACTS = {
     'zkf_token': '0x1cD3E2A23C45A690a18Ed93FD1412543f464158F',
     'stake': '0x60139888fbF90f9eACC0fc6956fE1FF221548e97'
-}
-
-WOOFI_CONTRACTS = {
-    'zkSync':{
-        "router"                : '0xfd505702b37Ae9b626952Eb2DD736d9045876417'
-    },
-    'Linea':{
-        "router"                : '0x39d361E66798155813b907A70D6c2e3FdaFB0877'
-    },
-    'Base':{
-        "router"                : '0x27425e9FB6A9A625E8484CFD9620851D1Fa322E5'
-    },
-    'Polygon':{
-        "router"                : '0x817Eb46D60762442Da3D931Ff51a30334CA39B74'
-    },
-    'Polygon zkEVM':{
-        "router"                : '0x39d361E66798155813b907A70D6c2e3FdaFB0877'
-    }
 }
 
 VELOCORE_CONTRACTS = {
