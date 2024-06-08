@@ -49,6 +49,8 @@ class Custom(Logger, RequestClient):
         self.logger_msg(*self.client.acc_info, msg=f"Started collecting tokens in ETH")
 
         func = {
+            'Arbitrum': [swap_odos, swap_oneinch],
+            'Optimism': [swap_odos, swap_oneinch],
             'Base': [swap_izumi, swap_odos, swap_oneinch],
             'Blast': [swap_bladeswap],
             'Linea': [swap_izumi, swap_syncswap],
