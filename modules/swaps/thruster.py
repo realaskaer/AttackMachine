@@ -41,6 +41,7 @@ class Thruster(DEX, Logger, RequestClient):
             "sec-fetch-mode": "cors",
             "sec-fetch-site": "cross-site",
             "referrer": "https://app.thruster.finance/",
+            "x-api-key": "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MTc5MjM3OTMsImV4cCI6MTcxODAxMDE5M30.4rhaZPUZtE265IguCHiBDScckY9EceLAMhM7NvJIeSs",
             "referrerPolicy": "strict-origin-when-cross-origin",
             "method": "GET",
             "mode": "cors",
