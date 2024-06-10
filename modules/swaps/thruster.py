@@ -52,7 +52,7 @@ class Thruster(DEX, Logger, RequestClient):
          'amount': amount_in_wei,
          'tokenIn': token_in.lower(),
          'tokenOut': token_out.lower(),
-         'type': 'EXACT_INPUT',
+         'type': 'EXACT_A',
          'chainId': self.client.chain_id
         }
 
