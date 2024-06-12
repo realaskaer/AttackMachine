@@ -32,31 +32,34 @@ class Thruster(DEX, Logger, RequestClient):
     @staticmethod
     def create_api_token():
         payload = {
-            'iat': int(time.time()),
-            'exp': int(time.time()) + 86400
+            'iat': int(time.time() * 1000),
+            'exp': int(time.time() * 1000) + 86400
         }
         secret = "xTvCUmYa2LxZGpO2btvtd7YfbEqAwWsB8Ch18zRpVNQ="
         token = jwt.encode(payload, secret, algorithm='HS256')
         return token
 
     async def get_min_amount_out(self, amount_in_wei, token_in, token_out):
-        url = f"https://api.thruster.finance/quote"
+        url = "https://api.thruster.finance/quote"
 
         headers = {
             "accept": "*/*",
             "accept-language": "ru,en;q=0.9,en-GB;q=0.8,en-US;q=0.7",
-            "sec-ch-ua": "\"Chromium\";v=\"122\", \"Not(A:Brand\";v=\"24\", \"Microsoft Edge\";v=\"122\"",
+            "if-none-match": "W/\"834-SMgVmVfhHyqCFIW+tNUDHf5wo8A\"",
+            "priority": "u=1, i",
+            "sec-ch-ua": "\"Microsoft Edge\";v=\"123\", \"Chromium\";v=\"123\", \"Not.A/Brand\";v=\"23\"",
             "sec-ch-ua-mobile": "?0",
             "sec-ch-ua-platform": "\"Windows\"",
             "sec-fetch-dest": "empty",
             "sec-fetch-mode": "cors",
-            "sec-fetch-site": "cross-site",
+            "sec-fetch-site": "same-site",
+            "x-api-key": f"{self.create_api_token()}",
             "referrer": "https://app.thruster.finance/",
             "referrerPolicy": "strict-origin-when-cross-origin",
+            "body": "null",
             "method": "GET",
             "mode": "cors",
-            "credentials": "omit",
-            "X-Api-Key:": f"{self.create_api_token()}"
+            "credentials": "omit"
         }
 
         params = {
