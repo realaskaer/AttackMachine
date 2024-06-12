@@ -1,7 +1,8 @@
 import time
+import jwt
 
 from modules import DEX, Logger, RequestClient
-from utils.tools import helper
+from utils.tools import helper, gas_checker
 from general_settings import SLIPPAGE
 from hexbytes import HexBytes
 from config import (
@@ -28,6 +29,16 @@ class Thruster(DEX, Logger, RequestClient):
 
         return from_token_bytes + fee_bytes + to_token_bytes
 
+    @staticmethod
+    def create_api_token():
+        payload = {
+            'iat': int(time.time()),
+            'exp': int(time.time()) + 86400
+        }
+        secret = "xTvCUmYa2LxZGpO2btvtd7YfbEqAwWsB8Ch18zRpVNQ="
+        token = jwt.encode(payload, secret, algorithm='HS256')
+        return token
+
     async def get_min_amount_out(self, amount_in_wei, token_in, token_out):
         url = f"https://api.thruster.finance/quote"
 
@@ -41,19 +52,19 @@ class Thruster(DEX, Logger, RequestClient):
             "sec-fetch-mode": "cors",
             "sec-fetch-site": "cross-site",
             "referrer": "https://app.thruster.finance/",
-            "x-api-key": "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MTc5MjM3OTMsImV4cCI6MTcxODAxMDE5M30.4rhaZPUZtE265IguCHiBDScckY9EceLAMhM7NvJIeSs",
             "referrerPolicy": "strict-origin-when-cross-origin",
             "method": "GET",
             "mode": "cors",
-            "credentials": "omit"
+            "credentials": "omit",
+            "X-Api-Key:": f"{self.create_api_token()}"
         }
 
         params = {
-         'amount': amount_in_wei,
-         'tokenIn': token_in.lower(),
-         'tokenOut': token_out.lower(),
-         'type': 'EXACT_A',
-         'chainId': self.client.chain_id
+            'amount': amount_in_wei,
+            'tokenIn': token_in.lower(),
+            'tokenOut': token_out.lower(),
+            'type': 'EXACT_A',
+            'chainId': self.client.chain_id
         }
 
         response = await self.make_request(method="GET", url=url, params=params, headers=headers)
@@ -61,6 +72,7 @@ class Thruster(DEX, Logger, RequestClient):
         return int(min_amount_out - (min_amount_out / 100 * SLIPPAGE))
 
     @helper
+    @gas_checker
     async def swap(self, swapdata: tuple = None):
         if not swapdata:
             from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount()
