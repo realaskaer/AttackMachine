@@ -3315,7 +3315,7 @@ BITGET_NETWORKS_NAME = {
     3                       : "ETH-Optimism",
     4                       : "ETH-zkSyncEra",
     # 5                     : "ETH-LINEA",
-    # 6                     : "ETH-BASE",
+    6                       : "ETH-BASE",
     7                       : 'AVAX-C-Chain',
     8                       : 'BNB-BEP20',
     # 9                     : 'BNB-OPBNB',
