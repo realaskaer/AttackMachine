@@ -8,6 +8,7 @@ from modules import CEX, Logger
 from datetime import datetime, timezone
 
 from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException, InsufficientBalanceException
+from settings import COLLECT_FROM_SUB_CEX, WAIT_FOR_RECEIPT_CEX
 from utils.tools import helper, get_wallet_for_deposit
 from config import OKX_NETWORKS_NAME, TOKENS_PER_CHAIN, CEX_WRAPPED_ID, TOKENS_PER_CHAIN2
 
@@ -226,6 +227,8 @@ class OKX(CEX, Logger):
     async def wait_deposit_confirmation(
             self, amount: float, old_sub_balances: dict, ccy: str = 'ETH', check_time: int = 45,
     ):
+        if not WAIT_FOR_RECEIPT_CEX:
+            return True
 
         if ccy == 'USDC.e':
             ccy = 'USDC'
@@ -400,8 +403,9 @@ class OKX(CEX, Logger):
                 continue
 
     async def transfer_from_subs(self, ccy, amount: float = None, silent_mode: bool = False):
-        await self.transfer_from_subaccounts(ccy=ccy, amount=amount, silent_mode=silent_mode)
+        if COLLECT_FROM_SUB_CEX:
+            await self.transfer_from_subaccounts(ccy=ccy, amount=amount, silent_mode=silent_mode)
 
-        await self.transfer_from_spot_to_funding(ccy=ccy)
+            await self.transfer_from_spot_to_funding(ccy=ccy)
 
         return True
