@@ -201,25 +201,13 @@ class RouteGenerator(Logger):
     def classic_generate_route():
         route = []
         rpc = GLOBAL_NETWORK
-        deposit_modules = [
-            'deposit_basilisk',
-            'deposit_eralend',
-            'deposit_reactorfusion',
-            'deposit_zerolend',
-            'deposit_usdb_zerolend',
-            'deposit_layerbank',
-            'deposit_rocketsam',
-            'deposit_moonwell',
-            'deposit_seamless',
-            'deposit_usdbc_seamless',
-            'deposit_abracadabra',
-        ]
+
+        copy_route = copy.deepcopy(CLASSIC_ROUTES_MODULES_USING)
 
         if SHUFFLE_ROUTE:
-            copy_route = copy.deepcopy(CLASSIC_ROUTES_MODULES_USING)
             random.shuffle(copy_route)
 
-        for i in CLASSIC_ROUTES_MODULES_USING:
+        for i in copy_route:
             module_name = random.choice(i)
             if module_name is None:
                 continue
@@ -231,10 +219,6 @@ class RouteGenerator(Logger):
                 route.append(f"{module.__name__} {rpc}")
             else:
                 raise SoftwareException(f'There is no module with the name "{module_name}" in the software.')
-            if CLASSIC_WITHDRAW_DEPENDENCIES and module_name in deposit_modules:
-                withdraw_module_name = module_name.replace('deposit', 'withdraw')
-                withdraw_module = get_func_by_name(withdraw_module_name)
-                route.append(f"{withdraw_module.__name__} {rpc}")
         return route
 
     def get_account_name_list(self):
@@ -492,6 +476,7 @@ class RouteGenerator(Logger):
             'okx_withdraw': 0,
             'bingx_withdraw': 0,
             'binance_withdraw': 0,
+            'bitget_withdraw': 0,
             'make_balance_to_average': 1,
             'bridge_rhino': 1,
             'bridge_layerswap': 1,
@@ -506,6 +491,7 @@ class RouteGenerator(Logger):
             'okx_deposit': 4,
             'bingx_deposit': 4,
             'binance_deposit': 4,
+            'bitget_deposit': 4,
             'okx_deposit_l0': 4,
         }
 
@@ -521,7 +507,34 @@ class RouteGenerator(Logger):
         classic_route.extend(new_route)
         route_with_priority = [module[0] for module in sorted(classic_route, key=lambda x: x[1])]
 
-        return route_with_priority
+        deposit_modules = [
+            'deposit_basilisk',
+            'deposit_eralend',
+            'deposit_reactorfusion',
+            'deposit_zerolend',
+            'deposit_usdb_zerolend',
+            'deposit_layerbank',
+            'deposit_rocketsam',
+            'deposit_moonwell',
+            'deposit_seamless',
+            'deposit_usdbc_seamless',
+            'deposit_abracadabra',
+        ]
+
+        if CLASSIC_WITHDRAW_DEPENDENCIES:
+            new_route_with_dep = []
+            for module_info in route_with_priority:
+                module_name, rpc = module_info.split(" ")
+                new_route_with_dep.append(module_info)
+
+                if module_name in deposit_modules:
+                    withdraw_module_name = module_name.replace('deposit', 'withdraw')
+                    withdraw_module = get_func_by_name(withdraw_module_name)
+                    new_route_with_dep.append(f"{withdraw_module.__name__} {rpc}")
+        else:
+            new_route_with_dep = route_with_priority
+
+        return new_route_with_dep
 
     def classic_routes_json_save(self):
         clean_progress_file()
