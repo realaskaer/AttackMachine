@@ -1,6 +1,8 @@
 import asyncio
+import copy
 import os
 import json
+import random
 
 from utils.tools import clean_progress_file
 from functions import *
@@ -212,6 +214,10 @@ class RouteGenerator(Logger):
             'deposit_usdbc_seamless',
             'deposit_abracadabra',
         ]
+
+        if SHUFFLE_ROUTE:
+            copy_route = copy.deepcopy(CLASSIC_ROUTES_MODULES_USING)
+            random.shuffle(copy_route)
 
         for i in CLASSIC_ROUTES_MODULES_USING:
             module_name = random.choice(i)
