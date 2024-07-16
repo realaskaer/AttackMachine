@@ -197,7 +197,7 @@ def helper(func):
     async def wrapper(self, *args, **kwargs):
         from modules.interfaces import (
             PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
-            BlockchainExceptionWithoutRetry, CriticalException
+            BlockchainExceptionWithoutRetry, CriticalException, SoftwareExceptionHandled
         )
 
         attempts = 0
@@ -211,7 +211,8 @@ def helper(func):
                 except (
                         PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
                         BlockchainExceptionWithoutRetry, ValueError, ContractLogicError, ClientProxyConnectionError,
-                        TimeoutError, ClientHttpProxyError, ProxyError, ClientResponseError, CriticalException, KeyError
+                        TimeoutError, ClientHttpProxyError, ProxyError, ClientResponseError, CriticalException,
+                        KeyError, SoftwareExceptionHandled
                 ) as err:
                     error = err
                     attempts += 1
@@ -226,6 +227,10 @@ def helper(func):
                         msg = f'Rate limit exceeded. Will try again in 5 min...'
                         await asyncio.sleep(300)
                         no_sleep_flag = True
+
+                    elif isinstance(error, SoftwareExceptionHandled):
+                        self.logger_msg(*self.client.acc_info, msg=f"{error}", type_msg='warning')
+                        return True
 
                     elif isinstance(error, (
                             ClientProxyConnectionError, TimeoutError, ClientHttpProxyError, ProxyError,

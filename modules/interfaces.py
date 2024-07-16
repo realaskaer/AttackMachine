@@ -24,6 +24,10 @@ class PriceImpactException(Exception):
     pass
 
 
+class SoftwareExceptionHandled(Exception):
+    pass
+
+
 class BlockchainException(Exception):
     pass
 

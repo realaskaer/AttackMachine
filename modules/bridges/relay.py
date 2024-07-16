@@ -36,23 +36,40 @@ class Relay(Bridge, Logger):
         return await self.make_request(url=url, headers=headers, params=params)
 
     async def get_bridge_data(self, dest_chain_id, amount_in_wei):
-        url = f"https://api.relay.link/execute/call"
+        url = f"https://api.relay.link/execute/swap"
+
+        headers = {
+            "accept": "application/json, text/plain, */*",
+            "accept-language": "ru,en-US;q=0.9,en;q=0.8,ru-RU;q=0.7",
+            "content-type": "application/json",
+            "priority": "u=1, i",
+            "sec-ch-ua": "\"Not/A)Brand\";v=\"8\", \"Chromium\";v=\"123\", \"Google Chrome\";v=\"123\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"macOS\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-site",
+            "referrer": "https://relay.link/",
+            "referrerPolicy": "strict-origin-when-cross-origin",
+            "method": "POST",
+            "mode": "cors",
+            "credentials": "omit"
+        }
 
         payload = {
             "user": self.client.address,
-            "txs": [
-                {
-                    "to": self.client.address,
-                    "value": amount_in_wei,
-                    "data": "0x"
-                }
-            ],
-            "originChainId": self.client.network.chain_id,
+            "originChainId": self.client.chain_id,
             "destinationChainId": dest_chain_id,
-            "source": "relay.link"
+            "originCurrency": "0x0000000000000000000000000000000000000000",
+            "destinationCurrency": "0x0000000000000000000000000000000000000000",
+            "recipient": self.client.address,
+            "tradeType": "EXACT_INPUT",
+            "amount": amount_in_wei,
+            "source": "relay.link/swap",
+            "useExternalLiquidity": "false"
         }
 
-        return await self.make_request(method='POST', url=url, json=payload)
+        return await self.make_request(method='POST', url=url, headers=headers, json=payload)
 
     async def bridge(self, chain_from_id: int, bridge_data: tuple, need_check: bool = False):
         from_chain, to_chain, amount, to_chain_id, from_token_name, to_token_name, from_token_address, to_token_address = bridge_data
@@ -75,8 +92,10 @@ class Relay(Bridge, Logger):
         tx_data = await self.get_bridge_data(dest_chain_id=to_chain, amount_in_wei=amount_in_wei)
 
         if need_check:
-            fee = int(int(tx_data['fees']['gas']))
-            return round(float(fee / 10 ** decimals), 6)
+            total_fee = 0
+            for _, fee_info in tx_data['fees'].items():
+                total_fee += int(fee_info['amount'])
+            return round(float(total_fee / 10 ** decimals), 6)
 
         if networks_data['enabled']:
 

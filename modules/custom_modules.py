@@ -7,7 +7,8 @@ import python_socks
 
 from modules import Logger, RequestClient, Client
 from general_settings import AMOUNT_PERCENT_WRAPS, VOLUME_MODE
-from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry, CriticalException
+from modules.interfaces import SoftwareException, SoftwareExceptionWithoutRetry, CriticalException, \
+    SoftwareExceptionHandled
 from utils.tools import helper, gas_checker, sleep
 from config import (
     TOKENS_PER_CHAIN, OMNICHAIN_WRAPED_NETWORKS, OMNICHAIN_NETWORKS_DATA,
@@ -1049,9 +1050,10 @@ class Custom(Logger, RequestClient):
 
                     networks, amount, limit_amount, wanted_to_hold_amount = current_data
                     if (not isinstance(networks, (int, tuple)) or not isinstance(amount, tuple)
-                            or not isinstance(limit_amount, (int, float)) or not isinstance(wanted_to_hold_amount, tuple)):
+                            or not isinstance(limit_amount, (int, float)) or not isinstance(wanted_to_hold_amount,
+                                                                                            tuple)):
                         raise CriticalException(
-                            'Software only support [0 or (0, 0), (0, 0), 0, (1, 1)] deposit format. See CEX CONTROL'
+                            'Software only support [1, (1, 1), 0, (1, 1)] deposit format. See CEX CONTROL'
                         )
 
                     if isinstance(networks, tuple):
@@ -1062,11 +1064,22 @@ class Custom(Logger, RequestClient):
                         dapp_tokens = [f"{cex_config[networks].split('-')[0]}{'.e' if networks in [29, 30] else ''}"]
                         dapp_chains = [CEX_WRAPPED_ID[networks]]
 
-                    client, chain_index, balance, _, balance_data = await self.balance_searcher(
-                        chains=dapp_chains, tokens=dapp_tokens, omni_check=False,
-                    )
+                    try:
+                        client, chain_index, balance, _, balance_data = await self.balance_searcher(
+                            chains=dapp_chains, tokens=dapp_tokens, omni_check=False
+                        )
+                    except Exception as error:
+                        if 'Insufficient balances in all networks!' in str(error):
+                            break
+                        else:
+                            raise error
 
                     balance_in_usd, token_price = balance_data
+
+                    if balance_in_usd == 0:
+                        self.logger_msg(*self.client.acc_info, msg=f'Can`t deposit ZERO amount', type_msg='warning')
+                        break
+
                     dep_token = dapp_tokens[chain_index]
                     omnicheck = True if dep_token in ['USDV', 'STG', 'MAV', 'CORE'] else False
 
@@ -1076,7 +1089,7 @@ class Custom(Logger, RequestClient):
                     if balance_in_usd >= limit_amount:
 
                         dep_amount = await client.get_smart_amount(amount, token_name=dep_token, omnicheck=omnicheck)
-                        deposit_fee = await client.simulate_transfer(token_name=dep_token, omnicheck=omnicheck)
+                        deposit_fee = int(await client.simulate_transfer(token_name=dep_token, omnicheck=omnicheck) * 2)
                         min_hold_balance = random.uniform(min_wanted_amount, max_wanted_amount) / token_price
 
                         if dep_token == client.token and balance < dep_amount + deposit_fee:
@@ -1109,21 +1122,15 @@ class Custom(Logger, RequestClient):
                                 break
 
                         info = f"{balance_in_usd:.2f}$ < {dep_amount_in_usd:.2f}$"
-                        raise CriticalException(f'Account {dep_token} balance < wanted deposit amount: {info}')
+                        raise SoftwareExceptionHandled(f'Account {dep_token} balance < wanted deposit amount: {info}')
 
                     info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
-                    raise CriticalException(f'Account {dep_token} balance < wanted limit amount: {info}')
+                    raise SoftwareExceptionHandled(f'Account {dep_token} balance < wanted limit amount: {info}')
 
                 except CriticalException as error:
                     raise error
                 except Exception as error:
-                    if VOLUME_MODE:
-                        self.logger_msg(self.client.account_name, None, msg=f'{error}', type_msg='error')
-                        msg = f"Software cannot continue, awaiting operator's action. Will try again in 1 min..."
-                        self.logger_msg(self.client.account_name, None, msg=msg, type_msg='warning')
-                        await asyncio.sleep(60)
-                    else:
-                        raise error
+                    raise error
                 finally:
                     if client:
                         await client.session.close()
@@ -1180,7 +1187,6 @@ class Custom(Logger, RequestClient):
                     if not to_token_addr:
                         to_token_addr = TOKENS_PER_CHAIN[to_chain_name]['USDC']
                 else:
-
                     to_token_addr = TOKENS_PER_CHAIN[to_chain_name][to_token_name]
 
                 balance_in_usd, token_price = balance_data
@@ -1216,29 +1222,22 @@ class Custom(Logger, RequestClient):
                             return await bridge_utils(client, switch_id, chain_from_id, bridge_data)
 
                         info = f"{balance_in_usd:.2f}$ < {bridge_amount_in_usd:.2f}$"
-                        raise CriticalException(f'Account {token_name} balance < wanted bridge amount: {info}')
+                        raise SoftwareExceptionHandled(f'Account {token_name} balance < wanted bridge amount: {info}')
 
                     full_need_amount = self.client.custom_round(bridge_fee + min_hold_balance, 6)
                     info = f"{balance:.2f} {token_name} < {full_need_amount:.2f} {token_name}"
-                    raise CriticalException(f'Account {token_name} balance < bridge fee + hold amount: {info}')
+                    raise SoftwareExceptionHandled(f'Account {token_name} balance < bridge fee + hold amount: {info}')
 
                 info = f"{balance_in_usd:.2f}$ < {limit_amount:.2f}$"
-                raise CriticalException(f'Account {token_name} balance < wanted limit amount: {info}')
+                raise SoftwareExceptionHandled(f'Account {token_name} balance < wanted limit amount: {info}')
 
             except CriticalException as error:
                 raise error
             except Exception as error:
-                if VOLUME_MODE:
-                    self.logger_msg(self.client.account_name, None, msg=f'{error}', type_msg='error')
-                    msg = f"Software cannot continue, awaiting operator's action. Will try again in 1 min..."
-                    traceback.print_exc()
-
-                    self.logger_msg(self.client.account_name, None, msg=msg, type_msg='warning')
-                    await asyncio.sleep(60)
-                else:
-                    raise error
+                raise error
             finally:
                 if client:
                     await client.session.close()
                 if fee_client:
                     await fee_client.session.close()
+
