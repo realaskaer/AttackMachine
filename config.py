@@ -1508,7 +1508,7 @@ MYSWAP_CONTRACT = {
 
 LAYERBANK_CONTRACTS = {
     'Linea':{
-        'landing'               : '0x009a0b7C38B542208936F1179151CD08E2943833',
+        'landing'               : '0x43Eac5BFEa14531B8DE0B334E123eA98325de866',
         'pool'                  : '0xc7D8489DaE3D2EbEF075b1dB2257E2c231C9D231'
     },
     'Scroll':{
