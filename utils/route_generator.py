@@ -471,41 +471,44 @@ class RouteGenerator(Logger):
         self.smart_routes_json_save(account_name, smart_route_with_priority)
 
     @staticmethod
-    def sort_classic_route(route):
-        modules_dependents = {
-            'okx_withdraw': 0,
-            'bingx_withdraw': 0,
-            'binance_withdraw': 0,
-            'bitget_withdraw': 0,
-            'make_balance_to_average': 1,
-            'bridge_rhino': 1,
-            'bridge_layerswap': 1,
-            'bridge_nitro': 1,
-            'bridge_orbiter': 1,
-            'bridge_across': 1,
-            'bridge_owlto': 1,
-            'bridge_relay': 1,
-            'bridge_native': 1,
-            'bridge_zora': 1,
-            'collector_eth': 3,
-            'okx_deposit': 4,
-            'bingx_deposit': 4,
-            'binance_deposit': 4,
-            'bitget_deposit': 4,
-            'okx_deposit_l0': 4,
-        }
+    def sort_classic_route(route, landing_mode: bool = False):
+        if not landing_mode:
+            modules_dependents = {
+                'okx_withdraw': 0,
+                'bingx_withdraw': 0,
+                'binance_withdraw': 0,
+                'bitget_withdraw': 0,
+                'make_balance_to_average': 1,
+                'bridge_rhino': 1,
+                'bridge_layerswap': 1,
+                'bridge_nitro': 1,
+                'bridge_orbiter': 1,
+                'bridge_across': 1,
+                'bridge_owlto': 1,
+                'bridge_relay': 1,
+                'bridge_native': 1,
+                'bridge_zora': 1,
+                'collector_eth': 3,
+                'okx_deposit': 4,
+                'bingx_deposit': 4,
+                'binance_deposit': 4,
+                'bitget_deposit': 4,
+                'okx_deposit_l0': 4,
+            }
 
-        new_route = []
-        classic_route = []
-        for module_name in route:
-            if module_name in modules_dependents:
-                classic_route.append((module_name, modules_dependents[module_name]))
-            else:
-                new_route.append((module_name, 2))
+            new_route = []
+            classic_route = []
+            for module_name in route:
+                if module_name in modules_dependents:
+                    classic_route.append((module_name, modules_dependents[module_name]))
+                else:
+                    new_route.append((module_name, 2))
 
-        random.shuffle(new_route)
-        classic_route.extend(new_route)
-        route_with_priority = [module[0] for module in sorted(classic_route, key=lambda x: x[1])]
+            random.shuffle(new_route)
+            classic_route.extend(new_route)
+            route_with_priority = [module[0] for module in sorted(classic_route, key=lambda x: x[1])]
+        else:
+            route_with_priority = route
 
         deposit_modules = [
             'deposit_basilisk',
@@ -545,6 +548,8 @@ class RouteGenerator(Logger):
                     classic_route = self.classic_generate_route()
                     if SHUFFLE_ROUTE:
                         classic_route = self.sort_classic_route(route=classic_route)
+                    if CLASSIC_WITHDRAW_DEPENDENCIES:
+                        classic_route = self.sort_classic_route(route=classic_route, landing_mode=True)
                     account_data = {
                         "current_step": 0,
                         "route": classic_route
