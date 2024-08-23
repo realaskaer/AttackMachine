@@ -559,9 +559,14 @@ async def swap_spacefi(account_name, private_key, network, proxy):
     return await worker.swap()
 
 
-async def swap_bebop(account_name, private_key, network, proxy):
+async def swap_bebop(account_name, private_key, network, proxy, **kwargs):
     worker = Bebop(get_client(account_name, private_key, network, proxy))
-    return await worker.swap()
+    return await worker.swap(**kwargs)
+
+
+async def double_swap_bebop(account_name, private_key, network, proxy):
+    worker = Bebop(get_client(account_name, private_key, network, proxy))
+    return await worker.double_swap()
 
 
 async def swap_thruster(account_name, private_key, network, proxy):
