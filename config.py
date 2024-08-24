@@ -939,24 +939,42 @@ ONEINCH_CONTRACTS = {
 }
 
 BEBOP_CONTRACTS = {
-    'Blast':{
-        'router': '0xBeB09000fa59627dc02Bb55448AC1893EAa501A5'
-    },
-    'zkSync':{
-        'router': '0xBeB09000fa59627dc02Bb55448AC1893EAa501A5'
-    },
-    'Polygon':{
-        'router': '0xBeB09000fa59627dc02Bb55448AC1893EAa501A5'
+    'Ethereum':{
+        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
+        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
     },
     'Arbitrum':{
-        'router': '0xBeB09000fa59627dc02Bb55448AC1893EAa501A5'
+        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
+        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+    },
+    'Base':{
+        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
+        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+    },
+    'Blast':{
+        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
+        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
     },
     'BNB Chain':{
-        'router': '0xBeB09000fa59627dc02Bb55448AC1893EAa501A5'
+        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
+        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
     },
-    'Ethereum':{
-        'router': '0xBeB09000fa59627dc02Bb55448AC1893EAa501A5'
-    }
+    'Optimism':{
+        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
+        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+    },
+    'Polygon':{
+        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
+        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+    },
+    'Scroll':{
+        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
+        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+    },
+    'zkSync Era':{
+        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
+        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+    },
 }
 
 IZUMI_CONTRACTS = {
