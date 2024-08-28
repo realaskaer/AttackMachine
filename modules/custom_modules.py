@@ -1241,3 +1241,16 @@ class Custom(Logger, RequestClient):
                 if fee_client:
                     await fee_client.session.close()
 
+    @helper
+    async def full_multi_swap_bebop(self):
+        from functions import one_to_many_swap_bebop, many_to_one_swap_bebop
+        token_names = await one_to_many_swap_bebop(self.client.account_name, self.client.private_key,
+                                                   self.client.network, self.client.proxy_init)
+
+        if token_names:
+            await sleep(self)
+            return await many_to_one_swap_bebop(self.client.account_name, self.client.private_key, self.client.network,
+                                                self.client.proxy_init, from_token_names=token_names)
+
+        else:
+            self.logger_msg(*self.client.acc_info, msg=f"Unable to perform full multi swap")
