@@ -511,10 +511,7 @@ NOGEM_FILLER_DATA = [
     CUSTOM_SWAP_DATA | ('токен для обмена', 'токен для получения', (сумма от и до), сеть запуска(см. OMNI-CHAIN)), 
                         можно указать сети списком - [1, 2, 3], тогда будет выбрана сеть с наибольшим балансом 
                         токена для обмена 
-    BEBOP_DOUBLESWAP_AMOUNTS | (минимум, максимум) (% в кавычках или кол-во без кавычек) (модуль double_swap_bebop)
-    BEBOP_DOUBLESWAP_FROM_TOKEN_NAMES | Токены, которые будут меняться в одной транзе    (модуль double_swap_bebop)
-                                        (будет выбрано 2 рандомных из списка) 
-    BEBOP_DOUBLESWAP_TO_TOKEN_NAME | Токен, который будет получен                        (модуль double_swap_bebop)
+    BEBOP_MULTISWAP_AMOUNT_PERCENT | Процент от нативного токена (минимум, максимум) (модуль full_multi_swap_bebop)
     
 """
 CUSTOM_SWAP_DATA = ('ETH', 'USDC', (0.0007, 0.0008), 43)
@@ -531,9 +528,7 @@ MINTFUN_CONTRACTS = [
 
 MINTFUN_MINT_COUNT = [1, 1]  # от и до
 
-BEBOP_DOUBLESWAP_AMOUNTS = ('90', '100')
-BEBOP_DOUBLESWAP_FROM_TOKEN_NAMES = ['USDC', 'USDC.e']
-BEBOP_DOUBLESWAP_TO_TOKEN_NAME = 'ETH'
+BEBOP_MULTISWAP_AMOUNT_PERCENT = (30, 40)
 
 """
 -------------------------------------------------GOOGLE-ROUTES CONTROL--------------------------------------------------
@@ -689,8 +684,6 @@ HELPERS_CONFIG = {
     swap_vesync                      
     swap_woofi                       
     swap_zkswap
-    swap_bebop
-    double_swap_bebop                # свап двух токенов в один на bebop (см. настройки BEBOP_DOUBLESWAP...)
     check_in_owlto                   # checkIn на сайте https://owlto.finance/confirm
     wrap_eth                         # wrap ETH через офф. контракт токена WETH. (кол-во из LIQUIDITY_AMOUNT)
     unwrap_eth                       # unwrap ETH через офф. контракт токена WETH. (кол-во из LIQUIDITY_AMOUNT)
@@ -724,8 +717,6 @@ HELPERS_CONFIG = {
     
 ---------------------------------------------------------BLAST----------------------------------------------------------  
 
-    swap_bebop
-    double_swap_bebop
     swap_thruster
     swap_bladeswap
     swap_ambient
@@ -761,7 +752,7 @@ HELPERS_CONFIG = {
     swap_openocean
     swap_xyfinance
     swap_bebop
-    double_swap_bebop
+    full_multi_swap_bebop
     deposit_seamless
     withdraw_seamless
     deposit_usdbc_seamless
@@ -826,7 +817,7 @@ HELPERS_CONFIG = {
     swap_openocean
     swap_xyfinance
     swap_bebop
-    double_swap_bebop
+    full_multi_swap_bebop
     check_in_owlto
     deposit_layerbank
     withdraw_layerbank

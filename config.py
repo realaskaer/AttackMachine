@@ -297,6 +297,8 @@ ZERIUS_ABI = {
     'refuel' : [{'inputs': [{'internalType': 'address', 'name': '_lzEndpoint', 'type': 'address'}], 'stateMutability': 'nonpayable', 'type': 'constructor'}, {'anonymous': False, 'inputs': [{'indexed': False, 'internalType': 'uint16', 'name': '_srcChainId', 'type': 'uint16'}, {'indexed': False, 'internalType': 'bytes', 'name': '_srcAddress', 'type': 'bytes'}, {'indexed': False, 'internalType': 'uint64', 'name': '_nonce', 'type': 'uint64'}, {'indexed': False, 'internalType': 'bytes', 'name': '_payload', 'type': 'bytes'}, {'indexed': False, 'internalType': 'bytes', 'name': '_reason', 'type': 'bytes'}], 'name': 'MessageFailed', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': True, 'internalType': 'address', 'name': 'previousOwner', 'type': 'address'}, {'indexed': True, 'internalType': 'address', 'name': 'newOwner', 'type': 'address'}], 'name': 'OwnershipTransferred', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': False, 'internalType': 'uint16', 'name': '_srcChainId', 'type': 'uint16'}, {'indexed': False, 'internalType': 'bytes', 'name': '_srcAddress', 'type': 'bytes'}, {'indexed': False, 'internalType': 'uint64', 'name': '_nonce', 'type': 'uint64'}, {'indexed': False, 'internalType': 'bytes32', 'name': '_payloadHash', 'type': 'bytes32'}], 'name': 'RetryMessageSuccess', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': False, 'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'indexed': False, 'internalType': 'uint16', 'name': '_type', 'type': 'uint16'}, {'indexed': False, 'internalType': 'uint256', 'name': '_minDstGas', 'type': 'uint256'}], 'name': 'SetMinDstGas', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': False, 'internalType': 'address', 'name': 'precrime', 'type': 'address'}], 'name': 'SetPrecrime', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': False, 'internalType': 'uint16', 'name': '_remoteChainId', 'type': 'uint16'}, {'indexed': False, 'internalType': 'bytes', 'name': '_path', 'type': 'bytes'}], 'name': 'SetTrustedRemote', 'type': 'event'}, {'anonymous': False, 'inputs': [{'indexed': False, 'internalType': 'uint16', 'name': '_remoteChainId', 'type': 'uint16'}, {'indexed': False, 'internalType': 'bytes', 'name': '_remoteAddress', 'type': 'bytes'}], 'name': 'SetTrustedRemoteAddress', 'type': 'event'}, {'inputs': [], 'name': 'DEFAULT_PAYLOAD_SIZE_LIMIT', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'FUNCTION_TYPE_SEND', 'outputs': [{'internalType': 'uint16', 'name': '', 'type': 'uint16'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': 'payload', 'type': 'bytes'}, {'internalType': 'bytes', 'name': '_adapterParams', 'type': 'bytes'}], 'name': 'estimateSendFee', 'outputs': [{'internalType': 'uint256', 'name': 'nativeFee', 'type': 'uint256'}, {'internalType': 'uint256', 'name': 'zroFee', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '', 'type': 'bytes'}, {'internalType': 'uint64', 'name': '', 'type': 'uint64'}], 'name': 'failedMessages', 'outputs': [{'internalType': 'bytes32', 'name': '', 'type': 'bytes32'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_srcChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_srcAddress', 'type': 'bytes'}], 'name': 'forceResumeReceive', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_version', 'type': 'uint16'}, {'internalType': 'uint16', 'name': '_chainId', 'type': 'uint16'}, {'internalType': 'address', 'name': '', 'type': 'address'}, {'internalType': 'uint256', 'name': '_configType', 'type': 'uint256'}], 'name': 'getConfig', 'outputs': [{'internalType': 'bytes', 'name': '', 'type': 'bytes'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'getFee', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_remoteChainId', 'type': 'uint16'}], 'name': 'getTrustedRemoteAddress', 'outputs': [{'internalType': 'bytes', 'name': '', 'type': 'bytes'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_srcChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_srcAddress', 'type': 'bytes'}], 'name': 'isTrustedRemote', 'outputs': [{'internalType': 'bool', 'name': '', 'type': 'bool'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'lzEndpoint', 'outputs': [{'internalType': 'contract ILayerZeroEndpoint', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_srcChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_srcAddress', 'type': 'bytes'}, {'internalType': 'uint64', 'name': '_nonce', 'type': 'uint64'}, {'internalType': 'bytes', 'name': '_payload', 'type': 'bytes'}], 'name': 'lzReceive', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '', 'type': 'uint16'}, {'internalType': 'uint16', 'name': '', 'type': 'uint16'}], 'name': 'minDstGasLookup', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_srcChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_srcAddress', 'type': 'bytes'}, {'internalType': 'uint64', 'name': '_nonce', 'type': 'uint64'}, {'internalType': 'bytes', 'name': '_payload', 'type': 'bytes'}], 'name': 'nonblockingLzReceive', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [], 'name': 'owner', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '', 'type': 'uint16'}], 'name': 'payloadSizeLimitLookup', 'outputs': [{'internalType': 'uint256', 'name': '', 'type': 'uint256'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'precrime', 'outputs': [{'internalType': 'address', 'name': '', 'type': 'address'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_toAddress', 'type': 'bytes'}, {'internalType': 'bytes', 'name': '_adapterParams', 'type': 'bytes'}], 'name': 'refuel', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [], 'name': 'renounceOwnership', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_srcChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_srcAddress', 'type': 'bytes'}, {'internalType': 'uint64', 'name': '_nonce', 'type': 'uint64'}, {'internalType': 'bytes', 'name': '_payload', 'type': 'bytes'}], 'name': 'retryMessage', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_version', 'type': 'uint16'}, {'internalType': 'uint16', 'name': '_chainId', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_configType', 'type': 'uint256'}, {'internalType': 'bytes', 'name': '_config', 'type': 'bytes'}], 'name': 'setConfig', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint256', 'name': '_fee', 'type': 'uint256'}], 'name': 'setFee', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'uint16', 'name': '_packetType', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_minGas', 'type': 'uint256'}], 'name': 'setMinDstGas', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_dstChainId', 'type': 'uint16'}, {'internalType': 'uint256', 'name': '_size', 'type': 'uint256'}], 'name': 'setPayloadSizeLimit', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': '_precrime', 'type': 'address'}], 'name': 'setPrecrime', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_version', 'type': 'uint16'}], 'name': 'setReceiveVersion', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_version', 'type': 'uint16'}], 'name': 'setSendVersion', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_remoteChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_path', 'type': 'bytes'}], 'name': 'setTrustedRemote', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '_remoteChainId', 'type': 'uint16'}, {'internalType': 'bytes', 'name': '_remoteAddress', 'type': 'bytes'}], 'name': 'setTrustedRemoteAddress', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'address', 'name': 'newOwner', 'type': 'address'}], 'name': 'transferOwnership', 'outputs': [], 'stateMutability': 'nonpayable', 'type': 'function'}, {'inputs': [{'internalType': 'uint16', 'name': '', 'type': 'uint16'}], 'name': 'trustedRemoteLookup', 'outputs': [{'internalType': 'bytes', 'name': '', 'type': 'bytes'}], 'stateMutability': 'view', 'type': 'function'}, {'inputs': [], 'name': 'withdraw', 'outputs': [], 'stateMutability': 'payable', 'type': 'function'}]
 }
 
+PERMIT2_ABI = [{"inputs":[{"internalType":"uint256","name":"deadline","type":"uint256"}],"name":"AllowanceExpired","type":"error"},{"inputs":[],"name":"ExcessiveInvalidation","type":"error"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"InsufficientAllowance","type":"error"},{"inputs":[{"internalType":"uint256","name":"maxAmount","type":"uint256"}],"name":"InvalidAmount","type":"error"},{"inputs":[],"name":"InvalidContractSignature","type":"error"},{"inputs":[],"name":"InvalidNonce","type":"error"},{"inputs":[],"name":"InvalidSignature","type":"error"},{"inputs":[],"name":"InvalidSignatureLength","type":"error"},{"inputs":[],"name":"InvalidSigner","type":"error"},{"inputs":[],"name":"LengthMismatch","type":"error"},{"inputs":[{"internalType":"uint256","name":"signatureDeadline","type":"uint256"}],"name":"SignatureExpired","type":"error"},{"anonymous":False,"inputs":[{"indexed":True,"internalType":"address","name":"owner","type":"address"},{"indexed":True,"internalType":"address","name":"token","type":"address"},{"indexed":True,"internalType":"address","name":"spender","type":"address"},{"indexed":False,"internalType":"uint160","name":"amount","type":"uint160"},{"indexed":False,"internalType":"uint48","name":"expiration","type":"uint48"}],"name":"Approval","type":"event"},{"anonymous":False,"inputs":[{"indexed":True,"internalType":"address","name":"owner","type":"address"},{"indexed":False,"internalType":"address","name":"token","type":"address"},{"indexed":False,"internalType":"address","name":"spender","type":"address"}],"name":"Lockdown","type":"event"},{"anonymous":False,"inputs":[{"indexed":True,"internalType":"address","name":"owner","type":"address"},{"indexed":True,"internalType":"address","name":"token","type":"address"},{"indexed":True,"internalType":"address","name":"spender","type":"address"},{"indexed":False,"internalType":"uint48","name":"newNonce","type":"uint48"},{"indexed":False,"internalType":"uint48","name":"oldNonce","type":"uint48"}],"name":"NonceInvalidation","type":"event"},{"anonymous":False,"inputs":[{"indexed":True,"internalType":"address","name":"owner","type":"address"},{"indexed":True,"internalType":"address","name":"token","type":"address"},{"indexed":True,"internalType":"address","name":"spender","type":"address"},{"indexed":False,"internalType":"uint160","name":"amount","type":"uint160"},{"indexed":False,"internalType":"uint48","name":"expiration","type":"uint48"},{"indexed":False,"internalType":"uint48","name":"nonce","type":"uint48"}],"name":"Permit","type":"event"},{"anonymous":False,"inputs":[{"indexed":True,"internalType":"address","name":"owner","type":"address"},{"indexed":False,"internalType":"uint256","name":"word","type":"uint256"},{"indexed":False,"internalType":"uint256","name":"mask","type":"uint256"}],"name":"UnorderedNonceInvalidation","type":"event"},{"inputs":[],"name":"DOMAIN_SEPARATOR","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint160","name":"amount","type":"uint160"},{"internalType":"uint48","name":"expiration","type":"uint48"},{"internalType":"uint48","name":"nonce","type":"uint48"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"},{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint160","name":"amount","type":"uint160"},{"internalType":"uint48","name":"expiration","type":"uint48"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"},{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint48","name":"newNonce","type":"uint48"}],"name":"invalidateNonces","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"wordPos","type":"uint256"},{"internalType":"uint256","name":"mask","type":"uint256"}],"name":"invalidateUnorderedNonces","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"internalType":"address","name":"token","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"internalType":"struct IAllowanceTransfer.TokenSpenderPair[]","name":"approvals","type":"tuple[]"}],"name":"lockdown","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"uint256","name":"","type":"uint256"}],"name":"nonceBitmap","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"components":[{"components":[{"internalType":"address","name":"token","type":"address"},{"internalType":"uint160","name":"amount","type":"uint160"},{"internalType":"uint48","name":"expiration","type":"uint48"},{"internalType":"uint48","name":"nonce","type":"uint48"}],"internalType":"struct IAllowanceTransfer.PermitDetails[]","name":"details","type":"tuple[]"},{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"sigDeadline","type":"uint256"}],"internalType":"struct IAllowanceTransfer.PermitBatch","name":"permitBatch","type":"tuple"},{"internalType":"bytes","name":"signature","type":"bytes"}],"name":"permit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"components":[{"components":[{"internalType":"address","name":"token","type":"address"},{"internalType":"uint160","name":"amount","type":"uint160"},{"internalType":"uint48","name":"expiration","type":"uint48"},{"internalType":"uint48","name":"nonce","type":"uint48"}],"internalType":"struct IAllowanceTransfer.PermitDetails","name":"details","type":"tuple"},{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"sigDeadline","type":"uint256"}],"internalType":"struct IAllowanceTransfer.PermitSingle","name":"permitSingle","type":"tuple"},{"internalType":"bytes","name":"signature","type":"bytes"}],"name":"permit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"components":[{"internalType":"address","name":"token","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"internalType":"struct ISignatureTransfer.TokenPermissions","name":"permitted","type":"tuple"},{"internalType":"uint256","name":"nonce","type":"uint256"},{"internalType":"uint256","name":"deadline","type":"uint256"}],"internalType":"struct ISignatureTransfer.PermitTransferFrom","name":"permit","type":"tuple"},{"components":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"requestedAmount","type":"uint256"}],"internalType":"struct ISignatureTransfer.SignatureTransferDetails","name":"transferDetails","type":"tuple"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"bytes","name":"signature","type":"bytes"}],"name":"permitTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"components":[{"internalType":"address","name":"token","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"internalType":"struct ISignatureTransfer.TokenPermissions[]","name":"permitted","type":"tuple[]"},{"internalType":"uint256","name":"nonce","type":"uint256"},{"internalType":"uint256","name":"deadline","type":"uint256"}],"internalType":"struct ISignatureTransfer.PermitBatchTransferFrom","name":"permit","type":"tuple"},{"components":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"requestedAmount","type":"uint256"}],"internalType":"struct ISignatureTransfer.SignatureTransferDetails[]","name":"transferDetails","type":"tuple[]"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"bytes","name":"signature","type":"bytes"}],"name":"permitTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"components":[{"internalType":"address","name":"token","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"internalType":"struct ISignatureTransfer.TokenPermissions","name":"permitted","type":"tuple"},{"internalType":"uint256","name":"nonce","type":"uint256"},{"internalType":"uint256","name":"deadline","type":"uint256"}],"internalType":"struct ISignatureTransfer.PermitTransferFrom","name":"permit","type":"tuple"},{"components":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"requestedAmount","type":"uint256"}],"internalType":"struct ISignatureTransfer.SignatureTransferDetails","name":"transferDetails","type":"tuple"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"bytes32","name":"witness","type":"bytes32"},{"internalType":"string","name":"witnessTypeString","type":"string"},{"internalType":"bytes","name":"signature","type":"bytes"}],"name":"permitWitnessTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"components":[{"internalType":"address","name":"token","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"internalType":"struct ISignatureTransfer.TokenPermissions[]","name":"permitted","type":"tuple[]"},{"internalType":"uint256","name":"nonce","type":"uint256"},{"internalType":"uint256","name":"deadline","type":"uint256"}],"internalType":"struct ISignatureTransfer.PermitBatchTransferFrom","name":"permit","type":"tuple"},{"components":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"requestedAmount","type":"uint256"}],"internalType":"struct ISignatureTransfer.SignatureTransferDetails[]","name":"transferDetails","type":"tuple[]"},{"internalType":"address","name":"owner","type":"address"},{"internalType":"bytes32","name":"witness","type":"bytes32"},{"internalType":"string","name":"witnessTypeString","type":"string"},{"internalType":"bytes","name":"signature","type":"bytes"}],"name":"permitWitnessTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint160","name":"amount","type":"uint160"},{"internalType":"address","name":"token","type":"address"}],"internalType":"struct IAllowanceTransfer.AllowanceTransferDetails[]","name":"transferDetails","type":"tuple[]"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint160","name":"amount","type":"uint160"},{"internalType":"address","name":"token","type":"address"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"}]
+
 ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 ETH_MASK = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
@@ -939,42 +941,12 @@ ONEINCH_CONTRACTS = {
 }
 
 BEBOP_CONTRACTS = {
-    'Ethereum':{
-        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
-        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+    'router': {
+        'Jam': '0xbEbEbEb035351f58602E0C1C8B59ECBfF5d5f47b',
+        'PMMv3': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F'
     },
-    'Arbitrum':{
-        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
-        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
-    },
-    'Base':{
-        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
-        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
-    },
-    'Blast':{
-        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
-        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
-    },
-    'BNB Chain':{
-        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
-        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
-    },
-    'Optimism':{
-        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
-        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
-    },
-    'Polygon':{
-        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
-        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
-    },
-    'Scroll':{
-        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
-        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
-    },
-    'zkSync Era':{
-        'router': '0xbbbbbBB520d69a9775E85b458C58c648259FAD5F',
-        'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3'
-    },
+    'spender': '0x000000000022D473030F116dDEE9F6B43aC78BA3',
+    'balance_manager': '0xfe96910cf84318d1b8a5e2a6962774711467c0be'
 }
 
 IZUMI_CONTRACTS = {
@@ -2945,6 +2917,95 @@ TOKENS_PER_CHAIN2 = {
     "CoreDAO":{
         "USDC": '0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9',
         "USDT": '0x900101d06A7426441Ae63e9AB3B9b0F63Be145F1',
+    }
+}
+
+BEBOP_TOKENS_PER_CHAIN = {
+    'Ethereum': {
+        'USDT'        : '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        'USDC'        : '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+        'PEPE'        : '0x6982508145454Ce325dDbE47a25d4ec3d2311933',
+        'TONCOIN'     : '0x582d872A1B094FC48F5DE31D3B73F2D9bE47def1',
+        'FLOKI'       : '0xcf0C122c6b73ff809C693DB761e7BaeBe62b6a2E',
+        'SHIB'        : '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE',
+        'LINK'        : '0x514910771AF9Ca656af840dff83E8264EcF986CA',
+        'MATIC'       : '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
+        'FTM'         : '0x4E15361FD6b4BB609Fa63C81A2be19d873717870',
+        'AAVE'        : '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
+    },
+    'Arbitrum': {
+        'USDT'        : '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+        'axlUSDC'     : '0xEB466342C4d449BC9f53A865D5Cb90586f405215',
+        'USDC'        : '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
+        'PEPE'        : '0x25d887Ce7a35172C62FeBFD67a1856F20FaEbB00',
+        'LINK'        : '0xf97f4df75117a78c1A5a0DBb814Af92458539FB4',
+        'CRV'         : '0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978',
+        'ARB'         : '0x912CE59144191C1204E64559FE8253a0e49E6548',
+        'WBTC'        : '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f',
+        'UNI'         : '0xFa7F8980b0f1E64A2062791cc3b0871572f1F7f0',
+        'DAI'         : '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+        'PENDLE'      : '0x0c880f6761F1af8d9Aa9C466984b80DAb9a8c9e8',
+        'wstETH'      : '0x5979D7b546E38E414F7E9822514be443A4800529',
+        'ZRO'         : '0x6985884C4392D348587B19cb9eAAf157F13271cd',
+    },
+    'Base': {
+        'USDC'        : '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+        'DAI'         : '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb',
+        'ZRO'         : '0x6985884C4392D348587B19cb9eAAf157F13271cd',
+        'SNX'         : '0x22e6966B799c4D5B13BE962E1D117b56327FDa66',
+        'BRETT'       : '0x532f27101965dd16442E59d40670FaF5eBB142E4',
+        'USDbC'       : '0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA',
+        'AERO'        : '0x940181a94A35A4569E4529A3CDfB74e38FD98631',
+        'DEGEN'       : '0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed',
+        'rETH'        : '0xB6fe221Fe9EeF5aBa221c348bA20A1Bf5e73624c',
+    },
+    'Optimism': {
+        'USDT'        : '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
+        'USDC.e'      : '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+        'AAVE'        : '0x76FB31fb4af56892A25e32cFC43De717950c9278',
+        'OP'          : '0x4200000000000000000000000000000000000042',
+        'WBTC'        : '0x68f180fcCe6836688e9084f035309E29Bf0A2095',
+        'UNI'         : '0x6fd9d7AD17242c41f7131d257212c54A0e816691',
+        'PENDLE'      : '0xBC7B1Ff1c6989f006a1185318eD4E7b5796e66E1',
+        'DAI'         : '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+        'ZRO'         : '0x6985884C4392D348587B19cb9eAAf157F13271cd',
+        'SNX'         : '0x8700dAec35aF8Ff88c16BdF0418774CB3D7599B4'
+    },
+    'Polygon': {
+        'USDT'        : '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
+        'WETH'        : '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619',
+        'USDC'        : '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
+        'USDC.e'      : '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+        'LINK'        : '0x53E0bca35eC356BD5ddDFebbD1Fc0fD03FaBad39',
+        'AAVE'        : '0xD6DF932A45C0f255f85145f286eA0b292B21C90B',
+        'CRV'         : '0x172370d5Cd63279eFa6d502DAB29171933a610AF',
+        'RNDR'        : '0x61299774020dA444Af134c82fa83E3810b309991',
+        'WBTC'        : '0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6',
+        'UNI'         : '0xb33EaAd8d922B1083446DC23f610c2567fB5180f',
+        'wstETH'      : '0x03b54A6e9a984069379fae1a4fC4dBAE93B3bCCD',
+        'DAI'         : '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+        'ZRO'         : '0x6985884C4392D348587B19cb9eAAf157F13271cd',
+    },
+    'Scroll': {
+        'USDT'        : '0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df',
+        'wrsETH'      : '0xa25b25548B4C98B0c7d3d27dcA5D5ca743d68b7F',
+        'axlUSDC'     : '0xEB466342C4d449BC9f53A865D5Cb90586f405215',
+        'USDC'        : '0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4',
+        'WBTC'        : '0x3C1BCa5a656e69edCD0D4E36BEbb3FcDAcA60Cf1',
+        'wstETH'      : '0xf610A9dfB7C89644979b4A0f27063E9e7d7Cda32',
+        'DAI'         : '0xcA77eB3fEFe3725Dc33bccB54eDEFc3D9f764f97',
+        'weETH'       : '0x01f0a31698C4d065659b9bdC21B3610292a1c506',
+    },
+    'BNB Chain': {
+        'USDT'        : '0x55d398326f99059fF775485246999027B3197955',
+        'ETH'         : '0x2170Ed0880ac9A755fd29B2688956BD959F933F8',
+        'USDC'        : '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+        'LINK'        : '0xF8A0BF9cF54Bb92F17374d9e9A321E6a111a51bD',
+        'MATIC'       : '0xCC42724C6683B7E57334c4E856f4c9965ED682bD',
+        'ZRO'         : '0x6985884C4392D348587B19cb9eAAf157F13271cd',
+        'DAI'         : '0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3',
+        'XRP'         : '0x1D2F0da169ceB9fC7B3144628dB156f3F6c60dBE',
+        'ADA'         : '0x3EE2200Efb3400fAbB9AacF31297cBdD1d435D47',
     }
 }
 

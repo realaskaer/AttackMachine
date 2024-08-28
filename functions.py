@@ -564,9 +564,19 @@ async def swap_bebop(account_name, private_key, network, proxy, **kwargs):
     return await worker.swap(**kwargs)
 
 
-async def double_swap_bebop(account_name, private_key, network, proxy):
+async def one_to_many_swap_bebop(account_name, private_key, network, proxy):
     worker = Bebop(get_client(account_name, private_key, network, proxy))
-    return await worker.double_swap()
+    return await worker.one_to_many_swap()
+
+
+async def many_to_one_swap_bebop(account_name, private_key, network, proxy, **kwargs):
+    worker = Bebop(get_client(account_name, private_key, network, proxy))
+    return await worker.many_to_one_swap(**kwargs)
+
+
+async def full_multi_swap_bebop(account_name, private_key, network, proxy):
+    worker = Custom(get_client(account_name, private_key, network, proxy))
+    return await worker.full_multi_swap_bebop()
 
 
 async def swap_thruster(account_name, private_key, network, proxy):

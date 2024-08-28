@@ -23,7 +23,8 @@ class SimpleEVM(Logger):
         Logger.__init__(self)
 
         self.network = self.client.network.name
-        self.token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.network]['WETH'], WETH_ABI)
+        self.token_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.network][f'W{self.client.network.token}'],
+                                                       WETH_ABI)
         self.deposit_contract = None
         self.withdraw_contract = None
 
@@ -98,7 +99,7 @@ class SimpleEVM(Logger):
         else:
             amount = round(amount_in_wei / 10 ** 18, 5)
 
-        self.logger_msg(*self.client.acc_info, msg=f'Wrap {amount} ETH')
+        self.logger_msg(*self.client.acc_info, msg=f'Wrap {amount} {self.client.network.token}')
 
         if await self.client.w3.eth.get_balance(self.client.address) > amount_in_wei:
 
