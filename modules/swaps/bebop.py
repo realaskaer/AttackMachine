@@ -8,7 +8,7 @@ from config import ETH_MASK
 from modules.interfaces import SoftwareException
 from utils.tools import gas_checker, helper
 from config import BEBOP_CONTRACTS, TOKENS_PER_CHAIN, BEBOP_TOKENS_PER_CHAIN, PERMIT2_ABI
-from settings import BEBOP_MULTISWAP_AMOUNT_PERCENT
+from settings import BEBOP_MULTISWAP_AMOUNT
 from general_settings import SLIPPAGE
 
 
@@ -605,11 +605,17 @@ class Bebop(DEX, Logger, RequestClient):
                                        for to_token_name in to_token_names])
 
         wnative_balance_in_wei, wnative_balance, _ = await self.client.get_token_balance(f'W{self.client.token}')
-        native_balance_in_wei, native_balance, _ = await self.client.get_token_balance(check_native=True)
-        percent = round(random.uniform(*BEBOP_MULTISWAP_AMOUNT_PERCENT), 9) / 100
 
-        amount = self.client.custom_round((wnative_balance + native_balance) * percent, 7)
-        amount_in_wei = int((wnative_balance_in_wei + native_balance_in_wei) * percent)
+        if isinstance(BEBOP_MULTISWAP_AMOUNT[0], str):
+            native_balance_in_wei, native_balance, _ = await self.client.get_token_balance(check_native=True)
+            percent = round(random.uniform(*BEBOP_MULTISWAP_AMOUNT), 9) / 100
+
+            amount = self.client.custom_round((wnative_balance + native_balance) * percent, 7)
+            amount_in_wei = int((wnative_balance_in_wei + native_balance_in_wei) * percent)
+
+        else:
+            amount = self.client.round_amount(*BEBOP_MULTISWAP_AMOUNT)
+            amount_in_wei = self.client.to_wei(amount)
 
         msg = f'{amount} {self.client.token} -> {", ".join(to_token_names)}'
         self.logger_msg(*self.client.acc_info, msg=f'Multi swap on Bebop: {msg}')
