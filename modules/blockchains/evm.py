@@ -287,7 +287,7 @@ class ZkSync(Blockchain, SimpleEVM):
 
     @helper
     @gas_checker
-    async def deposit(self, amount:float):
+    async def deposit(self, amount: float):
         amount_in_wei = self.client.to_wei(amount)
 
         self.logger_msg(*self.client.acc_info, msg=f'Bridge on txSync: {amount} ETH ERC20 -> zkSync Era')
@@ -321,7 +321,7 @@ class ZkSync(Blockchain, SimpleEVM):
 
     @helper
     @gas_checker
-    async def withdraw(self, amount:float):
+    async def withdraw(self, amount: float):
         amount_in_wei = self.client.to_wei(amount)
 
         self.logger_msg(*self.client.acc_info, msg=f'Withdraw on txSync: {amount} ETH zkSync Era -> ERC20')

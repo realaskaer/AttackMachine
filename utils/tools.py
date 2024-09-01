@@ -10,6 +10,9 @@ import msoffcrypto
 import pandas as pd
 
 from getpass import getpass
+
+from python_socks._protocols.errors import ReplyError
+
 from utils.networks import *
 from termcolor import cprint
 from python_socks import ProxyError
@@ -19,7 +22,7 @@ from web3 import AsyncWeb3, AsyncHTTPProvider
 from web3.exceptions import ContractLogicError
 from aiohttp import ClientSession, TCPConnector, ClientResponseError
 from msoffcrypto.exceptions import DecryptionError, InvalidKeyError
-from aiohttp.client_exceptions import ClientProxyConnectionError, ClientHttpProxyError
+from aiohttp.client_exceptions import ClientProxyConnectionError, ClientHttpProxyError, ClientError
 
 from general_settings import (
     SLEEP_TIME_MODULES,
@@ -196,100 +199,102 @@ def helper(func):
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
         from modules.interfaces import (
-            PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
-            BlockchainExceptionWithoutRetry, CriticalException, SoftwareExceptionHandled
+            BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
+            BlockchainExceptionWithoutRetry, SoftwareExceptionHandled
         )
 
         attempts = 0
-        stop_flag = False
-        infinity_flag = False
+        k = 0
+
         no_sleep_flag = False
         try:
-            while attempts <= MAXIMUM_RETRY and not infinity_flag:
+            while attempts <= MAXIMUM_RETRY:
                 try:
                     return await func(self, *args, **kwargs)
-                except (
-                        PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
-                        BlockchainExceptionWithoutRetry, ValueError, ContractLogicError, ClientProxyConnectionError,
-                        TimeoutError, ClientHttpProxyError, ProxyError, ClientResponseError, CriticalException,
-                        KeyError, SoftwareExceptionHandled
-                ) as err:
-                    error = err
+                except Exception as error:
                     attempts += 1
+                    k += 1
+                    msg = f'{error}'
                     # traceback.print_exc()
-                    msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
 
                     if isinstance(error, KeyError):
-                        stop_flag = True
-                        msg = f"Setting '{error}' for this module is not exist in software!"
+                        msg = f"Parameter '{error}' for this module is not exist in software!"
+                        self.logger_msg(*self.client.acc_info, msg=msg, type_msg='error')
+                        return False
 
-                    elif 'rate limit' in str(error) or '429' in str(error):
-                        msg = f'Rate limit exceeded. Will try again in 5 min...'
-                        await asyncio.sleep(300)
-                        no_sleep_flag = True
+                    elif any(keyword in str(error) for keyword in (
+                            'Bad Gateway', '403', 'SSL', 'Invalid proxy', 'rate limit', '429', '407', '503'
+                    )):
+                        self.logger_msg(*self.client.acc_info, msg=msg, type_msg='warning')
+                        await self.client.change_proxy()
+                        continue
+
+                    elif 'Error code' in str(error):
+                        msg = f'{error}. Will try again...'
+
+                    elif 'Server disconnected' in str(error):
+                        msg = f'{error}. Will try again...'
+
+                    elif 'StatusCode.UNAVAILABLE' in str(error):
+                        msg = f'RPC got autism response, will try again......'
+
+                    elif '<html lang="en">' in str(error):
+                        msg = f'Proxy got non-permanent ban, will try again...'
 
                     elif isinstance(error, SoftwareExceptionHandled):
                         self.logger_msg(*self.client.acc_info, msg=f"{error}", type_msg='warning')
                         return True
 
-                    elif isinstance(error, (
-                            ClientProxyConnectionError, TimeoutError, ClientHttpProxyError, ProxyError,
-                            ClientResponseError
-                    )):
-                        self.logger_msg(
-                            *self.client.acc_info,
-                            msg=f"Connection to RPC is not stable. Will try again in 1 min...",
-                            type_msg='warning'
-                        )
-                        await self.client.change_rpc()
-                        await asyncio.sleep(60)
-                        attempts -= 1
-                        no_sleep_flag = True
-
-                    elif isinstance(error, CriticalException):
-                        raise error
-
-                    elif isinstance(error, asyncio.exceptions.TimeoutError):
-                        error = 'Connection to RPC is not stable'
-                        await self.client.change_rpc()
-                        msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
-
                     elif isinstance(error, (SoftwareExceptionWithoutRetry, BlockchainExceptionWithoutRetry)):
-                        stop_flag = True
+                        self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
+                        return False
+
+                    elif isinstance(error, SoftwareException):
                         msg = f'{error}'
 
                     elif isinstance(error, BlockchainException):
                         if 'insufficient funds' not in str(error):
                             self.logger_msg(
                                 self.client.account_name,
-                                None, msg=f'Maybe problem with node: {self.client.rpc}', type_msg='warning')
+                                None, msg=f'Maybe problem with node: {self.client.rpc}', type_msg='warning'
+                            )
                             await self.client.change_rpc()
 
-                    self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
+                    elif isinstance(error, (ClientError, asyncio.TimeoutError, ProxyError, ReplyError)):
+                        self.logger_msg(
+                            *self.client.acc_info,
+                            msg=f"Connection to RPC is not stable. Will try again in 10 seconds...",
+                            type_msg='warning'
+                        )
+                        await asyncio.sleep(10)
+                        self.logger_msg(*self.client.acc_info, msg=msg, type_msg='warning')
 
-                    if stop_flag:
-                        break
+                        if k % 2 == 0:
+                            await self.client.change_proxy()
+                            await self.client.change_rpc()
+                        attempts -= 1
 
-                    if attempts > MAXIMUM_RETRY and not infinity_flag:
+                        continue
+
+                    else:
+                        msg = f'Unknown Error: {error}'
+                        traceback.print_exc()
+
+                    self.logger_msg(
+                        self.client.account_name, None, msg=f"{msg} | Try[{attempts}/{MAXIMUM_RETRY + 1}]",
+                        type_msg='error'
+                    )
+
+                    if attempts > MAXIMUM_RETRY:
                         self.logger_msg(
                             self.client.account_name, None,
                             msg=f"Tries are over, software will stop module\n", type_msg='error'
                         )
+                        break
                     else:
                         if not no_sleep_flag:
                             await sleep(self, *SLEEP_TIME_RETRY)
 
-                except Exception as error:
-                    attempts += 1
-                    msg = f'Unknown Error. Description: {error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
-                    self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
-                    traceback.print_exc()
-
-                    if attempts > MAXIMUM_RETRY and not infinity_flag:
-                        self.logger_msg(
-                            self.client.account_name, None,
-                            msg=f"Tries are over, software will stop module\n", type_msg='error'
-                        )
         finally:
             await self.client.session.close()
         return False

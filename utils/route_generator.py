@@ -86,6 +86,7 @@ AVAILABLE_MODULES_INFO = {
     swap_woofi                          : (swap_woofi, 2, 'WooFi swap', 1, [3, 4, 11]),
     swap_zkswap                         : (swap_zkswap, 2, 'zkSwap swap', 1, [11]),
     swap_uniswap                        : (swap_uniswap, 2, 'Uniswap swap', 1, [3]),
+    swap_uniswap_custom                 : (swap_uniswap_custom, 2, 'Uniswap swap', 1, [3]),
     swap_sushiswap                      : (swap_sushiswap, 2, 'SushiSwap swap', 1, [2, 3]),
     swap_bridged_usdc                   : (swap_bridged_usdc, 2, 'Swap USDC to Bridged', 0, [0]),
     wrap_eth                            : (wrap_eth, 2, 'Wrap ETH', 0, []),

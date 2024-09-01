@@ -516,6 +516,13 @@ NOGEM_FILLER_DATA = [
                              Сумма в процентах   - ("10", "20") ⚠️ Значения в кавычках.
     
 """
+FULL_CUSTOM_SWAP_UNISWAP = {
+    "token1": '0x123',
+    "token2": '0x123',
+    "amount": ("100", "100"),
+    "poolFee": 0.1  # % комиссии пула на сайте
+}
+
 CUSTOM_SWAP_DATA = ('ETH', 'USDC', (0.0007, 0.0008), 43)
 
 ZKSTARS_NFT_CONTRACTS = (1, 2, 3, 4)  # при 0 заминтит все NFT в случайном порядке

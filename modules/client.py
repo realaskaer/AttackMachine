@@ -86,6 +86,41 @@ class Client(Logger):
         except:
             return error
 
+    async def change_proxy(self, without_logs: bool = False):
+        from config import PROXIES
+        if not without_logs:
+            self.logger_msg(
+                self.account_name,
+                None, msg=f'Trying to replace old proxy: {self.proxy_init}', type_msg='warning'
+            )
+
+        if len(PROXIES) != 0:
+            new_proxy = random.choice(PROXIES)
+
+            await self.session.close()
+            self.proxy_init = new_proxy
+            self.session = ClientSession(
+                connector=ProxyConnector.from_url(f"http://{new_proxy}", verify_ssl=False)
+                if new_proxy else TCPConnector(verify_ssl=False)
+            )
+            self.request_kwargs = {
+                "proxy": f"http://{new_proxy}", "verify_ssl": False
+            } if new_proxy else {"verify_ssl": False}
+
+            self.w3 = AsyncWeb3(AsyncHTTPProvider(self.rpc, request_kwargs=self.request_kwargs))
+
+            if not without_logs:
+                self.logger_msg(
+                    self.account_name, None,
+                    msg=f'Proxy successfully replaced. New Proxy: {new_proxy}', type_msg='success'
+                )
+        else:
+            if not without_logs:
+                self.logger_msg(
+                    self.account_name, None,
+                    msg=f'This network has only 1 Proxy, no replacement is possible', type_msg='warning'
+                )
+
     async def change_rpc(self):
         self.logger_msg(
             self.account_name, None, msg=f'Trying to replace RPC', type_msg='warning')

@@ -32,7 +32,7 @@ from settings import (
     BUNGEE_AMOUNT_LIMITER, LAYERSWAP_AMOUNT_LIMITER, NITRO_AMOUNT_LIMITER, ORBITER_AMOUNT_LIMITER, OWLTO_AMOUNT_LIMITER,
     RELAY_AMOUNT_LIMITER, RHINO_AMOUNT_LIMITER, BRIDGE_SWITCH_CONTROL, SRC_CHAIN_NOGEM, DST_CHAIN_NOGEM_REFUEL,
     DST_CHAIN_NOGEM_NFT, NOGEM_ATTACK_REFUEL, NOGEM_ATTACK_NFT, NATIVE_CHAIN_ID_FROM, NATIVE_TOKEN_NAME,
-    NATIVE_AMOUNT_LIMITER
+    NATIVE_AMOUNT_LIMITER, FULL_CUSTOM_SWAP_UNISWAP
 )
 
 
@@ -1022,6 +1022,36 @@ class Custom(Logger, RequestClient):
                 msg = f"Software cannot continue, awaiting operator's action. Will try again in 1 min..."
                 self.logger_msg(self.client.account_name, None, msg=msg, type_msg='warning')
                 await asyncio.sleep(60)
+
+    @helper
+    @gas_checker
+    async def custom_swap_uniswap(self):
+        from functions import Uniswap
+
+        token_address_1, token_address_2, amount_to_swap, pool_fee = list(FULL_CUSTOM_SWAP_UNISWAP.values())
+
+        token1_balance_in_wei, token1_balance, _ = await self.client.get_token_balance(
+            token_name='TOKEN1', token_address=token_address_1
+        )
+        token2_balance_in_wei, token2_balance, _ = await self.client.get_token_balance(
+            token_name='TOKEN2', token_address=token_address_2
+        )
+
+        if token1_balance > token2_balance:
+
+            from_token_name = token_address_1
+            to_token_name = token_address_2
+            amount = token1_balance
+            amount_in_wei = token1_balance_in_wei
+        else:
+            from_token_name = token_address_2
+            to_token_name = token_address_1
+            amount = token2_balance
+            amount_in_wei = token2_balance_in_wei
+
+        swapdata = from_token_name, to_token_name, amount, amount_in_wei
+
+        return await Uniswap(self.client).swap(swapdata=swapdata, pool_fee=int(pool_fee * 10e4))
 
     @helper
     @gas_checker
