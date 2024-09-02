@@ -448,7 +448,11 @@ TOKENS_PER_CHAIN = {
         "WETH"              : "0x4200000000000000000000000000000000000006",
         "USDT"              : "0xf0F161fDA2712DB8b566946122a5af183995e2eD",
         "USDC"              : "0xd988097fb8612cc24eeC14542bC03424c656005f",
-    }
+    },
+    "Gravity": {
+        "G": '0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9',
+        "ETH": '0xf6f832466Cd6C21967E0D954109403f36Bc8ceaA',
+    },
 }
 
 ACROSS_CLAIM_CONTRACTS = {
@@ -2849,6 +2853,7 @@ ORBITER_CHAINS_INFO = {
     45: {'name': 'ZKFair',         'chainId': 42766,        'id': 38},
     49: {'name': 'Blast',          'chainId': 81457,        'id': 40},
     50: {'name': 'Mode',           'chainId': 34443,        'id': 47},
+    51: {'name': 'Gravity',        'chainId': 1625,         'id': 75},
 }
 
 TOKENS_PER_CHAIN2 = {
@@ -2917,6 +2922,9 @@ TOKENS_PER_CHAIN2 = {
     "CoreDAO":{
         "USDC": '0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9',
         "USDT": '0x900101d06A7426441Ae63e9AB3B9b0F63Be145F1',
+    },
+    "Gravity":{
+        "ETH": '0xa4151B2B3e269645181dCcF2D426cE75fcbDeca9',
     }
 }
 
@@ -3675,6 +3683,7 @@ CHAIN_NAME = {
     48: 'Rarible',
     49: 'Blast',
     50: 'Mode',
+    51: 'Gravity',
 }
 
 

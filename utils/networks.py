@@ -634,6 +634,17 @@ RaribleRPC = Network(
     explorer=''
 )
 
+GravityRPC = Network(
+    name='Gravity',
+    rpc=[
+        'https://rpc.gravity.xyz'
+    ],
+    chain_id=1625,
+    eip1559_support=False,
+    token='G',
+    explorer='https://explorer.gravity.xyz/'
+)
+
 # zkSyncLite = Network(
 #     name='zksync_lite',
 #     rpc=[],

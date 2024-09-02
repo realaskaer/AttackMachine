@@ -359,6 +359,7 @@ class SyncSwap(DEX, Logger):
                 paymaster_params=paymaster_params,
                 custom_signature=self.client.w3.to_bytes(signature),
             ).tx712(transaction['gas'])
+
             tx_eip712.maxPriorityFeePerGas = 0
 
             full_tx = f'0x{tx_eip712.encode().hex()}'

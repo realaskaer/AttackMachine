@@ -18,7 +18,7 @@ class Orbiter(Bridge, Logger):
     def get_maker_data(from_id:int, to_id:int, token_name: str):
 
         paths = ['orbiter_maker1.json', 'orbiter_maker2.json', 'orbiter_maker3.json',
-                 'orbiter_maker4.json', 'orbiter_maker5.json']
+                 'orbiter_maker4.json', 'orbiter_maker5.json', 'orbiter_maker6.json', 'orbiter_maker7.json']
         for path in paths:
             try:
                 with open(f'./data/services/{path}') as file:
@@ -76,10 +76,13 @@ class Orbiter(Bridge, Logger):
             if int(f"{full_amount}"[-4:]) != destination_code:
                 raise SoftwareExceptionWithoutRetry('Math problem in Python. Machine will save your money =)')
 
-            old_balance_on_dst = await self.client.wait_for_receiving(
-                token_address=to_token_address, token_name=to_token_name, chain_id=to_chain_id,
-                check_balance_on_dst=True
-            )
+            if WAIT_FOR_RECEIPT_BRIDGE:
+                old_balance_on_dst = await self.client.wait_for_receiving(
+                    token_address=to_token_address, token_name=to_token_name, chain_id=to_chain_id,
+                    check_balance_on_dst=True
+                )
+            else:
+                old_balance_on_dst = 0
 
             await self.client.send_transaction(transaction)
 

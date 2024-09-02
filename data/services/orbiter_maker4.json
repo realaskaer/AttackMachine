@@ -1,8 +1,8 @@
 {
     "1-19": {
         "USDC-USDC": {
-            "gasFee": 0.7,
-            "tradingFee": 2.3,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -13,8 +13,8 @@
     },
     "19-1": {
         "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 30,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -25,8 +25,8 @@
     },
     "2-19": {
         "USDC-USDC": {
-            "gasFee": 0.7,
-            "tradingFee": 2.3,
+            "gasFee": 0,
+            "tradingFee": 1,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -37,32 +37,8 @@
     },
     "19-2": {
         "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 2,
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 20000,
-            "minPrice": 0.1,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "16-19": {
-        "USDC-USDC": {
-            "gasFee": 2,
-            "tradingFee": 2.3,
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 20000,
-            "minPrice": 0.1,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "19-16": {
-        "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 2,
+            "gasFee": 0,
+            "tradingFee": 1,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -73,8 +49,8 @@
     },
     "7-19": {
         "USDC-USDC": {
-            "gasFee": 0.7,
-            "tradingFee": 2.3,
+            "gasFee": 0,
+            "tradingFee": 1,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -85,8 +61,8 @@
     },
     "19-7": {
         "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 2,
+            "gasFee": 0,
+            "tradingFee": 1,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -97,8 +73,8 @@
     },
     "4-19": {
         "USDC-USDC": {
-            "gasFee": 2,
-            "tradingFee": 2.3,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -109,8 +85,8 @@
     },
     "19-4": {
         "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 2,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
             "maxPrice": 20000,
@@ -121,8 +97,8 @@
     },
     "3-19": {
         "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 2.3,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -133,8 +109,8 @@
     },
     "19-3": {
         "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 2,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -145,8 +121,8 @@
     },
     "14-19": {
         "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 2.3,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -157,8 +133,8 @@
     },
     "19-14": {
         "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 2,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -169,8 +145,8 @@
     },
     "21-19": {
         "USDC-USDC": {
-            "gasFee": 2,
-            "tradingFee": 2.3,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -181,8 +157,8 @@
     },
     "19-21": {
         "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 2,
+            "gasFee": 0,
+            "tradingFee": 1,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -193,8 +169,8 @@
     },
     "23-19": {
         "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 2.3,
+            "gasFee": 0,
+            "tradingFee": 1,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -205,8 +181,8 @@
     },
     "19-23": {
         "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 2,
+            "gasFee": 0,
+            "tradingFee": 1,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -217,8 +193,8 @@
     },
     "6-19": {
         "USDC-USDC": {
-            "gasFee": 0.7,
-            "tradingFee": 2.3,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -229,8 +205,8 @@
     },
     "19-6": {
         "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 2,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -241,8 +217,8 @@
     },
     "17-19": {
         "USDC-USDC": {
-            "gasFee": 2,
-            "tradingFee": 2.3,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -253,8 +229,8 @@
     },
     "19-17": {
         "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 2.3,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -265,8 +241,8 @@
     },
     "15-19": {
         "USDC-USDC": {
-            "gasFee": 0.7,
-            "tradingFee": 2.3,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -277,8 +253,8 @@
     },
     "19-15": {
         "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 2,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -349,7 +325,7 @@
     },
     "4-21": {
         "USDC-USDC": {
-            "gasFee": 2,
+            "gasFee": 7,
             "tradingFee": 2,
             "makerAddress": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
@@ -361,8 +337,8 @@
     },
     "21-2": {
         "USDC-USDC": {
-            "gasFee": 1.5,
-            "tradingFee": 2,
+            "gasFee": 0.3,
+            "tradingFee": 0.8,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -373,8 +349,8 @@
     },
     "2-21": {
         "USDC-USDC": {
-            "gasFee": 0.5,
-            "tradingFee": 2,
+            "gasFee": 0.3,
+            "tradingFee": 0.8,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -398,30 +374,6 @@
     "3-21": {
         "USDC-USDC": {
             "gasFee": 1,
-            "tradingFee": 2,
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 20000,
-            "minPrice": 0.1,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "21-16": {
-        "USDC-USDC": {
-            "gasFee": 1.5,
-            "tradingFee": 2,
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 20000,
-            "minPrice": 0.1,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "16-21": {
-        "USDC-USDC": {
-            "gasFee": 2,
             "tradingFee": 2,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
@@ -505,8 +457,8 @@
     },
     "21-7": {
         "USDC-USDC": {
-            "gasFee": 1.5,
-            "tradingFee": 2,
+            "gasFee": 0.3,
+            "tradingFee": 0.8,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -517,8 +469,8 @@
     },
     "7-21": {
         "USDC-USDC": {
-            "gasFee": 0.5,
-            "tradingFee": 2,
+            "gasFee": 0.3,
+            "tradingFee": 0.8,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -529,8 +481,8 @@
     },
     "23-21": {
         "USDC-USDC": {
-            "gasFee": 1,
-            "tradingFee": 2,
+            "gasFee": 0.3,
+            "tradingFee": 0.8,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -541,8 +493,8 @@
     },
     "21-23": {
         "USDC-USDC": {
-            "gasFee": 1.5,
-            "tradingFee": 2,
+            "gasFee": 0.3,
+            "tradingFee": 0.8,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -618,7 +570,7 @@
             "maxPrice": 20000,
             "minPrice": 0.1,
             "tradingFee": 2,
-            "gasFee": 1,
+            "gasFee": 6,
             "startTime": 0,
             "endTime": 99999999999999
         }
@@ -629,7 +581,7 @@
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
             "minPrice": 0.1,
-            "tradingFee": 2,
+            "tradingFee": 5,
             "gasFee": 1,
             "startTime": 0,
             "endTime": 99999999999999
@@ -641,8 +593,8 @@
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
             "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 0.5,
+            "tradingFee": 0.8,
+            "gasFee": 0.3,
             "startTime": 0,
             "endTime": 99999999999999
         }
@@ -667,30 +619,6 @@
             "minPrice": 0.1,
             "tradingFee": 2,
             "gasFee": 0.5,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "23-16": {
-        "USDC-USDC": {
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 20000,
-            "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 1,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "16-23": {
-        "USDC-USDC": {
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 20000,
-            "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 1,
             "startTime": 0,
             "endTime": 99999999999999
         }
@@ -773,8 +701,8 @@
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
             "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 1,
+            "tradingFee": 0.8,
+            "gasFee": 0.3,
             "startTime": 0,
             "endTime": 99999999999999
         }
@@ -785,152 +713,8 @@
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
             "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 0.5,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "16-1": {
-        "USDC-USDC": {
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 3000,
-            "minPrice": 0.1,
-            "tradingFee": 30,
-            "gasFee": 2,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "1-16": {
-        "USDC-USDC": {
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 10000,
-            "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 0.5,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "16-2": {
-        "USDC-USDC": {
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 3000,
-            "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 2,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "2-16": {
-        "USDC-USDC": {
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 5000,
-            "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 0.5,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "16-3": {
-        "USDC-USDC": {
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 3000,
-            "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 2,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "3-16": {
-        "USDC-USDC": {
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 10000,
-            "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 0.5,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "16-6": {
-        "USDC-USDC": {
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 3000,
-            "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 2,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "6-16": {
-        "USDC-USDC": {
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 10000,
-            "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 0.5,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "16-7": {
-        "USDC-USDC": {
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 3000,
-            "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 2,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "7-16": {
-        "USDC-USDC": {
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 5000,
-            "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 0.5,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "16-15": {
-        "USDC-USDC": {
-            "gasFee": 2,
-            "tradingFee": 2,
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 20000,
-            "minPrice": 0.1,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "15-16": {
-        "USDC-USDC": {
-            "gasFee": 0.5,
-            "tradingFee": 2,
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 20000,
-            "minPrice": 0.1,
+            "tradingFee": 0.8,
+            "gasFee": 0.3,
             "startTime": 0,
             "endTime": 99999999999999
         }
@@ -941,7 +725,7 @@
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 10000,
             "minPrice": 0.1,
-            "tradingFee": 2,
+            "tradingFee": 5,
             "gasFee": 0.5,
             "startTime": 1651842601,
             "endTime": 99999999999999
@@ -990,7 +774,7 @@
             "maxPrice": 10000,
             "minPrice": 0.1,
             "tradingFee": 30,
-            "gasFee": 1,
+            "gasFee": 6,
             "startTime": 1636019587,
             "endTime": 99999999999999
         }
@@ -1097,7 +881,7 @@
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 10000,
             "minPrice": 0.1,
-            "tradingFee": 2,
+            "tradingFee": 5,
             "gasFee": 0.5,
             "startTime": 1651842601,
             "endTime": 99999999999999
@@ -1109,8 +893,8 @@
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 10000,
             "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 1,
+            "tradingFee": 5,
+            "gasFee": 6,
             "startTime": 1636019587,
             "endTime": 99999999999999
         }
@@ -1145,7 +929,7 @@
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 10000,
             "minPrice": 0.1,
-            "tradingFee": 2,
+            "tradingFee": 5,
             "gasFee": 0.5,
             "startTime": 1636019587,
             "endTime": 99999999999999
@@ -1157,8 +941,8 @@
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 10000,
             "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 0.5,
+            "tradingFee": 0.8,
+            "gasFee": 0.3,
             "startTime": 1636019587,
             "endTime": 99999999999999
         }
@@ -1169,8 +953,8 @@
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 10000,
             "minPrice": 0.1,
-            "tradingFee": 2,
-            "gasFee": 0.5,
+            "tradingFee": 0.8,
+            "gasFee": 0.3,
             "startTime": 1636019587,
             "endTime": 99999999999999
         }
@@ -1178,7 +962,7 @@
     "15-2": {
         "USDC-USDC": {
             "gasFee": 0.5,
-            "tradingFee": 2,
+            "tradingFee": 5,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 20000,
@@ -1254,7 +1038,7 @@
             "maxPrice": 10000,
             "minPrice": 0.1,
             "tradingFee": 2,
-            "gasFee": 1,
+            "gasFee": 6,
             "startTime": 1636019587,
             "endTime": 99999999999999
         }
@@ -1326,7 +1110,7 @@
             "maxPrice": 10000,
             "minPrice": 0.1,
             "tradingFee": 2,
-            "gasFee": 1,
+            "gasFee": 6,
             "startTime": 1636019587,
             "endTime": 99999999999999
         }
@@ -1338,7 +1122,7 @@
             "maxPrice": 10000,
             "minPrice": 0.1,
             "tradingFee": 2,
-            "gasFee": 1,
+            "gasFee": 6,
             "startTime": 1636019587,
             "endTime": 99999999999999
         }
@@ -1381,7 +1165,7 @@
     },
     "4-15": {
         "USDC-USDC": {
-            "gasFee": 2,
+            "gasFee": 7,
             "tradingFee": 2,
             "makerAddress": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
@@ -1457,7 +1241,7 @@
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 10000,
             "minPrice": 0.1,
-            "tradingFee": 2,
+            "tradingFee": 5,
             "gasFee": 1,
             "startTime": 1636019587,
             "endTime": 99999999999999
@@ -1518,7 +1302,7 @@
             "maxPrice": 10000,
             "minPrice": 0.1,
             "tradingFee": 2,
-            "gasFee": 2,
+            "gasFee": 7,
             "startTime": 1636019587,
             "endTime": 99999999999999
         }
@@ -1613,7 +1397,7 @@
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 10000,
             "minPrice": 0.1,
-            "tradingFee": 2,
+            "tradingFee": 5,
             "gasFee": 0.5,
             "startTime": 1636019587,
             "endTime": 99999999999999
@@ -1674,7 +1458,7 @@
             "maxPrice": 10000,
             "minPrice": 0.1,
             "tradingFee": 2.3,
-            "gasFee": 0.7,
+            "gasFee": 5.7,
             "startTime": 1636019587,
             "endTime": 99999999999999
         }
@@ -1814,7 +1598,7 @@
     "38-2": {
         "USDC-USDC": {
             "gasFee": 1.5,
-            "tradingFee": 2,
+            "tradingFee": 5,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 10000,
@@ -1824,30 +1608,6 @@
         }
     },
     "2-38": {
-        "USDC-USDC": {
-            "gasFee": 1.5,
-            "tradingFee": 2,
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 10000,
-            "minPrice": 0.1,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "38-16": {
-        "USDC-USDC": {
-            "gasFee": 1.5,
-            "tradingFee": 2,
-            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
-            "maxPrice": 10000,
-            "minPrice": 0.1,
-            "startTime": 0,
-            "endTime": 99999999999999
-        }
-    },
-    "16-38": {
         "USDC-USDC": {
             "gasFee": 1.5,
             "tradingFee": 2,
@@ -1945,7 +1705,7 @@
     },
     "4-38": {
         "USDC-USDC": {
-            "gasFee": 1.5,
+            "gasFee": 6.5,
             "tradingFee": 2,
             "makerAddress": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
@@ -2053,8 +1813,8 @@
     },
     "19-38": {
         "USDC-USDC": {
-            "gasFee": 1.5,
-            "tradingFee": 2,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 10000,
@@ -2065,8 +1825,8 @@
     },
     "38-19": {
         "USDC-USDC": {
-            "gasFee": 1.5,
-            "tradingFee": 2.3,
+            "gasFee": 0,
+            "tradingFee": 1.4,
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 10000,
@@ -2094,6 +1854,2130 @@
             "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "2-9": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "7-9": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "9-2": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 5,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "9-7": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "14-9": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "9-14": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "9-1": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 30,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "1-9": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "9-3": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "3-9": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "9-4": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "4-9": {
+        "USDC-USDC": {
+            "gasFee": 6,
+            "tradingFee": 2,
+            "makerAddress": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "9-23": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "23-9": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "9-17": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "17-9": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "9-21": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "21-9": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "9-19": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "19-9": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "9-38": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "38-9": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "9-15": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "15-9": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "9-6": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "6-9": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-1": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 23,
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "1-51": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-2": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 5,
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "2-51": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-7": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2,
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "7-51": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-3": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2.5,
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-14": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2.5,
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "14-51": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2.5,
+            "makerAddress": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-4": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2.5,
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "4-51": {
+        "USDC-USDC": {
+            "gasFee": 6,
+            "tradingFee": 2.5,
+            "makerAddress": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-23": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2,
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "23-51": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-17": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2.5,
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "17-51": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2.5,
+            "makerAddress": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-21": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2,
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "21-51": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-19": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "19-51": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "makerAddress": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-38": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2.5,
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "38-51": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2.5,
+            "makerAddress": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-15": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2,
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "15-51": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-6": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2,
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "6-51": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2,
+            "makerAddress": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-9": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 2.5,
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "9-51": {
+        "USDC-USDC": {
+            "gasFee": 1,
+            "tradingFee": 2.5,
+            "makerAddress": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "maxPrice": 20000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "1-56": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "gasFee": 1,
+            "tradingFee": 1.8,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-1": {
+        "USDC-USDC": {
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 1,
+            "tradingFee": 23,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "2-56": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "gasFee": 1,
+            "tradingFee": 1.8,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-2": {
+        "USDC-USDC": {
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 1,
+            "tradingFee": 5,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "7-56": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "gasFee": 1,
+            "tradingFee": 1.8,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-7": {
+        "USDC-USDC": {
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-3": {
+        "USDC-USDC": {
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "14-56": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "gasFee": 1,
+            "tradingFee": 1.8,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-14": {
+        "USDC-USDC": {
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "4-56": {
+        "USDC-USDC": {
+            "makerAddress": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
+            "sender": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-4": {
+        "USDC-USDC": {
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "23-56": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-23": {
+        "USDC-USDC": {
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "17-56": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-17": {
+        "USDC-USDC": {
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "21-56": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "gasFee": 1,
+            "tradingFee": 1.8,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-21": {
+        "USDC-USDC": {
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "19-56": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-19": {
+        "USDC-USDC": {
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "38-56": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-38": {
+        "USDC-USDC": {
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "15-56": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "gasFee": 0,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-15": {
+        "USDC-USDC": {
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "6-56": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "gasFee": 1,
+            "tradingFee": 1.8,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-6": {
+        "USDC-USDC": {
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-56": {
+        "USDC-USDC": {
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-51": {
+        "USDC-USDC": {
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "gasFee": 1,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "1-66": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "2-66": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "7-66": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "3-66": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "14-66": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "23-66": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "21-66": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "19-66": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "4-66": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "15-66": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "6-66": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 2,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "1-20": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-1": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 18,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "2-20": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-2": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 4,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "3-20": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-3": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "4-20": {
+        "USDC-USDC": {
+            "makerAddress": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-4": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
+            "gasFee": 2,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "6-20": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-6": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "7-20": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-7": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "14-20": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-14": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "17-20": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-17": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "23-20": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-23": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "21-20": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-21": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "19-20": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-19": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "40-20": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 18,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-40": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 0.7,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "15-20": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-15": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "9-20": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 1,
+            "tradingFee": 1.4,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-9": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1,
+            "maxPrice": 10000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "1-57": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.2,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "57-1": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1.5,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "2-57": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.2,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "57-2": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1.5,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "7-57": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.2,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "57-7": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1.5,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "23-57": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.2,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "57-23": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1.5,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-57": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.2,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "57-20": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1.5,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "19-57": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "57-19": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "21-57": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.2,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "57-21": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1.5,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "14-57": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.2,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "57-14": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1.5,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "3-57": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.2,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "57-3": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1.5,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "4-57": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.2,
+            "makerAddress": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "57-4": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
+            "gasFee": 2,
+            "tradingFee": 1.5,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "6-57": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.2,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "57-6": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1.5,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "15-57": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 0,
+            "tradingFee": 1.2,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "57-15": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 2,
+            "tradingFee": 1.5,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-57": {
+        "USDC-USDC": {
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "gasFee": 0,
+            "tradingFee": 1.2,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "57-51": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3d33156ae7c62c094aae2995003ae63f587b3",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "gasFee": 2,
+            "tradingFee": 1.5,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "57-56": {
+        "USDC-USDC": {
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "gasFee": 2,
+            "tradingFee": 1.5,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-57": {
+        "USDC-USDC": {
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "gasFee": 1,
+            "tradingFee": 1.5,
+            "maxPrice": 5000,
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "1-73": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "73-1": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "2-73": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "73-2": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "7-73": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "73-7": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "23-73": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "73-23": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "20-73": {
+        "USDC-USDC": {
+            "gasFee": 2,
+            "tradingFee": 1.1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "73-20": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "19-73": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "73-19": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.4,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "21-73": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "73-21": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "14-73": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "73-14": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "3-73": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "73-3": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "4-73": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.1,
+            "maxPrice": 5000,
+            "makerAddress": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "73-4": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x0411c2a2a4dc7b4d3a33424af3ede7e2e3b66691e22632803e37e2e0de450940",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "57-73": {
+        "USDC-USDC": {
+            "gasFee": 2,
+            "tradingFee": 1.1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "73-57": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "6-73": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "73-6": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "51-73": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.1,
+            "maxPrice": 5000,
+            "makerAddress": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "73-51": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "DowTWse9Sjzj1kN1V6zevfGtQ6wWpigug7TPCdTr6UNP",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "56-73": {
+        "USDC-USDC": {
+            "gasFee": 2,
+            "tradingFee": 1.1,
+            "maxPrice": 5000,
+            "makerAddress": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "73-56": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "UQBN1z9drcrBbuKgJMYBQdV4c58XymfTooTZ3aZJzdc2IHHN",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "15-73": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1.1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "minPrice": 0.1,
+            "startTime": 0,
+            "endTime": 99999999999999
+        }
+    },
+    "73-15": {
+        "USDC-USDC": {
+            "gasFee": 0,
+            "tradingFee": 1,
+            "maxPrice": 5000,
+            "makerAddress": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
+            "sender": "0x41d3D33156aE7c62c094AAe2995003aE63f587B3",
             "minPrice": 0.1,
             "startTime": 0,
             "endTime": 99999999999999

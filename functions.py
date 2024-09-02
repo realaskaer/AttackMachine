@@ -80,6 +80,7 @@ def get_network_by_chain_id(chain_id):
         48: RaribleRPC,
         49: BlastRPC,
         50: ModeRPC,
+        51: GravityRPC,
     }[chain_id]
 
 
