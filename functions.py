@@ -81,6 +81,7 @@ def get_network_by_chain_id(chain_id):
         49: BlastRPC,
         50: ModeRPC,
         51: GravityRPC,
+        52: TaikoRPC,
     }[chain_id]
 
 

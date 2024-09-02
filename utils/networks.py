@@ -645,6 +645,17 @@ GravityRPC = Network(
     explorer='https://explorer.gravity.xyz/'
 )
 
+TaikoRPC = Network(
+    name='Taiko',
+    rpc=[
+        'https://rpc.taiko.xyz'
+    ],
+    chain_id=167000,
+    eip1559_support=False,
+    token='ETH',
+    explorer='https://taikoscan.io/'
+)
+
 # zkSyncLite = Network(
 #     name='zksync_lite',
 #     rpc=[],
