@@ -30,7 +30,7 @@ class Bitget(CEX, Logger):
             params_str = ''
         return params_str
 
-    def get_headers(self, method:str, api_path:str, params:dict = None, payload:dict | str = ""):
+    def get_headers(self, method: str, api_path: str, params: dict = None, payload: dict | str = ""):
         try:
             timestamp = f"{int(time.time() * 1000)}"
             if method == 'GET':
@@ -105,7 +105,7 @@ class Bitget(CEX, Logger):
         headers = self.get_headers('GET', path, params=params)
         return await self.make_request(url=url, params=params, headers=headers, module_name='Main account balance')
 
-    async def transfer_from_subaccounts(self, ccy: str = 'ETH', amount: float = None, silent_mode:bool = False):
+    async def transfer_from_subaccounts(self, ccy: str = 'ETH', amount: float = None, silent_mode: bool = False):
 
         if COLLECT_FROM_SUB_CEX:
 
@@ -213,7 +213,8 @@ class Bitget(CEX, Logger):
                     if acc_name not in old_balances:
                         old_balances[acc_name] = 0
                     if acc_balance > old_balances[acc_name]:
-                        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} complete", type_msg='success')
+                        self.logger_msg(*self.client.acc_info, msg=f"Deposit {amount} {ccy} complete",
+                                        type_msg='success')
                         return True
                     else:
                         continue
@@ -222,7 +223,7 @@ class Bitget(CEX, Logger):
                     await asyncio.sleep(check_time)
         return True
 
-    async def withdraw(self, withdraw_data:tuple = None):
+    async def withdraw(self, withdraw_data: tuple = None):
         path = '/api/v2/spot/wallet/withdrawal'
 
         network_id, amount = withdraw_data
@@ -298,7 +299,7 @@ class Bitget(CEX, Logger):
             except InsufficientBalanceException:
                 continue
 
-    async def deposit(self, deposit_data:tuple = None):
+    async def deposit(self, deposit_data: tuple = None):
         cex_wallet = get_wallet_for_deposit(self)
         info = f"{cex_wallet[:10]}....{cex_wallet[-6:]}"
         deposit_network, amount = deposit_data
