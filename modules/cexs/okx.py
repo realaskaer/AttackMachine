@@ -29,12 +29,10 @@ class OKX(CEX, Logger):
             encoded_signature = base64.b64encode(signature).decode('utf-8')
 
             return {
-                "Content-Type": "application/json",
                 "OK-ACCESS-KEY": self.api_key,
                 "OK-ACCESS-SIGN": encoded_signature,
                 "OK-ACCESS-TIMESTAMP": timestamp,
                 "OK-ACCESS-PASSPHRASE": self.passphras,
-                "x-simulated-trading": "0"
             }
         except Exception as error:
             raise SoftwareExceptionWithoutRetry(f'Bad headers for OKX request: {error}')
