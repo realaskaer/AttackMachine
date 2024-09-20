@@ -606,9 +606,9 @@ class Bebop(DEX, Logger, RequestClient):
 
         wnative_balance_in_wei, wnative_balance, _ = await self.client.get_token_balance(f'W{self.client.token}')
 
-        if isinstance(BEBOP_MULTISWAP_AMOUNT[0], str):
+        if any(isinstance(setting, str) for setting in BEBOP_MULTISWAP_AMOUNT):
             native_balance_in_wei, native_balance, _ = await self.client.get_token_balance(check_native=True)
-            percent = round(random.uniform(*BEBOP_MULTISWAP_AMOUNT), 9) / 100
+            percent = round(random.uniform(float(BEBOP_MULTISWAP_AMOUNT[0]), float(BEBOP_MULTISWAP_AMOUNT[1])), 9) / 100
 
             amount = self.client.custom_round((wnative_balance + native_balance) * percent, 7)
             amount_in_wei = int((wnative_balance_in_wei + native_balance_in_wei) * percent)
