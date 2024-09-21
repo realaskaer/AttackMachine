@@ -10,7 +10,7 @@
     5 - ETH-Linea                15 - CFX-CFX_EVM         25 - USDC-Arbitrum One         35 - STG-Avalanche C-Chain
     6 - ETH-Base                 16 - KLAY-Klaytn         26 - USDC-Avalanche C-Chain    36 - STG-Fantom
     7 - AVAX-Avalanche C-Chain   17 - FTM-Fantom          27 - USDC-Optimism             37 - USDV-BSC
-    8 - BNB-BSC                  18 - MATIC-Polygon       28 - USDC-Polygon              38 - ARB-Arbitrum One
+    8 - BNB-BSC                  18 - POL-Polygon       28 - USDC-Polygon              38 - ARB-Arbitrum One
     9 - BNB-OPBNB                19 - USDT-Arbitrum One   29 - USDC-Optimism (Bridged)   39 - MAV-Base
     10 - CELO-CELO               20 - USDT-Avalanche      30 - USDC-Polygon (Bridged)    40 - MAV-zkSync Era
                                                                                          41 - OP-Optimism
