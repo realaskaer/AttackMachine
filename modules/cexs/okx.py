@@ -33,6 +33,7 @@ class OKX(CEX, Logger):
                 "OK-ACCESS-SIGN": encoded_signature,
                 "OK-ACCESS-TIMESTAMP": timestamp,
                 "OK-ACCESS-PASSPHRASE": self.passphras,
+                "Content-Type": "application/json"
             }
         except Exception as error:
             raise SoftwareExceptionWithoutRetry(f'Bad headers for OKX request: {error}')
