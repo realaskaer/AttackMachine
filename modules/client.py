@@ -462,7 +462,7 @@ class Client(Logger):
                 max_priority_fee_per_gas = await self.get_priotiry_fee()
                 max_fee_per_gas = int(base_fee + max_priority_fee_per_gas * 1.05 * GAS_PRICE_MULTIPLIER)
 
-                if self.network.name == ['Scroll', 'Optimism']:
+                if self.network.name in ['Scroll', 'Optimism']:
                     max_fee_per_gas = int(max_fee_per_gas / GAS_PRICE_MULTIPLIER * 1.1)
 
                 if max_priority_fee_per_gas > max_fee_per_gas:
@@ -476,7 +476,7 @@ class Client(Logger):
                     tx_params['gasPrice'] = self.w3.to_wei(round(random.uniform(1.4, 1.5), 1), 'gwei')
                 else:
                     gas_price = await self.w3.eth.gas_price
-                    if self.network.name == ['Scroll', 'Optimism']:
+                    if self.network.name in ['Scroll', 'Optimism']:
                         gas_price = int(gas_price / GAS_PRICE_MULTIPLIER * 1.1)
 
                     tx_params['gasPrice'] = int(gas_price * 1.2 * GAS_PRICE_MULTIPLIER)
