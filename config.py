@@ -824,6 +824,10 @@ ORBITER_CONTRACTS = {
 }
 
 UNISWAP_CONTRACTS = {
+    'Ethereum': {
+        "router": "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
+        "quoter": "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
+    },
     'Base': {
         "router": "0x2626664c2603336E57B271c5C0b26F421741e481",
         "quoter": "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a",
@@ -1508,7 +1512,7 @@ MYSWAP_CONTRACT = {
 LAYERBANK_CONTRACTS = {
     'Linea':{
         'landing'               : '0x43Eac5BFEa14531B8DE0B334E123eA98325de866',
-        'pool'                  : '0xc7D8489DaE3D2EbEF075b1dB2257E2c231C9D231'
+        'pool'                  : '0x9E9aec6a296f94C8530e2dD01FF3E9c61555D39a'
     },
     'Scroll':{
         'landing'               : '0xEC53c830f4444a8A56455c6836b5D2aA794289Aa',
