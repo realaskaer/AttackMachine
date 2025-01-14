@@ -656,6 +656,17 @@ TaikoRPC = Network(
     explorer='https://taikoscan.io/'
 )
 
+MintRPC = Network(
+    name='Mint',
+    rpc=[
+        'https://rpc.mintchain.io'
+    ],
+    chain_id=185,
+    eip1559_support=False,
+    token='ETH',
+    explorer='https://explorer.mintchain.io/'
+)
+
 # zkSyncLite = Network(
 #     name='zksync_lite',
 #     rpc=[],

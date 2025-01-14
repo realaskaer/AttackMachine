@@ -3701,6 +3701,7 @@ CHAIN_NAME = {
     50: 'Mode',
     51: 'Gravity',
     52: 'Taiko',
+    53: 'Mint',
 }
 
 
