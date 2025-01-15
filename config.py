@@ -3171,6 +3171,7 @@ CHAIN_NAME_FROM_ID = {
     10: 'Optimism',
     81457: 'Blast',
     534352: 'Scroll',
+    185: 'Mint',
     56: 'BNB Chain',
     'SN_MAIN': 'Starknet',
     1101: 'Polygon zkEVM',
