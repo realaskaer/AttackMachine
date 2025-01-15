@@ -458,6 +458,9 @@ TOKENS_PER_CHAIN = {
     "Taiko": {
         "ETH": '0xf6f832466Cd6C21967E0D954109403f36Bc8ceaA',
     },
+    "Mint": {
+        "ETH": '0xf6f832466Cd6C21967E0D954109403f36Bc8ceaA',
+    },
 }
 
 ACROSS_CLAIM_CONTRACTS = {
